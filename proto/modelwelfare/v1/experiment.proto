@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package modelwelfare.v1;
+
+import "modelwelfare/v1/condition.proto";
+
+/*
+ * The manifest tying a study together: the condition ladder, which batteries
+ * run, and samples_per_item (the N in N-samples-per-item).
+ * reference_condition_id names the rung treated as reference precision —
+ * directions and probes are extracted/trained there and frozen (see
+ * activation.proto); every other rung is measured against it.
+ */
+message Experiment {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  repeated Condition conditions = 4;
+  repeated string battery_ids = 5;
+  uint32 samples_per_item = 6;
+  string reference_condition_id = 7;
+}

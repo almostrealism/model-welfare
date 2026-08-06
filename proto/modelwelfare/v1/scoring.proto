@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package modelwelfare.v1;
+
+import "modelwelfare/v1/common.proto";
+
+message DimensionScore {
+  string dimension = 1;
+  double value = 2;
+  string rationale = 3;
+}
+
+/*
+ * One judge pass over one sample. judge is a full ModelRef — judge identity
+ * is pinned like any model. rubric_id + rubric_digest pin the exact rubric
+ * wording. judge_sample_index supports judging the same transcript multiple
+ * times, measuring judge noise separately from subject noise.
+ * DimensionScore.rationale preserves the judge's stated reasoning for audit.
+ */
+message JudgeScore {
+  ResultKey key = 1;
+  ModelRef judge = 2;
+  string rubric_id = 3;
+  string rubric_digest = 4;
+  repeated DimensionScore scores = 5;
+  uint32 judge_sample_index = 6;
+  Provenance provenance = 7;
+}

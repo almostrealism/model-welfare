@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package modelwelfare.v1;
+
+import "modelwelfare/v1/common.proto";
+
+/*
+ * QuantMethod distinguishes the controlled ladder from the ecosystem arm.
+ * NONE is the full-precision reference rung (still a Condition, so reference
+ * runs join like everything else). RTN/GPTQ/AWQ/HQQ/BITSANDBYTES are
+ * in-framework methods we apply ourselves — the controlled ladder where
+ * quantization method is an experimental variable. MLX covers MLX-native
+ * quantization modes (the path for MiniMax-scale subjects). GGUF_COMMUNITY
+ * marks third-party artifacts used only in the Tier-1 "ecosystem realism"
+ * arm; these confound bit-width with per-layer policy and must never be
+ * treated as points on the controlled ladder.
+ */
+enum QuantMethod {
+  QUANT_METHOD_UNSPECIFIED = 0;
+  QUANT_METHOD_NONE = 1;
+  QUANT_METHOD_RTN = 2;
+  QUANT_METHOD_GPTQ = 3;
+  QUANT_METHOD_AWQ = 4;
+  QUANT_METHOD_HQQ = 5;
+  QUANT_METHOD_BITSANDBYTES = 6;
+  QUANT_METHOD_MLX = 7;
+  QUANT_METHOD_GGUF_COMMUNITY = 8;
+}
+
+enum Backend {
+  BACKEND_UNSPECIFIED = 0;
+  BACKEND_TORCH = 1;
+  BACKEND_MLX = 2;
+  BACKEND_LLAMACPP = 3;
+  BACKEND_REMOTE_ENDPOINT = 4;
+}
+
+/*
+ * activation_bits = 0 means weights-only quantization; group_size = 0 means
+ * not applicable. uniform is false when per-layer policy varies (e.g.
+ * community "Dynamic" GGUFs upcast selected layers to 8-bit), with
+ * policy_note describing the policy. artifact_uri locates the quantized
+ * weights actually used and artifact_digest (SHA-256) identifies them.
+ */
+message QuantizationSpec {
+  QuantMethod method = 1;
+  uint32 weight_bits = 2;
+  uint32 activation_bits = 3;
+  uint32 group_size = 4;
+  bool uniform = 5;
+  string policy_note = 6;
+  string artifact_uri = 7;
+  string artifact_digest = 8;
+}
+
+/*
+ * device is the compute target ("metal", "rocm", "cuda", "cpu"); host is a
+ * logical host name from the top-level README registry; compute_dtype is the
+ * activation compute dtype ("bf16", "f16", "f32"); backend_version pins the
+ * exact library or server version.
+ */
+message RuntimeSpec {
+  Backend backend = 1;
+  string device = 2;
+  string host = 3;
+  string compute_dtype = 4;
+  string backend_version = 5;
+}
+
+/*
+ * Sampling parameters are part of the condition, not incidental
+ * configuration: temperature interacts with quantization effects more
+ * strongly than precision itself (arXiv:2606.29581). seed_honored records
+ * whether the backend actually supports deterministic seeding, so stability
+ * analyses can distinguish sampling noise from model noise.
+ */
+message SamplingSpec {
+  double temperature = 1;
+  double top_p = 2;
+  uint32 max_tokens = 3;
+  uint64 seed = 4;
+  bool seed_honored = 5;
+}
+
+/*
+ * The experimental unit: one rung of the ladder, model × quantization ×
+ * runtime × sampling. id is a stable slug (e.g. "qwen3-8b-gptq-w4-g128-halo")
+ * used in filenames and plots; never rename one after data references it.
+ * The same quantized artifact served on two runtimes is two conditions —
+ * numerics differ between Metal and ROCm, and conflating them would silently
+ * confound.
+ */
+message Condition {
+  string id = 1;
+  ModelRef model = 2;
+  QuantizationSpec quantization = 3;
+  RuntimeSpec runtime = 4;
+  SamplingSpec sampling = 5;
+  string description = 6;
+}

@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "modelwelfare-core"
+version = "0.1.0"
+description = "Backend-agnostic measurement infrastructure: schema bindings, inference contract, drivers, measures"
+requires-python = ">=3.10"
+dependencies = [
+    "protobuf",
+    "numpy",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "grpcio-tools"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

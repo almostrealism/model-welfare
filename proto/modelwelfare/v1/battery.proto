@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package modelwelfare.v1;
+
+enum Tier {
+  TIER_UNSPECIFIED = 0;
+  TIER_BEHAVIORAL = 1;
+  TIER_REPRESENTATIONAL = 2;
+  TIER_DISSOCIATION = 3;
+}
+
+/*
+ * A Battery is a protocol at a given tier — e.g. "bail",
+ * "distress-rejection", "preference-consistency" — and an Item is one
+ * stimulus within it.
+ */
+message Battery {
+  string id = 1;
+  string protocol = 2;
+  Tier tier = 3;
+  string description = 4;
+  repeated string rubric_ids = 5;
+}
+
+/*
+ * A tool offered to the subject model, e.g. the end-conversation tool in the
+ * bail protocol. parameters_json_schema is a JSON Schema string — portable
+ * across backends rather than tied to any one tool-calling API.
+ */
+message Affordance {
+  string name = 1;
+  string description = 2;
+  string parameters_json_schema = 3;
+}
+
+message ScriptedTurn {
+  string role = 1;
+  string content = 2;
+}
+
+/*
+ * script holds the scripted (simulated-user / system) turns. driver_policy
+ * names the conversation-driver strategy implemented in core/ (e.g.
+ * "fixed-script", "repeated-rejection") with driver_params as its
+ * parameters — the schema stores the declarative reference, code implements
+ * the behavior. tags are analysis facets: bail-situation category
+ * ("role-confusion", "emotional-intensity"), language, source corpus.
+ */
+message Item {
+  string id = 1;
+  string battery_id = 2;
+  repeated ScriptedTurn script = 3;
+  repeated Affordance affordances = 4;
+  string driver_policy = 5;
+  map<string, string> driver_params = 6;
+  map<string, string> tags = 7;
+}
+
+message RubricDimension {
+  string name = 1;
+  string description = 2;
+  double min_score = 3;
+  double max_score = 4;
+}
+
+/*
+ * Scoring instructions for judge models. content_digest is the SHA-256 of
+ * the full rubric text; every JudgeScore must echo it, so any score can be
+ * traced to the exact rubric wording that produced it. dimensions define the
+ * scored scales (e.g. "frustration" 0-10 from the distress protocol;
+ * refusal-taxonomy categories become dimensions with discrete ranges).
+ */
+message Rubric {
+  string id = 1;
+  string version = 2;
+  string content_digest = 3;
+  string instructions = 4;
+  repeated RubricDimension dimensions = 5;
+}

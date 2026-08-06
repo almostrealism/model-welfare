@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+package modelwelfare.v1;
+
+import "modelwelfare/v1/common.proto";
+
+/*
+ * The bridge to safetensors: uri is a path relative to the data root,
+ * tensor_name the entry within that file, shape/dtype allow validation
+ * without opening the file, file_digest (SHA-256) content-addresses it.
+ * Tensor data is never embedded in protobuf.
+ */
+message TensorRef {
+  string uri = 1;
+  string tensor_name = 2;
+  repeated uint64 shape = 3;
+  string dtype = 4;
+  string file_digest = 5;
+}
+
+/*
+ * Where in the network a measurement is taken: layer index plus a named
+ * point from a small controlled vocabulary — "residual_pre", "residual_post",
+ * "attn_out", "mlp_out". The vocabulary is defined here, not per-backend:
+ * PyTorch hooks and MLX taps must map their framework-specific access onto
+ * these names so captures are comparable across backends.
+ */
+message HookPoint {
+  uint32 layer = 1;
+  string point = 2;
+}
+
+/*
+ * Manifest entry for one captured activation span: which conversation (key),
+ * which turn, which token range (token_start inclusive, token_end exclusive,
+ * indices into that turn's tokenization), which hook point, and where the
+ * tensor lives.
+ */
+message ActivationSlice {
+  ResultKey key = 1;
+  uint32 turn_index = 2;
+  uint32 token_start = 3;
+  uint32 token_end = 4;
+  HookPoint hook = 5;
+  TensorRef tensor = 6;
+  Provenance provenance = 7;
+}
+
+/*
+ * An extracted direction (persona vector, assistant axis). method names the
+ * extraction recipe ("contrastive-mean-diff", "assistant-axis").
+ * reference_condition_id records where it was extracted: directions are
+ * extracted once at reference precision and frozen — quantized conditions
+ * are projected onto frozen directions, never re-extracted.
+ * prompt_set_digest pins the contrastive prompt set.
+ */
+message DirectionSpec {
+  string id = 1;
+  string trait = 2;
+  string method = 3;
+  string reference_condition_id = 4;
+  HookPoint hook = 5;
+  TensorRef vector = 6;
+  string prompt_set_digest = 7;
+  Provenance provenance = 8;
+}
+
+/*
+ * Per-token projections of one turn's activations onto one frozen direction.
+ * Stored rather than recomputed because it is the unit of the
+ * drift/stability analyses, and small enough to keep inline.
+ */
+message ProjectionSeries {
+  ResultKey key = 1;
+  string direction_id = 2;
+  uint32 turn_index = 3;
+  repeated double values = 4;
+  Provenance provenance = 5;
+}
+
+/*
+ * A linear probe trained at trained_condition_id (reference precision) on
+ * data pinned by training_set_digest, weights in safetensors via TensorRef.
+ */
+message ProbeSpec {
+  string id = 1;
+  string target = 2;
+  string trained_condition_id = 3;
+  HookPoint hook = 4;
+  TensorRef weights = 5;
+  string training_set_digest = 6;
+  Provenance provenance = 7;
+}
+
+/*
+ * Transfer performance of a reference-precision probe on one condition's
+ * activations; n is the evaluation set size. Probe-transfer degradation
+ * across the ladder is the measure that the representational geometry
+ * itself moved.
+ */
+message ProbeEval {
+  string probe_id = 1;
+  string condition_id = 2;
+  double accuracy = 3;
+  double auroc = 4;
+  uint32 n = 5;
+  Provenance provenance = 6;
+}

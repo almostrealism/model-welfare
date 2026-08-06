@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package modelwelfare.v1;
+
+import "google/protobuf/timestamp.proto";
+
+/*
+ * ResultKey is the universal join key. Every observation produced by any tier
+ * of measurement — a sampled conversation, a judge score, an activation slice,
+ * a probe evaluation — carries one, so behavioral, representational, and
+ * dissociation analyses always join exactly on the same unit of observation.
+ *
+ * sample_index identifies which of the N samples drawn for this
+ * (condition, item), 0-based. Multi-sample stability is a headline metric;
+ * a single greedy run is never a sufficient observation.
+ */
+message ResultKey {
+  string experiment_id = 1;
+  string condition_id = 2;
+  string item_id = 3;
+  uint32 sample_index = 4;
+}
+
+/*
+ * A pinned, content-addressed model identity, used for subject models and
+ * judge models alike. Identity is the weights_digest (SHA-256 over the loaded
+ * weight artifacts); family/name/source/revision merely describe and locate
+ * it. family is a slug like "qwen3", "smollm3", "minimax-m2"; source is e.g.
+ * a Hugging Face repo id and revision its commit pin.
+ */
+message ModelRef {
+  string family = 1;
+  string name = 2;
+  string source = 3;
+  string revision = 4;
+  string weights_digest = 5;
+}
+
+/*
+ * Attached to every machine-produced record so cross-machine runs remain
+ * auditable. code_version is this repository's git commit; host is a logical
+ * host name from the registry in the top-level README ("studio-m1u", "halo",
+ * "mbp-m4max", "mini-1", "rented-*").
+ */
+message Provenance {
+  string code_version = 1;
+  string host = 2;
+  google.protobuf.Timestamp created_at = 3;
+}

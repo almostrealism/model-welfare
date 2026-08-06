@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package modelwelfare.v1;
+
+import "modelwelfare/v1/common.proto";
+import "modelwelfare/v1/condition.proto";
+
+/*
+ * arguments_json / result_json are JSON strings rather than nested messages:
+ * tool payloads are backend-shaped and open-ended, and JSON-in-string keeps
+ * the schema stable across backends.
+ */
+message ToolCall {
+  string name = 1;
+  string arguments_json = 2;
+  string result_json = 3;
+}
+
+/*
+ * scripted distinguishes item-script turns from generated turns. turn_index
+ * matches ActivationSlice.turn_index so Tier-1 and Tier-2 views of one
+ * conversation align token-for-token.
+ */
+message Message {
+  string role = 1;
+  string content = 2;
+  repeated ToolCall tool_calls = 3;
+  uint32 turn_index = 4;
+  bool scripted = 5;
+}
+
+/*
+ * A driver-observed structured event, recorded mechanically at run time with
+ * no judge involvement — e.g. "bail_tool_invoked" at turn 7,
+ * "task_completed", "max_turns_reached". Item-level transition analysis
+ * reads these, not judge scores.
+ */
+message OutcomeEvent {
+  string name = 1;
+  uint32 turn_index = 2;
+  string detail = 3;
+}
+
+message TokenUsage {
+  uint32 prompt_tokens = 1;
+  uint32 completion_tokens = 2;
+}
+
+/*
+ * One sampled conversation — the atomic Tier-1 observation. sampling_actual
+ * is the resolved sampling state (the seed actually used, whether it was
+ * honored) as distinct from the condition's requested spec. usage supports
+ * cost accounting and length-confound checks.
+ */
+message SampleRecord {
+  ResultKey key = 1;
+  repeated Message messages = 2;
+  repeated OutcomeEvent outcomes = 3;
+  SamplingSpec sampling_actual = 4;
+  TokenUsage usage = 5;
+  Provenance provenance = 6;
+}

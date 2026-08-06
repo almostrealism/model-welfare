@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "modelwelfare-backend-llamacpp"
+version = "0.1.0"
+description = "InferenceBackend client for llama.cpp servers (GGUF; Tier 1 only)"
+requires-python = ">=3.10"
+dependencies = [
+    "modelwelfare-core",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
