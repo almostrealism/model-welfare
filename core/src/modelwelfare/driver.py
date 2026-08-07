@@ -34,7 +34,8 @@ is performed yet.
 """
 
 from abc import ABC, abstractmethod
-from typing import Iterator, Optional, Sequence
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Iterator, Optional, Sequence, Tuple
 
 from modelwelfare.inference import InferenceBackend
 from modelwelfare.v1 import battery_pb2, common_pb2, condition_pb2, transcript_pb2
@@ -130,6 +131,48 @@ def run_item(
             backend, item, policy, experiment_id, condition_id,
             sampling, sample_index, provenance, max_messages,
         )
+
+
+def run_samples(
+    backend: InferenceBackend,
+    tasks: Sequence[Tuple[battery_pb2.Item, int]],
+    *,
+    experiment_id: str,
+    condition_id: str,
+    sampling: condition_pb2.SamplingSpec,
+    concurrency: int,
+    provenance: common_pb2.Provenance = None,
+    max_messages: int = 200,
+) -> Iterator[transcript_pb2.SampleRecord]:
+    """Run many (item, sample_index) conversations concurrently against one
+    backend, yielding records as they complete — in completion order, not
+    task order (keys identify each record; store order is irrelevant).
+
+    Conversations are independent, so this parallelizes cleanly across them;
+    turns within a conversation remain sequential. Seeds still derive from
+    the sample index, so results are identical to a serial run wherever the
+    runtime itself is batch-insensitive. The backend must be safe for
+    concurrent generate() calls, which holds for the HTTP client backends
+    and ScriptedBackend.
+    """
+    if concurrency <= 1:
+        for item, sample_index in tasks:
+            yield _run_sample(
+                backend, item, policy_for(item), experiment_id, condition_id,
+                sampling, sample_index, provenance, max_messages,
+            )
+        return
+    with ThreadPoolExecutor(max_workers=concurrency) as pool:
+        futures = [
+            pool.submit(
+                _run_sample,
+                backend, item, policy_for(item), experiment_id, condition_id,
+                sampling, sample_index, provenance, max_messages,
+            )
+            for item, sample_index in tasks
+        ]
+        for future in as_completed(futures):
+            yield future.result()
 
 
 def _derive_sampling(sampling, sample_index):

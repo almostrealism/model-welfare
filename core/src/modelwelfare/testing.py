@@ -7,6 +7,7 @@ and it is fully deterministic: identical requests with identical seeds yield
 identical text and identical synthetic activations.
 """
 
+import threading
 from typing import Sequence
 
 import numpy as np
@@ -38,6 +39,7 @@ class ScriptedBackend(InferenceBackend):
     ):
         self._replies = list(replies)
         self._cursor = 0
+        self._lock = threading.Lock()
         self._hidden_size = hidden_size
         self._runtime = runtime or condition_pb2.RuntimeSpec(
             backend=condition_pb2.BACKEND_UNSPECIFIED,
@@ -65,10 +67,11 @@ class ScriptedBackend(InferenceBackend):
         sampling: condition_pb2.SamplingSpec = None,
         capture: CaptureSpec = None,
     ) -> GenerationResult:
-        if self._cursor >= len(self._replies):
-            raise CapabilityError("script exhausted: no reply for this call")
-        reply = self._replies[self._cursor]
-        self._cursor += 1
+        with self._lock:
+            if self._cursor >= len(self._replies):
+                raise CapabilityError("script exhausted: no reply for this call")
+            reply = self._replies[self._cursor]
+            self._cursor += 1
 
         if isinstance(reply, transcript_pb2.Message):
             message = transcript_pb2.Message()

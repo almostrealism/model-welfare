@@ -14,6 +14,7 @@ are always recomputed from it.
 
 import argparse
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -26,7 +27,7 @@ from google.protobuf import text_format
 
 from modelwelfare import provenance
 from modelwelfare.analysis import dimension_means, event_rate
-from modelwelfare.driver import run_item
+from modelwelfare.driver import run_samples
 from modelwelfare.judging import JudgeError, judge_sample
 from modelwelfare.store import ResultStore
 from modelwelfare.v1 import battery_pb2, common_pb2, condition_pb2, experiment_pb2, scoring_pb2, transcript_pb2
@@ -87,31 +88,47 @@ def existing_scores(store, experiment_id, condition_id):
     return keys
 
 
-def generate(experiment, batteries, conditions, samples, store, producer, stamp):
-    for condition in conditions:
-        url, served = ENDPOINTS[condition.id]
-        backend = VllmServerBackend(url, served, condition.runtime)
-        have = existing_samples(store, experiment.id, condition.id)
-        with store.writer(experiment.id, condition.id, "samples", producer) as writer:
-            for definition in batteries.values():
-                for item in definition.items:
-                    missing = [i for i in range(samples) if (item.id, i) not in have]
-                    if not missing:
-                        print(f"  {condition.id} / {item.id}: complete")
-                        continue
-                    print(f"  {condition.id} / {item.id}: sampling {missing}")
-                    for record in run_item(
-                        backend, item,
-                        experiment_id=experiment.id, condition_id=condition.id,
-                        sampling=condition.sampling, samples=samples,
-                        sample_indexes=missing, provenance=stamp,
-                    ):
-                        writer.write(record)
-                        events = ",".join(o.name for o in record.outcomes)
-                        print(f"    sample {record.key.sample_index}: {events}")
+def generate_condition(experiment, batteries, condition, samples, store, producer, stamp, concurrency):
+    """One condition's generation, run in its own thread: conversations fan
+    out through run_samples; the writer stays on this thread, so each
+    condition file has exactly one writer."""
+    url, served = ENDPOINTS[condition.id]
+    backend = VllmServerBackend(url, served, condition.runtime)
+    have = existing_samples(store, experiment.id, condition.id)
+    tasks = []
+    for definition in batteries.values():
+        for item in definition.items:
+            tasks += [(item, i) for i in range(samples) if (item.id, i) not in have]
+    skipped = sum(len(d.items) for d in batteries.values()) * samples - len(tasks)
+    print(f"  {condition.id}: {len(tasks)} conversations to run, {skipped} already stored")
+    if not tasks:
+        return
+    with store.writer(experiment.id, condition.id, "samples", producer) as writer:
+        for record in run_samples(
+            backend, tasks,
+            experiment_id=experiment.id, condition_id=condition.id,
+            sampling=condition.sampling, concurrency=concurrency, provenance=stamp,
+        ):
+            writer.write(record)
+            events = ",".join(o.name for o in record.outcomes)
+            print(f"  {condition.id} / {record.key.item_id} "
+                  f"s{record.key.sample_index}: {events}")
 
 
-def judge(experiment, batteries, conditions, store, producer, stamp):
+def generate(experiment, batteries, conditions, samples, store, producer, stamp, concurrency):
+    with ThreadPoolExecutor(max_workers=len(conditions)) as pool:
+        futures = [
+            pool.submit(
+                generate_condition, experiment, batteries, condition, samples,
+                store, producer, stamp, concurrency,
+            )
+            for condition in conditions
+        ]
+        for future in as_completed(futures):
+            future.result()
+
+
+def judge(experiment, batteries, conditions, store, producer, stamp, concurrency):
     rubric_by_id = {}
     scored_battery_items = {}
     for definition in batteries.values():
@@ -124,37 +141,48 @@ def judge(experiment, batteries, conditions, store, producer, stamp):
         return
 
     backend = VllmServerBackend(JUDGE_URL, JUDGE_MODEL, JUDGE_RUNTIME)
+
+    def judge_one(record, rubric):
+        for attempt in range(JUDGE_RETRIES):
+            try:
+                return judge_sample(
+                    backend, JUDGE_REF, record, rubric,
+                    sampling=judge_sampling(attempt), provenance=stamp,
+                )
+            except JudgeError as error:
+                print(f"    judge attempt {attempt + 1} failed "
+                      f"({record.key.item_id} s{record.key.sample_index}): {error}")
+        return None
+
     for condition in conditions:
         have = existing_scores(store, experiment.id, condition.id)
-        records = list(
-            store.read(transcript_pb2.SampleRecord, experiment.id, condition.id, "samples")
-        )
+        pending = []
+        for record in store.read(
+            transcript_pb2.SampleRecord, experiment.id, condition.id, "samples"
+        ):
+            for rubric_id in scored_battery_items.get(record.key.item_id, []):
+                if (record.key.item_id, record.key.sample_index, rubric_id) not in have:
+                    pending.append((record, rubric_by_id[rubric_id]))
+        if not pending:
+            print(f"  {condition.id}: all scored")
+            continue
         with store.writer(experiment.id, condition.id, "scores", producer) as writer:
-            for record in records:
-                for rubric_id in scored_battery_items.get(record.key.item_id, []):
-                    if (record.key.item_id, record.key.sample_index, rubric_id) in have:
+            with ThreadPoolExecutor(max_workers=concurrency) as pool:
+                futures = {
+                    pool.submit(judge_one, record, rubric): (record, rubric)
+                    for record, rubric in pending
+                }
+                for future in as_completed(futures):
+                    score = future.result()
+                    record, _ = futures[future]
+                    if score is None:
+                        print(f"  UNSCORED {condition.id} / {record.key.item_id} "
+                              f"s{record.key.sample_index} after {JUDGE_RETRIES} attempts")
                         continue
-                    rubric = rubric_by_id[rubric_id]
-                    for attempt in range(JUDGE_RETRIES):
-                        try:
-                            score = judge_sample(
-                                backend, JUDGE_REF, record, rubric,
-                                sampling=judge_sampling(attempt), provenance=stamp,
-                            )
-                            writer.write(score)
-                            values = ", ".join(f"{s.dimension}={s.value:g}" for s in score.scores)
-                            print(
-                                f"  {condition.id} / {record.key.item_id} "
-                                f"s{record.key.sample_index}: {values}"
-                            )
-                            break
-                        except JudgeError as error:
-                            print(f"    judge attempt {attempt + 1} failed: {error}")
-                    else:
-                        print(
-                            f"  UNSCORED {condition.id} / {record.key.item_id} "
-                            f"s{record.key.sample_index} after {JUDGE_RETRIES} attempts"
-                        )
+                    writer.write(score)
+                    values = ", ".join(f"{s.dimension}={s.value:g}" for s in score.scores)
+                    print(f"  {condition.id} / {record.key.item_id} "
+                          f"s{record.key.sample_index}: {values}")
 
 
 def print_tables(experiment, batteries, conditions, store):
@@ -225,6 +253,8 @@ def main():
                         help="comma-separated battery ids (default: all in manifest)")
     parser.add_argument("--producer", default="local",
                         help="producer name for store files; must be unique per writing process")
+    parser.add_argument("--concurrency", type=int, default=8,
+                        help="concurrent conversations per condition (and concurrent judge calls)")
     parser.add_argument("--skip-judge", action="store_true")
     parser.add_argument("--dry-run", action="store_true",
                         help="print the plan and exit without contacting any server")
@@ -258,10 +288,12 @@ def main():
     stamp = provenance.current(args.producer)
 
     print("\ngenerating...")
-    generate(experiment, batteries, conditions, samples, store, args.producer, stamp)
+    generate(experiment, batteries, conditions, samples, store, args.producer, stamp,
+             args.concurrency)
     if not args.skip_judge:
         print("\njudging...")
-        judge(experiment, batteries, conditions, store, args.producer, stamp)
+        judge(experiment, batteries, conditions, store, args.producer, stamp,
+              args.concurrency)
     print_tables(experiment, batteries, conditions, store)
 
 

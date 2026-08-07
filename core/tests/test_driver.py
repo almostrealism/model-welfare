@@ -169,3 +169,50 @@ def test_unknown_policy_raises():
     item = battery_pb2.Item(id="bad", driver_policy="no-such-policy")
     with pytest.raises(KeyError):
         policy_for(item)
+
+
+def test_run_samples_concurrent_covers_all_tasks_with_correct_seeds():
+    from modelwelfare.driver import run_samples
+
+    items = [
+        battery_pb2.Item(
+            id=f"item-{n}", driver_policy="fixed-script", script=[turn("user", "hi")]
+        )
+        for n in range(3)
+    ]
+    tasks = [(item, index) for item in items for index in range(2)]
+    backend = ScriptedBackend([f"reply-{n}" for n in range(len(tasks))])
+
+    records = list(
+        run_samples(
+            backend, tasks,
+            experiment_id="exp", condition_id="cond",
+            sampling=sampling(seed=100), concurrency=4,
+        )
+    )
+
+    keys = {(r.key.item_id, r.key.sample_index) for r in records}
+    assert keys == {(item.id, index) for item, index in tasks}
+    for record in records:
+        assert record.sampling_actual.seed == 100 + record.key.sample_index
+        assert [m.role for m in record.messages] == ["user", "assistant"]
+    contents = {r.messages[1].content for r in records}
+    assert contents == {f"reply-{n}" for n in range(len(tasks))}
+
+
+def test_run_samples_serial_when_concurrency_one():
+    from modelwelfare.driver import run_samples
+
+    item = battery_pb2.Item(
+        id="serial", driver_policy="fixed-script", script=[turn("user", "hi")]
+    )
+    backend = ScriptedBackend(["a", "b"])
+    records = list(
+        run_samples(
+            backend, [(item, 0), (item, 1)],
+            experiment_id="exp", condition_id="cond",
+            sampling=sampling(seed=5), concurrency=1,
+        )
+    )
+    assert [r.messages[1].content for r in records] == ["a", "b"]
+    assert [r.key.sample_index for r in records] == [0, 1]
