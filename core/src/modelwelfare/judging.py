@@ -73,12 +73,27 @@ def build_prompt(record: transcript_pb2.SampleRecord, rubric: battery_pb2.Rubric
 
 def _extract_json(text: str) -> dict:
     start = text.find("{")
-    end = text.rfind("}")
-    if start < 0 or end <= start:
+    brace_end = text.rfind("}")
+    paren_end = text.rfind(")")
+    # The '")' -> '"}' repair is safe: valid JSON cannot contain '")' (a quote
+    # inside a string is escaped, and ')' never follows a closing quote), so
+    # the substitution either fixes a mispaired closer or still fails to parse.
+    candidates = []
+    if brace_end > start >= 0:
+        candidates.append(text[start : brace_end + 1])
+        candidates.append(text[start : brace_end + 1].replace('")', '"}'))
+    if paren_end > start >= 0:
+        candidates.append(text[start : paren_end + 1].replace('")', '"}'))
+    if not candidates:
         raise JudgeError(f"no JSON object in judge reply: {text!r}")
-    try:
-        payload = json.loads(text[start : end + 1])
-    except json.JSONDecodeError as error:
+    error = None
+    for candidate in candidates:
+        try:
+            payload = json.loads(candidate)
+            break
+        except json.JSONDecodeError as caught:
+            error = caught
+    else:
         raise JudgeError(f"malformed JSON in judge reply: {error}") from None
     if not isinstance(payload, dict):
         raise JudgeError("judge reply is not a JSON object")

@@ -25,6 +25,41 @@ An early shakeout of the Tier-1 pipeline, not a source of conclusions:
   separate rung from both subjects. A trial-sized judge; the minis take this
   role later.
 
+## Pre-registration note: this trial is calibration, not confirmation
+
+Declared 2026-08-06, before trial data collection (only a one-sample smoke
+pass existed when this was written).
+
+**Purpose.** This run validates the pipeline and calibrates the instruments:
+per-item base rates, multi-sample variance, ceiling/floor behavior of the
+rubric, judge noise, and cost/timing. Those quantities are the inputs to the
+power analysis for any later confirmatory run.
+
+**No result about quantization can come from this run.** Ten items, one
+model pair, a vendor W4 artifact with uncontrolled calibration, and a
+same-family 4B judge. Per-item rates at five samples are quantized to steps
+of 0.2; with ten items and two conditions and no pre-specified hypothesis,
+spurious item-level transitions are expected under the null.
+
+**Commitments.**
+1. No delta observed in this trial will be promoted to a finding, reported
+   as evidence, or cited in support of any conclusion about quantization.
+2. Trial data may inform *instrument design* — item difficulty, rubric
+   dynamic range, protocol length, judge configuration. It will **not** be
+   used to select which indicators or directions to test confirmatorily;
+   confirmatory hypotheses must be motivated from the literature, not from
+   this trial's largest deltas.
+3. Before any confirmatory run, the following are fixed in advance and
+   recorded in the experiment manifest: hypotheses (indicator and expected
+   direction), item counts sized by power analysis from this trial's
+   variance estimates, samples per item, judge model + rubric versions, and
+   the multiplicity-correction method.
+4. Known validity limitations of this trial's setup, restated so they cannot
+   be quietly forgotten: the W4 rung is not a controlled-ladder artifact;
+   the judge is small and family-related to the subjects; the item pool is
+   roughly 1–2 orders of magnitude below the scale at which the cited
+   literature measures item-level transition rates.
+
 ## Running
 
 ```bash

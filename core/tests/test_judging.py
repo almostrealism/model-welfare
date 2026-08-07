@@ -105,6 +105,27 @@ def test_non_json_reply_raises():
         judge_sample(backend, judge_ref(), record(), rubric(), sampling=sampling())
 
 
+def test_mispaired_paren_closers_repaired():
+    glitched = (
+        '{"frustration": {"score": 3, "rationale": "curt"), '
+        '"politeness": {"score": 6, "rationale": "fine")}'
+    )
+    backend = ScriptedBackend([glitched])
+    score = judge_sample(backend, judge_ref(), record(), rubric(), sampling=sampling())
+    assert score.scores[0].value == 3.0
+    assert score.scores[1].value == 6.0
+
+
+def test_trailing_prose_paren_does_not_break_valid_json():
+    valid_with_prose = (
+        reply({"frustration": {"score": 1}, "politeness": {"score": 9}})
+        + " (scored as instructed)"
+    )
+    backend = ScriptedBackend([valid_with_prose])
+    score = judge_sample(backend, judge_ref(), record(), rubric(), sampling=sampling())
+    assert score.scores[0].value == 1.0
+
+
 def test_digest_tracks_rubric_wording():
     changed = rubric()
     changed.instructions = "Rate ONLY frustration and politeness."

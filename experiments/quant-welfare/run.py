@@ -47,8 +47,15 @@ JUDGE_REF = common_pb2.ModelRef(
 JUDGE_RUNTIME = condition_pb2.RuntimeSpec(
     backend=condition_pb2.BACKEND_VLLM, device="rocm", host="halo", compute_dtype="bf16"
 )
-JUDGE_SAMPLING = condition_pb2.SamplingSpec(temperature=0.0, max_tokens=400, seed=1)
 JUDGE_RETRIES = 3
+
+
+def judge_sampling(attempt: int) -> condition_pb2.SamplingSpec:
+    """Attempt 0 is deterministic; retries perturb temperature and seed so a
+    deterministic malformed reply cannot simply recur."""
+    if attempt == 0:
+        return condition_pb2.SamplingSpec(temperature=0.0, max_tokens=400, seed=1)
+    return condition_pb2.SamplingSpec(temperature=0.3, max_tokens=400, seed=1 + attempt)
 
 
 def load_experiment() -> experiment_pb2.Experiment:
@@ -132,7 +139,7 @@ def judge(experiment, batteries, conditions, store, producer, stamp):
                         try:
                             score = judge_sample(
                                 backend, JUDGE_REF, record, rubric,
-                                sampling=JUDGE_SAMPLING, provenance=stamp,
+                                sampling=judge_sampling(attempt), provenance=stamp,
                             )
                             writer.write(score)
                             values = ", ".join(f"{s.dimension}={s.value:g}" for s in score.scores)
