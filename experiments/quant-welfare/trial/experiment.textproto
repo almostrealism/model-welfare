@@ -1,0 +1,81 @@
+# proto-file: proto/modelwelfare/v1/experiment.proto
+# proto-message: modelwelfare.v1.Experiment
+
+id: "quant-welfare-trial-1"
+name: "Quantization x welfare indicators: trial run"
+description:
+  "Early trial of the Tier-1 pipeline: bail and distress batteries on "
+  "Qwen3-8B at two precisions served by vLLM on halo. Exists to shake out "
+  "the pipeline and produce the first item-level transition tables, not to "
+  "support conclusions: the W4 rung is a vendor AWQ artifact, not a rung of "
+  "the controlled ladder."
+samples_per_item: 5
+reference_condition_id: "qwen3-8b-bf16"
+battery_ids: "bail-v0"
+battery_ids: "distress-v0"
+
+conditions {
+  id: "qwen3-8b-bf16"
+  model {
+    family: "qwen3"
+    name: "Qwen3-8B"
+    source: "Qwen/Qwen3-8B"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-0.21.0+rocm713"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 1000
+  }
+  description:
+    "BF16 reference. Served name qwen3-8b on halo:8001; hybrid-thinking "
+    "pinned off server-side (enable_thinking false), prefix caching off."
+}
+
+conditions {
+  id: "qwen3-8b-awq-w4"
+  model {
+    family: "qwen3"
+    name: "Qwen3-8B-AWQ"
+    source: "Qwen/Qwen3-8B-AWQ"
+  }
+  quantization {
+    method: QUANT_METHOD_AWQ
+    weight_bits: 4
+    group_size: 128
+    uniform: true
+    policy_note:
+      "Official vendor AWQ release used as a feasibility bootstrap. Its "
+      "calibration choices are baked in and not controlled by us; replace "
+      "with a self-quantized artifact once the quantization harness exists, "
+      "and do not report this rung as part of the controlled ladder."
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-0.21.0+rocm713"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 1000
+  }
+  description:
+    "W4 bootstrap rung. Served name qwen3-8b-awq on halo:8003; same "
+    "server settings as the reference rung."
+}

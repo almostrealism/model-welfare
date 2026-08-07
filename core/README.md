@@ -2,8 +2,12 @@
 
 The library every other subtree builds on. It may depend on the generated
 schema bindings and numpy-level math, and on nothing runtime-specific: no
-torch, no mlx, no HTTP client for a particular server. Runtime code lives
-under `backends/` and plugs in through the contracts defined here.
+torch, no mlx, no code that knows one server's quirks. Runtime code lives
+under `backends/` and plugs in through the contracts defined here. Wire
+protocols are not runtime code: `modelwelfare.openai_chat` implements the
+OpenAI-compatible chat protocol (stdlib transport only), and the llamacpp
+and vllm backend packages are thin wrappers over it declaring their own
+capabilities and server quirks.
 
 ## Setup
 

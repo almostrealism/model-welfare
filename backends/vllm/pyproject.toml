@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "modelwelfare-backend-vllm"
+version = "0.1.0"
+description = "InferenceBackend client for vLLM servers (the controlled quantization ladder)"
+requires-python = ">=3.10"
+dependencies = [
+    "modelwelfare-core",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

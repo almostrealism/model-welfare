@@ -110,13 +110,22 @@ def run_item(
     condition_id: str,
     sampling: condition_pb2.SamplingSpec,
     samples: int,
+    sample_indexes: Sequence[int] = None,
     provenance: common_pb2.Provenance = None,
     max_messages: int = 200,
 ) -> Iterator[transcript_pb2.SampleRecord]:
-    """Draw ``samples`` independent conversations for one item, yielding one
-    SampleRecord per sample as it completes."""
+    """Draw independent conversations for one item, yielding one SampleRecord
+    per sample as it completes.
+
+    ``sample_indexes`` restricts the run to specific indexes (for resuming a
+    partial run without duplicating stored samples); the default runs
+    ``range(samples)``. Seeds derive from the index either way, so a resumed
+    sample is the same sample.
+    """
     policy = policy_for(item)
-    for sample_index in range(samples):
+    if sample_indexes is None:
+        sample_indexes = range(samples)
+    for sample_index in sample_indexes:
         yield _run_sample(
             backend, item, policy, experiment_id, condition_id,
             sampling, sample_index, provenance, max_messages,

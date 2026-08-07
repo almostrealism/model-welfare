@@ -45,8 +45,10 @@ model-welfare/
 │   │                        #   hooks for activation capture (Ryzen "halo", ROCm/CPU)
 │   ├── mlx/                 #   Apple-silicon inference, quantization, array taps
 │   │                        #   (Mac Studio, MacBook Pro)
-│   └── llamacpp/            #   client for llama.cpp GGUF servers — Tier 1 only,
-│                            #   tokens not tensors; no activation capture possible
+│   ├── llamacpp/            #   client for llama.cpp GGUF servers (ecosystem arm) —
+│   │                        #   Tier 1 only, tokens not tensors
+│   └── vllm/                #   client for vLLM servers (controlled-ladder arm,
+│                            #   served from halo) — Tier 1 only over this client
 ├── services/                # long-running roles pinned to machines: judge workers,
 │                            # experiment queue, result store (Mac minis)
 ├── experiments/             # one subtree per study

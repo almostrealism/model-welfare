@@ -77,3 +77,14 @@ message Rubric {
   string instructions = 4;
   repeated RubricDimension dimensions = 5;
 }
+
+/*
+ * The unit of battery authoring: one battery, its items, and the rubrics it
+ * references, in a single hand-written text-format file that can be reviewed
+ * and diffed as a whole.
+ */
+message BatteryDefinition {
+  Battery battery = 1;
+  repeated Item items = 2;
+  repeated Rubric rubrics = 3;
+}

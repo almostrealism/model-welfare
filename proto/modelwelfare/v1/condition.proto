@@ -33,6 +33,7 @@ enum Backend {
   BACKEND_MLX = 2;
   BACKEND_LLAMACPP = 3;
   BACKEND_REMOTE_ENDPOINT = 4;
+  BACKEND_VLLM = 5;
 }
 
 /*
