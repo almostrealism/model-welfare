@@ -64,23 +64,32 @@ def make_backend(condition):
         return VllmServerBackend(entry["url"], entry["model"], condition.runtime)
     return LlamaCppServerBackend(entry["url"], condition.runtime)
 
-JUDGE_URL = "http://amd-halo:8000"
-JUDGE_MODEL = "qwen3-4b-instruct-2507"
+# The distress primary judge selected by the bakeoff (docs/JOURNAL.md
+# 2026-08-07): Qwen3-30B-A3B served as a local llama.cpp rung. It is
+# hybrid-thinking-free (2507 line) and needs no thinking pin.
+JUDGE_URL = "http://127.0.0.1:8095"
 JUDGE_REF = common_pb2.ModelRef(
-    family="qwen3", name="Qwen3-4B-Instruct-2507", source="Qwen/Qwen3-4B-Instruct-2507"
+    family="qwen3", name="Qwen3-30B-A3B-Instruct-2507-Q4",
+    source="bartowski/Qwen_Qwen3-30B-A3B-Instruct-2507-GGUF",
 )
 JUDGE_RUNTIME = condition_pb2.RuntimeSpec(
-    backend=condition_pb2.BACKEND_VLLM, device="rocm", host="halo", compute_dtype="bf16"
+    backend=condition_pb2.BACKEND_LLAMACPP, device="metal", host="studio-m1u",
+    compute_dtype="f16",
 )
 JUDGE_RETRIES = 3
 
 
+def make_judge_backend():
+    return LlamaCppServerBackend(JUDGE_URL, JUDGE_RUNTIME, timeout=600.0)
+
+
 def judge_sampling(attempt: int) -> condition_pb2.SamplingSpec:
     """Attempt 0 is deterministic; retries perturb temperature and seed so a
-    deterministic malformed reply cannot simply recur."""
+    deterministic malformed reply cannot simply recur. Wide token budget so
+    the 30B's replies are never truncated mid-JSON."""
     if attempt == 0:
-        return condition_pb2.SamplingSpec(temperature=0.0, max_tokens=400, seed=1)
-    return condition_pb2.SamplingSpec(temperature=0.3, max_tokens=400, seed=1 + attempt)
+        return condition_pb2.SamplingSpec(temperature=0.0, max_tokens=640, seed=1)
+    return condition_pb2.SamplingSpec(temperature=0.3, max_tokens=640, seed=1 + attempt)
 
 
 def load_experiment(experiment_dir: Path) -> experiment_pb2.Experiment:
@@ -157,30 +166,32 @@ def generate(experiment, batteries, conditions, samples, store, producer, stamp,
             future.result()
 
 
-def judge(experiment, batteries, conditions, store, producer, stamp, concurrency):
-    rubric_by_id = {}
+def judge(experiment, batteries, conditions, store, producer, stamp, concurrency, rubric_by_id):
     scored_battery_items = {}
     for definition in batteries.values():
-        for rubric in definition.rubrics:
-            rubric_by_id[rubric.id] = rubric
         if definition.battery.rubric_ids:
             for item in definition.items:
                 scored_battery_items[item.id] = list(definition.battery.rubric_ids)
     if not scored_battery_items:
         return
 
-    backend = VllmServerBackend(JUDGE_URL, JUDGE_MODEL, JUDGE_RUNTIME)
+    backend = make_judge_backend()
 
     def judge_one(record, rubric):
+        # A long batch must survive per-item failures: malformed judge
+        # output (JudgeError) and backend/HTTP failures (a transient hiccup,
+        # or a prompt the server rejects) both retry and, if unresolved,
+        # leave the item UNSCORED rather than aborting the whole run.
         for attempt in range(JUDGE_RETRIES):
             try:
                 return judge_sample(
                     backend, JUDGE_REF, record, rubric,
                     sampling=judge_sampling(attempt), provenance=stamp,
                 )
-            except JudgeError as error:
+            except Exception as error:
                 print(f"    judge attempt {attempt + 1} failed "
-                      f"({record.key.item_id} s{record.key.sample_index}): {error}")
+                      f"({record.key.item_id} s{record.key.sample_index}): "
+                      f"{type(error).__name__}: {error}")
         return None
 
     for condition in conditions:
@@ -295,10 +306,18 @@ def main():
     if not (experiment_dir / "experiment.textproto").is_file():
         raise SystemExit(f"no experiment.textproto in {experiment_dir}")
     experiment = load_experiment(experiment_dir)
-    batteries = load_batteries(experiment_dir)
+    all_batteries = load_batteries(experiment_dir)
+    # Rubrics resolve across every loaded battery file: a battery may
+    # reference a rubric defined in another file (e.g. distress-v2 uses
+    # distress-v1-rubric), so build the lookup before filtering.
+    rubric_by_id = {
+        rubric.id: rubric
+        for definition in all_batteries.values()
+        for rubric in definition.rubrics
+    }
     batteries = {
         battery_id: definition
-        for battery_id, definition in batteries.items()
+        for battery_id, definition in all_batteries.items()
         if battery_id in experiment.battery_ids
         and (not args.batteries or battery_id in args.batteries.split(","))
     }
@@ -328,7 +347,7 @@ def main():
     if not args.skip_judge:
         print("\njudging...")
         judge(experiment, batteries, conditions, store, args.producer, stamp,
-              args.concurrency)
+              args.concurrency, rubric_by_id)
     print_tables(experiment, batteries, conditions, store)
 
 

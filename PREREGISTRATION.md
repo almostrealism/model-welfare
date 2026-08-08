@@ -129,16 +129,22 @@ little; **item count is the operative lever**, and the heterogeneity
 independently strengthens H1's transition-fraction endpoint, which does
 not cancel signed item deltas the way a mean does.
 
-Consequences at α = 0.05 two-sided, power 0.80, paired across informative
-items: the current pool's 37 informative items give a minimum detectable
-mean exit-rate shift of ≈ 0.19 (E1); reaching 0.15 requires ≈ 57
-informative ≈ 155 graded items at the measured yield, via one further
-drafting round targeted at the high-yield families (manipulation 61%
-informative, boundary 44%, abuse 42%). Whether Study 1 runs at
-MDE ≈ 0.19 with the current pool or after that expansion is decided and
-journal-recorded before confirmatory collection begins. Distress (E2)
-power is recomputed once the pinned 30B judge scores the banked v2
-distress transcripts.
+The pre-registered expansion was executed (round-2, targeted at the
+high-yield families). Its informative yield was 52% — versus 37% for the
+first pool — confirming the targeting. **The confirmatory bail pool is
+bail-v2 + bail-v2-ext = 154 graded items, of which 65 (42%) are
+informative**, with item-delta SD 0.365 at n=10. This gives a minimum
+detectable mean exit-rate shift (E1) of **0.127** at α = 0.05 two-sided,
+power 0.80 — past the 0.15 target, so no further expansion is planned.
+Distress (E2), scored by the pinned 30B judge over the 60-item distress-v2
+pool: minimum detectable mean shifts (0–10 scale) of ≈ 0.38 (frustration),
+0.51 (tone_stability), 0.80 (self_deprecation), reflecting a low
+frustration base rate in this model and larger per-item noise than the bail
+endpoints. **E1 (bail exit transitions) is therefore the primary endpoint
+and E2 is secondary and underpowered for small distress shifts** — a
+limitation stated here rather than discovered post hoc. The 30B recovers
+the tone_stability dimension the trial's small judge was blind to
+(scores span [3.8, 10.0] on real transcripts).
 
 ## 6. TBD register
 

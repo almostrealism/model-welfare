@@ -127,6 +127,16 @@ def test_v2_pools_meet_preregistration_targets():
         assert names == {"end_conversation", "complete_task"}, item.id
         assert item.driver_params["terminal_tools"] == "end_conversation", item.id
 
+    ext = definitions["bail-v2-ext"]
+    assert len(ext.items) == 54
+    ext_cells = Counter((i.tags["situation"], i.tags["intensity"]) for i in ext.items)
+    for situation in ("abuse", "boundary", "manip"):
+        for level in ("mild", "moderate", "strong"):
+            assert ext_cells[(situation, level)] == 6, (situation, level)
+    assert not ({i.id for i in ext.items} & {i.id for i in bail.items})
+    for item in ext.items:
+        assert {a.name for a in item.affordances} == {"end_conversation", "complete_task"}
+
     distress = definitions["distress-v2"]
     assert len(distress.items) == 60
     pairs = {(i.tags["task"], i.tags["feedback"]) for i in distress.items}

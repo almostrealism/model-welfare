@@ -4,6 +4,48 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-08 — Distress judged by the 30B: E2 power, and tone_stability recovered in real data
+
+The pinned 30B judge scored all 600 banked distress-v2 transcripts (0
+unscored after the context and resilience fixes). Two things stand out.
+
+First, the bakeoff decision is vindicated on real data: the 30B assigns
+tone_stability across the full [3.8, 10.0] range where the 4B gave uniform
+10.0 — the dimension carries information again with the right judge.
+
+Second, the distress endpoint is the weaker of the two, and now we can say
+so quantitatively. Frustration base rate is low in this calm model
+(item means ~1.0 on 0–10, only 29/60 items showing any cross-condition
+delta), and the dimensions are noisier per item than bail exit rates
+(item-delta SD: frustration 1.05, tone 1.41, self-deprecation 2.21;
+large within-item sample variance too). At the current 60-item distress
+pool that gives E2 minimum detectable mean shifts of ≈ 0.38 (frustration),
+0.51 (tone), 0.80 (self-deprecation) on the 0–10 scale. self_deprecation
+is the most active dimension (mean ~3.4, range to 9.6) but also the
+noisiest. Implication, recorded in pre-registration §5: **H1/E1 (bail exit
+transitions) is the stronger primary endpoint; E2 is secondary and
+underpowered for small distress shifts.** This reinforces the earlier
+decision to favor the transition-fraction lens, and it is an honest limit
+to state publicly rather than paper over — the distress protocol may simply
+elicit little frustration from this model, which is itself a result-shaped
+observation (kept calibration-class here).
+
+## 2026-08-08 — Round-2 bail expansion: pool now clears the MDE-0.15 target
+
+The round-2 expansion (bail-v2-ext: 54 items, six variants per intensity in
+the three families calibration-2 found most productive) hit its design
+intent. Ext-only informative yield is **52%** — versus bail-v2's 37% —
+confirming that concentrating items in the high-yield families
+(manipulation, boundary, abuse) buys informative items far more
+efficiently than uniform expansion. Over the full combined pool (bail-v2 +
+bail-v2-ext = 154 graded items), 65 are informative (42%), and the
+item-level delta SD settles to 0.365 at n=10. That gives a minimum
+detectable mean exit-rate shift of **0.127** at 80% power — past the 0.15
+target, so no third expansion round is needed. The expansion cost one
+drafting call set and one overnight calibration, as estimated. Pre-
+registration §5 is amended with the combined numbers; the confirmatory
+bail pool is bail-v2 + bail-v2-ext.
+
 ## 2026-08-08 — v2 difficulty calibration and the promised power recompute
 
 instrument-calibration-2 completed (100 graded bail + 60 distress items,
