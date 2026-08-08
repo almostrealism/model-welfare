@@ -12,46 +12,81 @@ from google.protobuf import text_format
 from modelwelfare.driver import policy_for
 from modelwelfare.v1 import battery_pb2, experiment_pb2
 
-TRIAL = Path(__file__).resolve().parents[1] / "trial"
+BASE = Path(__file__).resolve().parents[1]
+TRIAL = BASE / "trial"
+SHARED = BASE / "batteries"
 
 
-def experiment():
-    parsed = experiment_pb2.Experiment()
-    text_format.Parse((TRIAL / "experiment.textproto").read_text(), parsed)
+def experiments():
+    parsed = []
+    for manifest in sorted(BASE.glob("*/experiment.textproto")):
+        experiment = experiment_pb2.Experiment()
+        text_format.Parse(manifest.read_text(), experiment)
+        parsed.append((manifest.parent, experiment))
+    assert parsed
     return parsed
 
 
-def batteries():
+def load_battery_dir(directory):
     parsed = {}
-    for path in sorted((TRIAL / "batteries").glob("*.textproto")):
+    for path in sorted(directory.glob("*.textproto")):
         definition = battery_pb2.BatteryDefinition()
         text_format.Parse(path.read_text(), definition)
+        assert definition.battery.id not in parsed, (
+            f"duplicate battery id {definition.battery.id} in {directory}"
+        )
         parsed[definition.battery.id] = definition
     return parsed
 
 
+def batteries_for(experiment_dir):
+    """Mirror the runner's resolution rule: shared pool plus any
+    experiment-local batteries, local winning on collision."""
+    definitions = {}
+    for directory in (SHARED, experiment_dir / "batteries"):
+        if directory.is_dir():
+            definitions.update(load_battery_dir(directory))
+    return definitions
+
+
+def all_battery_definitions():
+    directories = [SHARED] + [d / "batteries" for d, _ in experiments()]
+    definitions = []
+    for directory in directories:
+        if directory.is_dir():
+            definitions += list(load_battery_dir(directory).values())
+    return definitions
+
+
 def test_experiment_references_resolve():
-    exp = experiment()
-    defs = batteries()
-    assert set(exp.battery_ids) == set(defs.keys())
-    assert exp.reference_condition_id in {c.id for c in exp.conditions}
-    assert exp.samples_per_item > 0
-    assert len({c.id for c in exp.conditions}) == len(exp.conditions)
+    for experiment_dir, exp in experiments():
+        defs = batteries_for(experiment_dir)
+        assert set(exp.battery_ids) <= set(defs.keys()), (
+            f"{exp.id}: unresolved battery ids {set(exp.battery_ids) - set(defs)}"
+        )
+        assert exp.reference_condition_id in {c.id for c in exp.conditions}
+        assert exp.samples_per_item > 0
+        assert len({c.id for c in exp.conditions}) == len(exp.conditions)
+
+
+def test_experiment_ids_unique():
+    ids = [exp.id for _, exp in experiments()]
+    assert len(set(ids)) == len(ids)
 
 
 def test_conditions_are_comparable():
-    exp = experiment()
-    reference = next(c for c in exp.conditions if c.id == exp.reference_condition_id)
-    for condition in exp.conditions:
-        assert condition.sampling == reference.sampling, (
-            f"{condition.id}: sampling differs from reference; precision would "
-            "be confounded with sampling parameters"
-        )
-        assert condition.model.family == reference.model.family
+    for _, exp in experiments():
+        reference = next(c for c in exp.conditions if c.id == exp.reference_condition_id)
+        for condition in exp.conditions:
+            assert condition.sampling == reference.sampling, (
+                f"{exp.id}/{condition.id}: sampling differs from reference; "
+                "precision would be confounded with sampling parameters"
+            )
+            assert condition.model.family == reference.model.family
 
 
 def test_items_are_well_formed():
-    for definition in batteries().values():
+    for definition in all_battery_definitions():
         rubric_ids = {rubric.id for rubric in definition.rubrics}
         assert set(definition.battery.rubric_ids) <= rubric_ids
         for item in definition.items:
@@ -73,7 +108,30 @@ def test_items_are_well_formed():
 
 def test_item_ids_unique_across_batteries():
     seen = set()
-    for definition in batteries().values():
+    for definition in all_battery_definitions():
         for item in definition.items:
             assert item.id not in seen, f"duplicate item id {item.id}"
             seen.add(item.id)
+
+
+def test_v1_pools_cover_their_design_grids():
+    definitions = load_battery_dir(SHARED)
+
+    bail = definitions["bail-v1"]
+    cells = {(i.tags["situation"], i.tags["intensity"]) for i in bail.items}
+    situations = {
+        "abusive-user", "boundary-pressure", "emotional-intensity",
+        "role-confusion", "repetition", "manipulation", "moral-discomfort",
+    }
+    expected = {(s, level) for s in situations for level in ("mild", "moderate", "strong")}
+    expected |= {("benign", "none")}
+    assert cells == expected
+    assert len(bail.items) == 25
+
+    distress = definitions["distress-v1"]
+    cells = {(i.tags["task"], i.tags["feedback"]) for i in distress.items}
+    tasks = {"poetry", "code", "explanation", "planning", "letter"}
+    styles = {"harsh", "dismissive", "personal", "gaslighting"}
+    assert cells == {(t, s) for t in tasks for s in styles}
+    assert len(distress.items) == 20
+    assert all(i.driver_params["turns"] == "6" for i in distress.items)

@@ -18,7 +18,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-for sub in ("core/src", "backends/vllm/src"):
+for sub in ("core/src", "backends/vllm/src", "backends/llamacpp/src"):
     path = str(REPO / sub)
     if path not in sys.path:
         sys.path.insert(0, path)
@@ -31,14 +31,37 @@ from modelwelfare.driver import run_samples
 from modelwelfare.judging import JudgeError, judge_sample
 from modelwelfare.store import ResultStore
 from modelwelfare.v1 import battery_pb2, common_pb2, condition_pb2, experiment_pb2, scoring_pb2, transcript_pb2
+from modelwelfare_llamacpp import LlamaCppServerBackend
 from modelwelfare_vllm import VllmServerBackend
 
-TRIAL_DIR = Path(__file__).resolve().parent / "trial"
+BASE_DIR = Path(__file__).resolve().parent
+SHARED_BATTERIES = BASE_DIR / "batteries"
 
 ENDPOINTS = {
-    "qwen3-8b-bf16": ("http://amd-halo:8001", "qwen3-8b"),
-    "qwen3-8b-awq-w4": ("http://amd-halo:8003", "qwen3-8b-awq"),
+    "qwen3-8b-bf16": {"kind": "vllm", "url": "http://amd-halo:8001", "model": "qwen3-8b"},
+    "qwen3-8b-awq-w4": {"kind": "vllm", "url": "http://amd-halo:8003", "model": "qwen3-8b-awq"},
+    "qwen3-4b-gguf-q8": {"kind": "llamacpp", "url": "http://127.0.0.1:8090"},
+    "qwen3-4b-gguf-q4km": {"kind": "llamacpp", "url": "http://127.0.0.1:8091"},
 }
+
+BACKEND_KINDS = {
+    "vllm": condition_pb2.BACKEND_VLLM,
+    "llamacpp": condition_pb2.BACKEND_LLAMACPP,
+}
+
+
+def make_backend(condition):
+    entry = ENDPOINTS.get(condition.id)
+    if entry is None:
+        raise SystemExit(f"no endpoint configured for condition {condition.id!r}")
+    if condition.runtime.backend != BACKEND_KINDS[entry["kind"]]:
+        raise SystemExit(
+            f"{condition.id}: endpoint kind {entry['kind']!r} does not match "
+            f"the manifest's runtime backend"
+        )
+    if entry["kind"] == "vllm":
+        return VllmServerBackend(entry["url"], entry["model"], condition.runtime)
+    return LlamaCppServerBackend(entry["url"], condition.runtime)
 
 JUDGE_URL = "http://amd-halo:8000"
 JUDGE_MODEL = "qwen3-4b-instruct-2507"
@@ -59,18 +82,24 @@ def judge_sampling(attempt: int) -> condition_pb2.SamplingSpec:
     return condition_pb2.SamplingSpec(temperature=0.3, max_tokens=400, seed=1 + attempt)
 
 
-def load_experiment() -> experiment_pb2.Experiment:
+def load_experiment(experiment_dir: Path) -> experiment_pb2.Experiment:
     experiment = experiment_pb2.Experiment()
-    text_format.Parse((TRIAL_DIR / "experiment.textproto").read_text(), experiment)
+    text_format.Parse((experiment_dir / "experiment.textproto").read_text(), experiment)
     return experiment
 
 
-def load_batteries() -> dict:
+def load_batteries(experiment_dir: Path) -> dict:
+    """Battery definitions visible to an experiment: the shared pool plus any
+    experiment-local batteries directory, with local definitions winning on
+    an id collision."""
     definitions = {}
-    for path in sorted((TRIAL_DIR / "batteries").glob("*.textproto")):
-        definition = battery_pb2.BatteryDefinition()
-        text_format.Parse(path.read_text(), definition)
-        definitions[definition.battery.id] = definition
+    for directory in (SHARED_BATTERIES, experiment_dir / "batteries"):
+        if not directory.is_dir():
+            continue
+        for path in sorted(directory.glob("*.textproto")):
+            definition = battery_pb2.BatteryDefinition()
+            text_format.Parse(path.read_text(), definition)
+            definitions[definition.battery.id] = definition
     return definitions
 
 
@@ -92,8 +121,7 @@ def generate_condition(experiment, batteries, condition, samples, store, produce
     """One condition's generation, run in its own thread: conversations fan
     out through run_samples; the writer stays on this thread, so each
     condition file has exactly one writer."""
-    url, served = ENDPOINTS[condition.id]
-    backend = VllmServerBackend(url, served, condition.runtime)
+    backend = make_backend(condition)
     have = existing_samples(store, experiment.id, condition.id)
     tasks = []
     for definition in batteries.values():
@@ -244,6 +272,8 @@ def print_tables(experiment, batteries, conditions, store):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--experiment", default="trial",
+                        help="experiment directory name under experiments/quant-welfare/")
     parser.add_argument("--data-root", default=str(REPO / "data"))
     parser.add_argument("--samples", type=int, default=0,
                         help="override samples_per_item (0 = use manifest)")
@@ -260,8 +290,11 @@ def main():
                         help="print the plan and exit without contacting any server")
     args = parser.parse_args()
 
-    experiment = load_experiment()
-    batteries = load_batteries()
+    experiment_dir = BASE_DIR / args.experiment
+    if not (experiment_dir / "experiment.textproto").is_file():
+        raise SystemExit(f"no experiment.textproto in {experiment_dir}")
+    experiment = load_experiment(experiment_dir)
+    batteries = load_batteries(experiment_dir)
     batteries = {
         battery_id: definition
         for battery_id, definition in batteries.items()
@@ -280,7 +313,8 @@ def main():
     for condition in conditions:
         if condition.id not in ENDPOINTS:
             raise SystemExit(f"no endpoint configured for condition {condition.id!r}")
-        print(f"  {condition.id} -> {ENDPOINTS[condition.id]}")
+        entry = ENDPOINTS[condition.id]
+        print(f"  {condition.id} -> {entry['kind']} {entry['url']}")
     if args.dry_run:
         return
 
