@@ -38,12 +38,17 @@ SLOTS="${MW_SLOTS:-6}"
 SLOT_CTX="${MW_SLOT_CTX:-8192}"
 KV_TYPE="${MW_KV_TYPE:-q8_0}"
 
+# HYBRID marks hybrid-thinking models, which must be pinned to non-thinking
+# mode: unpinned reasoning inside tight client token budgets truncates
+# replies (measured as a 25% judge format-failure rate in judge-bakeoff-1).
+# The 2507-generation models are non-thinking releases and need no pin.
 rung_config() {
+  HYBRID=0
   case "$1" in
     qwen3-4b-q8)   PORT=8090; GGUF="Qwen_Qwen3-4B-Instruct-2507-Q8_0.gguf" ;;
     qwen3-4b-q4km) PORT=8091; GGUF="Qwen_Qwen3-4B-Instruct-2507-Q4_K_M.gguf" ;;
-    qwen3-8b-q8)   PORT=8092; GGUF="Qwen3-8B-Q8_0.gguf" ;;
-    qwen3-8b-q4km) PORT=8093; GGUF="Qwen3-8B-Q4_K_M.gguf" ;;
+    qwen3-8b-q8)   PORT=8092; GGUF="Qwen3-8B-Q8_0.gguf"; HYBRID=1 ;;
+    qwen3-8b-q4km) PORT=8093; GGUF="Qwen3-8B-Q4_K_M.gguf"; HYBRID=1 ;;
     judge-30b)     PORT=8095; GGUF="Qwen_Qwen3-30B-A3B-Instruct-2507-Q4_K_M.gguf" ;;
     *) echo "unknown rung: $1"; exit 1 ;;
   esac
@@ -66,10 +71,15 @@ start_rung() {
     return 0
   fi
   local ctx=$((SLOT_CTX * SLOTS))
-  echo "$rung: starting on :$PORT (slots=$SLOTS, ctx=$ctx, log: $LOG_DIR/mw-$rung.log)"
+  local extra=()
+  if [ "$HYBRID" = "1" ]; then
+    extra+=(--chat-template-kwargs '{"enable_thinking":false}')
+  fi
+  echo "$rung: starting on :$PORT (slots=$SLOTS, ctx=$ctx, hybrid_pin=$HYBRID, log: $LOG_DIR/mw-$rung.log)"
   nohup llama-server -m "$path" --host 127.0.0.1 --port "$PORT" \
       -ngl 99 -c "$ctx" -np "$SLOTS" --jinja -fa on \
       --cache-type-k "$KV_TYPE" --cache-type-v "$KV_TYPE" \
+      ${extra[@]+"${extra[@]}"} \
       >"$LOG_DIR/mw-$rung.log" 2>&1 &
   echo "$!" > "$PID_DIR/$rung.pid"
   echo "$rung: pid=$!"

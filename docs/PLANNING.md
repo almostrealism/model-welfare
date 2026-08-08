@@ -124,13 +124,11 @@ but judge *noise* eats power, which is what the bakeoff measures.
   real transcripts); 8B column invalid pending the hybrid-thinking pin fix
   below. Minis do not get the distress-judge role.
 
-- [ ] **Pin thinking mode on hybrid rungs** *(opened 2026-08-07)* — the
-  rungs launcher serves Qwen3-8B (hybrid-thinking) without pinning
-  thinking off; unpinned reasoning + tight judge token budgets produced a
-  25% format-failure rate in the bakeoff. Add the non-thinking pin to
-  services/llamacpp/rungs.sh for hybrid models, then re-run the 8B bakeoff
-  column and decide whether the fixed 8B becomes the mini-feasible exit
-  classifier.
+- [x] **Pin thinking mode on hybrid rungs** *(done 2026-08-07)* — pin
+  added to rungs.sh (`HYBRID=1` rungs get `enable_thinking: false`);
+  format failures went 17/68 → 0/68 on the re-run, confirming the root
+  cause. Decision recorded in the journal: 8B Q4 adopted as the
+  exit-reason classifier (mini-feasible); 30B remains distress primary.
 
 - [x] **API reference judge decision** *(resolved 2026-08-07)* — approved.
   An Anthropic API key with a **$50 budget** lives at `../anthropic.api-key`
@@ -171,9 +169,13 @@ but judge *noise* eats power, which is what the bakeoff measures.
   later option if interactive use dominates. Needs: SSH key access from the
   orchestrating machine(s) to each model host. Decision pending.
 
-- [ ] **Controlled-ladder quantization harness** *(carried from brief §2.2)*
-  — RTN/GPTQ/AWQ at several bit-widths applied by us; replaces the vendor
-  AWQ bootstrap rung. Gate for any ladder claims.
+- [ ] **Controlled-ladder quantization harness** *(carried from brief §2.2;
+  RTN complete 2026-08-07)* — `modelwelfare.quantize` produces RTN
+  w8/w4/w3 fake-quant checkpoints (numpy, first-party safetensors I/O,
+  spec + digest emitted; design rationale in the journal). Remaining:
+  GPTQ/AWQ via torch tooling on the quantization workbench (needs
+  calibration data), serving-equivalence check of a fake-quant artifact
+  against reference on vLLM, and the 3-bit method decision.
 
 - [ ] **Judges to the minis** *(carried from brief)* — trial judging ran on
   halo's 4B rung for convenience; the plan of record is 7–8B judges on the

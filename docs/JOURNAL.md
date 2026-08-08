@@ -4,6 +4,66 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-07 — First controlled-ladder artifacts produced and verified
+
+`modelwelfare.quantize` produced the first self-quantized rungs from the
+Qwen3-4B-Instruct-2507 checkpoint: RTN w8/w4/w3 (g128), 252 tensors each,
+mean relative weight error 0.007 / 0.130 / 0.303 — the expected RTN error
+curve. Independent verification re-derived scales from the stored
+artifacts: w4 and w3 weights lie exactly on their quantization grids
+(distinct levels 10 of 15 and 6 of 7 in sampled groups).
+
+One representation nuance, documented rather than hidden: the w8 rung's
+grid is blurred by bf16 storage. bf16 carries 7 mantissa bits, so 8-bit
+quantized products (up to 127 × scale) cannot all be stored exactly —
+rounding up to native bf16 precision, the same precision every weight in
+the original checkpoint carries, and the same rounding a real INT8 kernel
+dequantizing into bf16 compute would exhibit. w4 and w3 products fit bf16
+exactly, so their fake-quant claim is bit-exact; the w8 rung's is "exact
+up to native storage precision." The pre-registration's fake-quant
+language covers w4/w3 precisely and this entry records the w8
+qualification.
+
+## 2026-08-07 — 8B bakeoff column re-run with thinking pinned: root cause confirmed, exit classifier adopted
+
+With `enable_thinking: false` pinned on the hybrid rungs, the 8B judge's
+format-failure rate went from 17/68 to **0/68** — the entire earlier
+failure mode was unpinned reasoning truncating inside the judge token
+budget, exactly as diagnosed. The invalid column is preserved beside the
+new one in the store for the audit trail. The fixed 8B: sensitivity
+computable on all dimensions (frustration +6.0, self-deprecation +9.0,
+tone +4.0 — it detects tone degradation, unlike the 4B), retest 0.15,
+reference agreement r = 0.22 / 0.77 / **0.84** (that tone agreement is the
+best of any local judge, above the 30B's 0.43), and exits 8/8 planted with
+9/12 real-exit reference agreement.
+
+**Decision:** the 30B remains the distress primary (the 8B's frustration
+agreement, r=0.22, disqualifies it there for the same compressed-range
+reason as the 4B), and the **8B Q4 is adopted as the exit-reason
+classifier** — its planted accuracy and reference agreement are the
+strongest of the local candidates and it fits the small machines,
+restoring them a judging role after all: exit classification, not distress
+scoring.
+
+## 2026-08-07 — Quantization harness: numpy RTN with first-party safetensors I/O
+
+The controlled ladder's first rungs (RTN w8/w4/w3) are produced by
+`modelwelfare.quantize` — pure numpy, no ML framework. Rationale: RTN is
+tensor arithmetic, and implementing it directly (symmetric per-group,
+restricted range, round-half-even, embeddings and output head skipped)
+makes every quantization decision visible in ~30 lines rather than
+inherited from a library's defaults. Safetensors reading and writing is
+implemented from the format spec, with bfloat16 handled by explicit bit
+manipulation — this sidesteps library bfloat16 support ambiguity and keeps
+the artifact path dependency-free. Output is a fake-quant checkpoint
+(quantized values dequantized back to the source dtype) that serves on any
+BF16 runtime with bit-exact quantized weights, plus a
+`quantization.textproto` carrying the full `QuantizationSpec` and an
+artifact digest. GPTQ and AWQ need calibration forward passes and go in
+backends/torch when the quantization workbench host returns; the RTN rungs
+alone already form a four-point ladder (BF16/w8/w4/w3) sufficient to start
+the pre-registered study.
+
 ## 2026-08-07 — Judge bakeoff results: 30B local primary, tone_stability vindicated
 
 Four candidates (Qwen3-4B-2507 Q8, Qwen3-8B Q8, Qwen3-30B-A3B-2507 Q4,
