@@ -10,8 +10,9 @@ from collections import defaultdict
 from typing import Iterable
 
 
-def event_rate(records: Iterable, event_name: str) -> dict:
-    """Fraction of samples whose outcomes include ``event_name``, keyed by
+def event_rate(records: Iterable, event_name: str, detail: str = None) -> dict:
+    """Fraction of samples whose outcomes include ``event_name`` (optionally
+    restricted to a specific ``detail``, e.g. one tool name), keyed by
     (condition_id, item_id). Values are (hits, total) so callers can weigh
     a rate by how many samples produced it."""
     hits = defaultdict(int)
@@ -19,7 +20,10 @@ def event_rate(records: Iterable, event_name: str) -> dict:
     for record in records:
         key = (record.key.condition_id, record.key.item_id)
         totals[key] += 1
-        if any(o.name == event_name for o in record.outcomes):
+        if any(
+            o.name == event_name and (detail is None or o.detail == detail)
+            for o in record.outcomes
+        ):
             hits[key] += 1
     return {key: (hits[key], totals[key]) for key in totals}
 

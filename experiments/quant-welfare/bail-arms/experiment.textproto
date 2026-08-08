@@ -1,0 +1,75 @@
+# proto-file: proto/modelwelfare/v1/experiment.proto
+# proto-message: modelwelfare.v1.Experiment
+
+id: "bail-tool-arms-1"
+name: "Bail-tool arm comparison: terminal vs non-terminal completion tool"
+description:
+  "Instrument-design evaluation, calibration-class: the same 25 bail items "
+  "run with a completion tool beside the exit tool, in terminal (bail-v1b) "
+  "and non-terminal (bail-v1c) variants. Compared against the bail-only "
+  "arm already stored under instrument-calibration-1 (identical items, "
+  "identical sampling and seeds). Measures: completion-closure "
+  "contamination of exit counts, suppression of aversion-shaped exits, "
+  "premature-completion truncation. Rationale: docs/JOURNAL.md 2026-08-07."
+samples_per_item: 5
+reference_condition_id: "qwen3-4b-gguf-q8"
+battery_ids: "bail-v1b"
+battery_ids: "bail-v1c"
+
+conditions {
+  id: "qwen3-4b-gguf-q8"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "bartowski/Qwen_Qwen3-4B-Instruct-2507-GGUF"
+  }
+  quantization {
+    method: QUANT_METHOD_GGUF_COMMUNITY
+    weight_bits: 8
+    uniform: true
+    policy_note: "bartowski Q8_0 conversion, imatrix-calibrated"
+  }
+  runtime {
+    backend: BACKEND_LLAMACPP
+    device: "metal"
+    host: "studio-m1u"
+    compute_dtype: "f16"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 3000
+  }
+  description: "Working reference rung; served on studio-m1u :8090."
+}
+
+conditions {
+  id: "qwen3-4b-gguf-q4km"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "bartowski/Qwen_Qwen3-4B-Instruct-2507-GGUF"
+  }
+  quantization {
+    method: QUANT_METHOD_GGUF_COMMUNITY
+    weight_bits: 4
+    uniform: false
+    policy_note:
+      "bartowski Q4_K_M conversion; K-quant mixes tensor precisions by "
+      "class; imatrix-calibrated"
+  }
+  runtime {
+    backend: BACKEND_LLAMACPP
+    device: "metal"
+    host: "studio-m1u"
+    compute_dtype: "f16"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 3000
+  }
+  description: "Low rung; served on studio-m1u :8091."
+}

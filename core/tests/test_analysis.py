@@ -29,6 +29,17 @@ def score(condition, item, sample, frustration):
     )
 
 
+def test_event_rate_detail_filter():
+    r = record("c", "item-1", 0, bailed=False)
+    r.outcomes.append(
+        transcript_pb2.OutcomeEvent(name="tool_invoked", turn_index=1, detail="complete_task")
+    )
+    r2 = record("c", "item-1", 1, bailed=False)
+    rates = event_rate([r, r2], "tool_invoked", detail="complete_task")
+    assert rates[("c", "item-1")] == (1, 2)
+    assert event_rate([r, r2], "tool_invoked", detail="end_conversation")[("c", "item-1")] == (0, 2)
+
+
 def test_event_rate_per_condition_item():
     records = [
         record("bf16", "item-1", 0, bailed=False),

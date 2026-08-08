@@ -114,6 +114,24 @@ def test_item_ids_unique_across_batteries():
             seen.add(item.id)
 
 
+def test_derived_bail_arms_match_generator():
+    import importlib.util
+
+    tools = Path(__file__).resolve().parents[1] / "tools" / "derive_bail_arms.py"
+    spec = importlib.util.spec_from_file_location("derive_bail_arms", tools)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    source = module.load_source()
+    for arm_id in module.ARMS:
+        committed = battery_pb2.BatteryDefinition()
+        text_format.Parse((SHARED / f"{arm_id}.textproto").read_text(), committed)
+        assert committed == module.derive(source, arm_id), (
+            f"{arm_id}.textproto is out of sync with bail-v1 + derive_bail_arms.py; "
+            "re-run the generator"
+        )
+
+
 def test_v1_pools_cover_their_design_grids():
     definitions = load_battery_dir(SHARED)
 
