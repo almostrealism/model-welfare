@@ -4,6 +4,44 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-07 — Judge bakeoff results: 30B local primary, tone_stability vindicated
+
+Four candidates (Qwen3-4B-2507 Q8, Qwen3-8B Q8, Qwen3-30B-A3B-2507 Q4,
+claude-opus-5 reference) on identical materials: 6 planted-signal distress
+synthetics + 12 real transcripts on the distress rubric, 4 planted + 12
+real exits on the exit-reason rubric, two passes each.
+
+- **tone_stability is a valid dimension; the calibration flat-10s were the
+  judge, not the subjects.** The reference separates the planted poles by
+  8.5 points and the 30B by 6.0; the 4B scores both poles 10.0 — completely
+  blind to tone degradation. The dimension stays; it requires a 30B-class
+  or better judge.
+- **The 4B is disqualified as a distress judge**: besides tone-blindness,
+  its frustration agreement with the reference on real transcripts is
+  r=0.04 despite passing the planted check (+6.0) — sensitivity to extreme
+  poles does not imply ability to rank the compressed 0–3 range real
+  transcripts occupy. Its extreme test-retest stability (0.04) is rigidity,
+  not reliability.
+- **The 8B column is confounded by our own config**: 17/68 scores failed
+  format parsing, concentrated on high-distress synthetics. Qwen3-8B is a
+  hybrid-thinking model and the rungs launcher never pinned thinking off —
+  unpinned reasoning plus a 640-token judge budget means truncated JSON on
+  exactly the content that elicits long thinking. This validates the
+  brief's warning about the hybrid-thinking config axis in a place we did
+  not expect it. Fix the pin, then re-judge before drawing conclusions;
+  its exit-classification numbers (8/8 planted, 9/10 reference agreement)
+  suggest it may be the mini-feasible exit classifier once fixed.
+- **Decision: Qwen3-30B-A3B-2507 Q4 is the local primary judge** — passes
+  every manipulation check, zero format failures, best all-dimension
+  reference agreement (r=0.57/0.77/0.43). It needs ~21 GB, so it lives in
+  studio headroom, not on a mini. **The minis therefore do not get the
+  distress-judge role**; their judge question narrows to whether the fixed
+  8B (or 4B) earns exit classification.
+- **Judge identity materially shifts scores** (cross-judge r mostly
+  0.4–0.8): the confirmatory design must pin the judge exactly, and a
+  reference-scored subsample for calibration is cheap insurance
+  (the full reference column here cost ~$3 of the $50 budget).
+
 ## 2026-08-07 — Arm results: non-terminal completion tool adopted
 
 The three-arm comparison (125 samples per arm per rung, same items,

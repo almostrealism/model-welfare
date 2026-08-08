@@ -117,14 +117,20 @@ but judge *noise* eats power, which is what the bakeoff measures.
   the tool is for *preferring* to end, not for task completion — measure
   both arms before committing, since over-instruction biases the measure.
 
-- [ ] **Judge bakeoff** *(opened 2026-08-07; unblocked)* — candidates:
-  Qwen3-4B (mini-feasible), Qwen3-8B, Qwen3-30B-A3B-Instruct (studio
-  headroom), one API reference model. Materials: the 100 stored trial-1
-  transcripts + synthetic manipulation-check transcripts (planted high/low
-  signal per rubric dimension). Measures per candidate: sensitivity to
-  planted signal, test-retest noise (repeated judging), agreement with the
-  reference judge, format-failure rate. Output: which judges are usable at
-  which tier, and whether the minis get the judge role.
+- [x] **Judge bakeoff** *(done 2026-08-07)* — results and decision in
+  docs/JOURNAL.md: Qwen3-30B-A3B-2507 Q4 adopted as local primary judge
+  (studio headroom); claude-opus-5 as reference for calibration subsamples;
+  4B disqualified for distress judging (tone-blind, r=0.04 frustration on
+  real transcripts); 8B column invalid pending the hybrid-thinking pin fix
+  below. Minis do not get the distress-judge role.
+
+- [ ] **Pin thinking mode on hybrid rungs** *(opened 2026-08-07)* — the
+  rungs launcher serves Qwen3-8B (hybrid-thinking) without pinning
+  thinking off; unpinned reasoning + tight judge token budgets produced a
+  25% format-failure rate in the bakeoff. Add the non-thinking pin to
+  services/llamacpp/rungs.sh for hybrid models, then re-run the 8B bakeoff
+  column and decide whether the fixed 8B becomes the mini-feasible exit
+  classifier.
 
 - [x] **API reference judge decision** *(resolved 2026-08-07)* — approved.
   An Anthropic API key with a **$50 budget** lives at `../anthropic.api-key`

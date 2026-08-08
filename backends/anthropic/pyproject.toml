@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "modelwelfare-backend-anthropic"
+version = "0.1.0"
+description = "InferenceBackend client for the Anthropic API (reference judge)"
+requires-python = ">=3.10"
+dependencies = [
+    "modelwelfare-core",
+    "anthropic",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
