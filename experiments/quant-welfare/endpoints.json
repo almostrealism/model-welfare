@@ -1,0 +1,7 @@
+{
+  "_comment": "Maps condition ids to serving endpoints. These are this lab's hosts (see the host registry in the top-level README); replicators point them at their own servers. kind selects the backend client; model is the served model name, required for vllm.",
+  "qwen3-8b-bf16": {"kind": "vllm", "url": "http://amd-halo:8001", "model": "qwen3-8b"},
+  "qwen3-8b-awq-w4": {"kind": "vllm", "url": "http://amd-halo:8003", "model": "qwen3-8b-awq"},
+  "qwen3-4b-gguf-q8": {"kind": "llamacpp", "url": "http://127.0.0.1:8090"},
+  "qwen3-4b-gguf-q4km": {"kind": "llamacpp", "url": "http://127.0.0.1:8091"}
+}

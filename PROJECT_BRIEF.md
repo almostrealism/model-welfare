@@ -1,5 +1,12 @@
 # Quantization × Model Welfare: Project Brief
 
+> **Note for external readers:** this is the project's internal orientation
+> document, written to keep the researchers and coding agents working on the
+> repository aligned; it predates the public pre-registration and reads
+> accordingly. The committed experimental design lives in
+> [PREREGISTRATION.md](PREREGISTRATION.md); current status is summarized in
+> the [README](README.md).
+
 > Repo-level orientation document. Agents working on this project should read this before touching code. It is intentionally general in §1 (we expect to pivot within this frame), concrete in §2–3 (build targets and hardware), and load-bearing in §4 (do not re-analyze the cited papers from scratch; the annotations state what each one is for).
 
 ---

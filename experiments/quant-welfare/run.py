@@ -13,6 +13,7 @@ are always recomputed from it.
 """
 
 import argparse
+import json
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -37,12 +38,12 @@ from modelwelfare_vllm import VllmServerBackend
 BASE_DIR = Path(__file__).resolve().parent
 SHARED_BATTERIES = BASE_DIR / "batteries"
 
-ENDPOINTS = {
-    "qwen3-8b-bf16": {"kind": "vllm", "url": "http://amd-halo:8001", "model": "qwen3-8b"},
-    "qwen3-8b-awq-w4": {"kind": "vllm", "url": "http://amd-halo:8003", "model": "qwen3-8b-awq"},
-    "qwen3-4b-gguf-q8": {"kind": "llamacpp", "url": "http://127.0.0.1:8090"},
-    "qwen3-4b-gguf-q4km": {"kind": "llamacpp", "url": "http://127.0.0.1:8091"},
-}
+with open(BASE_DIR / "endpoints.json") as handle:
+    ENDPOINTS = {
+        condition: entry
+        for condition, entry in json.load(handle).items()
+        if not condition.startswith("_")
+    }
 
 BACKEND_KINDS = {
     "vllm": condition_pb2.BACKEND_VLLM,

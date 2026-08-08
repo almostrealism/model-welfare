@@ -1,8 +1,46 @@
 # model-welfare
 
-Research infrastructure for systematic behavioral and representational studies of
-language models. The first study hosted here examines whether post-training
-quantization shifts welfare-relevant indicators — see [PROJECT_BRIEF.md](PROJECT_BRIEF.md).
+**Does post-training quantization change welfare-relevant indicators in
+open-weight language models?** Nearly every deployed open-weight model runs
+at a precision it was never aligned at, and compression is audited almost
+entirely through capability metrics — metrics known to stay flat while
+fine-grained behavioral dispositions shift. This project measures what
+compression does to a different class of indicators: distress expression
+under conversational pressure, preferences to exit interactions, persona
+stability, and the relationship between what a model expresses and what its
+internal representations show.
+
+Start here:
+
+- **[PREREGISTRATION.md](PREREGISTRATION.md)** — the confirmatory study:
+  hypotheses, design, analysis plan, and an explicit register of what is
+  still open. Registered before confirmatory data collection.
+- **[PROJECT_BRIEF.md](PROJECT_BRIEF.md)** — the internal orientation
+  document: the full three-tier research frame, hardware, and annotated
+  bibliography.
+- **[docs/JOURNAL.md](docs/JOURNAL.md)** — the lab notebook: dated design
+  decisions with their evidence, including instrument findings from the
+  calibration phase.
+- **[RESULTS.md](RESULTS.md)** — where results land. Currently holds
+  calibration-class tables only (instrument validation, barred from
+  supporting conclusions); confirmatory results will appear here.
+- **[docs/PLANNING.md](docs/PLANNING.md)** — open workstream items.
+
+## Status (2026-08-07)
+
+| Piece | State |
+|---|---|
+| Tier 1 pipeline (schema, driver, store, judging, llama.cpp + vLLM + API backends) | **Built and live-validated**; multi-machine, resumable, parallel |
+| Tier 1 instruments (bail two-tool protocol, distress battery, exit-reason taxonomy) | **Calibrated** through two instrument-design cycles (see journal) |
+| Judges | **Selected empirically**: local 30B primary + API reference, via manipulation-check bakeoff |
+| Item pools at confirmatory scale | In progress — expansion targeted at calibrated intermediate-difficulty cells |
+| Controlled quantization harness (own RTN/GPTQ/AWQ ladder) | Not built — blocking for the confirmatory run; current runs use labeled vendor/community quants |
+| Tier 2 (activation capture, directions, probes) | **Not started** — subject to the feasibility gate in the brief; hypothesis H5 is conditional on it |
+| Tier 3 (dissociation analysis) | Depends on Tier 2 |
+
+Research infrastructure is general: the schema, backends, driver, store,
+and judging layers are experiment-agnostic, and the quantization study is
+the first resident of `experiments/`.
 
 ## Design principles
 
