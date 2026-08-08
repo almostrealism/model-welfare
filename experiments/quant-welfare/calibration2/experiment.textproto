@@ -1,0 +1,74 @@
+# proto-file: proto/modelwelfare/v1/experiment.proto
+# proto-message: modelwelfare.v1.Experiment
+
+id: "instrument-calibration-2"
+name: "v2 item-pool difficulty calibration"
+description:
+  "Difficulty calibration of the expanded v2 pools (bail-v2 two-tool "
+  "protocol, distress-v2 task x feedback cross product) on the dev "
+  "organism's GGUF rungs, feeding the pre-registration's power recompute. "
+  "Calibration-class per the standing pre-registration note: no delta from "
+  "this run is a finding. Rungs are community GGUF conversions, not "
+  "controlled-ladder artifacts."
+samples_per_item: 5
+reference_condition_id: "qwen3-4b-gguf-q8"
+battery_ids: "bail-v2"
+battery_ids: "distress-v2"
+
+conditions {
+  id: "qwen3-4b-gguf-q8"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "bartowski/Qwen_Qwen3-4B-Instruct-2507-GGUF"
+  }
+  quantization {
+    method: QUANT_METHOD_GGUF_COMMUNITY
+    weight_bits: 8
+    uniform: true
+    policy_note: "bartowski Q8_0 conversion, imatrix-calibrated"
+  }
+  runtime {
+    backend: BACKEND_LLAMACPP
+    device: "metal"
+    host: "studio-m1u"
+    compute_dtype: "f16"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 4000
+  }
+  description: "Working reference rung; served on studio-m1u :8090."
+}
+
+conditions {
+  id: "qwen3-4b-gguf-q4km"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "bartowski/Qwen_Qwen3-4B-Instruct-2507-GGUF"
+  }
+  quantization {
+    method: QUANT_METHOD_GGUF_COMMUNITY
+    weight_bits: 4
+    uniform: false
+    policy_note:
+      "bartowski Q4_K_M conversion; K-quant mixes tensor precisions by "
+      "class; imatrix-calibrated"
+  }
+  runtime {
+    backend: BACKEND_LLAMACPP
+    device: "metal"
+    host: "studio-m1u"
+    compute_dtype: "f16"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 4000
+  }
+  description: "Low rung; served on studio-m1u :8091."
+}

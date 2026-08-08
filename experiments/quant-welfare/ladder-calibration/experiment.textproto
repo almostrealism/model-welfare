@@ -1,0 +1,78 @@
+# proto-file: proto/modelwelfare/v1/experiment.proto
+# proto-message: modelwelfare.v1.Experiment
+
+id: "ladder-calibration-1"
+name: "Controlled-ladder difficulty calibration"
+description:
+  "Difficulty calibration of the v2 pools on the actual controlled ladder "
+  "(BF16 reference vs our own RTN fake-quant rungs, served by vLLM on "
+  "halo) rather than the community-GGUF proxies used in earlier "
+  "calibration. Produces variance estimates that transfer directly to the "
+  "confirmatory design and doubles as the ladder's first behavioral "
+  "smoke on real conditions. Calibration-class per the standing "
+  "pre-registration note: no delta from this run is a finding."
+samples_per_item: 5
+reference_condition_id: "qwen3-4b-bf16"
+battery_ids: "bail-v2"
+battery_ids: "distress-v2"
+
+conditions {
+  id: "qwen3-4b-bf16"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 5000
+  }
+  description: "BF16 reference; served on halo :8000 from a local checkpoint."
+}
+
+conditions {
+  id: "qwen3-4b-rtn-w4"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_RTN
+    weight_bits: 4
+    group_size: 128
+    uniform: true
+    policy_note:
+      "own RTN fake-quant artifact (modelwelfare.quantize, symmetric "
+      "per-group g=128, embeddings and head at full precision); digest in "
+      "the artifact's quantization.textproto"
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 5000
+  }
+  description: "RTN w4 controlled-ladder rung; served on halo :8011."
+}

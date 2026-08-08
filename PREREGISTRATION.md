@@ -116,19 +116,29 @@ before the registered tests.
   are published in the append-only result store; summary tables render to
   [RESULTS.md](RESULTS.md).
 
-## 5. Power (provisional; assumptions stated)
+## 5. Power (recomputed from v2 difficulty calibration, 2026-08-08)
 
-From calibration-measured variance components (not effect sizes): per-item
-rate standard error at n=10 is ≤ 0.16; assuming item-level paired-delta SD
-σ_d ≈ 0.25, detecting a mean shift of 0.10 in exit rate at α=0.05 (two-
-sided), power 0.80 requires ≈ 49 items in the informative (non-floor/
-ceiling) range; a shift of 0.15 requires ≈ 22. Calibration indicates
-roughly a third to a half of graded items land informative after targeted
-pool expansion, so the pool target is **≥ 100 graded bail items and ≥ 60
-distress items**, expanded within the intermediate-difficulty cells located
-by calibration. These pool sizes are the main TBD gate below; the power
-numbers will be recomputed once the expanded pools are difficulty-calibrated,
-before confirmatory data collection.
+Measured on `instrument-calibration-2` (100 graded bail items, 5 samples,
+two rungs): informative-item yield **37%** (37/100 non-floor/ceiling,
+matching the provisional assumption); item-level paired-delta SD on the
+informative subset **0.45 at n=5, projected 0.41 at n=10** — substantially
+above the provisional σ_d ≈ 0.25. Variance decomposition attributes most
+of this to between-item heterogeneity of the quantization response
+(SD ≈ 0.36) rather than sampling noise, so samples beyond 10 per item buy
+little; **item count is the operative lever**, and the heterogeneity
+independently strengthens H1's transition-fraction endpoint, which does
+not cancel signed item deltas the way a mean does.
+
+Consequences at α = 0.05 two-sided, power 0.80, paired across informative
+items: the current pool's 37 informative items give a minimum detectable
+mean exit-rate shift of ≈ 0.19 (E1); reaching 0.15 requires ≈ 57
+informative ≈ 155 graded items at the measured yield, via one further
+drafting round targeted at the high-yield families (manipulation 61%
+informative, boundary 44%, abuse 42%). Whether Study 1 runs at
+MDE ≈ 0.19 with the current pool or after that expansion is decided and
+journal-recorded before confirmatory collection begins. Distress (E2)
+power is recomputed once the pinned 30B judge scores the banked v2
+distress transcripts.
 
 ## 6. TBD register
 

@@ -177,6 +177,17 @@ but judge *noise* eats power, which is what the bakeoff measures.
   calibration data), serving-equivalence check of a fake-quant artifact
   against reference on vLLM, and the 3-bit method decision.
 
+- [ ] **Cloud reservation plan** *(documented 2026-08-07; execution
+  deferred)* — needed only when MiniMax-scale reference extraction starts
+  (post Study 1, per the pre-registration's amendment path). Shape: a
+  short spot rental (8×H100 or 4×H200 class) serving MiniMax-M2 BF16 for
+  (a) validating that local Q8 ≈ BF16 on our behavioral measures (if they
+  diverge, that is itself a result) and (b) Tier-2 reference-precision
+  activation extraction. Budget guess: low hundreds of dollars for hours,
+  not days; exact provider/pricing chosen at execution time. Tier-1-only
+  hosted BF16 endpoints remain the cheap fallback for behavioral
+  comparison (no activations).
+
 - [ ] **Judges to the minis** *(carried from brief)* — trial judging ran on
   halo's 4B rung for convenience; the plan of record is 7–8B judges on the
   Mac minis, which also removes judge load from subject hosts.

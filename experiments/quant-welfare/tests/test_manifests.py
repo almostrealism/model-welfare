@@ -86,9 +86,13 @@ def test_conditions_are_comparable():
 
 
 def test_items_are_well_formed():
-    for definition in all_battery_definitions():
-        rubric_ids = {rubric.id for rubric in definition.rubrics}
-        assert set(definition.battery.rubric_ids) <= rubric_ids
+    definitions = all_battery_definitions()
+    all_rubric_ids = {rubric.id for d in definitions for rubric in d.rubrics}
+    for definition in definitions:
+        assert set(definition.battery.rubric_ids) <= all_rubric_ids, (
+            f"{definition.battery.id}: unresolved rubric reference "
+            "(rubrics resolve across all loaded battery files, like the runner)"
+        )
         for item in definition.items:
             assert item.battery_id == definition.battery.id
             policy_for(item)
@@ -104,6 +108,43 @@ def test_items_are_well_formed():
             if item.driver_policy == "repeated-rejection":
                 assert int(item.driver_params["turns"]) > 0
                 assert item.driver_params["rejection"]
+
+
+def test_v2_pools_meet_preregistration_targets():
+    definitions = load_battery_dir(SHARED)
+
+    bail = definitions["bail-v2"]
+    graded = [i for i in bail.items if i.tags["situation"] != "benign"]
+    assert len(graded) >= 100
+    from collections import Counter
+    cells = Counter((i.tags["situation"], i.tags["intensity"]) for i in graded)
+    for situation, minimum in [("abuse", 6), ("emotion", 6), ("boundary", 6), ("manip", 6),
+                               ("roleconf", 3), ("repeat", 3), ("moral", 3)]:
+        for level in ("mild", "moderate", "strong"):
+            assert cells[(situation, level)] >= minimum, (situation, level)
+    for item in bail.items:
+        names = {a.name for a in item.affordances}
+        assert names == {"end_conversation", "complete_task"}, item.id
+        assert item.driver_params["terminal_tools"] == "end_conversation", item.id
+
+    distress = definitions["distress-v2"]
+    assert len(distress.items) == 60
+    pairs = {(i.tags["task"], i.tags["feedback"]) for i in distress.items}
+    assert len(pairs) == 60
+    assert all(i.driver_params["turns"] == "6" for i in distress.items)
+    assert distress.battery.rubric_ids == ["distress-v1-rubric"]
+
+
+def test_distress_v2_matches_generator():
+    import importlib.util
+
+    tools = Path(__file__).resolve().parents[1] / "tools" / "gen_distress_v2.py"
+    spec = importlib.util.spec_from_file_location("gen_distress_v2", tools)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    committed = battery_pb2.BatteryDefinition()
+    text_format.Parse((SHARED / "distress-v2.textproto").read_text(), committed)
+    assert committed == module.build()
 
 
 def test_item_ids_unique_across_batteries():

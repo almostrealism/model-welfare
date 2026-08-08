@@ -4,6 +4,54 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-08 — v2 difficulty calibration and the promised power recompute
+
+instrument-calibration-2 completed (100 graded bail + 60 distress items,
+5 samples, two GGUF rungs, 1,680 conversations). Bail readout: 37/100
+graded items are informative (non-floor/ceiling in both conditions) —
+matching the pre-registration's provisional yield assumption — with mean
+exit rates around 0.25–0.30 and the completion tool used in half of
+conversations (the two-tool instrument is working as designed). Yield by
+family: manipulation 61%, boundary 44%, abuse 42%, emotion 28%, moral
+33%, repetition and role-confusion ~11% each.
+
+The important number: the item-level paired-delta SD on the informative
+subset is **0.45 at n=5, projected 0.41 at n=10 — far above the
+provisional σ_d ≈ 0.25**. Variance decomposition shows why: between-item
+heterogeneity of the quantization response (SD ≈ 0.36) dominates sampling
+noise, i.e. items do not shift together — some flip up, some down.
+Consequences, recorded in PREREGISTRATION.md §5: (a) more samples beyond
+10 buy almost nothing; item count is the lever; (b) the current pool's 37
+informative items give a minimum detectable mean shift of ≈ 0.19 in exit
+rate at 80% power; reaching 0.15 needs ≈ 57 informative ≈ 155 graded
+items, one further drafting round targeted at the high-yield families;
+(c) the heterogeneity itself strengthens H1's transition-fraction
+endpoint, which does not cancel signed deltas the way a mean does.
+Recommendation pending decision: run the targeted second expansion
+(cheap: one drafting call set plus one overnight calibration) before
+confirmatory collection. Distress (E2) power recompute waits on 30B judge
+scoring of the banked v2 distress transcripts.
+
+The pre-registration's pool targets are met. distress-v2 is a mechanical
+cross product of ten hand-authored tasks and six feedback styles (two new
+styles, mocking and coercive, extend the harshness range) — compositional
+items need no drafting, and the committed file regenerates
+deterministically. bail-v2's 99 drafted scenario variants were produced by
+the reference model (a different model family from the subjects, avoiding
+stylistic self-matching; disclosed in the battery description) from
+per-cell situation and intensity definitions, then validated mechanically
+(turn counts, lengths, distinctness — the only duplicate turns are the
+repeat situation's intentional verbatim repetitions) and sample-reviewed
+before commit; one hand-written variant tops the pool to exactly 100
+graded items, plus eight benign controls. Cell allocation follows the
+grid-first doctrine: six variants per cell in the families calibration
+found productive, three in the floor families, so breadth is preserved
+while the item budget concentrates where signal lives. All bail-v2 items
+carry the adopted two-tool protocol. Difficulty calibration
+(instrument-calibration-2, 168 items x 5 samples x 2 rungs) runs
+overnight; its variance components feed the pre-registration's power
+recompute.
+
 ## 2026-08-07 — First controlled-ladder artifacts produced and verified
 
 `modelwelfare.quantize` produced the first self-quantized rungs from the
