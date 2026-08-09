@@ -158,14 +158,19 @@ but judge *noise* eats power, which is what the bakeoff measures.
 
 ## Infrastructure
 
-- [ ] **Remote host control tooling** *(opened 2026-08-06)* — as machines
-  multiply (halo now; minis and the Studio next), starting/stopping rungs,
-  checking health, and tailing logs by hand won't scale. Candidate shape: a
-  small SSH-wrapping CLI in `services/` (status / start / stop / logs, per
-  host + rung, wrapping each host's own launcher script) usable both from a
-  session and from experiment code; an MCP host-control server is the richer
-  later option if interactive use dominates. Needs: SSH key access from the
-  orchestrating machine(s) to each model host. Decision pending.
+- [x] **Remote host control tooling** *(opened 2026-08-06; done 2026-08-08)* —
+  built `services/fleet.py`: a durable, unit-tested SSH-wrapping CLI (hosts /
+  status / serve / stop / wait / logs / exec, per host + rung, wrapping each
+  host's own launcher script), usable from a session and callable as a
+  subprocess from experiment or policy code (`--json`). Resolves logical host
+  names **LAN-first** (halo → `10.0.0.127`, WAN fallback) — the direct fix for
+  the `hostctl.sh` unreliability, which was hardwired to the flaky WAN name.
+  `hostctl.sh` is now a deprecated shim over fleet. Rationale and the
+  mechanism/policy split (FlowTree as the later policy layer that drives fleet)
+  in `docs/FLEET.md` and the 2026-08-08 journal entry. 14 CI tests. **Follow-on
+  (post-results):** adapt the orchestration to be FlowTree-served — a FlowTree
+  Job that calls fleet via `ProcessBuilder` — rather than the richer MCP option;
+  fleet was built to be that on-ramp.
 
 - [ ] **Controlled-ladder quantization harness** *(carried from brief §2.2;
   RTN complete 2026-08-07)* — `modelwelfare.quantize` produces RTN

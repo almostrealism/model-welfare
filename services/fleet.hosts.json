@@ -1,0 +1,27 @@
+{
+  "studio": {
+    "targets": [],
+    "repo": ".",
+    "aliases": ["studio-m1u", "127.0.0.1", "localhost"]
+  },
+  "halo": {
+    "targets": ["agent1@10.0.0.127", "agent1@amd-halo"],
+    "repo": "~/repo/model-welfare",
+    "aliases": ["amd-halo", "10.0.0.127"]
+  },
+  "mini-1": {
+    "targets": ["agent1@mini-1"],
+    "repo": "~/repo/model-welfare",
+    "aliases": []
+  },
+  "mini-2": {
+    "targets": ["agent1@mini-2"],
+    "repo": "~/repo/model-welfare",
+    "aliases": []
+  },
+  "mini-3": {
+    "targets": ["agent1@mini-3"],
+    "repo": "~/repo/model-welfare",
+    "aliases": []
+  }
+}

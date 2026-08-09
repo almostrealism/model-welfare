@@ -86,8 +86,9 @@ model-welfare/
 │   ├── anthropic/           #   client for the Anthropic API (reference judge)
 │   ├── torch/    (PLANNED)  #   transformers + forward-hook activation capture (Tier 2)
 │   └── mlx/      (PLANNED)  #   Apple-silicon inference + array taps (Tier 2)
-├── services/                # serving/orchestration scripts: vLLM + llama.cpp
-│                            # launchers, cross-host control wrapper
+├── services/                # serving/orchestration: vLLM + llama.cpp launchers,
+│                            # and fleet.py — cross-host service control (see
+│                            # docs/FLEET.md): LAN-first SSH, health, status
 ├── experiments/             # one subtree per study
 │   └── quant-welfare/       #   the quantization × welfare study: manifests, item
 │                            #   batteries, rubrics, runner, analysis, bakeoff

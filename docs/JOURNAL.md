@@ -4,6 +4,42 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-08 — Cross-host control: `fleet` (mechanism), FlowTree deferred to policy
+
+Repeated failures directing multi-stage work on halo over SSH (a bootstrap
+that died on a transient WiFi drop and was never restarted; a control wrapper,
+`hostctl.sh`, hardwired to the flaky WAN name `amd-halo`) forced the tooling
+question the project had been deferring: how do we reliably direct LLM services
+across many machines? Considered adapting FlowTree, which already orchestrates
+agent work across dozens of machines. Rejected for now, on evidence: FlowTree's
+primitives (`Controller`, `NodeGroup`, `GitManagedJob`, `AgentRunner`) target
+short-lived, git-tracked, one-shot agent jobs — no health checks, no restart,
+no long-running process supervision, and label/capability routing is planned
+but unbuilt. Supervising persistent vLLM/llama.cpp servers would mean a new Job
+type plus the routing layer — a large change in a domain FlowTree's track record
+does not cover.
+
+Decision: **mechanism/policy split.** Built `services/fleet.py` as the mechanism
+— a durable, unit-tested CLI that resolves logical host names LAN-first (halo →
+`10.0.0.127`, WAN as fallback — the direct fix for the `hostctl` unreliability),
+runs each host's own launcher scripts over SSH (one source of truth per host),
+probes endpoint health uniformly, and emits structured `--json` status. Because
+every command is a subprocess with machine-readable output, FlowTree can later
+drive fleet via `ProcessBuilder` and become the policy/scheduler layer without
+reimplementing service supervision — so this is FlowTree's on-ramp, not a
+detour around it. Adapting the orchestration to be FlowTree-served is the
+intended post-results step. `hostctl.sh` is now a thin deprecated shim over
+fleet. Design and rationale in `docs/FLEET.md`; 14 unit tests
+(`services/tests/`, network seam monkeypatched) run in CI across 3.11–3.13.
+
+Separately root-caused the halo bootstrap: it did not stall, it died at ~20:22
+on a transient link drop (venv pip step failed on connectivity; an earlier
+download loop got only the 3 small files before the first shard was
+`Terminated`). The network is healthy again. Since studio already holds the
+verified BF16 checkpoint and the full RTN ladder (digest-preserved), the
+HF-download-and-regenerate bootstrap is redundant given LAN access; the ladder
+is being pushed studio→halo over the LAN with end-to-end digest verification.
+
 ## 2026-08-08 — Pre-registration amendment: SmolLM3 positive control (H6)
 
 Registered a positive control in the confirmatory design, as a dated

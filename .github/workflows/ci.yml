@@ -28,4 +28,4 @@ jobs:
         # Live tests (test_live.py) self-skip without MW_*_URL env vars.
         run: |
           PYTHONPATH=core/src:backends/llamacpp/src:backends/vllm/src:backends/anthropic/src \
-            python -m pytest core/tests backends experiments/quant-welfare/tests -q
+            python -m pytest core/tests backends experiments/quant-welfare/tests services/tests -q
