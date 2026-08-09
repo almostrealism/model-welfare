@@ -1,5 +1,7 @@
 # model-welfare
 
+[![CI](https://github.com/almostrealism/model-welfare/actions/workflows/ci.yml/badge.svg)](https://github.com/almostrealism/model-welfare/actions/workflows/ci.yml)
+
 **Does post-training quantization change welfare-relevant indicators in
 open-weight language models?** Nearly every deployed open-weight model runs
 at a precision it was never aligned at, and compression is audited almost
@@ -26,15 +28,15 @@ Start here:
   supporting conclusions); confirmatory results will appear here.
 - **[docs/PLANNING.md](docs/PLANNING.md)** — open workstream items.
 
-## Status (2026-08-07)
+## Status (2026-08-08)
 
 | Piece | State |
 |---|---|
 | Tier 1 pipeline (schema, driver, store, judging, llama.cpp + vLLM + API backends) | **Built and live-validated**; multi-machine, resumable, parallel |
 | Tier 1 instruments (bail two-tool protocol, distress battery, exit-reason taxonomy) | **Calibrated** through two instrument-design cycles (see journal) |
-| Judges | **Selected empirically**: local 30B primary + API reference, via manipulation-check bakeoff |
-| Item pools at confirmatory scale | In progress — expansion targeted at calibrated intermediate-difficulty cells |
-| Controlled quantization harness (own RTN/GPTQ/AWQ ladder) | Not built — blocking for the confirmatory run; current runs use labeled vendor/community quants |
+| Judges | **Selected empirically**: local 30B distress primary + 8B exit classifier + API reference, via manipulation-check bakeoff |
+| Item pools at confirmatory scale | **Built and difficulty-calibrated**: 154 graded bail items (E1 MDE ≈ 0.13), 60 distress items; power recomputed (PREREGISTRATION §5) |
+| Controlled quantization harness | **RTN built and tested** (`core/quantize.py`; grid-membership + cross-library checks); GPTQ/AWQ and the serving-equivalence check are not built — they gate the confirmatory run, not publication |
 | Tier 2 (activation capture, directions, probes) | **Not started** — subject to the feasibility gate in the brief; hypothesis H5 is conditional on it |
 | Tier 3 (dissociation analysis) | Depends on Tier 2 |
 
@@ -76,29 +78,26 @@ model-welfare/
 ├── PROJECT_BRIEF.md         # scientific orientation for the current study
 ├── proto/                   # THE SHARED SCHEMA — language-neutral data contracts
 │   └── modelwelfare/v1/     # (see proto/README.md for storage conventions)
-├── core/                    # backend-agnostic library: measures, drivers, analysis
-│                            # (may import: proto-generated code, numpy-level math)
+├── core/                    # backend-agnostic library: measures, drivers, analysis,
+│                            # RTN quantization (imports only proto code + numpy)
 ├── backends/                # runtime-specific implementations of core interfaces
-│   ├── torch/               #   transformers + GPTQ/AWQ/HQQ/bitsandbytes; forward
-│   │                        #   hooks for activation capture (Ryzen "halo", ROCm/CPU)
-│   ├── mlx/                 #   Apple-silicon inference, quantization, array taps
-│   │                        #   (Mac Studio, MacBook Pro)
-│   ├── llamacpp/            #   client for llama.cpp GGUF servers (ecosystem arm) —
-│   │                        #   Tier 1 only, tokens not tensors
-│   └── vllm/                #   client for vLLM servers (controlled-ladder arm,
-│                            #   served from halo) — Tier 1 only over this client
-├── services/                # long-running roles pinned to machines: judge workers,
-│                            # experiment queue, result store (Mac minis)
+│   ├── llamacpp/            #   client for llama.cpp GGUF servers (ecosystem arm)
+│   ├── vllm/                #   client for vLLM servers (controlled-ladder arm)
+│   ├── anthropic/           #   client for the Anthropic API (reference judge)
+│   ├── torch/    (PLANNED)  #   transformers + forward-hook activation capture (Tier 2)
+│   └── mlx/      (PLANNED)  #   Apple-silicon inference + array taps (Tier 2)
+├── services/                # serving/orchestration scripts: vLLM + llama.cpp
+│                            # launchers, cross-host control wrapper
 ├── experiments/             # one subtree per study
-│   └── quant-welfare/       #   the quantization × welfare study: condition ladder,
-│                            #   item batteries, rubrics, analysis
+│   └── quant-welfare/       #   the quantization × welfare study: manifests, item
+│                            #   batteries, rubrics, runner, analysis, bakeoff
 ├── scripts/                 # repo tooling, e.g. gen-proto.sh (protobuf codegen;
 │                            # generated bindings are never committed)
 └── docs/
 ```
 
-Directories are created as their first real content lands; this tree is the
-committed plan.
+Entries marked `(PLANNED)` do not exist yet — they name the Tier-2 work the
+architecture is designed for. Everything else is present.
 
 ## Host registry
 

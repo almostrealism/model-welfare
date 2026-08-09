@@ -18,7 +18,7 @@
 
 set -euo pipefail
 
-IMAGE="${MW_VLLM_IMAGE:-oci-registry.ryai.dev/ryai-vllm:latest}"
+IMAGE="${MW_VLLM_IMAGE:-vllm-rocm:latest}"  # set to your ROCm vLLM image
 MODELS_DIR="${MW_MODELS_DIR:-$HOME/models}"
 VLLM_CACHE="${MW_VLLM_CACHE:-$HOME/.cache/vllm}"
 MAX_LEN="${MW_MAX_LEN:-32768}"

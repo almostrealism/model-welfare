@@ -90,11 +90,10 @@ be the same variable everywhere, and the battery's conversations are short.
 
 ## The container
 
-The image (`oci-registry.ryai.dev/ryai-vllm:latest`, vLLM 0.21.0+rocm713,
-torch 2.10.0+rocm7.13.0) bundles its own ROCm userspace via TheRock. Do **not**
-bind-mount the host's `/opt/rocm` into it — that is the arrangement the OpenCL
-CI runner on this same host uses, and it is the opposite of what this image
-wants.
+The image (a ROCm vLLM build — vLLM 0.21.0+rocm713, torch 2.10.0+rocm7.13.0;
+set via `MW_VLLM_IMAGE`) bundles its own ROCm userspace via TheRock. Do
+**not** bind-mount the host's `/opt/rocm` into it — this image ships its own
+ROCm and a host bind-mount is the opposite of what it wants.
 
 Three container-level facts, each of which costs an hour if unknown:
 

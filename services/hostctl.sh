@@ -26,11 +26,13 @@ host_target() {
   esac
 }
 
-# Repo path on each host (this repo lives at a different path per machine).
+# Repo path on each host (this repo may live at a different path per
+# machine). Edit for your fleet; the local checkout is derived from this
+# script's own location.
 host_repo() {
   case "$1" in
     halo)   echo "~/repo/model-welfare" ;;
-    studio) echo "/Users/agent1/Projects/model-welfare" ;;
+    studio) (cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd) ;;
   esac
 }
 

@@ -8,5 +8,10 @@ build/
 
 core/src/modelwelfare/v1/
 
-data/
 commit.txt
+
+# The result store is NOT committed (it only grows). It is published as a
+# GitHub release asset instead — see RESULTS.md for the download, and
+# scripts/publish-data-release.sh to cut a new one.
+data/
+data-store-*.tar.gz

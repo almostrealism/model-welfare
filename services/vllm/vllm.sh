@@ -42,7 +42,7 @@
 
 set -euo pipefail
 
-IMAGE="${MW_VLLM_IMAGE:-oci-registry.ryai.dev/ryai-vllm:latest}"
+IMAGE="${MW_VLLM_IMAGE:-vllm-rocm:latest}"  # set to your ROCm vLLM image
 HF_CACHE="${MW_HF_CACHE:-${HOME}/.cache/huggingface}"
 VLLM_CACHE="${MW_VLLM_CACHE:-${HOME}/.cache/vllm}"
 

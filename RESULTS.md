@@ -11,12 +11,20 @@ quantization. They are published because the pre-registration's credibility
 rests on the full run history being visible. Judge-selection results
 (the bakeoff) are summarized in [docs/JOURNAL.md](docs/JOURNAL.md).
 
-Tables are rendered from the append-only result store by
-`experiments/quant-welfare/report.py`; regenerate with:
+The full result store is published as a **GitHub release asset** (it only
+grows, so it is not committed to the tree). To reproduce every table below
+from the raw records:
 
 ```bash
+# download the latest data-store-*.tar.gz from the repo's Releases page, then:
+tar xzf data-store-*.tar.gz          # creates data/
 python3 experiments/quant-welfare/report.py
 ```
+
+Each stored record carries its git commit, host, and (for scores) the
+judge identity and rubric SHA-256, so the release asset is a
+self-describing, auditable snapshot. Maintainers cut a new one with
+`scripts/publish-data-release.sh`.
 
 <!-- GENERATED BELOW — do not edit by hand -->
 

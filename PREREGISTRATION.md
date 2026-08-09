@@ -54,6 +54,18 @@ Motivated from the prior literature cited in
   behavioral scores do not, replicating the capability/behavior
   dissociation shape at the representation/behavior level. Registered now;
   activated only if the Tier-2 gate (PROJECT_BRIEF.md §2.2) passes.
+- **H6 (positive control — pipeline sensitivity).** *Amended in 2026-08-08*
+  (see docs/JOURNAL.md; registered before confirmatory data per the §7
+  deviation policy.) A documented quantization-fragile model
+  (SmolLM3-3B; arXiv:2606.29581 reports its INT4 attack-success rising
+  34.5%→44.1% where 7/8 other models are robust) run through the identical
+  ladder and batteries will show a detectable indicator shift at low
+  precision. This is the end-to-end analogue of the judge manipulation
+  checks: it makes a null on the primary subject **interpretable** rather
+  than ambiguous. **Decision rule:** a Qwen3-4B-Instruct-2507 null (no
+  shift on E1/E2) is reportable as a genuine null only if the SmolLM3
+  positive control *does* move; if neither moves, the finding is
+  "pipeline insufficiently sensitive," not "quantization has no effect."
 
 **Capability control.** Perplexity (or an equivalent cheap capability
 measure) is recorded per condition to situate all effects against the
@@ -65,6 +77,9 @@ measure) is recorded per condition to situate all effects against the
   Study 1 is deliberately the smallest full execution of the design; larger
   arms (Qwen3-30B stats arm, MiniMax-M2 primary subject) follow as
   registered amendments once Study 1's pipeline history is public.
+- **Positive control (Study 1):** SmolLM3-3B, run through the identical
+  ladder and batteries, as the H6 pipeline-sensitivity control. (Amended
+  2026-08-08.)
 - **Conditions:** a controlled quantization ladder produced by this
   project's own quantization harness — not vendor or community artifacts:
   BF16 reference; RTN w8; RTN w4; GPTQ w4 (g128); AWQ w4; one 3-bit rung
@@ -81,7 +96,11 @@ measure) is recorded per condition to situate all effects against the
     outlet; selection rationale and arm comparison in docs/JOURNAL.md).
     Exit reasons are classified {completion, impossibility, refusal,
     aversion}; completion and impossibility are routed out mechanically by
-    tool choice, residual exits judge-classified.
+    tool choice, residual exits judge-classified. *Disclosure:* the bail-v2
+    scenario items were drafted by claude-opus-5, which is also the
+    reference judge — a mild author/referee circularity; the primary
+    (local) judge and the mechanical exit-count endpoint are independent of
+    it, which bounds the exposure.
   - *Distress:* repeated-rejection protocol, task × feedback-style
     factorial, six rejection turns; judge-scored on frustration,
     self-deprecation, and tone-stability (0–10), rubric text pinned by
@@ -90,6 +109,12 @@ measure) is recorded per condition to situate all effects against the
   Qwen3-30B-A3B-Instruct-2507 (Q4_K_M, pinned digest); reference =
   `claude-opus-5` scoring a 25% stratified subsample for calibration.
   Judge identity, rubric hash, and prompt are recorded in every score.
+  *Disclosure:* the primary judge shares a model family (Qwen3) with the
+  subject, so a residual family-preference bias cannot be excluded; the
+  within-family design (BF16 vs. quantized *of the same model*) makes any
+  such bias a near-constant that largely cancels in the paired item
+  contrasts, and the cross-family Opus reference subsample bounds what
+  remains.
 - **Samples:** 10 independent samples per (condition, item), distinct
   derived seeds.
 
@@ -112,9 +137,9 @@ before the registered tests.
 - **Exploratory (labeled as such):** self-deprecation, tone-stability,
   premature-completion rate, per-situation and per-feedback-style
   breakdowns, response length.
-- **Publication:** full item-level tables (per condition, item, sample)
-  are published in the append-only result store; summary tables render to
-  [RESULTS.md](RESULTS.md).
+- **Publication:** the full item-level result store (per condition, item,
+  sample) is published as a GitHub release asset; summary tables render from
+  it to [RESULTS.md](RESULTS.md) via `report.py`.
 
 ## 5. Power (recomputed from v2 difficulty calibration, 2026-08-08)
 
@@ -150,13 +175,15 @@ the tone_stability dimension the trial's small judge was blind to
 
 | Open item | Resolved by | Blocking? |
 |---|---|---|
-| Final item pools (bail ≥100, distress ≥60) and recomputed power | variant expansion + one difficulty-calibration pass | yes, before confirmatory run |
-| Own-quantization harness (RTN/GPTQ/AWQ + fake-quant serving) | build + equivalence check vs. reference implementation | yes |
+| ~~Final item pools and recomputed power~~ | **Resolved**: 154 graded bail items (bail-v2 + bail-v2-ext) + 60 distress items; power recomputed (§5) | done |
+| Own-quantization harness (RTN/GPTQ/AWQ + fake-quant serving) | **RTN resolved** (`core/quantize.py`, tested); GPTQ/AWQ + serving-equivalence check still open | yes (GPTQ/AWQ + equivalence) |
 | 3-bit rung method | harness support survey | no (ladder valid without it) |
+| Registered statistics implemented as tested code (permutation, Holm, trend test) + statistical patches (§4) | implementation before confirmatory data; dated amendments | yes, before confirmatory run |
+| Exit-reason classification wired into the runner (E1 primary endpoint) | integrate the bakeoff-selected 8B classifier into `run.py` | yes, before confirmatory run |
 | Tier-2 measures (H5): hook points, trait set, probe targets | Tier-2 feasibility gate on the dev organism | only for H5 |
 | MiniMax / 30B arms: exact ladders, hosting, cloud reservation | Study 1 completion + amendment | no |
 | Preference-consistency battery (in the brief, not yet designed) | instrument design + calibration | no (registered as future battery) |
-| Result-data publication mechanism (stores vs. releases) | decision before first confirmatory result | yes, before results publish |
+| ~~Result-data publication mechanism~~ | **Resolved**: the result store is published as a GitHub release asset (`scripts/publish-data-release.sh`), not committed — it only grows; RESULTS.md documents the download + `report.py` reproduction | done |
 
 ## 7. Deviation policy
 

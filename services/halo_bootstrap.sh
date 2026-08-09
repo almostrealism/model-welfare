@@ -23,8 +23,16 @@ FILES=(config.json generation_config.json merges.txt
        model-00003-of-00003.safetensors model.safetensors.index.json
        tokenizer.json tokenizer_config.json vocab.json)
 
-echo "== python deps =="
-python3 -m pip install --user --quiet numpy protobuf grpcio-tools 2>&1 | tail -2 || true
+echo "== python venv + deps =="
+# Debian/Ubuntu enforce PEP 668 (externally-managed), so install into a
+# venv rather than fighting --break-system-packages. Activating it makes
+# python3 resolve to the venv for gen-proto and the quantizer below, which
+# also gives a protobuf runtime matching the gencode we generate.
+VENV="$HOME/mw-venv"
+[ -d "$VENV" ] || python3 -m venv "$VENV"
+"$VENV/bin/pip" install --quiet --upgrade pip numpy protobuf grpcio-tools 2>&1 | tail -3
+source "$VENV/bin/activate"
+python3 -c "import numpy, google.protobuf, grpc_tools.protoc; print('deps ok')"
 
 echo "== proto bindings =="
 bash scripts/gen-proto.sh
@@ -37,7 +45,7 @@ for f in "${FILES[@]}"; do
   fi
   echo "  fetching $f"
   for attempt in $(seq 1 20); do
-    curl -fsSL -C - -o "$SRC/$f" "$HF/$f" && break
+    curl -4 -fsSL -C - -o "$SRC/$f" "$HF/$f" && break
     echo "    retry $attempt for $f"; sleep 10
   done
 done

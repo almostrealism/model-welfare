@@ -4,6 +4,25 @@ The study described in [PROJECT_BRIEF.md](../../PROJECT_BRIEF.md). Everything
 here is study-specific: condition ladders, stimulus batteries, rubrics, and
 the runner. Generic machinery lives in `core/` and `backends/`.
 
+## Experiments in this directory
+
+Each subdirectory with an `experiment.textproto` is one run manifest;
+`--experiment <dir>` selects it. All runs to date are **calibration-class**
+(barred from findings — see the pre-registration note below); the
+confirmatory run is not yet registered as a manifest here.
+
+| Directory | Purpose |
+|---|---|
+| `trial/` | first Tier-1 pipeline shakeout (Qwen3-8B BF16 vs vendor AWQ); documented below |
+| `calibration/` | v1-pool difficulty calibration on GGUF dev-organism rungs |
+| `calibration2/` | v2-pool (bail-v2 + distress-v2) difficulty calibration; feeds the power recompute |
+| `calibration2-ext/` | round-2 bail expansion (bail-v2-ext) calibration |
+| `ladder-calibration/` | calibration on the real controlled ladder (BF16 vs own RTN-w4), pending the quantization workbench host |
+| `bail-arms/` | three-arm comparison selecting the non-terminal completion tool (see journal) |
+| `bakeoff/` | judge selection: synthetic manipulation checks + real transcripts (not a run manifest — see `bakeoff/run_bakeoff.py`) |
+| `batteries/` | shared stimulus pools reused across manifests |
+| `tools/` | battery generators and the serving-equivalence check |
+
 ## Trial run (`trial/`)
 
 An early shakeout of the Tier-1 pipeline, not a source of conclusions:

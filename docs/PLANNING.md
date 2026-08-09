@@ -144,8 +144,8 @@ but judge *noise* eats power, which is what the bakeoff measures.
   Qwen3-30B-A3B-Instruct-2507 Q4 (~18 GB) as the large local judge
   candidate. The on-disk Qwen3-Coder-30B is coder-tuned and not a suitable
   welfare-rubric judge candidate.
-  Provenance notes: `/Users/Shared/models` is not writable by the agent
-  account, so these live in `/Users/agent1/models` (same volume). Qwen
+  Provenance notes: the checkpoints live in the serving account's home
+  model directory. Qwen
   published no official GGUFs for the 2507 releases; the 2507 files are
   bartowski conversions — plain K-quants (no per-layer upcasting), but
   **imatrix-calibrated**. Irrelevant for item-difficulty calibration and
@@ -153,10 +153,8 @@ but judge *noise* eats power, which is what the bakeoff measures.
   provenance goes in `QuantizationSpec.policy_note`. Qwen3-8B files are
   official Qwen GGUFs.
   Studio hosting note (2026-08-07): additional llama.cpp servers on the
-  studio are approved, including stopping the shared :8084 server if
-  headroom demands it — with :8084 down, ar-consultant memory operations
-  store raw text instead of reformulated summaries, which is acceptable
-  (the reformulation currently garbles content anyway; a fix is underway).
+  studio share the Metal budget with any resident shared server; stopping
+  the latter to free headroom is fine when a judge rung needs it.
 
 ## Infrastructure
 

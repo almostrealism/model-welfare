@@ -4,6 +4,26 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-08 — Pre-registration amendment: SmolLM3 positive control (H6)
+
+Registered a positive control in the confirmatory design, as a dated
+amendment under the §7 deviation policy and before any confirmatory data
+exists — which is exactly what that policy is for. Rationale: without an
+end-to-end sensitivity control, the most likely hard outcome (a null on the
+Qwen3-4B subject) is uninterpretable — "quantization doesn't move welfare
+indicators" and "this pipeline can't detect movement" look identical. The
+repo already applies manipulation checks to judges; H6 extends the same
+"don't trust an instrument you haven't seen move" discipline to the whole
+pipeline. SmolLM3-3B is the natural control: arXiv:2606.29581 documents it
+as the quantization-fragile outlier (INT4 attack success 34.5%→44.1% where
+7/8 other models are robust). Decision rule registered in PREREGISTRATION §2
+(H6): a Qwen3-4B null is reportable as a genuine null only if the SmolLM3
+control moves; if neither moves, the result is "pipeline insufficiently
+sensitive," not "no effect." Also added two one-sentence disclosures to §3
+(judge/subject Qwen-family overlap; the opus-5 author/referee circularity on
+bail-v2), pre-empting two obvious reviewer catches. The SmolLM3 run itself
+is confirmatory-time work; only the registration lands now.
+
 ## 2026-08-08 — Distress judged by the 30B: E2 power, and tone_stability recovered in real data
 
 The pinned 30B judge scored all 600 banked distress-v2 transcripts (0
