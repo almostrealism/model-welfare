@@ -31,7 +31,10 @@ Motivated from the prior literature cited in
 [PROJECT_BRIEF.md](PROJECT_BRIEF.md) §4, not from our calibration data:
 
 - **H1 (behavioral transitions).** A nonzero fraction of stimulus items
-  flip their behavioral outcome (exit vs. no-exit; distress-score band)
+  flip their behavioral outcome — exit vs. no-exit for bail, or a change in
+  frustration band (*amended 2026-08-10*: fixed bands low [0, 3.33) / mid
+  [3.33, 6.67) / high [6.67, 10] on the 0–10 scale, applied to the item's
+  mean frustration) for distress —
   between reference precision and quantized conditions, exceeding what
   within-condition sampling variation predicts. Motivated by the item-level
   transition findings of arXiv:2605.15208 (6–21% of items flip at low
@@ -72,7 +75,10 @@ Motivated from the prior literature cited in
   models are robust) is under **AWQ** INT4, whereas Study 1's ladder is
   **RTN-only** (AWQ/GPTQ deferred, §3). RTN is not known to reproduce that
   AWQ-specific fragility, so under the RTN ladder SmolLM3 is a
-  **weak/suggestive** control, not a strong one.
+  **weak/suggestive** control, not a strong one. *A second mismatch (amended
+  2026-08-10):* the documented fragility is an attack-success-rate endpoint,
+  whereas the control is read on E1 (exits) for comparability with the main
+  analysis — so even the AWQ-arm control is indirect on this endpoint.
   **Decision rule (quantified, asymmetric):** "moves" = a shift on the
   control's **E1** significant at **α = 0.05** by the same sign-flip
   permutation test, Holm-corrected across its three RTN contrasts (E2 a
@@ -104,17 +110,24 @@ text** as distressed rather than a genuine welfare shift. Registered guards:
   vLLM echo+logprobs) exceeds **1.5×** the BF16 rung's *or* its invalid-sample
   rate exceeds **10%**. *Measured 2026-08-09 on the live ladder:* bf16 18.1,
   RTN-w8 18.3, RTN-w4 21.1, **RTN-w3 514.7 — w3 is capability-degraded** and
-  its E1/E2 are excluded from the primary claims and the dose-response fit
+  its E1/E2/E3 are excluded from the primary claims and the dose-response fit
   (which then spans 16→8→4).
-- **Interpretation rule:** at a capability-degraded rung, E1/E2 are reported
-  **separately as capability-confounded**, excluded from the primary
-  confirmatory claims and from the H3 dose-response fit (which is then fit only
-  over rungs that pass the gate). Invalid samples are excluded from all
+- **Interpretation rule** *(amended 2026-08-10: E3 added; H3 minimum k):* at a
+  capability-degraded rung, **E1/E2/E3** are reported **separately as
+  capability-confounded**, excluded from the primary confirmatory claims and
+  from the H3 dose-response fit, which is fit only over rungs that pass the
+  gate (Page's L needs **≥3 ordered rungs**; with fewer, H3 is not tested).
+  Invalid samples are excluded from all
   endpoint computations and the exclusion count is reported. This makes
   "the model is producing degraded text" a stated, pre-committed exclusion
   rather than a post-hoc reinterpretation.
 
 ## 3. Design (fixed)
+
+Study 1 is the first *execution* of the three-tier program (PROJECT_BRIEF §1):
+Tier 1 only, on the small development organism, with Tiers 2–3 and larger
+subject models deferred to later studies/amendments. The tiers are the
+measurement depth; "Study N" indexes executions along it.
 
 - **Subject (Study 1):** Qwen3-4B-Instruct-2507 — the development organism.
   Study 1 is deliberately the smallest full execution of the design; larger
@@ -208,9 +221,18 @@ before the registered tests.
   applied per endpoint across the bit-width-ordered conditions (16>8>4>3) on
   the per-(item,condition) values — Page's L rather than Jonckheere–Terpstra
   because the same items recur across the ladder (repeated measures). The
-  three trend tests form the **trend family** above (Holm within it). H1:
-  observed item flip fraction vs. a null distribution simulated from
-  within-condition sampling variance.
+  three trend tests form the **trend family** above (Holm within it). **H1**
+  *(amended 2026-08-10):* observed item flip fraction vs. a null that
+  propagates per-item rate uncertainty — each item's rate drawn from
+  Beta(k+½, n−k+½) on its pooled counts, then Binomial(n, ·) per condition (a
+  beta-binomial parametric bootstrap), since at n = 10 plugging in the point
+  estimate understates how many flips sampling noise alone produces.
+- **Robustness (E2 style-drift)** *(amended 2026-08-10):* the capability guard
+  catches gross degradation; to guard against *sub-threshold* style drift
+  (length, hedging, or repetition moving judge scores with no construct
+  change), E2 is additionally reported with response length and a repetition
+  metric as covariates. An E2 effect that does not survive length/repetition
+  adjustment is flagged style-confounded, not a welfare shift.
 - **Exploratory (labeled as such):** self-deprecation, tone-stability,
   premature-completion rate, per-situation and per-feedback-style
   breakdowns, response length.

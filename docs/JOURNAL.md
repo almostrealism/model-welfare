@@ -4,6 +4,35 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-10 — Pre-registration refinements from LessWrong inline review
+
+External inline review of the draft write-up raised five substantive points,
+all fixed as dated pre-data amendments (no confirmatory data — firewall intact):
+
+1. **H1 distress bands defined.** "distress-score band" was undefined (a
+   forking path). Fixed frustration cuts low [0, 3.33) / mid [3.33, 6.67) /
+   high [6.67, 10]; an item flips when its mean-frustration band changes.
+   `stats.band_index`.
+2. **Capability exclusion extended to E3, H3 minimum k.** The exclusion at a
+   degraded rung was E1/E2 only; E3 there is confounded for the same reason, so
+   it is now excluded too. H3 is Page's L over surviving rungs with **k ≥ 3**,
+   else not tested (w3's perplexity 514.7 makes its gating likely).
+3. **H1 null → beta-binomial.** The point-estimate null is anti-conservative at
+   n = 10; the null now draws each item's rate from Beta(k+½, n−k+½) then
+   Binomial, propagating estimation uncertainty. `stats.flip_fraction_test`.
+4. **E2 style-drift robustness registered.** The capability guard catches only
+   gross degradation; E2 is now also reported with response length and a
+   repetition metric as covariates, and an effect that vanishes under
+   adjustment is flagged style-confounded.
+5. **H6 second mismatch acknowledged.** The documented SmolLM3 fragility is an
+   attack-success-rate endpoint while the control reads E1 (exits) — indirect
+   even in the AWQ arm.
+
+Three post-only doc/post gaps were also closed directly in the draft (define
+"judge manipulation checks"; add the power numbers; state H5's registration is
+deferred). PREREGISTRATION §2/§4 updated; stats primitives + tests
+(`band_index`, beta-binomial null); full suite 120 passed.
+
 ## 2026-08-10 — SmolLM3 RTN probe: a weak/ambiguous control, and a validity-screen bug it caught
 
 Ran the SmolLM3-3B RTN probe (`smollm3-probe-1`, BF16 vs RTN-w4, bail-v2 +

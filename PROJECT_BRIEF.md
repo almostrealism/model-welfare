@@ -105,7 +105,7 @@ Agents: use these as stated. Each entry says what we take from it and what we co
   *Learn:* survey of mixed prior findings (their §2.2 is a ready-made related-work map); dynamic quantization more stable than static; larger models more consistent across quant methods; non-English degradation worse.
   *Compare:* if we test any multilingual condition, benchmark expectations come from here.
 
-- **"Alignment-Aware Quantization for LLM Safety"** — arXiv:2511.07842.
+- **"Safety-Preserving PTQ via Contrastive Alignment Loss"** — arXiv:2511.07842.
   *Learn:* naïve PTQ (RTN/GPTQ, W4A4) can catastrophically drop safety scores; "token-flipping" regression toward pre-trained outputs on sensitive prompts — a mechanistically suggestive framing (quantization as partial *undoing* of post-training) that maps directly onto persona-selection theory.
   *Compare:* their W4A4 severity vs our weight-only ladder; if we see persona regression toward base-model character, cite their token-flipping observation.
 

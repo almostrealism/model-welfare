@@ -124,10 +124,14 @@ with declared TBDs); (3) confirmatory experiments — gated below.
   Measured live: bf16 18.1, w8 18.3, w4 21.1, **w3 514.7 → capability-degraded**
   (w3's E1/E2 excluded from primary claims + H3 fit; dose-response spans 16→8→4).
   Tests in `test_validity.py`.
-- [ ] **Hierarchical Holm in the analysis driver** *(opened 2026-08-09)* — the
-  store→registered-tests driver must apply Holm **within** each family (E1 primary;
-  E2, E3, trend as separate families), not a flat 9-test pool. Primitives exist
-  in `stats.py`; the driver wiring is the remaining piece.
+- [ ] **Store→registered-tests analysis driver** *(opened 2026-08-09; scope
+  extended 2026-08-10)* — wires the tested `stats.py` primitives over the store.
+  Must implement: hierarchical Holm **within** each family (E1 primary; E2, E3,
+  trend separate), not a flat 9-test pool; the E1 **and** distress band-flip H1
+  endpoints (`band_index`, beta-binomial `flip_fraction_test`); the capability
+  gate excluding E1/E2/E3 at degraded rungs with H3 over surviving rungs
+  (k ≥ 3); and the E2 style-drift robustness (length + repetition covariates).
+  Primitives + tests exist; the driver wiring is the remaining piece.
 - [x] **ladder-calibration-1** *(done 2026-08-09; calibration)* — full pipeline
   on the real BF16-vs-RTN-w4 ladder (840 samples/condition, 300 distress scores,
   all exits classified, 0 unscored). Instruments validated: bail-v2 informative

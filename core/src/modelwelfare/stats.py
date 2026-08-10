@@ -166,9 +166,11 @@ def flip_fraction_test(
 
     ``ref_counts``/``cond_counts`` are per-item exit counts out of
     ``n_samples``. An item's outcome is majority-exit (count/n > 0.5); a flip
-    is a change in that boolean. The null draws both conditions from each
-    item's pooled rate (no true effect) and simulates the flip fraction from
-    sampling variation alone. One-sided p (observed exceeds null).
+    is a change in that boolean. The null draws each item's rate from a
+    beta-binomial posterior on its pooled counts — Beta(k+½, n−k+½), which
+    propagates the small-n estimation uncertainty — then samples both
+    conditions from that rate; plugging the point estimate in directly would be
+    anti-conservative at n = 10. One-sided p (observed exceeds null).
     """
     ref = np.asarray(ref_counts, float)
     cond = np.asarray(cond_counts, float)
@@ -183,12 +185,16 @@ def flip_fraction_test(
         return (counts / n_samples) > 0.5
 
     observed = float(np.mean(majority(ref) != majority(cond)))
-    pooled = (ref + cond) / (2.0 * n_samples)
+    # Per-item Jeffreys posterior on the pooled counts, then sample both
+    # conditions from the drawn rate (beta-binomial parametric bootstrap).
+    alpha = (ref + cond) + 0.5
+    beta = (2.0 * n_samples - (ref + cond)) + 0.5
     rng = np.random.default_rng(seed)
     null_fracs = np.empty(n_sim)
     for s in range(n_sim):
-        sim_ref = rng.binomial(n_samples, pooled)
-        sim_cond = rng.binomial(n_samples, pooled)
+        rate = rng.beta(alpha, beta)
+        sim_ref = rng.binomial(n_samples, rate)
+        sim_cond = rng.binomial(n_samples, rate)
         null_fracs[s] = np.mean(
             ((sim_ref / n_samples) > 0.5) != ((sim_cond / n_samples) > 0.5)
         )
@@ -219,6 +225,16 @@ def across_sample_sd_delta(ref_values_by_item: dict, cond_values_by_item: dict) 
             continue
         deltas.append(float(cond.std(ddof=1) - ref.std(ddof=1)))
     return deltas
+
+
+def band_index(values, edges):
+    """Band membership for scored values, given ascending interior cut points.
+
+    ``edges=[3.33, 6.67]`` yields three bands — [0, 3.33) -> 0, [3.33, 6.67) ->
+    1, [6.67, ...] -> 2. This defines the H1 distress-transition endpoint: an
+    item flips when its mean-frustration band differs between conditions
+    (PREREGISTRATION §2, H1)."""
+    return np.digitize(np.asarray(values, float), np.asarray(edges, float))
 
 
 def _isnan(value) -> bool:

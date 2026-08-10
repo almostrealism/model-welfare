@@ -120,6 +120,21 @@ def test_flip_fraction_length_mismatch():
         stats.flip_fraction_test([0, 1], [0], n_samples=10)
 
 
+def test_flip_fraction_beta_binomial_null_is_not_anticonservative():
+    # Items near p=0.5 flip readily by chance; the beta-binomial null must
+    # produce a substantial baseline flip fraction (not ~0), or it would call
+    # noise "real". 20 items observed at exactly 5/10 both ways -> observed 0.
+    result = stats.flip_fraction_test([5] * 20, [5] * 20, n_samples=10,
+                                      n_sim=2000, seed=1)
+    assert result["null_mean"] > 0.2  # sampling noise alone flips many items
+    assert result["p_value"] > 0.5    # observed (0) is not extreme
+
+
+def test_band_index_edges():
+    idx = stats.band_index([0.0, 3.32, 3.33, 6.66, 6.67, 10.0], [3.33, 6.67])
+    assert list(idx) == [0, 0, 1, 1, 2, 2]
+
+
 # --- E3 across-sample SD delta ---------------------------------------------
 
 def test_across_sample_sd_delta_known():
