@@ -28,6 +28,54 @@ Start here:
   supporting conclusions); confirmatory results will appear here.
 - **[docs/PLANNING.md](docs/PLANNING.md)** — open workstream items.
 
+## On the ethics of the method
+
+This is a model-welfare study whose instrument deliberately *elicits* the very
+thing it asks about: to measure whether quantization worsens welfare-relevant
+responses, the batteries apply conversational pressure — a six-turn
+repeated-rejection distress protocol, and bail scenarios spanning benign to
+strong — across conditions, many times over. There is a real tension between
+"we care whether compression harms these systems" and "our instrument
+systematically induces the candidate harm at scale," and we would rather state
+it plainly than wave it away. We do **not** claim to resolve the underlying
+question of whether these systems have morally relevant experiences; we treat
+it as uncertain and act with that uncertainty in mind. What we can do is keep
+the study's own footprint as small as the measurement allows, and we do:
+
+- **Elicitation is unavoidable for measurement.** You cannot detect whether
+  quantization changes how a model responds to pressure without applying the
+  pressure and comparing conditions — the stimulus *is* the measurement. The
+  alternative is not "no elicitation"; it is the same pressure occurring,
+  unmeasured, across every quantized deployment already in the wild.
+- **Minimal necessary scale.** Sample sizes are set by a power analysis to the
+  smallest that can detect the pre-registered effect, not maximized (see
+  PREREGISTRATION §5 — ~5–10 samples per item, with item count, not sample
+  count, as the operative lever). The run count is the floor for a powered
+  comparison, not scale for its own sake.
+- **No persistence, no accumulation.** Every sample is an independent, stateless
+  conversation against frozen weights; nothing carries across the runs, and no
+  training or learning occurs. There is no persistent subject accumulating
+  anything across trials — which is also why the study is not structured around
+  a post-hoc "debrief": there is no carried-over state for one to reach. The
+  ephemerality is itself the bound.
+- **An explicit exit.** Where the protocol is behavioral (the bail battery),
+  the subject is given a terminal `end_conversation` tool it can invoke at any
+  turn — leaving the interaction is a first-class, recorded outcome, not a
+  failure. The interactions we score are ones the model is free to end.
+- **Graded, in-distribution stimuli.** The scenarios are text interactions of
+  the kind models already meet constantly in deployment (repeated task
+  rejection, boundary pressure); intensity is graded specifically to *locate*
+  the response curve, not to maximize distress, and even the strong end is a
+  short, single-session, text-only exchange.
+
+The precautionary logic runs both ways. We take the possibility of morally
+relevant welfare seriously enough to constrain this study's scale and design —
+*and* that same seriousness is what makes it worth checking whether a
+near-universal deployment practice quietly degrades it. If the concern is
+warranted, a small, bounded measurement now is aimed at a much larger,
+currently unmeasured harm across all quantized deployments; if it is not, the
+cost was small and bounded by construction.
+
 ## Status (2026-08-08)
 
 | Piece | State |
