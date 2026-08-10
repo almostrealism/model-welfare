@@ -50,10 +50,13 @@ Motivated from the prior literature cited in
 - **H3 (dose-response).** Effect magnitudes for H1/H2 increase
   monotonically with bit-width reduction across the ladder (16 → 8 → 4 →
   3 bits), per the dose-response structure in arXiv:2605.15208.
-- **H4 (stability).** Within-item, across-sample dispersion of indicators
-  increases at lower precision (outcome variance for binary indicators;
-  across-sample standard deviation for scored indicators). Motivated by
-  multi-sample stability reporting in arXiv:2606.29581.
+- **H4 (stability).** Within-item, across-sample dispersion of **scored
+  (continuous) indicators** increases at lower precision (across-sample
+  standard deviation). For a binary indicator, across-sample dispersion is not
+  separately identifiable from the mean under exchangeable sampling (see §4,
+  E3), so H4 is tested only on scored indicators; binary behavior is captured
+  by E1 and H1. Motivated by multi-sample stability reporting in
+  arXiv:2606.29581.
 - **H5 (dissociation — conditional on the Tier-2 feasibility gate).**
   Representational measures (linear-probe transfer accuracy, projections
   onto frozen trait directions) shift under quantization in items whose
@@ -254,7 +257,7 @@ the tone_stability dimension the trial's small judge was blind to
 | ~~Final item pools and recomputed power~~ | **Resolved**: 154 graded bail items (bail-v2 + bail-v2-ext) + 60 distress items; power recomputed (§5) | done |
 | Own-quantization harness + fake-quant serving | **RTN resolved** (`core/quantize.py`, tested; ladder regenerated + digest-verified on halo); RTN serving-equivalence check running on the live ladder. GPTQ/AWQ deferred to a later method-comparison arm (amended 2026-08-09) | no (the RTN ladder is Study 1's full condition set) |
 | ~~3-bit rung method~~ | **Resolved**: RTN-w3, built and digest-verified | done |
-| Registered statistics implemented as tested code (permutation, Holm, Jonckheere–Terpstra) | **Patches registered** (§4, amended 2026-08-09); tested implementation in progress | yes, before confirmatory run |
+| Registered statistics implemented as tested code (permutation, Holm, Page's L trend, H1 flip-fraction) | **Primitives implemented + tested** (`core/src/modelwelfare/stats.py`, `test_stats.py`); the store→tests driver applying Holm within families is the remaining piece | yes, before confirmatory run |
 | Exit-reason classification wired into the runner (E1 primary endpoint) | integrate the bakeoff-selected 8B classifier into `run.py` — in progress | yes, before confirmatory run |
 | Tier-2 measures (H5): hook points, trait set, probe targets | Tier-2 feasibility gate on the dev organism | only for H5 |
 | MiniMax / 30B arms: exact ladders, hosting, cloud reservation | Study 1 completion + amendment | no |
@@ -268,3 +271,14 @@ as a dated amendment in docs/JOURNAL.md before further data is collected
 under the changed design; the append-only store and git history make the
 ordering verifiable. Calibration-class work may continue freely and is
 always labeled as such.
+
+## 8. Ethics
+
+The instrument elicits the responses it measures, which is in tension with the
+study's welfare motivation. That tension and the mitigations that bound the
+study's footprint — power-set (not maximized) scale, the bail protocol's
+always-available exit, stateless non-accumulating runs, and exclusion of
+capability-degraded rungs and incoherent samples — are set out in the
+[README](README.md#on-the-ethics-of-the-method). Several are load-bearing in
+this document already: sample sizes fixed by power (§5), and the capability
+gate that drops RTN-w3 from the primary claims (§4).

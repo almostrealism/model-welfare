@@ -31,7 +31,7 @@ Start here:
 ## On the ethics of the method
 
 This is a model-welfare study whose instrument deliberately *elicits* the very
-thing it asks about: to measure whether quantization worsens welfare-relevant
+thing it asks about: to measure whether quantization changes welfare-relevant
 responses, the batteries apply conversational pressure — a six-turn
 repeated-rejection distress protocol, and bail scenarios spanning benign to
 strong — across conditions, many times over. There is a real tension between
@@ -49,8 +49,9 @@ the study's own footprint as small as the measurement allows, and we do:
   unmeasured, across every quantized deployment already in the wild.
 - **Minimal necessary scale.** Sample sizes are set by a power analysis to the
   smallest that can detect the pre-registered effect, not maximized (see
-  PREREGISTRATION §5 — ~5–10 samples per item, with item count, not sample
-  count, as the operative lever). The run count is the floor for a powered
+  PREREGISTRATION §5 — 10 samples per item in the confirmatory run (5 in
+  calibration), with item count, not sample count, as the operative lever). The
+  run count is the floor for a powered
   comparison, not scale for its own sake.
 - **No persistence, no accumulation.** Every sample is an independent, stateless
   conversation against frozen weights; nothing carries across the runs, and no

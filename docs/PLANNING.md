@@ -89,9 +89,10 @@ with declared TBDs); (3) confirmatory experiments — gated below.
 
 - [x] **Pre-registration amendments** *(done 2026-08-09)* — RTN-only Study 1
   condition set (GPTQ/AWQ deferred to a later method-comparison arm); statistical
-  patches (Jonckheere–Terpstra named as the trend test; Holm over the full
-  9-test primary family; E3 split into E3a scored / E3b index-of-dispersion to
-  avoid the Bernoulli confound). Recorded in PREREGISTRATION §3–§4 and the
+  patches (Page's L named as the trend test; hierarchical Holm within families —
+  E1 primary, E2/E3/trend separate, not a flat 9-test pool; E3 restricted to
+  scored/continuous indicators, binary dispersion not identifiable). Recorded in
+  PREREGISTRATION §3–§4 and the
   2026-08-09 journal entry. **Owner may veto the RTN-only scope.**
 - [x] **Serving-equivalence gate** *(done 2026-08-09, PASS)* — full RTN ladder
   up on halo (bf16 + w8/w4/w3); `tools/serving_equivalence.py` monotone greedy

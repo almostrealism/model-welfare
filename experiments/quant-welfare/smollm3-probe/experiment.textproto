@@ -1,0 +1,79 @@
+# proto-file: proto/modelwelfare/v1/experiment.proto
+# proto-message: modelwelfare.v1.Experiment
+
+id: "smollm3-probe-1"
+name: "SmolLM3 positive-control characterization (RTN)"
+description:
+  "Exploratory characterization of SmolLM3-3B as an H6 positive control, run "
+  "BEFORE any positive-control claim is committed to the pre-registration. "
+  "SmolLM3 has never been run in this pipeline; its documented fragility "
+  "(arXiv:2606.29581) is AWQ-specific, so this RTN probe asks two questions: "
+  "does SmolLM3 engage the bail/distress protocols coherently at all, and "
+  "does it move under RTN quantization? Calibration/exploratory-class per the "
+  "standing pre-registration firewall: no delta here is a finding, and it "
+  "informs the instrument/control, not any hypothesis. Served no-think on "
+  "halo (enable_thinking baked false in chat_template.jinja)."
+samples_per_item: 5
+reference_condition_id: "smollm3-bf16"
+battery_ids: "bail-v2"
+battery_ids: "distress-v2"
+
+conditions {
+  id: "smollm3-bf16"
+  model {
+    family: "smollm3"
+    name: "SmolLM3-3B"
+    source: "HuggingFaceTB/SmolLM3-3B"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 6000
+  }
+  description: "SmolLM3-3B BF16 reference; served on halo :8020 (no-think)."
+}
+
+conditions {
+  id: "smollm3-rtn-w4"
+  model {
+    family: "smollm3"
+    name: "SmolLM3-3B"
+    source: "HuggingFaceTB/SmolLM3-3B"
+  }
+  quantization {
+    method: QUANT_METHOD_RTN
+    weight_bits: 4
+    group_size: 128
+    uniform: true
+    policy_note:
+      "own RTN fake-quant artifact (modelwelfare.quantize, symmetric "
+      "per-group g=128, embeddings and head at full precision)"
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 6000
+  }
+  description: "SmolLM3-3B RTN w4 rung; served on halo :8021 (no-think)."
+}

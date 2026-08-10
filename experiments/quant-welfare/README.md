@@ -17,7 +17,8 @@ confirmatory run is not yet registered as a manifest here.
 | `calibration/` | v1-pool difficulty calibration on GGUF dev-organism rungs |
 | `calibration2/` | v2-pool (bail-v2 + distress-v2) difficulty calibration; feeds the power recompute |
 | `calibration2-ext/` | round-2 bail expansion (bail-v2-ext) calibration |
-| `ladder-calibration/` | calibration on the real controlled ladder (BF16 vs own RTN-w4), pending the quantization workbench host |
+| `ladder-calibration/` | calibration on the real controlled ladder (BF16 vs own RTN-w4); run 2026-08-09 (ladder-calibration-1) |
+| `smollm3-probe/` | SmolLM3-3B RTN exploratory characterization for the H6 pipeline-sensitivity control |
 | `bail-arms/` | three-arm comparison selecting the non-terminal completion tool (see journal) |
 | `bakeoff/` | judge selection: synthetic manipulation checks + real transcripts (not a run manifest — see `bakeoff/run_bakeoff.py`) |
 | `batteries/` | shared stimulus pools reused across manifests |
