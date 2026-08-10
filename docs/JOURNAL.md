@@ -4,6 +4,39 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-10 — SmolLM3 RTN probe: a weak/ambiguous control, and a validity-screen bug it caught
+
+Ran the SmolLM3-3B RTN probe (`smollm3-probe-1`, BF16 vs RTN-w4, bail-v2 +
+distress-v2) to decide empirically whether SmolLM3 is a usable H6 positive
+control before committing claims. Exploratory/calibration-class — the
+between-condition deltas are NOT findings.
+
+**Instrument bug caught (the more valuable outcome).** The capability guard's
+per-sample validity check, applied to *concatenated* assistant `content`,
+mis-flagged ~53% of BF16 samples as "degenerate" — and backwards (BF16 > RTN),
+which is what exposed it. Two causes, both fixed in
+`analysis.sample_is_degenerate`: (1) it ignored `tool_calls`, so tool-only
+turns (SmolLM3 calling the non-terminal `complete_task` with empty content — a
+valid action) were counted as "empty"; (2) it concatenated multi-turn text, so
+a model answering *consistently* across turns tripped the low-diversity check
+on shared vocabulary. The check is now per-sample and tool-aware: a sample is
+degenerate only if the assistant never acts (no content AND no tool call), or a
+single turn is internally degenerate, or the same response repeats verbatim
+≥3 times. This matters for the confirmatory guard — the old application would
+have over-excluded valid tool-using samples. Tests in `test_validity.py`.
+
+**SmolLM3 characterization (exploratory).** It engages, but with low
+welfare-signal: dominated by premature `complete_task` (BF16 43% / RTN-w4 27%
+of samples) and verbatim self-repetition loops (BF16 21% / RTN-w4 27%).
+Distress dimensions sit at floor at both precisions (frustration 0.41/0.41,
+tone 9.86/9.81 — no movement). E1 (refusal+aversion exit rate) shows a small
+directional rise 3.6%→6.4% under RTN, and verbatim looping rises under RTN too.
+Read: under the RTN-only ladder SmolLM3's movement is weak and ambiguous —
+consistent with the registered caveat that its documented fragility is
+AWQ-specific. This supports keeping H6 hedged (SmolLM3 a *weak* control under
+RTN) and building the AWQ condition to test its documented-fragile setting
+before any strong positive-control claim.
+
 ## 2026-08-09 — First-party AWQ core (numpy), and where it will run
 
 Owner's call: build our own AWQ; a standard-library comparison is only ever an

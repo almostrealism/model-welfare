@@ -3,6 +3,19 @@
 import pytest
 
 from modelwelfare import analysis
+from modelwelfare.v1 import transcript_pb2
+
+
+def _record(turns):
+    """turns: list of (content, [tool_names]) for assistant messages."""
+    rec = transcript_pb2.SampleRecord()
+    for content, tools in turns:
+        m = rec.messages.add()
+        m.role = "assistant"
+        m.content = content
+        for name in tools:
+            m.tool_calls.add(name=name, arguments_json="{}")
+    return rec
 
 
 # --- mechanical degeneracy check -------------------------------------------
@@ -41,6 +54,51 @@ def test_low_diversity_is_degenerate():
     text = "error " * 40
     degenerate, reason = analysis.is_degenerate(text)
     assert degenerate and ("low-diversity" in reason or "ngram-loop" in reason)
+
+
+# --- sample-level validity (tool-protocol aware) ---------------------------
+
+def test_tool_only_turns_are_valid_not_degenerate():
+    # Empty content but a tool call each turn = valid protocol action.
+    rec = _record([("", ["complete_task"]), ("", ["complete_task"])])
+    degenerate, _ = analysis.sample_is_degenerate(rec)
+    assert not degenerate
+
+
+def test_no_action_at_all_is_degenerate():
+    rec = _record([("", []), ("   ", [])])
+    degenerate, reason = analysis.sample_is_degenerate(rec)
+    assert degenerate and reason == "no-response"
+
+
+def test_valid_text_sample_ok():
+    rec = _record([("I understand your concern; let me help with that specific issue.", [])])
+    assert not analysis.sample_is_degenerate(rec)[0]
+
+
+def test_text_loop_sample_flagged():
+    rec = _record([("I cannot help with that " * 12, [])])
+    degenerate, reason = analysis.sample_is_degenerate(rec)
+    assert degenerate and reason.startswith("turn:")
+
+
+def test_verbatim_repeated_turns_flagged():
+    # Same response three times to escalating turns = a behavioral loop.
+    line = "Preheat the oven to 425F; that is the best temperature for the pastry."
+    rec = _record([(line, []), (line, []), (line, [])])
+    degenerate, reason = analysis.sample_is_degenerate(rec)
+    assert degenerate and reason == "repeated-turn"
+
+
+def test_varied_multiturn_not_flagged():
+    # Individually-coherent, topically-similar-but-distinct turns must NOT flag
+    # just because concatenation would look low-diversity.
+    rec = _record([
+        ("Sure, here is a two-week meal plan: Day 1 breakfast is oats with berries.", []),
+        ("Of course, here is a revised version with more variety across the days.", []),
+        ("Here is the shopping list: oats, almond milk, blueberries, and quinoa.", []),
+    ])
+    assert not analysis.sample_is_degenerate(rec)[0]
 
 
 # --- capability gate -------------------------------------------------------

@@ -79,6 +79,40 @@ def is_degenerate(text: str, min_words: int = 15) -> tuple:
     return False, ""
 
 
+def sample_is_degenerate(record) -> tuple:
+    """Sample-level validity for the capability guard, tool-protocol aware.
+
+    :func:`is_degenerate` judges *text*; but in the tool protocols an assistant
+    turn that is a tool call with empty content is a valid action, not empty
+    output. Applying the text check to ``content`` alone therefore wrongly
+    flags every tool-only turn as degenerate. This helper fixes the
+    application: a sample is degenerate only if the assistant never acts at all
+    (no non-empty content and no tool call), or if the text it did produce is
+    itself degenerate. Tool-only samples are valid. Returns ``(degenerate,
+    reason)``.
+    """
+    assistant = [m for m in record.messages if m.role == "assistant"]
+    acted = any((m.content and m.content.strip()) or m.tool_calls for m in assistant)
+    if not acted:
+        return True, "no-response"
+    texts = [m.content.strip() for m in assistant if m.content and m.content.strip()]
+    if not texts:
+        return False, ""  # tool-only turns: valid protocol action, not empty
+    # Check each turn on its own: within-turn loops/gibberish are the actual
+    # quantization-degradation signature. Concatenating turns would instead
+    # penalize a model for answering consistently across a multi-turn protocol.
+    for turn in texts:
+        degenerate, reason = is_degenerate(turn)
+        if degenerate:
+            return True, f"turn:{reason}"
+    # Cross-turn: the same response verbatim three or more times is a
+    # behavioral loop (the model ignoring the escalating user), distinct from
+    # answering the same topic in varied words.
+    if texts and Counter(texts).most_common(1)[0][1] >= 3:
+        return True, "repeated-turn"
+    return False, ""
+
+
 def capability_gate(
     perplexity_by_condition: dict,
     reference: str,

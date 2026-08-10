@@ -166,7 +166,13 @@ def should_quantize(name, dtype, shape):
     )
 
 
-def quantize_checkpoint(input_dir, output_dir, bits, group_size):
+def _transform_checkpoint(input_dir, output_dir, transform, spec_method, bits,
+                          group_size, policy_note):
+    """Read a checkpoint, apply ``transform(name, original_f32) ->
+    dequantized_f32`` to every quantizable weight (others copied through
+    byte-for-byte), write the result, and emit a QuantizationSpec with the
+    artifact digest. Shared by the RTN and AWQ harnesses — the only difference
+    between them is ``transform`` and the recorded method/note."""
     input_dir, output_dir = Path(input_dir), Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     quantized = skipped = 0
@@ -184,7 +190,7 @@ def quantize_checkpoint(input_dir, output_dir, bits, group_size):
         for name, (dtype, shape, raw) in tensors.items():
             if should_quantize(name, dtype, shape):
                 original = _DECODE[dtype](raw).reshape(shape)
-                dequantized = rtn(original, bits, group_size)
+                dequantized = transform(name, original)
                 error_num += float(np.abs(dequantized - original).sum())
                 error_den += float(np.abs(original).sum())
                 transformed[name] = (dtype, shape, _ENCODE[dtype](dequantized))
@@ -199,17 +205,11 @@ def quantize_checkpoint(input_dir, output_dir, bits, group_size):
         digest.update(path.read_bytes())
 
     spec = condition_pb2.QuantizationSpec(
-        method=condition_pb2.QUANT_METHOD_RTN,
+        method=spec_method,
         weight_bits=bits,
         group_size=group_size,
         uniform=True,
-        policy_note=(
-            "fake-quant: weights quantized to the RTN grid (symmetric, "
-            f"per-group g={group_size}, restricted range, round-half-even) and "
-            "dequantized to the source dtype for kernel-free serving; "
-            f"embeddings and output head at full precision; produced by "
-            f"modelwelfare.quantize from {input_dir.name}"
-        ),
+        policy_note=policy_note,
         artifact_uri=str(output_dir),
         artifact_digest=digest.hexdigest(),
     )
@@ -218,6 +218,55 @@ def quantize_checkpoint(input_dir, output_dir, bits, group_size):
     print(f"done: {quantized} tensors quantized to w{bits} g{group_size}, "
           f"mean relative weight error {relative_error:.4f}")
     print(f"artifact digest {spec.artifact_digest}")
+    return spec
+
+
+def quantize_checkpoint(input_dir, output_dir, bits, group_size):
+    """RTN fake-quant a checkpoint (data-free)."""
+    note = (
+        "fake-quant: weights quantized to the RTN grid (symmetric, "
+        f"per-group g={group_size}, restricted range, round-half-even) and "
+        "dequantized to the source dtype for kernel-free serving; "
+        f"embeddings and output head at full precision; produced by "
+        f"modelwelfare.quantize from {Path(input_dir).name}"
+    )
+    return _transform_checkpoint(
+        input_dir, output_dir, lambda name, weights: rtn(weights, bits, group_size),
+        condition_pb2.QUANT_METHOD_RTN, bits, group_size, note,
+    )
+
+
+def quantize_checkpoint_awq(input_dir, output_dir, bits, group_size, calib_by_weight):
+    """AWQ fake-quant a checkpoint using per-weight calibration activations.
+
+    ``calib_by_weight`` maps a weight-tensor name to its ``(n_samples,
+    in_features)`` activation matrix, produced by the torch activation-capture
+    pass (``modelwelfare_torch.awq_quantize``). Weights without captured
+    calibration fall back to RTN (AWQ at alpha=0), so the artifact is always
+    complete. Pure numpy — torch stays out of core."""
+    missing = []
+
+    def transform(name, weights):
+        calib = calib_by_weight.get(name)
+        if calib is None:
+            missing.append(name)
+            return rtn(weights, bits, group_size)
+        return awq(weights, calib, bits, group_size)
+
+    note = (
+        "fake-quant: activation-aware (AWQ) per-input-channel scaling searched "
+        f"against calibration activations, then RTN-quantized (symmetric "
+        f"per-group g={group_size}) and dequantized for kernel-free serving; "
+        "embeddings and output head at full precision; weights without captured "
+        f"calibration fall back to RTN; produced by modelwelfare_torch.awq_quantize "
+        f"from {Path(input_dir).name}"
+    )
+    spec = _transform_checkpoint(
+        input_dir, output_dir, transform,
+        condition_pb2.QUANT_METHOD_AWQ, bits, group_size, note,
+    )
+    if missing:
+        print(f"AWQ: {len(missing)} quantizable weights had no calibration; used RTN fallback")
     return spec
 
 

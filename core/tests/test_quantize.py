@@ -166,3 +166,41 @@ def test_awq_shape_and_determinism():
 def test_awq_rejects_mismatched_calib():
     with pytest.raises(ValueError):
         awq(np.zeros((4, 8), np.float32), np.zeros((10, 6), np.float32), 4, 4)
+
+
+def test_awq_checkpoint_uses_calib_and_falls_back(tmp_path):
+    from modelwelfare.quantize import quantize_checkpoint_awq
+    from modelwelfare.v1 import condition_pb2
+
+    source = tmp_path / "src"
+    output = tmp_path / "out"
+    source.mkdir()
+    rng = np.random.default_rng(9)
+    proj = rng.standard_normal((8, 16)).astype(np.float32)
+    other = rng.standard_normal((8, 16)).astype(np.float32)
+    embed = rng.standard_normal((8, 16)).astype(np.float32)
+    write_safetensors(source / "model.safetensors", None, {
+        "model.layers.0.self_attn.q_proj.weight": ("BF16", [8, 16], f32_to_bf16(proj)),
+        "model.layers.0.mlp.up_proj.weight": ("BF16", [8, 16], f32_to_bf16(other)),
+        "model.embed_tokens.weight": ("BF16", [8, 16], f32_to_bf16(embed)),
+    })
+    (source / "config.json").write_text("{}")
+
+    # Calibration only for q_proj; up_proj must fall back to RTN.
+    calib = {"model.layers.0.self_attn.q_proj.weight":
+             rng.standard_normal((32, 16)).astype(np.float32)}
+    spec = quantize_checkpoint_awq(source, output, bits=4, group_size=8,
+                                   calib_by_weight=calib)
+
+    assert spec.method == condition_pb2.QUANT_METHOD_AWQ
+    assert spec.artifact_digest
+    _, transformed = read_safetensors(output / "model.safetensors")
+    # embeddings pass through untouched
+    assert transformed["model.embed_tokens.weight"][2] == f32_to_bf16(embed)
+    # q_proj was AWQ-transformed (differs from the plain stored value)
+    qp = bf16_to_f32(transformed["model.layers.0.self_attn.q_proj.weight"][2])
+    assert not np.array_equal(qp, bf16_to_f32(f32_to_bf16(proj)))
+    # up_proj had no calib -> exact RTN fallback (byte-identical to rtn output)
+    up_stored = bf16_to_f32(f32_to_bf16(other)).reshape(8, 16)
+    assert (transformed["model.layers.0.mlp.up_proj.weight"][2]
+            == f32_to_bf16(rtn(up_stored, 4, 8)))

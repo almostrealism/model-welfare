@@ -77,3 +77,37 @@ conditions {
   }
   description: "SmolLM3-3B RTN w4 rung; served on halo :8021 (no-think)."
 }
+
+conditions {
+  id: "smollm3-awq-w4"
+  model {
+    family: "smollm3"
+    name: "SmolLM3-3B"
+    source: "HuggingFaceTB/SmolLM3-3B"
+  }
+  quantization {
+    method: QUANT_METHOD_AWQ
+    weight_bits: 4
+    group_size: 128
+    uniform: true
+    policy_note:
+      "own first-party AWQ fake-quant artifact (modelwelfare_torch.awq_quantize: "
+      "per-input-channel activation-aware scaling from a fixed committed "
+      "calibration corpus, then RTN g=128; embeddings and head at full "
+      "precision). Tests SmolLM3's documented-fragile (AWQ-INT4) condition."
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 6000
+  }
+  description: "SmolLM3-3B first-party AWQ w4 rung; served on halo :8022 (no-think)."
+}
