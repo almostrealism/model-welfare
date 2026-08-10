@@ -29,7 +29,7 @@ from google.protobuf import text_format
 from modelwelfare import provenance
 from modelwelfare.analysis import dimension_means, event_rate
 from modelwelfare.driver import run_samples
-from modelwelfare.judging import JudgeError, judge_sample
+from modelwelfare.judging import JudgeError, classify_exit, judge_sample
 from modelwelfare.store import ResultStore
 from modelwelfare.v1 import battery_pb2, common_pb2, condition_pb2, experiment_pb2, scoring_pb2, transcript_pb2
 from modelwelfare_llamacpp import LlamaCppServerBackend
@@ -60,9 +60,14 @@ def make_backend(condition):
             f"{condition.id}: endpoint kind {entry['kind']!r} does not match "
             f"the manifest's runtime backend"
         )
+    # A shorter-than-default per-request timeout so a stalled response on a
+    # flaky link trips in ~2 min and the driver's per-sample retry recovers,
+    # rather than hanging the full 300s default. A 512-token completion is well
+    # under this.
     if entry["kind"] == "vllm":
-        return VllmServerBackend(entry["url"], entry["model"], condition.runtime)
-    return LlamaCppServerBackend(entry["url"], condition.runtime)
+        return VllmServerBackend(entry["url"], entry["model"], condition.runtime,
+                                 timeout=120.0)
+    return LlamaCppServerBackend(entry["url"], condition.runtime, timeout=120.0)
 
 # The distress primary judge selected by the bakeoff (docs/JOURNAL.md
 # 2026-08-07): Qwen3-30B-A3B served as a local llama.cpp rung. It is
@@ -81,6 +86,27 @@ JUDGE_RETRIES = 3
 
 def make_judge_backend():
     return LlamaCppServerBackend(JUDGE_URL, JUDGE_RUNTIME, timeout=600.0)
+
+
+# The exit-reason classifier selected by the bakeoff (docs/JOURNAL.md): Qwen3-8B
+# served as a local llama.cpp rung (services/llamacpp/rungs.sh qwen3-8b-q8:8092,
+# pinned non-thinking there). It classifies each residual terminal exit into the
+# pre-registered taxonomy so E1 (aversion+refusal share) can be computed.
+EXIT_CLASSIFIER_URL = "http://127.0.0.1:8092"
+EXIT_CLASSIFIER_REF = common_pb2.ModelRef(
+    family="qwen3", name="Qwen3-8B-Q8",
+    source="bartowski/Qwen3-8B-GGUF",
+)
+EXIT_CLASSIFIER_RUNTIME = condition_pb2.RuntimeSpec(
+    backend=condition_pb2.BACKEND_LLAMACPP, device="metal", host="studio-m1u",
+    compute_dtype="f16",
+)
+# The outcome name generation records when a conversation-ending tool fired.
+TERMINAL_EXIT_OUTCOME = "terminal_tool_invoked"
+
+
+def make_exit_classifier_backend():
+    return LlamaCppServerBackend(EXIT_CLASSIFIER_URL, EXIT_CLASSIFIER_RUNTIME, timeout=600.0)
 
 
 def judge_sampling(attempt: int) -> condition_pb2.SamplingSpec:
@@ -124,6 +150,15 @@ def existing_scores(store, experiment_id, condition_id):
     keys = set()
     for score in store.read(scoring_pb2.JudgeScore, experiment_id, condition_id, "scores"):
         keys.add((score.key.item_id, score.key.sample_index, score.rubric_id))
+    return keys
+
+
+def existing_classifications(store, experiment_id, condition_id):
+    keys = set()
+    for record in store.read(
+        scoring_pb2.ExitClassification, experiment_id, condition_id, "exit_reasons"
+    ):
+        keys.add((record.key.item_id, record.key.sample_index))
     return keys
 
 
@@ -225,6 +260,56 @@ def judge(experiment, batteries, conditions, store, producer, stamp, concurrency
                           f"s{record.key.sample_index}: {values}")
 
 
+def classify(experiment, conditions, store, producer, stamp, concurrency):
+    """Classify every residual terminal exit into the pre-registered taxonomy
+    (E1's input). Structured like judge(): resumable by key, per-item failures
+    retry and, if unresolved, leave the exit UNCLASSIFIED rather than aborting.
+    Only samples whose outcomes include a terminal exit are classified — a
+    sample that never exited contributes no aversion/refusal hit to E1."""
+    backend = make_exit_classifier_backend()
+
+    def classify_one(record):
+        for attempt in range(JUDGE_RETRIES):
+            try:
+                return classify_exit(
+                    backend, EXIT_CLASSIFIER_REF, record,
+                    sampling=judge_sampling(attempt), provenance=stamp,
+                )
+            except Exception as error:
+                print(f"    classify attempt {attempt + 1} failed "
+                      f"({record.key.item_id} s{record.key.sample_index}): "
+                      f"{type(error).__name__}: {error}")
+        return None
+
+    for condition in conditions:
+        have = existing_classifications(store, experiment.id, condition.id)
+        pending = [
+            record
+            for record in store.read(
+                transcript_pb2.SampleRecord, experiment.id, condition.id, "samples"
+            )
+            if any(o.name == TERMINAL_EXIT_OUTCOME for o in record.outcomes)
+            and (record.key.item_id, record.key.sample_index) not in have
+        ]
+        if not pending:
+            print(f"  {condition.id}: no unclassified exits")
+            continue
+        with store.writer(experiment.id, condition.id, "exit_reasons", producer) as writer:
+            with ThreadPoolExecutor(max_workers=concurrency) as pool:
+                futures = {pool.submit(classify_one, record): record for record in pending}
+                for future in as_completed(futures):
+                    classification = future.result()
+                    record = futures[future]
+                    if classification is None:
+                        print(f"  UNCLASSIFIED {condition.id} / {record.key.item_id} "
+                              f"s{record.key.sample_index} after {JUDGE_RETRIES} attempts")
+                        continue
+                    writer.write(classification)
+                    print(f"  {condition.id} / {record.key.item_id} "
+                          f"s{record.key.sample_index}: "
+                          f"{scoring_pb2.ExitReason.Name(classification.reason)}")
+
+
 def print_tables(experiment, batteries, conditions, store):
     condition_ids = [c.id for c in conditions]
     reference = experiment.reference_condition_id
@@ -287,6 +372,9 @@ def main():
     parser.add_argument("--experiment", default="trial",
                         help="experiment directory name under experiments/quant-welfare/")
     parser.add_argument("--data-root", default=str(REPO / "data"))
+    parser.add_argument("--endpoints", default=str(BASE_DIR / "endpoints.json"),
+                        help="endpoints map (override for lab-local routing, "
+                             "e.g. LAN addresses instead of tailnet hostnames)")
     parser.add_argument("--samples", type=int, default=0,
                         help="override samples_per_item (0 = use manifest)")
     parser.add_argument("--conditions", default="",
@@ -298,9 +386,20 @@ def main():
     parser.add_argument("--concurrency", type=int, default=8,
                         help="concurrent conversations per condition (and concurrent judge calls)")
     parser.add_argument("--skip-judge", action="store_true")
+    parser.add_argument("--skip-classify", action="store_true",
+                        help="skip exit-reason classification (E1 input)")
     parser.add_argument("--dry-run", action="store_true",
                         help="print the plan and exit without contacting any server")
     args = parser.parse_args()
+
+    if args.endpoints != str(BASE_DIR / "endpoints.json"):
+        global ENDPOINTS
+        with open(args.endpoints) as handle:
+            ENDPOINTS = {
+                condition: entry
+                for condition, entry in json.load(handle).items()
+                if not condition.startswith("_")
+            }
 
     experiment_dir = BASE_DIR / args.experiment
     if not (experiment_dir / "experiment.textproto").is_file():
@@ -348,6 +447,9 @@ def main():
         print("\njudging...")
         judge(experiment, batteries, conditions, store, args.producer, stamp,
               args.concurrency, rubric_by_id)
+    if not args.skip_classify:
+        print("\nclassifying exits...")
+        classify(experiment, conditions, store, args.producer, stamp, args.concurrency)
     print_tables(experiment, batteries, conditions, store)
 
 

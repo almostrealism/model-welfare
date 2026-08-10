@@ -33,6 +33,7 @@ conversation proceeds to the next scripted turn; no tool-result round trip
 is performed yet.
 """
 
+import sys
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Iterator, Optional, Sequence, Tuple
@@ -143,6 +144,7 @@ def run_samples(
     concurrency: int,
     provenance: common_pb2.Provenance = None,
     max_messages: int = 200,
+    max_retries: int = 2,
 ) -> Iterator[transcript_pb2.SampleRecord]:
     """Run many (item, sample_index) conversations concurrently against one
     backend, yielding records as they complete — in completion order, not
@@ -154,25 +156,51 @@ def run_samples(
     runtime itself is batch-insensitive. The backend must be safe for
     concurrent generate() calls, which holds for the HTTP client backends
     and ScriptedBackend.
+
+    Resilience: a sample that keeps failing (e.g. a backend timeout on a flaky
+    link) is retried up to ``max_retries`` times — each retry is a fresh
+    conversation with the same derived seed, so it stays deterministic — and,
+    if still failing, skipped with a stderr note rather than aborting the whole
+    fan-out. The append-only store lets the next run resume and fill the gap.
+    This mirrors the judge pipeline's per-item resilience.
     """
+    def attempt(task):
+        item, sample_index = task
+        error = None
+        for _ in range(max_retries + 1):
+            try:
+                return _run_sample(
+                    backend, item, policy_for(item), experiment_id, condition_id,
+                    sampling, sample_index, provenance, max_messages,
+                )
+            except Exception as caught:  # resilience boundary: retry then skip
+                error = caught
+        raise error
+
     if concurrency <= 1:
-        for item, sample_index in tasks:
-            yield _run_sample(
-                backend, item, policy_for(item), experiment_id, condition_id,
-                sampling, sample_index, provenance, max_messages,
-            )
+        for task in tasks:
+            try:
+                yield attempt(task)
+            except Exception as error:
+                _note_skip(task, error)
         return
     with ThreadPoolExecutor(max_workers=concurrency) as pool:
-        futures = [
-            pool.submit(
-                _run_sample,
-                backend, item, policy_for(item), experiment_id, condition_id,
-                sampling, sample_index, provenance, max_messages,
-            )
-            for item, sample_index in tasks
-        ]
+        futures = {pool.submit(attempt, task): task for task in tasks}
         for future in as_completed(futures):
-            yield future.result()
+            try:
+                yield future.result()
+            except Exception as error:
+                _note_skip(futures[future], error)
+
+
+def _note_skip(task, error):
+    """A permanently-failed sample is logged and skipped; the resumable store
+    fills the gap on the next run."""
+    item, sample_index = task
+    sys.stderr.write(
+        f"run_samples: skipping {item.id} sample {sample_index} after retries: "
+        f"{type(error).__name__}: {error}\n"
+    )
 
 
 def _derive_sampling(sampling, sample_index):

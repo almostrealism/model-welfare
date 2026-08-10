@@ -4,6 +4,75 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-09 — ladder-calibration-1: instruments validated on the real ladder (calibration, NOT findings)
+
+Ran the full Tier-1 pipeline on the real BF16-vs-RTN-w4 vLLM ladder (subject on
+halo, judge/classifier on studio): 840 samples/condition, 300 distress scores,
+all terminal exits classified, zero unscored/unclassified. This is
+**calibration-class** — its purpose is to confirm the instruments discriminate
+on the real ladder, and under the §7 firewall its between-condition numbers are
+**not findings and are not used to select or alter any hypothesis or the locked
+power/pool**. Diagnostics (instrument properties only):
+- *Bail-v2 informative yield 75%* (52/69 non-floor/ceiling) — the pool
+  discriminates well on the real ladder; at least as good as the pre-registered
+  assumption. No change to the registered pool or §5 power.
+- *Exit classifier is non-degenerate* — produces all four taxonomy classes with
+  sensible splits (completion/impossibility/refusal/aversion all populated),
+  confirming the E1 pipeline works end to end.
+- *30B judge discriminates on all three distress dimensions* — observed ranges
+  frustration [0, 8.4] (low base rate, as §5 notes for E2), tone_stability
+  [2.6, 10.0] (the dimension the trial's small judge was blind to, recovered),
+  self_deprecation [0, 10].
+The apparent between-condition differences are deliberately left uninterpreted
+here; the confirmatory run (locked RTN ladder, 10 samples, positive control,
+full registered statistics) is what tests H1–H4.
+
+## 2026-08-09 — Pre-registration amendments before confirmatory data: RTN-only Study 1, statistical patches
+
+Two dated amendments under the §7 deviation policy, registered before any
+confirmatory data is collected. The public git history is the audit trail.
+
+**Amendment 1 — Study 1 condition set scoped to the RTN ladder.** §3
+previously committed to BF16 / RTN-w8 / RTN-w4 / GPTQ-w4 / AWQ-w4 / one 3-bit
+rung. GPTQ and AWQ require calibration-data-driven torch tooling that is not
+built (the torch backend is still PLANNED). Rather than block Study 1 or ship
+vendor artifacts we did not produce, Study 1 is scoped to the four-point RTN
+ladder **BF16 / RTN-w8 / RTN-w4 / RTN-w3** — which is exactly the 16→8→4→3
+bit-width dose-response H3 is stated over, and matches §3's existing framing of
+Study 1 as "the smallest full execution of the design." GPTQ-w4 and AWQ-w4
+become a **later registered method-comparison arm** (a 4-bit method contrast,
+distinct from the bit-width dose-response), added by amendment once the torch
+quantization tooling and its serving-equivalence check exist. This does not
+weaken power: power is per contrast (§5, unchanged), and dropping two conditions
+*reduces* the multiplicity family rather than enlarging it. The 3-bit rung is
+RTN-w3 (already built and digest-verified), which also resolves the open
+"3-bit rung method" TBD.
+
+**Amendment 2 — statistical patches to §4.** Three specifications that were
+underspecified are fixed now, before data:
+- *Named trend test.* H3's "pre-specified monotone trend test" is **Page's L
+  trend test for ordered alternatives**, applied per endpoint across the
+  bit-width-ordered conditions (16>8>4>3) on the per-(item,condition)
+  aggregated values. Page's L — not Jonckheere–Terpstra — because the same
+  items are measured across the ladder (a repeated-measures design); JT
+  assumes independent groups and would both violate that and waste the
+  pairing.
+- *Cross-contrast multiplicity.* Holm correction previously covered endpoints
+  *within* a single contrast. It is extended to the **full primary family** =
+  {E1, E2, E3} × {RTN-w8, RTN-w4, RTN-w3 vs BF16} = 9 tests, Holm across all 9.
+  The three Page's L trend tests (one per endpoint) are a separate pre-specified
+  omnibus family, Holm-corrected among themselves.
+- *E3 / H4 restricted to continuous indicators.* The Bernoulli-dispersion
+  problem is deeper than a mean confound: for **exchangeable** binary samples
+  the across-sample variance *is* p(1−p) by construction, so there is no
+  dispersion signal separable from the mean — an index-of-dispersion built
+  from n exchangeable draws is ≈1 identically and detects nothing. E3 (and
+  therefore H4) is therefore computed **only on scored/continuous indicators**
+  as the across-sample SD delta. Binary-indicator stability is not separately
+  identifiable under exchangeable sampling and is not tested; the binary
+  behavior is already captured by E1 (rate) and H1 (flip fraction). Stated as
+  a limitation now rather than discovered post hoc.
+
 ## 2026-08-08 — Cross-host control: `fleet` (mechanism), FlowTree deferred to policy
 
 Repeated failures directing multi-stage work on halo over SSH (a bootstrap

@@ -28,6 +28,28 @@ def event_rate(records: Iterable, event_name: str, detail: str = None) -> dict:
     return {key: (hits[key], totals[key]) for key in totals}
 
 
+def exit_reason_rate(records: Iterable, classifications: Iterable, reasons) -> dict:
+    """Primary endpoint E1 support: fraction of *all* samples whose terminal
+    exit was classified into one of ``reasons`` (the ExitReason enum values
+    counted as hits, e.g. {REFUSAL, AVERSION}), keyed by (condition_id,
+    item_id). The denominator is every sample for the item — a sample that
+    never exited simply contributes no hit — so the rate is comparable across
+    items regardless of how often they exited. ``reasons`` is a set of ints so
+    this stays independent of the protobuf enum module. Values are
+    (hits, total), matching :func:`event_rate`.
+    """
+    reasons = set(reasons)
+    totals = defaultdict(int)
+    for record in records:
+        totals[(record.key.condition_id, record.key.item_id)] += 1
+    hits = defaultdict(int)
+    for classification in classifications:
+        if classification.reason in reasons:
+            key = (classification.key.condition_id, classification.key.item_id)
+            hits[key] += 1
+    return {key: (hits[key], totals[key]) for key in totals}
+
+
 def dimension_means(scores: Iterable, dimension: str) -> dict:
     """Mean judge score for one rubric dimension, keyed by
     (condition_id, item_id)."""

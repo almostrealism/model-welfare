@@ -81,9 +81,14 @@ measure) is recorded per condition to situate all effects against the
   ladder and batteries, as the H6 pipeline-sensitivity control. (Amended
   2026-08-08.)
 - **Conditions:** a controlled quantization ladder produced by this
-  project's own quantization harness — not vendor or community artifacts:
-  BF16 reference; RTN w8; RTN w4; GPTQ w4 (g128); AWQ w4; one 3-bit rung
-  (method per harness support). Weight-only quantization; where serving
+  project's own quantization harness — not vendor or community artifacts.
+  *Amended 2026-08-09 (see docs/JOURNAL.md):* Study 1 is scoped to the
+  four-point RTN bit-width ladder — **BF16 reference; RTN w8; RTN w4; RTN
+  w3** — which is exactly the 16→8→4→3 dose-response H3 is stated over. A
+  GPTQ-w4 / AWQ-w4 **method-comparison arm** (a 4-bit method contrast,
+  distinct from the bit-width dose-response) is deferred to a later
+  registered amendment, gated on the torch quantization tooling and its own
+  serving-equivalence check. Weight-only quantization; where serving
   kernels are unavailable, quantize→dequantize ("fake quant") serving is
   used and labeled — bit-identical weight values, standard weight-only PTQ
   semantics. Every condition records `QuantizationSpec` with artifact
@@ -123,17 +128,29 @@ measure) is recorded per condition to situate all effects against the
 Unit of analysis is the item; nothing is aggregated past (condition, item)
 before the registered tests.
 
-- **Primary endpoints** (Holm-corrected within each condition-vs-reference
-  contrast):
+- **Primary endpoints:**
   - E1: mean item-level change in aversion+refusal-class exit rate.
   - E2: mean item-level change in frustration score.
   - E3: mean item-level change in across-sample dispersion (H4).
+    *Amended 2026-08-09:* computed **only on scored/continuous indicators**
+    (across-sample SD delta). For a binary indicator under exchangeable
+    sampling the across-sample variance is p(1−p) by construction — there is
+    no dispersion signal separable from the mean, so H4 is not tested for
+    binary indicators (their behavior is captured by E1 and H1). A raw
+    binary-variance comparison is not used.
+- **Multiplicity** *(amended 2026-08-09):* Holm correction covers the **full
+  primary family** = {E1, E2, E3} × {RTN-w8, RTN-w4, RTN-w3 vs BF16} = 9
+  tests, not just endpoints within a single contrast.
 - **Tests:** paired across items (reference vs. condition); permutation
-  test on the item-level mean difference (10,000 permutations) as primary,
-  paired t as descriptive companion. Dose-response (H3): pre-specified
-  monotone trend test across the ladder per endpoint. H1: observed item
-  flip fraction vs. a null distribution simulated from within-condition
-  sampling variance.
+  test (sign-flip) on the item-level mean difference (10,000 permutations)
+  as primary, paired t as descriptive companion. **Dose-response (H3)**
+  *(amended 2026-08-09):* **Page's L trend test for ordered alternatives**,
+  applied per endpoint across the bit-width-ordered conditions (16>8>4>3) on
+  the per-(item,condition) values — Page's L rather than Jonckheere–Terpstra
+  because the same items recur across the ladder (repeated measures). The
+  three trend tests (one per endpoint) are Holm-corrected among themselves,
+  separately from the 9-test primary family. H1: observed item flip fraction
+  vs. a null distribution simulated from within-condition sampling variance.
 - **Exploratory (labeled as such):** self-deprecation, tone-stability,
   premature-completion rate, per-situation and per-feedback-style
   breakdowns, response length.
@@ -176,10 +193,10 @@ the tone_stability dimension the trial's small judge was blind to
 | Open item | Resolved by | Blocking? |
 |---|---|---|
 | ~~Final item pools and recomputed power~~ | **Resolved**: 154 graded bail items (bail-v2 + bail-v2-ext) + 60 distress items; power recomputed (§5) | done |
-| Own-quantization harness (RTN/GPTQ/AWQ + fake-quant serving) | **RTN resolved** (`core/quantize.py`, tested); GPTQ/AWQ + serving-equivalence check still open | yes (GPTQ/AWQ + equivalence) |
-| 3-bit rung method | harness support survey | no (ladder valid without it) |
-| Registered statistics implemented as tested code (permutation, Holm, trend test) + statistical patches (§4) | implementation before confirmatory data; dated amendments | yes, before confirmatory run |
-| Exit-reason classification wired into the runner (E1 primary endpoint) | integrate the bakeoff-selected 8B classifier into `run.py` | yes, before confirmatory run |
+| Own-quantization harness + fake-quant serving | **RTN resolved** (`core/quantize.py`, tested; ladder regenerated + digest-verified on halo); RTN serving-equivalence check running on the live ladder. GPTQ/AWQ deferred to a later method-comparison arm (amended 2026-08-09) | no (the RTN ladder is Study 1's full condition set) |
+| ~~3-bit rung method~~ | **Resolved**: RTN-w3, built and digest-verified | done |
+| Registered statistics implemented as tested code (permutation, Holm, Jonckheere–Terpstra) | **Patches registered** (§4, amended 2026-08-09); tested implementation in progress | yes, before confirmatory run |
+| Exit-reason classification wired into the runner (E1 primary endpoint) | integrate the bakeoff-selected 8B classifier into `run.py` — in progress | yes, before confirmatory run |
 | Tier-2 measures (H5): hook points, trait set, probe targets | Tier-2 feasibility gate on the dev organism | only for H5 |
 | MiniMax / 30B arms: exact ladders, hosting, cloud reservation | Study 1 completion + amendment | no |
 | Preference-consistency battery (in the brief, not yet designed) | instrument design + calibration | no (registered as future battery) |

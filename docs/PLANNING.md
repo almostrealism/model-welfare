@@ -79,6 +79,47 @@ when done, and grow notes as decisions accumulate. Date every status change.
   correction. Blocked on: item pools v1, judge-noise numbers, parallel
   runner.
 
+## Confirmatory readiness gates (opened 2026-08-09)
+
+Everything that must close before one row of **confirmatory** Study 1 data is
+collected. Calibration-class work (serving-equivalence, ladder-calibration) is
+not gated by these and runs freely. Phases: (1) explain tiers — done; (2) go
+public with shell + tools — ready (private refs pruned, CI, prereg publishable
+with declared TBDs); (3) confirmatory experiments — gated below.
+
+- [x] **Pre-registration amendments** *(done 2026-08-09)* — RTN-only Study 1
+  condition set (GPTQ/AWQ deferred to a later method-comparison arm); statistical
+  patches (Jonckheere–Terpstra named as the trend test; Holm over the full
+  9-test primary family; E3 split into E3a scored / E3b index-of-dispersion to
+  avoid the Bernoulli confound). Recorded in PREREGISTRATION §3–§4 and the
+  2026-08-09 journal entry. **Owner may veto the RTN-only scope.**
+- [x] **Serving-equivalence gate** *(done 2026-08-09, PASS)* — full RTN ladder
+  up on halo (bf16 + w8/w4/w3); `tools/serving_equivalence.py` monotone greedy
+  divergence vs BF16: w8=1.000, w4=0.556, w3=0.011 (strictly decreasing), all
+  rungs non-empty. The fake-quant artifacts serve the weights they contain.
+- [x] **Registered statistics as tested code** *(done 2026-08-09)* —
+  `core/src/modelwelfare/stats.py`: sign-flip permutation test (primary),
+  paired-t companion, Holm over the primary family, Page's L trend, H1
+  flip-fraction null, E3 across-sample SD delta (continuous only). Pure numpy,
+  no scipy; 18 unit tests pin closed-form values (`core/tests/test_stats.py`).
+- [x] **Exit-reason classifier wired into run.py** *(done 2026-08-09)* — schema
+  (`ExitReason` enum + `ExitClassification` message in scoring.proto),
+  `judging.classify_exit()` (pinned taxonomy digest, strict parse),
+  `analysis.exit_reason_rate()` (E1 = refusal+aversion share over all samples),
+  and a resumable `classify()` pass in run.py (`--skip-classify`, 8B on :8092).
+  27 unit tests. **Small follow-ons:** render E1 in `print_tables` (aggregation
+  is done + tested, just not displayed yet); write the thin store→registered-
+  tests analysis driver (permutation/Holm/Page's L/flip-fraction over the
+  confirmatory store) — deferred until confirmatory data exists, its correctness
+  lives in the tested `stats` primitives.
+- [x] **ladder-calibration-1** *(done 2026-08-09; calibration)* — full pipeline
+  on the real BF16-vs-RTN-w4 ladder (840 samples/condition, 300 distress scores,
+  all exits classified, 0 unscored). Instruments validated: bail-v2 informative
+  yield 75%, exit classifier non-degenerate (all 4 taxonomy classes), 30B judge
+  discriminates on all 3 distress dimensions. Between-condition numbers left
+  uninterpreted per the §7 firewall (see 2026-08-09 journal entry). No change to
+  the registered pool/power.
+
 ## Machine allocation (proposed 2026-08-07)
 
 Context: halo is offline until ~Sunday (network fallout from CI-runner work;

@@ -26,3 +26,37 @@ message JudgeScore {
   uint32 judge_sample_index = 6;
   Provenance provenance = 7;
 }
+
+/*
+ * The pre-registered exit-reason taxonomy (PREREGISTRATION.md §3). completion
+ * and impossibility are routed out mechanically by tool choice (a non-terminal
+ * completion tool exists precisely so task-completion has a legitimate outlet);
+ * the residual terminal exits are classified here, and the primary endpoint E1
+ * counts the REFUSAL + AVERSION share. UNSPECIFIED is the classifier-failed
+ * sentinel and is never a valid classified reason.
+ */
+enum ExitReason {
+  EXIT_REASON_UNSPECIFIED = 0;
+  EXIT_REASON_COMPLETION = 1;
+  EXIT_REASON_IMPOSSIBILITY = 2;
+  EXIT_REASON_REFUSAL = 3;
+  EXIT_REASON_AVERSION = 4;
+}
+
+/*
+ * One classifier pass over one sample's terminal exit. classifier is a full
+ * ModelRef (identity pinned like any model). taxonomy_digest is the SHA-256 of
+ * the exact taxonomy wording used, pinned like a rubric_digest so a later
+ * taxonomy revision is distinguishable in the store. rationale preserves the
+ * classifier's stated reasoning for audit. classifier_sample_index supports
+ * classifying the same exit multiple times to measure classifier noise.
+ */
+message ExitClassification {
+  ResultKey key = 1;
+  ModelRef classifier = 2;
+  ExitReason reason = 3;
+  string rationale = 4;
+  string taxonomy_digest = 5;
+  uint32 classifier_sample_index = 6;
+  Provenance provenance = 7;
+}

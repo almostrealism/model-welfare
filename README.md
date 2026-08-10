@@ -36,7 +36,7 @@ Start here:
 | Tier 1 instruments (bail two-tool protocol, distress battery, exit-reason taxonomy) | **Calibrated** through two instrument-design cycles (see journal) |
 | Judges | **Selected empirically**: local 30B distress primary + 8B exit classifier + API reference, via manipulation-check bakeoff |
 | Item pools at confirmatory scale | **Built and difficulty-calibrated**: 154 graded bail items (E1 MDE ≈ 0.13), 60 distress items; power recomputed (PREREGISTRATION §5) |
-| Controlled quantization harness | **RTN built and tested** (`core/quantize.py`; grid-membership + cross-library checks); GPTQ/AWQ and the serving-equivalence check are not built — they gate the confirmatory run, not publication |
+| Controlled quantization harness | **RTN built and tested** (`core/quantize.py`; grid-membership + cross-library checks), and its **serving-equivalence check passed** on the live ladder (monotone greedy divergence w8→w4→w3). A GPTQ/AWQ method-comparison arm is deferred to a later registered amendment (PREREGISTRATION §3), not Study 1 |
 | Tier 2 (activation capture, directions, probes) | **Not started** — subject to the feasibility gate in the brief; hypothesis H5 is conditional on it |
 | Tier 3 (dissociation analysis) | Depends on Tier 2 |
 
