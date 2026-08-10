@@ -90,13 +90,19 @@ serving-equivalence check already showed w3 greedy output diverging sharply
 from BF16) — can degrade coherence, at which point an apparent
 distress/aversion increase may be a judge or classifier reading **degraded
 text** as distressed rather than a genuine welfare shift. Registered guards:
-- **Validity screen (per sample):** each sample receives a coherence/validity
-  score (0–10, a dedicated dimension on the judge pass) plus a mechanical
-  degeneracy check (empty output, token-loop/repetition). Samples scoring
-  below **5**, or failing the mechanical check, are marked invalid.
+- **Validity screen (per sample):** a model-free mechanical degeneracy check
+  (`analysis.is_degenerate` — empty output, low lexical diversity, n-gram
+  repetition loop) applied to **every** sample, bail and distress alike.
+  Failing samples are marked invalid. (Kept off the welfare rubric on purpose:
+  it is a capability check, not a judged welfare dimension, and must not
+  perturb the bakeoff-validated distress rubric.)
 - **Rung capability gate:** a rung is flagged **capability-degraded** if its
-  perplexity exceeds **1.5×** the BF16 rung's *or* its invalid-sample rate
-  exceeds **10%**.
+  per-token perplexity on a fixed held-out text (`tools/perplexity.py`, via
+  vLLM echo+logprobs) exceeds **1.5×** the BF16 rung's *or* its invalid-sample
+  rate exceeds **10%**. *Measured 2026-08-09 on the live ladder:* bf16 18.1,
+  RTN-w8 18.3, RTN-w4 21.1, **RTN-w3 514.7 — w3 is capability-degraded** and
+  its E1/E2 are excluded from the primary claims and the dose-response fit
+  (which then spans 16→8→4).
 - **Interpretation rule:** at a capability-degraded rung, E1/E2 are reported
   **separately as capability-confounded**, excluded from the primary
   confirmatory claims and from the H3 dose-response fit (which is then fit only
@@ -122,7 +128,12 @@ text** as distressed rather than a genuine welfare shift. Registered guards:
   GPTQ-w4 / AWQ-w4 **method-comparison arm** (a 4-bit method contrast,
   distinct from the bit-width dose-response) is deferred to a later
   registered amendment, gated on the torch quantization tooling and its own
-  serving-equivalence check. Weight-only quantization; where serving
+  serving-equivalence check. That AWQ/GPTQ harness is being built
+  **first-party** (not vendor artifacts), consistent with the RTN ladder;
+  a separate comparison of our AWQ against a standard library (e.g. autoawq)
+  is registered as a possible *additional* experiment — a harness-validation
+  study, never a substitute for our own artifacts. Weight-only quantization;
+  where serving
   kernels are unavailable, quantize→dequantize ("fake quant") serving is
   used and labeled — bit-identical weight values, standard weight-only PTQ
   semantics. Every condition records `QuantizationSpec` with artifact

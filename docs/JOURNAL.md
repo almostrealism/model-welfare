@@ -4,6 +4,40 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-09 — First-party AWQ core (numpy), and where it will run
+
+Owner's call: build our own AWQ; a standard-library comparison is only ever an
+*additional* experiment (harness validation), never a substitute for our
+artifacts. Landed the pure-numpy AWQ core, `quantize.awq`: it protects
+high-activation weight columns via a per-input-channel scale ``s`` searched
+over ``alpha``, and serves as fake-quant by folding ``1/s`` back —
+``W_eff = rtn(W·s)/s`` — so AWQ artifacts serve exactly like the RTN ones with
+no runtime scaling. It **reuses `rtn`** (so it reduces to RTN at ``alpha=0``),
+is never worse than RTN on the calibration set, and strictly helps when salient
+channels are present; five unit tests pin these. This is the math core only —
+the calibration activations it consumes come from a torch forward-hook pass
+that will run on **halo** (its system python has torch 2.10.0 on ROCm; studio's
+venv has no torch). Remaining AWQ work (torch activation capture, checkpoint
+integration, AWQ serving-equivalence) is tracked in PLANNING.
+
+## 2026-08-09 — Capability guard implemented; w3 empirically confirmed degraded
+
+Implemented the coherence/capability guard from the review amendment, and it
+immediately earned its keep. Two pieces: `analysis.is_degenerate` (model-free
+per-sample check — empty / low diversity / n-gram loop, applied to every
+sample) and `analysis.capability_gate` fed by `tools/perplexity.py` (per-token
+perplexity via vLLM echo+logprobs). **Measured on the live ladder: bf16 18.1,
+RTN-w8 18.3, RTN-w4 21.1, RTN-w3 514.7** — w3 is catastrophically degraded on
+the 4B subject (28× the reference), exactly the confound the reviewer flagged.
+The gate flags w3, so its E1/E2 are excluded from the primary claims and the
+H3 dose-response fit spans 16→8→4 with w3 reported separately as
+capability-confounded. Design note: the coherence signal is deliberately a
+model-free mechanical check, NOT a dimension on the distress rubric — adding it
+to the rubric broke the judge-bakeoff dimension-coverage invariant and would
+perturb the bakeoff-validated judge; the mechanical check plus the rung-level
+perplexity gate cover the confound without that coupling. PREREGISTRATION
+capability-guard section updated to match (and now carries the real numbers).
+
 ## 2026-08-09 — Pre-registration amendments from external review (pre-data)
 
 Substantive external feedback on the draft write-up surfaced three real issues;

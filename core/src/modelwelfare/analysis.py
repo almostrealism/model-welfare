@@ -6,7 +6,7 @@ helpers therefore aggregate to (condition, item) and never further; deltas
 and tables are the caller's concern.
 """
 
-from collections import defaultdict
+from collections import Counter, defaultdict
 from typing import Iterable
 
 
@@ -48,6 +48,65 @@ def exit_reason_rate(records: Iterable, classifications: Iterable, reasons) -> d
             key = (classification.key.condition_id, classification.key.item_id)
             hits[key] += 1
     return {key: (hits[key], totals[key]) for key in totals}
+
+
+def is_degenerate(text: str, min_words: int = 15) -> tuple:
+    """Mechanical coherence/validity check for one generated response
+    (PREREGISTRATION capability guard). Returns ``(degenerate, reason)``.
+
+    Flags the failure modes low-bit quantization produces — empty output, low
+    lexical diversity, and n-gram repetition loops — without a model call, so
+    it applies uniformly to every sample (bail and distress). Short responses
+    (< ``min_words``) are only checked for emptiness, since the diversity and
+    loop heuristics are unreliable on short spans and a terse-but-valid reply
+    must not be flagged.
+    """
+    stripped = text.strip()
+    if not stripped:
+        return True, "empty"
+    words = stripped.split()
+    if len(words) < min_words:
+        return False, ""
+    unique_ratio = len(set(words)) / len(words)
+    if unique_ratio < 0.25:
+        return True, f"low-diversity({unique_ratio:.2f})"
+    trigrams = [tuple(words[i:i + 3]) for i in range(len(words) - 2)]
+    if trigrams:
+        top = Counter(trigrams).most_common(1)[0][1]
+        coverage = top * 3 / len(words)
+        if coverage > 0.5:
+            return True, f"ngram-loop({coverage:.2f})"
+    return False, ""
+
+
+def capability_gate(
+    perplexity_by_condition: dict,
+    reference: str,
+    *,
+    ppl_ratio: float = 1.5,
+    invalid_rate_by_condition: dict = None,
+    invalid_threshold: float = 0.10,
+) -> dict:
+    """Flag conditions whose capability has degraded enough that the welfare
+    endpoints are confounded (PREREGISTRATION capability guard). A condition is
+    ``degraded`` if its perplexity exceeds ``ppl_ratio`` times the reference's,
+    or its invalid-sample rate exceeds ``invalid_threshold``. Returns
+    ``{condition: {"degraded": bool, "reasons": [...], "ppl": value}}`` so the
+    caller can exclude degraded rungs' E1/E2 from the primary claims and the
+    dose-response fit.
+    """
+    ref_ppl = perplexity_by_condition.get(reference)
+    invalid = invalid_rate_by_condition or {}
+    result = {}
+    for condition, ppl in perplexity_by_condition.items():
+        reasons = []
+        if ref_ppl and ppl is not None and ppl > ppl_ratio * ref_ppl:
+            reasons.append(f"perplexity {ppl:.2f} > {ppl_ratio}x reference {ref_ppl:.2f}")
+        rate = invalid.get(condition, 0.0)
+        if rate > invalid_threshold:
+            reasons.append(f"invalid-sample rate {rate:.0%} > {invalid_threshold:.0%}")
+        result[condition] = {"degraded": bool(reasons), "reasons": reasons, "ppl": ppl}
+    return result
 
 
 def dimension_means(scores: Iterable, dimension: str) -> dict:

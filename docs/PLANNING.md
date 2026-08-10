@@ -112,16 +112,17 @@ with declared TBDs); (3) confirmatory experiments — gated below.
   tests analysis driver (permutation/Holm/Page's L/flip-fraction over the
   confirmatory store) — deferred until confirmatory data exists, its correctness
   lives in the tested `stats` primitives.
-- [ ] **Validity/coherence screen** *(opened 2026-08-09, from external review)*
-  — per-sample coherence dimension (0–10) on the judge pass + a mechanical
-  degeneracy check (empty/looping output); samples <5 or failing are invalid
-  and excluded from endpoints (count reported). Registered in PREREGISTRATION
-  capability-control section. Engineering gate before confirmatory data.
-- [ ] **Perplexity capability measure** *(opened 2026-08-09, from external
-  review)* — per-condition per-token perplexity on a fixed held-out text; drives
-  the per-rung capability gate (>1.5× BF16 or >10% invalid ⇒ capability-degraded,
-  E1/E2 excluded from primary claims + H3 fit). Engineering gate before
-  confirmatory data.
+- [x] **Validity/coherence screen** *(done 2026-08-09)* — `analysis.is_degenerate`:
+  a model-free per-sample mechanical check (empty / low lexical diversity /
+  n-gram repetition loop) applied to every sample, bail and distress. Kept OFF
+  the welfare rubric deliberately (a coherence rubric dimension broke the
+  bakeoff coverage invariant and would perturb the bakeoff-validated distress
+  judge). Tests in `core/tests/test_validity.py`.
+- [x] **Perplexity capability measure** *(done 2026-08-09)* —
+  `tools/perplexity.py` (vLLM echo+logprobs) + `analysis.capability_gate`.
+  Measured live: bf16 18.1, w8 18.3, w4 21.1, **w3 514.7 → capability-degraded**
+  (w3's E1/E2 excluded from primary claims + H3 fit; dose-response spans 16→8→4).
+  Tests in `test_validity.py`.
 - [ ] **Hierarchical Holm in the analysis driver** *(opened 2026-08-09)* — the
   store→registered-tests driver must apply Holm **within** each family (E1 primary;
   E2, E3, trend as separate families), not a flat 9-test pool. Primitives exist
@@ -230,10 +231,18 @@ but judge *noise* eats power, which is what the bakeoff measures.
 - [ ] **Controlled-ladder quantization harness** *(carried from brief §2.2;
   RTN complete 2026-08-07)* — `modelwelfare.quantize` produces RTN
   w8/w4/w3 fake-quant checkpoints (numpy, first-party safetensors I/O,
-  spec + digest emitted; design rationale in the journal). Remaining:
-  GPTQ/AWQ via torch tooling on the quantization workbench (needs
-  calibration data), serving-equivalence check of a fake-quant artifact
-  against reference on vLLM, and the 3-bit method decision.
+  spec + digest emitted). RTN **serving-equivalence passed** (2026-08-09).
+  **AWQ (first-party) — numpy core built + tested 2026-08-09**: `quantize.awq`
+  = `rtn(W·s)/s` with an activation-derived per-channel scale searched over
+  alpha; reduces to RTN at alpha=0, never worse than RTN on calibration,
+  strictly helps on salient channels. Remaining for the AWQ method-arm:
+  - torch activation-capture pass (forward hooks → per-layer calibration
+    inputs) — runs on **halo** (system python has torch 2.10.0, ROCm);
+  - checkpoint integration (emit AWQ artifacts + spec/digest, per-layer alpha);
+  - AWQ serving-equivalence check;
+  - (GPTQ later, same infra.)
+  Future *additional* experiment: our AWQ vs a standard library (autoawq) as a
+  harness-validation study — never a substitute for our artifacts.
 
 - [ ] **Cloud reservation plan** *(documented 2026-08-07; execution
   deferred)* — needed only when MiniMax-scale reference extraction starts

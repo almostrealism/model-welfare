@@ -116,6 +116,47 @@ def rtn(weights: np.ndarray, bits: int, group_size: int) -> np.ndarray:
     return dequantized.astype(np.float32)
 
 
+def awq(weights: np.ndarray, calib: np.ndarray, bits: int, group_size: int,
+        alphas: np.ndarray = None) -> np.ndarray:
+    """First-party activation-aware weight quantization (fake-quant).
+
+    AWQ protects the weight columns that see the largest activations. For a
+    per-input-channel scale ``s`` derived from calibration activations, the
+    quantized-then-dequantized weights are ``rtn(W * s) / s`` — folding ``1/s``
+    back in so the result serves directly, with no runtime scaling, exactly
+    like the RTN artifacts. ``s = (mean|activation| per channel) ** alpha``,
+    normalized to unit mean; ``alpha`` is grid-searched to minimize the
+    calibration output error ``||W_eff x - W x||``. At ``alpha = 0`` this
+    reduces to plain :func:`rtn`, so AWQ is never worse than RTN on the
+    calibration set.
+
+    ``calib`` is an ``(n_samples, in_features)`` matrix of inputs seen by this
+    linear layer (collected by the torch activation-capture pass). This is the
+    pure-numpy core; where the calibration activations come from is the
+    caller's concern.
+    """
+    if alphas is None:
+        alphas = np.linspace(0.0, 1.0, 21)
+    calib = np.asarray(calib, dtype=np.float32)
+    if calib.ndim != 2 or calib.shape[1] != weights.shape[1]:
+        raise ValueError("calib must be (n_samples, in_features) matching weights")
+    act_scale = np.abs(calib).mean(axis=0)
+    act_scale = np.where(act_scale > 0, act_scale, 1e-8)
+    reference = weights @ calib.T
+    best_eff = None
+    best_err = np.inf
+    for alpha in alphas:
+        s = act_scale ** float(alpha)
+        s = s / s.mean()
+        s = np.where(s > 0, s, 1e-8)
+        eff = rtn(weights * s[None, :], bits, group_size) / s[None, :]
+        err = float(((eff @ calib.T - reference) ** 2).mean())
+        if err < best_err:
+            best_err = err
+            best_eff = eff
+    return best_eff.astype(np.float32)
+
+
 def should_quantize(name, dtype, shape):
     return (
         len(shape) == 2

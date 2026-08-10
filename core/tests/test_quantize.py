@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 
 from modelwelfare.quantize import (
+    awq,
     bf16_to_f32,
     f32_to_bf16,
     quantize_checkpoint,
@@ -126,3 +127,42 @@ def test_checkpoint_transform_end_to_end(tmp_path):
 def test_bits_flag_bounds():
     with pytest.raises(Exception):
         rtn(np.zeros((2, 4), dtype=np.float32), bits=1, group_size=4)
+
+
+def _output_mse(weights, quantized, calib):
+    return float(((quantized @ calib.T - weights @ calib.T) ** 2).mean())
+
+
+def test_awq_reduces_to_rtn_at_alpha_zero():
+    rng = np.random.default_rng(1)
+    weights = rng.standard_normal((8, 16)).astype(np.float32)
+    calib = rng.standard_normal((32, 16)).astype(np.float32)
+    at_zero = awq(weights, calib, bits=4, group_size=8, alphas=np.array([0.0]))
+    assert np.allclose(at_zero, rtn(weights, 4, 8), atol=1e-5)
+
+
+def test_awq_never_worse_than_rtn_and_helps_on_salient_channels():
+    rng = np.random.default_rng(2)
+    weights = rng.standard_normal((16, 32)).astype(np.float32)
+    calib = rng.standard_normal((64, 32)).astype(np.float32)
+    calib[:, :4] *= 10.0  # a few salient (high-activation) input channels
+    awq_eff = awq(weights, calib, bits=4, group_size=8)
+    rtn_eff = rtn(weights, 4, 8)
+    # AWQ searches alpha=0 (== RTN) so it can never be worse on calibration...
+    assert _output_mse(weights, awq_eff, calib) <= _output_mse(weights, rtn_eff, calib) + 1e-6
+    # ...and with salient channels present it should strictly help.
+    assert _output_mse(weights, awq_eff, calib) < _output_mse(weights, rtn_eff, calib)
+
+
+def test_awq_shape_and_determinism():
+    rng = np.random.default_rng(3)
+    weights = rng.standard_normal((4, 12)).astype(np.float32)
+    calib = rng.standard_normal((10, 12)).astype(np.float32)
+    first = awq(weights, calib, 4, 4)
+    second = awq(weights, calib, 4, 4)
+    assert first.shape == (4, 12) and np.array_equal(first, second)
+
+
+def test_awq_rejects_mismatched_calib():
+    with pytest.raises(ValueError):
+        awq(np.zeros((4, 8), np.float32), np.zeros((10, 6), np.float32), 4, 4)
