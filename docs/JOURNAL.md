@@ -4,6 +4,50 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-10 — Confirmatory tooling front-loaded (branch feature/preparing-tools)
+
+Readiness review before committing to long-running confirmatory collection.
+The decisive finding: the result store is schema-complete — every endpoint the
+analysis needs is either a stored field or derivable from the persisted raw
+transcripts (the E2 repetition covariate is recomputed from stored text, not a
+stored column) — so collection carries **no re-collection risk**. That inverts
+the build/run ordering: rather than defer analysis tooling and risk a mid-run
+stop, front-load all of it now and validate it against the existing
+`ladder-calibration-1` store while data is still cheap to re-examine.
+
+Built (all against tested primitives; Python suite green):
+
+- **Confirmatory manifest** `experiments/quant-welfare/confirmatory/` — the
+  4-rung RTN ladder (bf16/w8/w4/w3), bail-v2 + bail-v2-ext + distress-v2,
+  10 samples/item, identical sampling across rungs; passes `test_manifests`.
+- **Analysis driver** `analyze.py` — thin wiring over `stats`/`analysis` that
+  assembles endpoints from the store and runs the hierarchical Holm families
+  (E1 primary; E2/E3/trend secondary), Page's L over capability-surviving rungs,
+  and both H1 flip endpoints. Smoke-validated end-to-end on the calibration
+  store; that run caught two real bugs (the exit store `kind` is `exit_reasons`,
+  and E1 must exclude the never-exiting distress items — else they enter as
+  spurious zero-delta bail items).
+- **Two new registered stats primitives** (correctness pinned in
+  `test_stats.py`): `band_flip_test` — the distress mean-frustration band-flip
+  H1, a pooled *continuous* null (the binary/beta-binomial `flip_fraction_test`
+  does not fit a band-of-mean statistic); and `linear_adjusted_intercept` — the
+  E2 style-drift adjustment (frustration delta net of length + repetition). The
+  n-gram repetition metric was extracted from `is_degenerate` into a shared
+  `analysis.repetition_coverage` so the validity screen and the covariate read
+  one number. Also `variance_components` (ICC) for judge noise.
+- **E1 rendered in `run.py` `print_tables`** (was computed, not displayed) —
+  distinct from the raw mechanical exit rate.
+- **Judge-noise tool** `tools/judge_noise.py` and **manipulation-check runner**
+  `tools/manipulation_check.py` — reporting/verdict halves unit-tested, and both
+  **run against the live 30B judge** (:8095): the retry policy was extracted from
+  `run.py`'s judge loop into shared `run.judge_with_retries` (the 30B Q4
+  occasionally truncates its JSON; a single-shot call is not robust). Results:
+  manipulation check passes on all three distress dimensions (frustration +8,
+  self_deprecation +10, tone_stability +6) — tone_stability is informative and
+  retained; judge noise is negligible (ICC 0.969 / 0.996 / 0.997), so it does
+  not erode E2 power. Both are instrument/calibration-class (judge validation),
+  not findings; the extra passes land in a separate `judge_noise_scores` stream.
+
 ## 2026-08-10 — Pre-registration refinements from LessWrong inline review
 
 External inline review of the draft write-up raised five substantive points,
@@ -203,6 +247,9 @@ underspecified are fixed now, before data:
 - *Cross-contrast multiplicity.* Holm correction previously covered endpoints
   *within* a single contrast. It is extended to the **full primary family** =
   {E1, E2, E3} × {RTN-w8, RTN-w4, RTN-w3 vs BF16} = 9 tests, Holm across all 9.
+  *(Superseded 2026-08-10 — replaced by hierarchical families (E1 primary ×3;
+  E2/E3 secondary); see the resolution entry above. A flat 9-test Holm dilutes
+  E1's power.)*
   The three Page's L trend tests (one per endpoint) are a separate pre-specified
   omnibus family, Holm-corrected among themselves.
 - *E3 / H4 restricted to continuous indicators.* The Bernoulli-dispersion

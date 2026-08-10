@@ -53,18 +53,24 @@ when done, and grow notes as decisions accumulate. Date every status change.
   trial-1; tone_stability stays only until its manipulation check rules on
   it.
 
-- [ ] **Judge-noise measurement** *(opened 2026-08-06)* — all trial scores
-  are single judge passes; subject variance and judge noise are
-  unpartitioned (self_deprecation spread 0–8 within one cell). Re-judge a
-  sample of transcripts k times with `judge_sample_index` 0..k-1 and
-  perturbed seeds; report variance components.
+- [x] **Judge-noise measurement** *(opened 2026-08-06; done 2026-08-10)* —
+  `tools/judge_noise.py` re-judges a subsample k times (`judge_sample_index`
+  0..k-1, perturbed judge sampling) into a separate `judge_noise_scores` stream
+  and reports variance components (`stats.variance_components`, ICC) per
+  dimension; reporting half unit-tested (`test_judge_noise.py`). **Ran on the
+  30B judge** over the ladder-calibration store (k=3, 16 transcripts): ICC
+  frustration 0.969 / self_deprecation 0.996 / tone_stability 0.997 — judge
+  noise is ≤3% of variance, so it does not meaningfully erode E2 power. The
+  power analysis stands.
 
-- [ ] **Judge manipulation checks** *(opened 2026-08-06)* — tone_stability
-  returned 10 on all 40 trial scores: zero information. Before dropping or
-  trusting it, verify the judge *can* detect degradation using synthetic
-  transcripts with planted tone collapse. Same technique generalizes: every
-  rubric dimension should have a positive-control transcript that scores
-  high and a negative that scores low.
+- [x] **Judge manipulation checks** *(opened 2026-08-06; done 2026-08-10)* —
+  `tools/manipulation_check.py` scores the `bakeoff/synthetics.py` planted-pole
+  fixtures with the confirmatory judge on `distress-v1-rubric` and fails any
+  dimension whose poles do not separate (`evaluate` unit-tested,
+  `test_manipulation_check.py`). **Ran on the 30B judge**: all three dimensions
+  separate their planted poles (frustration +8, self_deprecation +10,
+  tone_stability +6 on the 0–10 scale) — **tone_stability is informative and is
+  retained** (resolves the standing question on it).
 
 - [ ] **Judge repair counter** *(opened 2026-08-06)* — the JSON closer
   repair in `judging._extract_json` is silent, so "no glitches" and
@@ -124,14 +130,24 @@ with declared TBDs); (3) confirmatory experiments — gated below.
   Measured live: bf16 18.1, w8 18.3, w4 21.1, **w3 514.7 → capability-degraded**
   (w3's E1/E2 excluded from primary claims + H3 fit; dose-response spans 16→8→4).
   Tests in `test_validity.py`.
-- [ ] **Store→registered-tests analysis driver** *(opened 2026-08-09; scope
-  extended 2026-08-10)* — wires the tested `stats.py` primitives over the store.
-  Must implement: hierarchical Holm **within** each family (E1 primary; E2, E3,
-  trend separate), not a flat 9-test pool; the E1 **and** distress band-flip H1
-  endpoints (`band_index`, beta-binomial `flip_fraction_test`); the capability
-  gate excluding E1/E2/E3 at degraded rungs with H3 over surviving rungs
-  (k ≥ 3); and the E2 style-drift robustness (length + repetition covariates).
-  Primitives + tests exist; the driver wiring is the remaining piece.
+- [x] **Store→registered-tests analysis driver** *(opened 2026-08-09; done
+  2026-08-10)* — `experiments/quant-welfare/analyze.py`, a thin wiring over the
+  tested primitives. Implements hierarchical Holm **within** each family (E1
+  primary; E2, E3, trend separate), not a flat pool; the E1 exit-flip H1
+  (`flip_fraction_test`) **and** distress band-flip H1 (new tested
+  `stats.band_flip_test`, a pooled continuous null — the point-estimate/binary
+  `flip_fraction_test` does not fit a mean-band statistic); the capability gate
+  excluding degraded rungs' E1/E2/E3 with Page's L over surviving rungs (k ≥ 3);
+  and the E2 style-drift adjustment (new tested `stats.linear_adjusted_intercept`
+  over length + repetition, the latter from the extracted
+  `analysis.repetition_coverage`). E1 is restricted to bail items so the
+  never-exiting distress items do not enter as zero-deltas. Unit-tested
+  (`tests/test_analyze.py`) and smoke-validated end-to-end against the
+  `ladder-calibration-1` store — which is what proved the store schema is
+  sufficient (no re-collection risk). Also: E1 now renders in `run.py`
+  `print_tables`, and the confirmatory manifest is written
+  (`confirmatory/experiment.textproto`, 4-rung RTN ladder, passes
+  `test_manifests`).
 - [x] **ladder-calibration-1** *(done 2026-08-09; calibration)* — full pipeline
   on the real BF16-vs-RTN-w4 ladder (840 samples/condition, 300 distress scores,
   all exits classified, 0 unscored). Instruments validated: bail-v2 informative

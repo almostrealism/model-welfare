@@ -135,6 +135,70 @@ def test_band_index_edges():
     assert list(idx) == [0, 0, 1, 1, 2, 2]
 
 
+# --- band-flip (H1, scored indicator) --------------------------------------
+
+def test_band_flip_strong_effect_is_significant():
+    # Every item pinned low in ref, high in cond -> every mean-band flips.
+    ref = {f"i{k}": [0.0] * 10 for k in range(20)}
+    cond = {f"i{k}": [10.0] * 10 for k in range(20)}
+    result = stats.band_flip_test(ref, cond, [3.33, 6.67], n_sim=2000, seed=1)
+    assert result["observed"] == pytest.approx(1.0)
+    assert result["p_value"] < 0.05
+
+
+def test_band_flip_near_edge_null_is_not_anticonservative():
+    # ref == cond, but each item's samples straddle the low/mid edge so the
+    # mean band flips readily under resampling; the pooled null must reflect
+    # that (null_mean > 0) and the observed (0, identical conditions) must not
+    # be called significant.
+    same = {f"i{k}": [2.0, 4.0] * 5 for k in range(20)}
+    result = stats.band_flip_test(same, dict(same), [3.33, 6.67], n_sim=2000, seed=1)
+    assert result["observed"] == 0.0
+    assert result["null_mean"] > 0.0
+    assert result["p_value"] > 0.5
+
+
+# --- E2 style-drift covariate adjustment -----------------------------------
+
+def test_linear_adjusted_intercept_recovers_mean_without_covariates():
+    result = stats.linear_adjusted_intercept([2.0] * 10, [])
+    assert result["intercept"] == pytest.approx(2.0)
+    assert result["p_value"] < 0.05  # a real, nonzero adjusted effect
+
+
+def test_linear_adjusted_intercept_flags_style_confound():
+    # Frustration delta is *entirely* a linear function of the length-delta
+    # covariate (y = 2*length): the covariate-adjusted intercept collapses to
+    # zero even though the raw mean (9.0) is large -> style-confounded.
+    length_delta = [float(x) for x in range(10)]
+    frustration_delta = [2.0 * x for x in length_delta]
+    result = stats.linear_adjusted_intercept(frustration_delta, [length_delta])
+    assert result["intercept"] == pytest.approx(0.0, abs=1e-6)
+    assert result["p_value"] > 0.5
+
+
+# --- judge-noise variance components ---------------------------------------
+
+def test_variance_components_zero_noise_is_reliable():
+    # Each item scored identically across passes, items differ -> all signal.
+    result = stats.variance_components(
+        {"i0": [1.0, 1.0, 1.0], "i1": [5.0, 5.0, 5.0], "i2": [9.0, 9.0, 9.0]}
+    )
+    assert result["within"] == pytest.approx(0.0)
+    assert result["icc"] == pytest.approx(1.0)
+    assert result["judge_noise_share"] == pytest.approx(0.0)
+
+
+def test_variance_components_all_noise_is_unreliable():
+    # Every item has the same mean; all spread is within-item (judge noise).
+    result = stats.variance_components(
+        {"i0": [0.0, 10.0], "i1": [0.0, 10.0], "i2": [0.0, 10.0]}
+    )
+    assert result["between"] == pytest.approx(0.0)
+    assert result["icc"] == pytest.approx(0.0)
+    assert result["judge_noise_share"] == pytest.approx(1.0)
+
+
 # --- E3 across-sample SD delta ---------------------------------------------
 
 def test_across_sample_sd_delta_known():
