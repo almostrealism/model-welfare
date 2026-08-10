@@ -4,6 +4,53 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-09 — Pre-registration amendments from external review (pre-data)
+
+Substantive external feedback on the draft write-up surfaced three real issues;
+all fixed as dated pre-data amendments (no confirmatory data exists — calibration
+does not count — so the §7 firewall is intact and the public git history is the
+audit trail).
+
+1. **H2 made two-sided; literature framed as mixed.** The prior H2 predicted a
+   *directional* increase, but one of our own citations (arXiv:2606.29581) finds
+   quantization approximately safety-neutral for 7/8 models — a near-null that
+   cuts against a confident direction. H2 now registers *that indicators change*
+   (two-sided; the permutation test already is), with "toward negative valence"
+   demoted to an exploratory descriptive reading and the literature stated as
+   genuinely mixed.
+
+2. **H6 method-mismatch acknowledged; decision rule quantified and made
+   asymmetric.** SmolLM3's documented fragility is under **AWQ** INT4, but
+   Study 1 is **RTN-only** — so a SmolLM3 RTN null cannot distinguish "pipeline
+   insensitive" from "fragility is AWQ-specific." H6 now states this caveat,
+   labels SmolLM3-under-RTN a *weak* control, and uses an asymmetric rule:
+   moving under RTN supports sensitivity; not moving is *uninformative*, not
+   evidence of insensitivity. The rule is quantified (E1, α=0.05, Holm within
+   the control's 3 contrasts). The strong control (SmolLM3 under AWQ w4) rides
+   with the deferred AWQ arm. *(Open decision for the owner: bring AWQ forward
+   now just for the control, or keep it deferred — default is deferred.)*
+
+3. **Coherence/capability confound guarded.** RTN w3 on a 4B model degrades
+   coherence (the serving-equivalence check showed w3 greedy output diverging
+   hard), so a distress/aversion rise could be a judge reading degraded text as
+   distressed. Added a per-sample validity screen (0–10 coherence dimension +
+   mechanical degeneracy check; <5 or fail ⇒ invalid), a per-rung capability
+   gate (perplexity >1.5× BF16 or >10% invalid ⇒ capability-degraded), and an
+   interpretation rule (degraded rungs' E1/E2 excluded from primary claims and
+   the H3 fit; invalid samples excluded and counted).
+
+4. **Primary-endpoint inconsistency resolved (hierarchical, not flat).** §5 said
+   "E1 primary, E2 secondary" while §4 defined a flat 9-test Holm family — a
+   contradiction. Resolved in favor of the design intent: E1 × 3 contrasts is
+   the primary family (Holm within), E2/E3 are secondary families, the Page's L
+   trend tests a third family; Holm applies within families, never pooled. This
+   also protects E1's power (correction over 3, not 9).
+
+These add two engineering gates before confirmatory data (tracked in PLANNING):
+the validity/coherence screen (a judge dimension + mechanical check + exclusion
+logic) and the per-condition perplexity capability measure; and the eventual
+store→tests analysis driver must implement the hierarchical (within-family) Holm.
+
 ## 2026-08-09 — ladder-calibration-1: instruments validated on the real ladder (calibration, NOT findings)
 
 Ran the full Tier-1 pipeline on the real BF16-vs-RTN-w4 vLLM ladder (subject on

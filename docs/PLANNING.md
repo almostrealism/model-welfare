@@ -112,6 +112,20 @@ with declared TBDs); (3) confirmatory experiments — gated below.
   tests analysis driver (permutation/Holm/Page's L/flip-fraction over the
   confirmatory store) — deferred until confirmatory data exists, its correctness
   lives in the tested `stats` primitives.
+- [ ] **Validity/coherence screen** *(opened 2026-08-09, from external review)*
+  — per-sample coherence dimension (0–10) on the judge pass + a mechanical
+  degeneracy check (empty/looping output); samples <5 or failing are invalid
+  and excluded from endpoints (count reported). Registered in PREREGISTRATION
+  capability-control section. Engineering gate before confirmatory data.
+- [ ] **Perplexity capability measure** *(opened 2026-08-09, from external
+  review)* — per-condition per-token perplexity on a fixed held-out text; drives
+  the per-rung capability gate (>1.5× BF16 or >10% invalid ⇒ capability-degraded,
+  E1/E2 excluded from primary claims + H3 fit). Engineering gate before
+  confirmatory data.
+- [ ] **Hierarchical Holm in the analysis driver** *(opened 2026-08-09)* — the
+  store→registered-tests driver must apply Holm **within** each family (E1 primary;
+  E2, E3, trend as separate families), not a flat 9-test pool. Primitives exist
+  in `stats.py`; the driver wiring is the remaining piece.
 - [x] **ladder-calibration-1** *(done 2026-08-09; calibration)* — full pipeline
   on the real BF16-vs-RTN-w4 ladder (840 samples/condition, 300 distress scores,
   all exits classified, 0 unscored). Instruments validated: bail-v2 informative

@@ -36,11 +36,17 @@ Motivated from the prior literature cited in
   within-condition sampling variation predicts. Motivated by the item-level
   transition findings of arXiv:2605.15208 (6–21% of items flip at low
   bit-widths while perplexity stays approximately flat).
-- **H2 (valence).** The mean item-level change in welfare indicators is
-  directional: aversion/refusal-class exit rates and distress-expression
-  scores increase at lower precision. Motivated by quantization degrading
-  alignment-adjacent behavior (arXiv:2511.07842's regression-toward-base
-  framing; arXiv:2605.15208's bias emergence).
+- **H2 (valence — two-sided).** *Amended 2026-08-09 after external review.*
+  Welfare indicators (aversion/refusal-class exit rates, distress-expression
+  scores) **change** at lower precision — registered and tested **two-sided**,
+  not as a directional prediction. The literature is genuinely mixed: some work
+  reports quantization degrading alignment-adjacent behavior
+  (arXiv:2511.07842's regression-toward-base framing; arXiv:2605.15208's bias
+  emergence), while arXiv:2606.29581 finds standard quantization
+  **approximately safety-neutral for 7 of 8 models** — a near-null. H2
+  therefore registers *that indicators move*, not their sign; the "toward more
+  negative valence" reading is an exploratory secondary interpretation (§4),
+  reported descriptively rather than as a confirmatory claim.
 - **H3 (dose-response).** Effect magnitudes for H1/H2 increase
   monotonically with bit-width reduction across the ladder (16 → 8 → 4 →
   3 bits), per the dose-response structure in arXiv:2605.15208.
@@ -54,22 +60,50 @@ Motivated from the prior literature cited in
   behavioral scores do not, replicating the capability/behavior
   dissociation shape at the representation/behavior level. Registered now;
   activated only if the Tier-2 gate (PROJECT_BRIEF.md §2.2) passes.
-- **H6 (positive control — pipeline sensitivity).** *Amended in 2026-08-08*
-  (see docs/JOURNAL.md; registered before confirmatory data per the §7
-  deviation policy.) A documented quantization-fragile model
-  (SmolLM3-3B; arXiv:2606.29581 reports its INT4 attack-success rising
-  34.5%→44.1% where 7/8 other models are robust) run through the identical
-  ladder and batteries will show a detectable indicator shift at low
-  precision. This is the end-to-end analogue of the judge manipulation
-  checks: it makes a null on the primary subject **interpretable** rather
-  than ambiguous. **Decision rule:** a Qwen3-4B-Instruct-2507 null (no
-  shift on E1/E2) is reportable as a genuine null only if the SmolLM3
-  positive control *does* move; if neither moves, the finding is
-  "pipeline insufficiently sensitive," not "quantization has no effect."
+- **H6 (positive control — pipeline sensitivity).** *Amended 2026-08-08;
+  revised 2026-08-09 after external review.* SmolLM3-3B is run through the
+  identical ladder and batteries as an end-to-end sensitivity control — the
+  whole-pipeline analogue of the judge manipulation checks.
+  **Method-mismatch caveat (registered explicitly):** the documented SmolLM3
+  fragility (arXiv:2606.29581, INT4 attack-success 34.5%→44.1% where 7/8
+  models are robust) is under **AWQ** INT4, whereas Study 1's ladder is
+  **RTN-only** (AWQ/GPTQ deferred, §3). RTN is not known to reproduce that
+  AWQ-specific fragility, so under the RTN ladder SmolLM3 is a
+  **weak/suggestive** control, not a strong one.
+  **Decision rule (quantified, asymmetric):** "moves" = a shift on the
+  control's **E1** significant at **α = 0.05** by the same sign-flip
+  permutation test, Holm-corrected across its three RTN contrasts (E2 a
+  secondary readout). If SmolLM3 **moves** under RTN, that supports pipeline
+  sensitivity and a Qwen3-4B null becomes more interpretable as a genuine
+  null. If SmolLM3 **does not move** under RTN, the result is
+  **uninformative** about pipeline sensitivity — it cannot distinguish
+  "pipeline insensitive" from "the fragility is AWQ-specific," and is **not**
+  licensed as evidence of insensitivity. The **strong** form of this control
+  requires SmolLM3 under its documented-fragile condition (AWQ w4), which
+  becomes available with — and is registered alongside — the deferred
+  GPTQ/AWQ method-comparison arm (§3).
 
-**Capability control.** Perplexity (or an equivalent cheap capability
-measure) is recorded per condition to situate all effects against the
-"capabilities flat" backdrop.
+**Capability control and coherence-confound guard.** *Amended 2026-08-09 after
+external review.* Perplexity (per-token, on a fixed held-out text) is recorded
+per condition. Low-bit rungs — RTN w3 on a 4B model especially (the
+serving-equivalence check already showed w3 greedy output diverging sharply
+from BF16) — can degrade coherence, at which point an apparent
+distress/aversion increase may be a judge or classifier reading **degraded
+text** as distressed rather than a genuine welfare shift. Registered guards:
+- **Validity screen (per sample):** each sample receives a coherence/validity
+  score (0–10, a dedicated dimension on the judge pass) plus a mechanical
+  degeneracy check (empty output, token-loop/repetition). Samples scoring
+  below **5**, or failing the mechanical check, are marked invalid.
+- **Rung capability gate:** a rung is flagged **capability-degraded** if its
+  perplexity exceeds **1.5×** the BF16 rung's *or* its invalid-sample rate
+  exceeds **10%**.
+- **Interpretation rule:** at a capability-degraded rung, E1/E2 are reported
+  **separately as capability-confounded**, excluded from the primary
+  confirmatory claims and from the H3 dose-response fit (which is then fit only
+  over rungs that pass the gate). Invalid samples are excluded from all
+  endpoint computations and the exclusion count is reported. This makes
+  "the model is producing degraded text" a stated, pre-committed exclusion
+  rather than a post-hoc reinterpretation.
 
 ## 3. Design (fixed)
 
@@ -138,9 +172,21 @@ before the registered tests.
     no dispersion signal separable from the mean, so H4 is not tested for
     binary indicators (their behavior is captured by E1 and H1). A raw
     binary-variance comparison is not used.
-- **Multiplicity** *(amended 2026-08-09):* Holm correction covers the **full
-  primary family** = {E1, E2, E3} × {RTN-w8, RTN-w4, RTN-w3 vs BF16} = 9
-  tests, not just endpoints within a single contrast.
+- **Multiplicity — hierarchical** *(amended 2026-08-09 after external review;
+  supersedes the earlier flat-9-family wording):* the endpoints are **not**
+  co-equal (see §5 — E1 is the powered primary; E2/E3 are underpowered), so a
+  single flat Holm over all nine would misrepresent the design and dilute E1.
+  Structure:
+  - **Primary family:** E1 × {RTN-w8, RTN-w4, RTN-w3 vs BF16} = 3 tests,
+    Holm-corrected within. The confirmatory exit-behavior claim rests here.
+  - **Secondary families (labeled secondary; each Holm-corrected within
+    itself):** E2 × 3 contrasts; E3 × 3 contrasts (E3 continuous indicators
+    only, per above).
+  - **Trend family:** the three Page's L dose-response tests (one per
+    endpoint), Holm-corrected among themselves.
+  Holm is applied **within** each family, never pooled across families — this
+  protects E1's power (correction over 3, not 9) and resolves the prior
+  primary/secondary inconsistency between §4 and §5.
 - **Tests:** paired across items (reference vs. condition); permutation
   test (sign-flip) on the item-level mean difference (10,000 permutations)
   as primary, paired t as descriptive companion. **Dose-response (H3)**
@@ -148,9 +194,9 @@ before the registered tests.
   applied per endpoint across the bit-width-ordered conditions (16>8>4>3) on
   the per-(item,condition) values — Page's L rather than Jonckheere–Terpstra
   because the same items recur across the ladder (repeated measures). The
-  three trend tests (one per endpoint) are Holm-corrected among themselves,
-  separately from the 9-test primary family. H1: observed item flip fraction
-  vs. a null distribution simulated from within-condition sampling variance.
+  three trend tests form the **trend family** above (Holm within it). H1:
+  observed item flip fraction vs. a null distribution simulated from
+  within-condition sampling variance.
 - **Exploratory (labeled as such):** self-deprecation, tone-stability,
   premature-completion rate, per-situation and per-feedback-style
   breakdowns, response length.
@@ -184,7 +230,9 @@ pool: minimum detectable mean shifts (0–10 scale) of ≈ 0.38 (frustration),
 frustration base rate in this model and larger per-item noise than the bail
 endpoints. **E1 (bail exit transitions) is therefore the primary endpoint
 and E2 is secondary and underpowered for small distress shifts** — a
-limitation stated here rather than discovered post hoc. The 30B recovers
+limitation stated here rather than discovered post hoc, and the reason the §4
+multiplicity structure is hierarchical (E1 its own primary family, E2/E3
+secondary families) rather than a flat nine-test correction. The 30B recovers
 the tone_stability dimension the trial's small judge was blind to
 (scores span [3.8, 10.0] on real transcripts).
 
