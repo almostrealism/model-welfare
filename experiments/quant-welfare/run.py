@@ -332,7 +332,10 @@ def _print_rate_table(title, rates, item_ids, condition_ids, reference):
             hits, total = rates.get((condition_id, item_id), (0, 0))
             fractions[condition_id] = hits / total if total else float("nan")
             row += f"{hits}/{total} ({fractions[condition_id]:.0%})".ljust(20)
-        deltas = [fractions[c] - fractions[reference] for c in condition_ids if c != reference]
+        # Deltas only when the reference condition is part of this invocation —
+        # a per-condition run (--conditions <one>) legitimately excludes it.
+        deltas = ([fractions[c] - fractions[reference] for c in condition_ids if c != reference]
+                  if reference in fractions else [])
         row += " ".join(f"{d:+.0%}" for d in deltas)
         print(row)
 
