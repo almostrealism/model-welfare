@@ -109,13 +109,20 @@ def make_exit_classifier_backend():
     return LlamaCppServerBackend(EXIT_CLASSIFIER_URL, EXIT_CLASSIFIER_RUNTIME, timeout=600.0)
 
 
-def judge_sampling(attempt: int) -> condition_pb2.SamplingSpec:
-    """Attempt 0 is deterministic; retries perturb temperature and seed so a
-    deterministic malformed reply cannot simply recur. Wide token budget so
-    the 30B's replies are never truncated mid-JSON."""
-    if attempt == 0:
+def judge_sampling(attempt: int, judge_sample_index: int = 0) -> condition_pb2.SamplingSpec:
+    """Sampling for one judge pass. The primary pass (``judge_sample_index`` 0,
+    ``attempt`` 0) is deterministic — that is the single confirmatory score. Any
+    *additional* pass (index > 0, used by the judge-noise tool) or retry perturbs
+    the temperature and takes a distinct seed, so repeated passes are genuinely
+    independent draws — without this the passes are identical on a deterministic
+    backend and within-transcript variance collapses (ICC overstated) — and a
+    deterministic malformed reply cannot simply recur. Wide token budget so the
+    30B's replies are never truncated mid-JSON."""
+    if judge_sample_index == 0 and attempt == 0:
         return condition_pb2.SamplingSpec(temperature=0.0, max_tokens=640, seed=1)
-    return condition_pb2.SamplingSpec(temperature=0.3, max_tokens=640, seed=1 + attempt)
+    return condition_pb2.SamplingSpec(
+        temperature=0.3, max_tokens=640, seed=1 + 1000 * judge_sample_index + attempt
+    )
 
 
 def judge_with_retries(backend, record, rubric, *, judge_sample_index=0, provenance=None):
@@ -129,7 +136,7 @@ def judge_with_retries(backend, record, rubric, *, judge_sample_index=0, provena
         try:
             return judge_sample(
                 backend, JUDGE_REF, record, rubric,
-                sampling=judge_sampling(attempt),
+                sampling=judge_sampling(attempt, judge_sample_index),
                 judge_sample_index=judge_sample_index, provenance=provenance,
             )
         except Exception as error:

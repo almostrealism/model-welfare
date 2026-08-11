@@ -240,12 +240,14 @@ def analyze(experiment, samples, scores, classifications, perplexity=None,
     contrasts = [cid for cid in ladder if cid != reference]
     n_samples = experiment.samples_per_item
 
-    # Capability gate: perplexity (optional) + invalid-sample rate.
+    # Capability gate: perplexity (optional) + invalid-sample rate. Build a full
+    # map over the ladder and overlay any supplied perplexities, so a rung
+    # missing from the --perplexity JSON is still gated (on its invalid-sample
+    # rate) and reported, rather than silently dropped.
     invalid = invalid_rates(samples)
-    gate = analysis.capability_gate(
-        perplexity or {cid: None for cid in ladder}, reference,
-        invalid_rate_by_condition=invalid,
-    )
+    supplied = perplexity or {}
+    ppl_map = {cid: supplied.get(cid) for cid in ladder}
+    gate = analysis.capability_gate(ppl_map, reference, invalid_rate_by_condition=invalid)
     degraded = {cid for cid, entry in gate.items() if entry["degraded"]}
     surviving_contrasts = [c for c in contrasts if c not in degraded]
     surviving_ladder = [c for c in ladder if c not in degraded]

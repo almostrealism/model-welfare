@@ -60,7 +60,9 @@ def repetition_coverage(text: str) -> float:
     if not trigrams:
         return 0.0
     top = Counter(trigrams).most_common(1)[0][1]
-    return top * 3 / len(words)
+    # Overlapping repeats can push the raw span above 1 (e.g. "a a a a"); clamp
+    # so it stays a fraction, as the docstring and the E2 covariate assume.
+    return min(top * 3 / len(words), 1.0)
 
 
 def is_degenerate(text: str, min_words: int = 15) -> tuple:
