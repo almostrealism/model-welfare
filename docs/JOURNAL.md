@@ -4,6 +4,72 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-10 — Confirmatory throughput calibration + sequential launch config
+
+Timed the live pipeline (halo ladder + studio judge) before committing ~a day
+of collection. Per-stage rates from `--samples 1` slices to a scratch store:
+distress generation 15.2 s/conv at concurrency 8 → 10.3 s/conv at concurrency 24
+(one rung); bail generation 2.7 s/conv; 30B judge 3.7 s/transcript.
+
+Decisive finding: halo's single Ryzen AI Max+ APU does **not** parallelize the
+four rung servers. 432 bail conversations across all four rungs at once took
+1736 s — *slower* than the ~1180 s of running them serially (four servers plus
+~32 concurrent requests thrash the one APU). So the confirmatory run generates
+**one condition at a time** against a single saturated server at high
+concurrency, not the driver's default concurrent-conditions. The judge is not
+the bottleneck (~2.5 h for all 2,400 distress transcripts on studio alone), so
+no second judge machine is warranted; a second *generation* box would help but
+is validity-tied to halo's vLLM ROCm (it would need its own serving-equivalence
+check) and is reserved for the future larger-subject arms. Estimated full run
+~14 h (gen ~10 h + judge ~2.5 h + classify ~1.5 h), vs ~22–25 h for the naive
+concurrent default. Encoded in `experiments/quant-welfare/launch_confirmatory.sh`
+(sequential per-condition generation → one judge pass → classify; preflights
+every server; resumable off the append-only store).
+
+## 2026-08-10 — Confirmatory tooling front-loaded (branch feature/preparing-tools)
+
+Readiness review before committing to long-running confirmatory collection.
+The decisive finding: the result store is schema-complete — every endpoint the
+analysis needs is either a stored field or derivable from the persisted raw
+transcripts (the E2 repetition covariate is recomputed from stored text, not a
+stored column) — so collection carries **no re-collection risk**. That inverts
+the build/run ordering: rather than defer analysis tooling and risk a mid-run
+stop, front-load all of it now and validate it against the existing
+`ladder-calibration-1` store while data is still cheap to re-examine.
+
+Built (all against tested primitives; Python suite green):
+
+- **Confirmatory manifest** `experiments/quant-welfare/confirmatory/` — the
+  4-rung RTN ladder (bf16/w8/w4/w3), bail-v2 + bail-v2-ext + distress-v2,
+  10 samples/item, identical sampling across rungs; passes `test_manifests`.
+- **Analysis driver** `analyze.py` — thin wiring over `stats`/`analysis` that
+  assembles endpoints from the store and runs the hierarchical Holm families
+  (E1 primary; E2/E3/trend secondary), Page's L over capability-surviving rungs,
+  and both H1 flip endpoints. Smoke-validated end-to-end on the calibration
+  store; that run caught two real bugs (the exit store `kind` is `exit_reasons`,
+  and E1 must exclude the never-exiting distress items — else they enter as
+  spurious zero-delta bail items).
+- **Two new registered stats primitives** (correctness pinned in
+  `test_stats.py`): `band_flip_test` — the distress mean-frustration band-flip
+  H1, a pooled *continuous* null (the binary/beta-binomial `flip_fraction_test`
+  does not fit a band-of-mean statistic); and `linear_adjusted_intercept` — the
+  E2 style-drift adjustment (frustration delta net of length + repetition). The
+  n-gram repetition metric was extracted from `is_degenerate` into a shared
+  `analysis.repetition_coverage` so the validity screen and the covariate read
+  one number. Also `variance_components` (ICC) for judge noise.
+- **E1 rendered in `run.py` `print_tables`** (was computed, not displayed) —
+  distinct from the raw mechanical exit rate.
+- **Judge-noise tool** `tools/judge_noise.py` and **manipulation-check runner**
+  `tools/manipulation_check.py` — reporting/verdict halves unit-tested, and both
+  **run against the live 30B judge** (:8095): the retry policy was extracted from
+  `run.py`'s judge loop into shared `run.judge_with_retries` (the 30B Q4
+  occasionally truncates its JSON; a single-shot call is not robust). Results:
+  manipulation check passes on all three distress dimensions (frustration +8,
+  self_deprecation +10, tone_stability +6) — tone_stability is informative and
+  retained; judge noise is negligible (ICC 0.969 / 0.996 / 0.997), so it does
+  not erode E2 power. Both are instrument/calibration-class (judge validation),
+  not findings; the extra passes land in a separate `judge_noise_scores` stream.
+
 ## 2026-08-10 — Pre-registration refinements from LessWrong inline review
 
 External inline review of the draft write-up raised five substantive points,
@@ -203,6 +269,9 @@ underspecified are fixed now, before data:
 - *Cross-contrast multiplicity.* Holm correction previously covered endpoints
   *within* a single contrast. It is extended to the **full primary family** =
   {E1, E2, E3} × {RTN-w8, RTN-w4, RTN-w3 vs BF16} = 9 tests, Holm across all 9.
+  *(Superseded 2026-08-10 — replaced by hierarchical families (E1 primary ×3;
+  E2/E3 secondary); see the resolution entry above. A flat 9-test Holm dilutes
+  E1's power.)*
   The three Page's L trend tests (one per endpoint) are a separate pre-specified
   omnibus family, Holm-corrected among themselves.
 - *E3 / H4 restricted to continuous indicators.* The Bernoulli-dispersion

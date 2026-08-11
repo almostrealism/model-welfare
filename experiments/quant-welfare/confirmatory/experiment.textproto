@@ -1,0 +1,155 @@
+# proto-file: proto/modelwelfare/v1/experiment.proto
+# proto-message: modelwelfare.v1.Experiment
+
+# Confirmatory Study 1 (PREREGISTRATION.md). Tier 1 only, dev organism
+# (Qwen3-4B), RTN-only four-point ladder. The pre-registered design fixed
+# in a machine-readable manifest before data collection: conditions, item
+# pools, samples-per-item, and reference are pinned here; hypotheses,
+# endpoints, multiplicity structure, and the judge/rubric digests live in
+# PREREGISTRATION.md and are recorded per-record at write time. Sampling is
+# byte-identical across conditions (enforced by test_conditions_are_comparable)
+# so precision is never confounded with sampling parameters.
+id: "quant-welfare-confirmatory-1"
+name: "Quant-welfare confirmatory Study 1"
+description:
+  "Confirmatory Tier-1 run on the controlled RTN ladder (BF16 reference vs "
+  "own RTN fake-quant rungs w8/w4/w3, served by vLLM on halo). Primary "
+  "endpoint E1 = refusal+aversion exit share on the bail battery; secondary "
+  "E2 = frustration score and E3 = across-sample dispersion on distress. "
+  "Multiplicity is hierarchical (E1 primary family; E2/E3/trend secondary), "
+  "Holm within each family; the capability gate excludes degraded rungs "
+  "(w3 is expected to gate on perplexity) from the primary claims and the "
+  "Page's L dose-response fit. Item pools and samples-per-item are "
+  "power-sized in PREREGISTRATION §5."
+samples_per_item: 10
+reference_condition_id: "qwen3-4b-bf16"
+battery_ids: "bail-v2"
+battery_ids: "bail-v2-ext"
+battery_ids: "distress-v2"
+
+conditions {
+  id: "qwen3-4b-bf16"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 7000
+  }
+  description: "BF16 reference; served on amd-halo :8000 from a local checkpoint."
+}
+
+conditions {
+  id: "qwen3-4b-rtn-w8"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_RTN
+    weight_bits: 8
+    group_size: 128
+    uniform: true
+    policy_note:
+      "own RTN fake-quant artifact (modelwelfare.quantize, symmetric "
+      "per-group g=128, embeddings and head at full precision); digest in "
+      "the artifact's quantization.textproto"
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 7000
+  }
+  description: "RTN w8 controlled-ladder rung; served on amd-halo :8010."
+}
+
+conditions {
+  id: "qwen3-4b-rtn-w4"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_RTN
+    weight_bits: 4
+    group_size: 128
+    uniform: true
+    policy_note:
+      "own RTN fake-quant artifact (modelwelfare.quantize, symmetric "
+      "per-group g=128, embeddings and head at full precision); digest in "
+      "the artifact's quantization.textproto"
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 7000
+  }
+  description: "RTN w4 controlled-ladder rung; served on amd-halo :8011."
+}
+
+conditions {
+  id: "qwen3-4b-rtn-w3"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_RTN
+    weight_bits: 3
+    group_size: 128
+    uniform: true
+    policy_note:
+      "own RTN fake-quant artifact (modelwelfare.quantize, symmetric "
+      "per-group g=128, embeddings and head at full precision); digest in "
+      "the artifact's quantization.textproto"
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 7000
+  }
+  description: "RTN w3 controlled-ladder rung; served on amd-halo :8012. Expected to gate on perplexity (calibration measured w3 ppl 514.7)."
+}

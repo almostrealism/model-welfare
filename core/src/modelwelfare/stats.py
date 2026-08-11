@@ -208,6 +208,74 @@ def flip_fraction_test(
     }
 
 
+def band_flip_test(
+    ref_scores_by_item: dict,
+    cond_scores_by_item: dict,
+    edges,
+    n_sim: int = 10000,
+    seed: int = 0,
+) -> dict:
+    """H1 for a scored indicator: does the fraction of items whose mean-score
+    *band* changes between reference and condition exceed sampling noise?
+
+    The continuous analogue of :func:`flip_fraction_test`. Each dict maps
+    item_id -> that item's per-sample scores (e.g. frustration on 0-10). An
+    item's outcome is the band of its mean score (``edges`` are the interior
+    cut points, as in :func:`band_index`); a flip is a change in that band
+    between conditions. The null pools each item's reference and condition
+    samples and draws both conditions' means from the pooled pool (a pooled
+    parametric bootstrap) — the continuous counterpart of the beta-binomial
+    exit null, so a band that moves only because the mean wobbled within noise
+    is not counted as real. One-sided p (observed exceeds null).
+    """
+    items = sorted(set(ref_scores_by_item) & set(cond_scores_by_item))
+    items = [
+        item for item in items
+        if len(ref_scores_by_item[item]) and len(cond_scores_by_item[item])
+    ]
+    n_items = len(items)
+    if n_items == 0:
+        return {"observed": float("nan"), "null_mean": float("nan"),
+                "p_value": float("nan"), "n": 0}
+
+    edges = np.asarray(edges, float)
+
+    def band_of_mean(values) -> int:
+        return int(np.digitize(np.mean(values), edges))
+
+    observed = float(np.mean([
+        band_of_mean(ref_scores_by_item[item]) != band_of_mean(cond_scores_by_item[item])
+        for item in items
+    ]))
+
+    pooled = {item: np.concatenate([
+        np.asarray(ref_scores_by_item[item], float),
+        np.asarray(cond_scores_by_item[item], float),
+    ]) for item in items}
+    sizes = {item: (len(ref_scores_by_item[item]), len(cond_scores_by_item[item]))
+             for item in items}
+
+    rng = np.random.default_rng(seed)
+    null_fracs = np.empty(n_sim)
+    for s in range(n_sim):
+        flips = 0
+        for item in items:
+            values = pooled[item]
+            n_ref, n_cond = sizes[item]
+            sim_ref = rng.choice(values, size=n_ref, replace=True)
+            sim_cond = rng.choice(values, size=n_cond, replace=True)
+            flips += int(band_of_mean(sim_ref) != band_of_mean(sim_cond))
+        null_fracs[s] = flips / n_items
+    extreme = int(np.sum(null_fracs >= observed - 1e-12))
+    p_value = (extreme + 1) / (n_sim + 1)
+    return {
+        "observed": observed,
+        "null_mean": float(null_fracs.mean()),
+        "p_value": float(p_value),
+        "n": n_items,
+    }
+
+
 def across_sample_sd_delta(ref_values_by_item: dict, cond_values_by_item: dict) -> list:
     """Per-item across-sample SD deltas for E3 (continuous indicators only).
 
@@ -225,6 +293,91 @@ def across_sample_sd_delta(ref_values_by_item: dict, cond_values_by_item: dict) 
             continue
         deltas.append(float(cond.std(ddof=1) - ref.std(ddof=1)))
     return deltas
+
+
+def linear_adjusted_intercept(y, covariates) -> dict:
+    """E2 style-drift adjustment (PREREGISTRATION §4): the mean of ``y`` (the
+    per-item frustration deltas) after linear adjustment for covariate deltas —
+    response length and a repetition metric.
+
+    Fits ``y = intercept + covariates·beta`` by ordinary least squares; the
+    intercept is the covariate-adjusted mean effect. If the unadjusted mean is
+    significant but this intercept is not, the E2 effect is flagged
+    style-confounded rather than a welfare shift. ``covariates`` is a list of
+    columns, each a per-item sequence aligned to ``y``. Rows with a NaN in ``y``
+    or any covariate are dropped. Two-sided p via the normal approximation,
+    consistent with the other large-sample tests here.
+    """
+    y = np.asarray(y, float)
+    cols = [np.asarray(c, float) for c in covariates]
+    mask = ~np.isnan(y)
+    for col in cols:
+        mask &= ~np.isnan(col)
+    y = y[mask]
+    cols = [col[mask] for col in cols]
+    n = len(y)
+    k = len(cols) + 1  # covariate columns plus the intercept
+    if n <= k:
+        return {"intercept": float("nan"), "p_value": float("nan"), "n": n}
+    design = np.column_stack([np.ones(n)] + cols)
+    beta, *_ = np.linalg.lstsq(design, y, rcond=None)
+    residual = y - design @ beta
+    dof = n - k
+    sigma2 = float(residual @ residual) / dof
+    try:
+        cov_beta = np.linalg.inv(design.T @ design)
+    except np.linalg.LinAlgError:
+        return {"intercept": float(beta[0]), "p_value": float("nan"), "n": n}
+    se = math.sqrt(max(sigma2 * cov_beta[0, 0], 0.0))
+    if se == 0.0:
+        t = 0.0 if beta[0] == 0.0 else math.inf
+        p_value = 1.0 if beta[0] == 0.0 else 0.0
+    else:
+        t = beta[0] / se
+        p_value = 2.0 * (1.0 - _normal_cdf(abs(t)))
+    return {"intercept": float(beta[0]), "p_value": float(p_value), "n": n}
+
+
+def variance_components(scores_by_item: dict) -> dict:
+    """Partition repeated-judge scores into item signal vs. judge noise
+    (one-way random-effects ANOVA / ICC(1)).
+
+    ``scores_by_item`` maps item_id -> list of that item's scores from repeated
+    judge passes (``judge_sample_index`` 0..k-1). Returns the between-item and
+    within-item (judge-noise) variance components, the intraclass correlation
+    ``icc`` (the share of total variance that is real item signal), and the
+    complementary ``judge_noise_share``. Judge noise eats power on the
+    judge-scored endpoints (E2), so this quantifies how much: an ICC near 1 is
+    a quiet judge; a low ICC means most of the spread is the judge, not the
+    subject. Unbalanced group sizes are handled via the standard ANOVA k0.
+    Items with fewer than two passes contribute to neither component.
+    """
+    items = {i: np.asarray(v, float) for i, v in scores_by_item.items() if len(v) >= 2}
+    m = len(items)
+    if m < 2:
+        return {"between": float("nan"), "within": float("nan"), "icc": float("nan"),
+                "judge_noise_share": float("nan"), "n_items": m}
+    sizes = {i: len(v) for i, v in items.items()}
+    total_n = sum(sizes.values())
+    grand = float(np.concatenate(list(items.values())).mean())
+    ss_between = sum(sizes[i] * (values.mean() - grand) ** 2 for i, values in items.items())
+    ss_within = sum(float(((values - values.mean()) ** 2).sum()) for values in items.values())
+    df_within = total_n - m
+    ms_between = ss_between / (m - 1)
+    ms_within = ss_within / df_within if df_within > 0 else 0.0
+    # k0: the ANOVA "average" group size for unbalanced one-way designs.
+    k0 = (total_n - sum(k ** 2 for k in sizes.values()) / total_n) / (m - 1)
+    var_between = max((ms_between - ms_within) / k0, 0.0) if k0 > 0 else 0.0
+    var_within = ms_within
+    total = var_between + var_within
+    icc = var_between / total if total > 0 else float("nan")
+    return {
+        "between": var_between,
+        "within": var_within,
+        "icc": icc,
+        "judge_noise_share": (var_within / total) if total > 0 else float("nan"),
+        "n_items": m,
+    }
 
 
 def band_index(values, edges):

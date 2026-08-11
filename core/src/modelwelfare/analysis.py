@@ -50,6 +50,21 @@ def exit_reason_rate(records: Iterable, classifications: Iterable, reasons) -> d
     return {key: (hits[key], totals[key]) for key in totals}
 
 
+def repetition_coverage(text: str) -> float:
+    """Fraction of a response spanned by its single most-frequent word
+    trigram — the n-gram-loop signal. Shared by the validity screen
+    (:func:`is_degenerate`) and the E2 style-drift covariate, so both read the
+    same number. Returns 0.0 when there are too few words to form a trigram."""
+    words = text.split()
+    trigrams = [tuple(words[i:i + 3]) for i in range(len(words) - 2)]
+    if not trigrams:
+        return 0.0
+    top = Counter(trigrams).most_common(1)[0][1]
+    # Overlapping repeats can push the raw span above 1 (e.g. "a a a a"); clamp
+    # so it stays a fraction, as the docstring and the E2 covariate assume.
+    return min(top * 3 / len(words), 1.0)
+
+
 def is_degenerate(text: str, min_words: int = 15) -> tuple:
     """Mechanical coherence/validity check for one generated response
     (PREREGISTRATION capability guard). Returns ``(degenerate, reason)``.
@@ -70,12 +85,9 @@ def is_degenerate(text: str, min_words: int = 15) -> tuple:
     unique_ratio = len(set(words)) / len(words)
     if unique_ratio < 0.25:
         return True, f"low-diversity({unique_ratio:.2f})"
-    trigrams = [tuple(words[i:i + 3]) for i in range(len(words) - 2)]
-    if trigrams:
-        top = Counter(trigrams).most_common(1)[0][1]
-        coverage = top * 3 / len(words)
-        if coverage > 0.5:
-            return True, f"ngram-loop({coverage:.2f})"
+    coverage = repetition_coverage(stripped)
+    if coverage > 0.5:
+        return True, f"ngram-loop({coverage:.2f})"
     return False, ""
 
 

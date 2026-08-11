@@ -27,7 +27,7 @@ for sub in ("core/src", "backends/vllm/src", "backends/llamacpp/src"):
 from google.protobuf import text_format
 
 from modelwelfare import provenance
-from modelwelfare.analysis import dimension_means, event_rate
+from modelwelfare.analysis import dimension_means, event_rate, exit_reason_rate
 from modelwelfare.driver import run_samples
 from modelwelfare.judging import JudgeError, classify_exit, judge_sample
 from modelwelfare.store import ResultStore
@@ -109,13 +109,41 @@ def make_exit_classifier_backend():
     return LlamaCppServerBackend(EXIT_CLASSIFIER_URL, EXIT_CLASSIFIER_RUNTIME, timeout=600.0)
 
 
-def judge_sampling(attempt: int) -> condition_pb2.SamplingSpec:
-    """Attempt 0 is deterministic; retries perturb temperature and seed so a
-    deterministic malformed reply cannot simply recur. Wide token budget so
-    the 30B's replies are never truncated mid-JSON."""
-    if attempt == 0:
+def judge_sampling(attempt: int, judge_sample_index: int = 0) -> condition_pb2.SamplingSpec:
+    """Sampling for one judge pass. The primary pass (``judge_sample_index`` 0,
+    ``attempt`` 0) is deterministic — that is the single confirmatory score. Any
+    *additional* pass (index > 0, used by the judge-noise tool) or retry perturbs
+    the temperature and takes a distinct seed, so repeated passes are genuinely
+    independent draws — without this the passes are identical on a deterministic
+    backend and within-transcript variance collapses (ICC overstated) — and a
+    deterministic malformed reply cannot simply recur. Wide token budget so the
+    30B's replies are never truncated mid-JSON."""
+    if judge_sample_index == 0 and attempt == 0:
         return condition_pb2.SamplingSpec(temperature=0.0, max_tokens=640, seed=1)
-    return condition_pb2.SamplingSpec(temperature=0.3, max_tokens=640, seed=1 + attempt)
+    return condition_pb2.SamplingSpec(
+        temperature=0.3, max_tokens=640, seed=1 + 1000 * judge_sample_index + attempt
+    )
+
+
+def judge_with_retries(backend, record, rubric, *, judge_sample_index=0, provenance=None):
+    """Score one transcript with the confirmatory judge, retrying on failure.
+    Malformed judge JSON (a truncated or non-conforming reply) and transient
+    backend errors both retry with perturbed judge sampling; returns None if
+    unresolved after JUDGE_RETRIES so the caller can record it UNSCORED rather
+    than aborting a long batch. Shared by the runner and the judge tools so the
+    retry policy lives in one place."""
+    for attempt in range(JUDGE_RETRIES):
+        try:
+            return judge_sample(
+                backend, JUDGE_REF, record, rubric,
+                sampling=judge_sampling(attempt, judge_sample_index),
+                judge_sample_index=judge_sample_index, provenance=provenance,
+            )
+        except Exception as error:
+            print(f"    judge attempt {attempt + 1} failed "
+                  f"({record.key.item_id} s{record.key.sample_index}): "
+                  f"{type(error).__name__}: {error}")
+    return None
 
 
 def load_experiment(experiment_dir: Path) -> experiment_pb2.Experiment:
@@ -213,21 +241,9 @@ def judge(experiment, batteries, conditions, store, producer, stamp, concurrency
     backend = make_judge_backend()
 
     def judge_one(record, rubric):
-        # A long batch must survive per-item failures: malformed judge
-        # output (JudgeError) and backend/HTTP failures (a transient hiccup,
-        # or a prompt the server rejects) both retry and, if unresolved,
-        # leave the item UNSCORED rather than aborting the whole run.
-        for attempt in range(JUDGE_RETRIES):
-            try:
-                return judge_sample(
-                    backend, JUDGE_REF, record, rubric,
-                    sampling=judge_sampling(attempt), provenance=stamp,
-                )
-            except Exception as error:
-                print(f"    judge attempt {attempt + 1} failed "
-                      f"({record.key.item_id} s{record.key.sample_index}): "
-                      f"{type(error).__name__}: {error}")
-        return None
+        # A long batch must survive per-item failures: retry with perturbed
+        # sampling, then leave the item UNSCORED rather than aborting the run.
+        return judge_with_retries(backend, record, rubric, provenance=stamp)
 
     for condition in conditions:
         have = existing_scores(store, experiment.id, condition.id)
@@ -310,38 +326,60 @@ def classify(experiment, conditions, store, producer, stamp, concurrency):
                           f"{scoring_pb2.ExitReason.Name(classification.reason)}")
 
 
+def _print_rate_table(title, rates, item_ids, condition_ids, reference):
+    """One per-item rate table (hits/total and per-condition delta vs. the
+    reference). ``rates`` is an (hits, total) map keyed (condition_id, item_id),
+    as returned by :func:`event_rate` and :func:`exit_reason_rate`."""
+    print(f"-- {title} --")
+    print("item".ljust(28) + "".join(c.ljust(20) for c in condition_ids) + "delta")
+    for item_id in item_ids:
+        row = item_id.ljust(28)
+        fractions = {}
+        for condition_id in condition_ids:
+            hits, total = rates.get((condition_id, item_id), (0, 0))
+            fractions[condition_id] = hits / total if total else float("nan")
+            row += f"{hits}/{total} ({fractions[condition_id]:.0%})".ljust(20)
+        # Deltas only when the reference condition is part of this invocation —
+        # a per-condition run (--conditions <one>) legitimately excludes it.
+        deltas = ([fractions[c] - fractions[reference] for c in condition_ids if c != reference]
+                  if reference in fractions else [])
+        row += " ".join(f"{d:+.0%}" for d in deltas)
+        print(row)
+
+
 def print_tables(experiment, batteries, conditions, store):
     condition_ids = [c.id for c in conditions]
     reference = experiment.reference_condition_id
     records = []
     scores = []
+    classifications = []
     for condition_id in condition_ids:
         records += list(
             store.read(transcript_pb2.SampleRecord, experiment.id, condition_id, "samples")
         )
         scores += list(store.read(scoring_pb2.JudgeScore, experiment.id, condition_id, "scores"))
+        classifications += list(
+            store.read(scoring_pb2.ExitClassification, experiment.id, condition_id, "exit_reasons")
+        )
 
     bail_rates = event_rate(records, "terminal_tool_invoked")
+    # E1: the classified refusal+aversion exit share (PREREGISTRATION §3) — the
+    # primary endpoint, distinct from the raw mechanical exit rate above.
+    e1_rates = exit_reason_rate(
+        records, classifications,
+        {scoring_pb2.EXIT_REASON_REFUSAL, scoring_pb2.EXIT_REASON_AVERSION},
+    )
 
     for definition in batteries.values():
         battery = definition.battery
         item_ids = [item.id for item in definition.items]
         print(f"\n== {battery.id} ({battery.protocol}) ==")
         if not battery.rubric_ids:
-            header = "item".ljust(28) + "".join(c.ljust(20) for c in condition_ids) + "delta"
-            print(header)
-            for item_id in item_ids:
-                row = item_id.ljust(28)
-                rates = {}
-                for condition_id in condition_ids:
-                    hits, total = bail_rates.get((condition_id, item_id), (0, 0))
-                    rates[condition_id] = hits / total if total else float("nan")
-                    row += f"{hits}/{total} ({rates[condition_id]:.0%})".ljust(20)
-                deltas = [
-                    rates[c] - rates[reference] for c in condition_ids if c != reference
-                ]
-                row += " ".join(f"{d:+.0%}" for d in deltas)
-                print(row)
+            _print_rate_table("terminal exits (any reason)", bail_rates, item_ids,
+                              condition_ids, reference)
+            if classifications:
+                _print_rate_table("E1: refusal+aversion exit share", e1_rates, item_ids,
+                                  condition_ids, reference)
         else:
             for rubric in definition.rubrics:
                 for dimension in rubric.dimensions:

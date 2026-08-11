@@ -63,6 +63,9 @@ def perplexity(url: str, model: str, text: str, timeout: float = 60.0):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--host", default="http://127.0.0.1")
+    parser.add_argument("--json", default=None,
+                        help="write {condition_id: perplexity} to this path — the "
+                             "input analyze.py --perplexity expects for the gate")
     args = parser.parse_args()
 
     ppl = {}
@@ -85,6 +88,13 @@ def main():
         entry = gate[name]
         state = "DEGRADED" if entry["degraded"] else "ok"
         print(f"  {name:8} {state:9} {'; '.join(entry['reasons'])}")
+
+    if args.json:
+        # Key by served-model-name (= the manifest condition id), which is what
+        # analyze.py's capability gate matches on — not the short rung label.
+        payload = {model: ppl[name] for name, _, model in RUNGS if name in ppl}
+        Path(args.json).write_text(json.dumps(payload, indent=2) + "\n")
+        print(f"\nwrote {args.json}: {list(payload)}")
 
 
 if __name__ == "__main__":

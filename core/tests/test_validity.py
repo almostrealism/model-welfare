@@ -125,3 +125,11 @@ def test_gate_flags_high_invalid_rate():
 def test_gate_reference_never_degraded_by_itself():
     gate = analysis.capability_gate({"bf16": 10.0}, "bf16")
     assert not gate["bf16"]["degraded"]
+
+
+def test_repetition_coverage_is_bounded_to_a_fraction():
+    # Overlapping repeats can push the raw span above 1; it must stay <= 1 so
+    # the E2 style-drift covariate reads a well-defined fraction.
+    assert analysis.repetition_coverage("a a a a") == 1.0
+    assert analysis.repetition_coverage("word " * 20) <= 1.0
+    assert 0.0 <= analysis.repetition_coverage("the quick brown fox jumps over the lazy dog again") < 0.5
