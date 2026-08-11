@@ -4,6 +4,28 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-10 — Confirmatory throughput calibration + sequential launch config
+
+Timed the live pipeline (halo ladder + studio judge) before committing ~a day
+of collection. Per-stage rates from `--samples 1` slices to a scratch store:
+distress generation 15.2 s/conv at concurrency 8 → 10.3 s/conv at concurrency 24
+(one rung); bail generation 2.7 s/conv; 30B judge 3.7 s/transcript.
+
+Decisive finding: halo's single Ryzen AI Max+ APU does **not** parallelize the
+four rung servers. 432 bail conversations across all four rungs at once took
+1736 s — *slower* than the ~1180 s of running them serially (four servers plus
+~32 concurrent requests thrash the one APU). So the confirmatory run generates
+**one condition at a time** against a single saturated server at high
+concurrency, not the driver's default concurrent-conditions. The judge is not
+the bottleneck (~2.5 h for all 2,400 distress transcripts on studio alone), so
+no second judge machine is warranted; a second *generation* box would help but
+is validity-tied to halo's vLLM ROCm (it would need its own serving-equivalence
+check) and is reserved for the future larger-subject arms. Estimated full run
+~14 h (gen ~10 h + judge ~2.5 h + classify ~1.5 h), vs ~22–25 h for the naive
+concurrent default. Encoded in `experiments/quant-welfare/launch_confirmatory.sh`
+(sequential per-condition generation → one judge pass → classify; preflights
+every server; resumable off the append-only store).
+
 ## 2026-08-10 — Confirmatory tooling front-loaded (branch feature/preparing-tools)
 
 Readiness review before committing to long-running confirmatory collection.
