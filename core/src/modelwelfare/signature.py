@@ -50,19 +50,34 @@ def kind_digest(records) -> str:
     return digest.hexdigest()
 
 
+def combine_kind_digests(per_kind: dict) -> str:
+    """Combine per-kind digests into one dataset digest, independent of kind order."""
+    combined = hashlib.sha256()
+    for name in sorted(per_kind):
+        combined.update(f"{name}={per_kind[name]}\n".encode())
+    return combined.hexdigest()
+
+
+def records_digest(records_by_kind: dict) -> str:
+    """Dataset digest over an in-memory {kind: records} mapping — the same value
+    :func:`store_digest` produces over a store, so a bundle can stamp itself with a
+    digest that matches the one a report cites."""
+    return combine_kind_digests(
+        {name: kind_digest(records) for name, records in records_by_kind.items()}
+    )
+
+
 def store_digest(store: ResultStore, experiment_id: str, condition_ids, kinds=DEFAULT_KINDS) -> dict:
     """Per-kind digests, record counts, and a single combined digest over the
     whole dataset — the value a report cites for replication."""
-    per_kind, counts = {}, {}
+    records_by_kind, counts = {}, {}
     for name, message_type in kinds:
         records = [
             record
             for condition_id in condition_ids
             for record in store.read(message_type, experiment_id, condition_id, name)
         ]
+        records_by_kind[name] = records
         counts[name] = len(records)
-        per_kind[name] = kind_digest(records)
-    combined = hashlib.sha256()
-    for name in sorted(per_kind):
-        combined.update(f"{name}={per_kind[name]}\n".encode())
-    return {"digest": combined.hexdigest(), "per_kind": per_kind, "counts": counts}
+    per_kind = {name: kind_digest(records) for name, records in records_by_kind.items()}
+    return {"digest": combine_kind_digests(per_kind), "per_kind": per_kind, "counts": counts}

@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package modelwelfare.v1;
+
+import "modelwelfare/v1/transcript.proto";
+import "modelwelfare/v1/scoring.proto";
+
+/*
+ * A portable, self-describing container for an experiment's records — the
+ * StateDictionary model applied to result data. One RecordBundle file holds
+ * every record for a condition (or the whole experiment when it fits); how
+ * records are split across files is a portability choice, bounded by protobuf's
+ * ~2GB per message. The streaming append store remains the write-time format
+ * (resumable, durable, concurrent); a bundle is the shareable at-rest form — in
+ * the best case a single .pb replicates a report. Readers merge a directory of
+ * bundles, so splitting a large experiment across files is transparent.
+ *
+ * BundleMetadata makes a single file self-describing: condition_id is empty when
+ * a bundle spans conditions; record_counts maps kind -> count; data_digest is
+ * the canonical content hash (modelwelfare.signature) and is empty when the
+ * bundle was written without that module available. reference_scores are the
+ * cross-family reference-judge scores, kept distinct from the primary scores as
+ * the streaming store keeps its separate reference_scores kind.
+ */
+
+message BundleMetadata {
+  string experiment_id = 1;
+  string condition_id = 2;
+  map<string, int32> record_counts = 3;
+  string data_digest = 4;
+  string framework_version = 5;
+}
+
+message RecordBundle {
+  BundleMetadata metadata = 1;
+  repeated SampleRecord samples = 2;
+  repeated JudgeScore scores = 3;
+  repeated ExitClassification exit_reasons = 4;
+  repeated JudgeScore reference_scores = 5;
+}
