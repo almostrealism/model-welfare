@@ -8,8 +8,9 @@ they have the right, uncorrupted dataset by recomputing it.
 
 Two deliberate choices keep the digest meaningful:
 
-  * Records are hashed independently, then the per-record hashes are sorted and
-    combined — so write order and file layout do not affect the result.
+  * Each record is serialized canonically; the serializations are sorted and
+    hashed together, each length-prefixed — so write order and file layout do
+    not affect the result.
   * ``provenance`` (host, timestamp, framework version) is cleared before
     hashing. It records *who/when* collected the data, affects no endpoint, and
     would otherwise make identical data collected on two machines hash
