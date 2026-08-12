@@ -11,9 +11,9 @@ from modelwelfare.store import ResultStore
 from modelwelfare.v1 import scoring_pb2, transcript_pb2
 
 
-def _sample(cond, item, sidx):
+def _sample(cond, item, sidx, exp="exp"):
     r = transcript_pb2.SampleRecord()
-    r.key.experiment_id, r.key.condition_id = "exp", cond
+    r.key.experiment_id, r.key.condition_id = exp, cond
     r.key.item_id, r.key.sample_index = item, sidx
     m = r.messages.add()
     m.role, m.content = "assistant", f"reply {item} {sidx}"
@@ -98,3 +98,22 @@ def test_whole_experiment_bundle_digest_matches_store(tmp_path):
     whole = bundle.pack_experiment(store, _Experiment(["bf16", "w4"]))
     expected = signature.store_digest(store, "exp", ["bf16", "w4"])["digest"]
     assert whole.metadata.data_digest == expected != ""
+
+
+def test_bundle_store_scopes_by_experiment(tmp_path):
+    # Two experiments share condition "bf16"; a merged directory must not leak
+    # one experiment's records into a read scoped to the other.
+    counts = {"A": 2, "B": 3}
+    for exp, n in counts.items():
+        store = ResultStore(tmp_path / exp)
+        with store.writer(exp, "bf16", "samples", "p") as w:
+            for k in range(n):
+                w.write(_sample("bf16", f"i{k}", 0, exp=exp))
+        bundle.write_bundle(bundle.pack_condition(store, exp, "bf16"), tmp_path / "merged" / f"{exp}.pb")
+
+    reader = bundle.BundleStore(tmp_path / "merged")
+    a = list(reader.read(transcript_pb2.SampleRecord, "A", "bf16", "samples"))
+    b = list(reader.read(transcript_pb2.SampleRecord, "B", "bf16", "samples"))
+    assert len(a) == 2 and len(b) == 3
+    assert all(r.key.experiment_id == "A" for r in a)
+    assert all(r.key.experiment_id == "B" for r in b)

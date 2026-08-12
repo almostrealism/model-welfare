@@ -434,7 +434,8 @@ def main():
     store = BundleStore(args.bundle) if args.bundle else ResultStore(args.data_root)
     samples, scores, classifications = read_streams(store, experiment)
     if not samples:
-        raise SystemExit(f"no stored samples for {experiment.id} under {args.data_root}")
+        source = args.bundle if args.bundle else args.data_root
+        raise SystemExit(f"no stored samples for {experiment.id} under {source}")
 
     bail_items, _ = item_roles(experiment, experiment_dir)
     perplexity = json.loads(Path(args.perplexity).read_text()) if args.perplexity else None

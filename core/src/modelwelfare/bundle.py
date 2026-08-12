@@ -106,19 +106,24 @@ class BundleStore:
     """Reads packed bundles through the :class:`ResultStore` ``read`` interface.
 
     ``path`` is a single ``.pb`` file or a directory of them (merged, as the
-    StateDictionary loader merges a directory). ``read`` filters by condition and
-    kind, so it serves both per-condition and whole-experiment bundles."""
+    StateDictionary loader merges a directory). Records are indexed at load by
+    (experiment_id, condition_id, kind), so ``read`` is a keyed lookup that scopes
+    exactly like the streaming store — a directory mixing experiments or
+    conditions never leaks across scopes, and reads do not rescan the data. An
+    experiment_id absent from a record's key falls back to the bundle's own
+    metadata."""
 
     def __init__(self, path):
         path = Path(path)
-        self._by_kind = defaultdict(list)
+        self._index = defaultdict(list)
         paths = [path] if path.is_file() else sorted(path.glob("*.pb"))
         for bundle_path in paths:
             bundle = read_bundle(bundle_path)
+            experiment_id = bundle.metadata.experiment_id
             for kind, (field, _type) in KINDS.items():
-                self._by_kind[kind].extend(getattr(bundle, field))
+                for record in getattr(bundle, field):
+                    key = (record.key.experiment_id or experiment_id, record.key.condition_id, kind)
+                    self._index[key].append(record)
 
     def read(self, message_type, experiment_id: str, condition_id: str, kind: str):
-        for record in self._by_kind.get(kind, []):
-            if record.key.condition_id == condition_id:
-                yield record
+        return iter(self._index.get((experiment_id, condition_id, kind), ()))
