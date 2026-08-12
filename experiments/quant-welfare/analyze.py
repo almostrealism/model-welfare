@@ -48,6 +48,7 @@ for sub in ("core/src",):
 from google.protobuf import text_format  # noqa: E402
 
 from modelwelfare import analysis, stats  # noqa: E402
+from modelwelfare.bundle import BundleStore  # noqa: E402
 from modelwelfare.store import ResultStore  # noqa: E402
 from modelwelfare.v1 import battery_pb2, experiment_pb2, scoring_pb2, transcript_pb2  # noqa: E402
 
@@ -421,13 +422,16 @@ def main():
     parser.add_argument("--experiment", default="confirmatory",
                         help="experiment subdirectory under this directory")
     parser.add_argument("--data-root", default=str(REPO / "data"))
+    parser.add_argument("--bundle", default=None,
+                        help="read from a packed RecordBundle file or directory instead "
+                             "of the streaming store — a self-contained dataset replicates here")
     parser.add_argument("--perplexity", default=None,
                         help="JSON {condition_id: perplexity} for the capability gate")
     args = parser.parse_args()
 
     experiment_dir = BASE / args.experiment
     experiment = load_experiment(experiment_dir)
-    store = ResultStore(args.data_root)
+    store = BundleStore(args.bundle) if args.bundle else ResultStore(args.data_root)
     samples, scores, classifications = read_streams(store, experiment)
     if not samples:
         raise SystemExit(f"no stored samples for {experiment.id} under {args.data_root}")
