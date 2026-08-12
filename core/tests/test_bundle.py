@@ -90,3 +90,11 @@ class _Experiment:
     def __init__(self, condition_ids):
         self.id = "exp"
         self.conditions = [type("C", (), {"id": cid}) for cid in condition_ids]
+
+
+def test_whole_experiment_bundle_digest_matches_store(tmp_path):
+    from modelwelfare import signature
+    store = _write_streaming_store(tmp_path / "streaming")
+    whole = bundle.pack_experiment(store, _Experiment(["bf16", "w4"]))
+    expected = signature.store_digest(store, "exp", ["bf16", "w4"])["digest"]
+    assert whole.metadata.data_digest == expected != ""

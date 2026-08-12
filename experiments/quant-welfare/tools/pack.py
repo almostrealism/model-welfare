@@ -29,17 +29,27 @@ def main():
     parser.add_argument("--data-root", default=str(REPO / "data"))
     parser.add_argument("--out", default=None,
                         help="output directory (default: <data-root>/<experiment-id>-bundle)")
+    parser.add_argument("--single", action="store_true",
+                        help="write one whole-experiment bundle whose digest is the report's")
     args = parser.parse_args()
 
     experiment = run.load_experiment(BASE / args.experiment)
     store = ResultStore(args.data_root)
     out_dir = Path(args.out) if args.out else Path(args.data_root) / f"{experiment.id}-bundle"
 
-    written = bundle.pack(store, experiment, out_dir)
+    if args.single:
+        whole = bundle.pack_experiment(store, experiment)
+        path = out_dir / f"{experiment.id}.pb"
+        bundle.write_bundle(whole, path)
+        written = [path]
+    else:
+        written = bundle.pack(store, experiment, out_dir)
+
     for path in written:
-        counts = dict(bundle.read_bundle(path).metadata.record_counts)
-        print(f"  {path.name:30} {sum(counts.values()):>6} records  {dict(counts)}")
-    print(f"\npacked {len(written)} condition bundles into {out_dir}")
+        metadata = bundle.read_bundle(path).metadata
+        counts = dict(metadata.record_counts)
+        print(f"  {path.name:34} {sum(counts.values()):>6} records  digest={metadata.data_digest[:16]}…")
+    print(f"\npacked {len(written)} bundle(s) into {out_dir}")
 
 
 if __name__ == "__main__":

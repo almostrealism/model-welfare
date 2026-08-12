@@ -20,6 +20,7 @@ for path in (REPO / "core/src", BASE):
         sys.path.insert(0, str(path))
 
 import run  # noqa: E402
+from modelwelfare.bundle import BundleStore  # noqa: E402
 from modelwelfare.signature import DEFAULT_KINDS, store_digest  # noqa: E402
 from modelwelfare.store import ResultStore  # noqa: E402
 from modelwelfare.v1 import scoring_pb2  # noqa: E402
@@ -29,12 +30,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--experiment", default="confirmatory")
     parser.add_argument("--data-root", default=str(REPO / "data"))
+    parser.add_argument("--bundle", default=None,
+                        help="compute the digest from a packed bundle file or directory")
     parser.add_argument("--reference", action="store_true",
                         help="also include the reference_scores stream in the digest")
     args = parser.parse_args()
 
     experiment = run.load_experiment(BASE / args.experiment)
-    store = ResultStore(args.data_root)
+    store = BundleStore(args.bundle) if args.bundle else ResultStore(args.data_root)
     kinds = list(DEFAULT_KINDS)
     if args.reference:
         kinds.append(("reference_scores", scoring_pb2.JudgeScore))

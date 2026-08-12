@@ -29,12 +29,24 @@ KINDS = {
 }
 
 
-def pack_condition(store: ResultStore, experiment_id: str, condition_id: str) -> bundle_pb2.RecordBundle:
-    """Build a one-condition bundle by draining the streaming store's kinds.
+def _stamp_digest(bundle) -> None:
+    """Fill ``metadata.data_digest`` with the value a report cites (see
+    :mod:`modelwelfare.signature`), computed over the report-determining kinds so
+    a whole-experiment bundle's digest equals the report's. No-op if the
+    signature module is unavailable."""
+    try:
+        from modelwelfare import signature
+    except ImportError:
+        return
+    records_by_kind = {
+        name: list(getattr(bundle, KINDS[name][0]))
+        for name, _message_type in signature.DEFAULT_KINDS
+    }
+    bundle.metadata.data_digest = signature.records_digest(records_by_kind)
 
-    ``metadata.data_digest`` is left empty here; it is stamped once the
-    signature module is present, from a shared records-based digest so the
-    embedded value equals the one a report cites over the same records."""
+
+def pack_condition(store: ResultStore, experiment_id: str, condition_id: str) -> bundle_pb2.RecordBundle:
+    """Build a one-condition bundle by draining the streaming store's kinds."""
     bundle = bundle_pb2.RecordBundle()
     bundle.metadata.experiment_id = experiment_id
     bundle.metadata.condition_id = condition_id
@@ -43,6 +55,25 @@ def pack_condition(store: ResultStore, experiment_id: str, condition_id: str) ->
         if records:
             getattr(bundle, field).extend(records)
             bundle.metadata.record_counts[kind] = len(records)
+    _stamp_digest(bundle)
+    return bundle
+
+
+def pack_experiment(store: ResultStore, experiment) -> bundle_pb2.RecordBundle:
+    """Build one whole-experiment bundle (``condition_id`` empty) — the single-file
+    shareable artifact whose ``data_digest`` equals the report's cited digest."""
+    bundle = bundle_pb2.RecordBundle()
+    bundle.metadata.experiment_id = experiment.id
+    for kind, (field, message_type) in KINDS.items():
+        records = [
+            record
+            for condition in experiment.conditions
+            for record in store.read(message_type, experiment.id, condition.id, kind)
+        ]
+        if records:
+            getattr(bundle, field).extend(records)
+            bundle.metadata.record_counts[kind] = len(records)
+    _stamp_digest(bundle)
     return bundle
 
 
