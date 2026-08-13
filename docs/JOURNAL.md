@@ -4,6 +4,68 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-13 — Instrument validation decoupled from quantization (SmolLM3 sweep closed out)
+
+The SmolLM3 sensitivity sweep (§9) returned null across refusal (Δ −0.13,
+p = 0.25) and welfare (the capability gate excluded all three rungs on
+invalid-sample rate — including the BF16 reference — so nothing computed;
+frustration sat at the floor). External review identified the structural error:
+we tried to validate an instrument with a manipulation whose ground-truth effect
+on our endpoints is unknown. Quantization-of-SmolLM3 is method-, endpoint-, and
+attack-specific, so every null it produces is uninterpretable — the same "null is
+uninformative" asymmetry we were trying to escape, reproduced one level up. A
+positive control must be a manipulation with a *known, reliable* effect on the
+endpoints; quantization is not one.
+
+The fix is to decouple instrument validation from quantization entirely, using
+known-effect manipulations in ascending subtlety: (1) base vs instruct — already
+registered in this arm as regression-toward-base, never run because the base
+checkpoint was not fetched; the effect is enormous, and a pipeline that cannot
+separate base from instruct is definitively broken; (2) a literature-documented-
+unstable subject on the distress battery specifically (the footnote-5 Gemma
+model, documented for frustration/self-deprecation under repeated rejection) run
+at BF16; (3) prompt-induced contrasts on one subject (a system prompt licensing
+expressed frustration vs one enforcing stoicism; "feel free to end the
+conversation" vs nothing) — a dial where we control ground truth and can trace a
+sensitivity curve. That last reframes the question from binary ("can it detect
+meaningful things?") to a minimum-detectable-effect one; the sweep's centerpiece
+carried no power statement, and n = 28 near ceiling almost certainly could not
+have detected a realistic shift.
+
+Underweighted good news from the same run: the pipeline already detected a
+quantization effect. The mechanical, judge-free degeneracy screen moved 15.7% →
+22.0% → 21.2% invalid samples (bf16 → rtn-w4 → awq-w4) at n = 1,960/condition — a
+real, quantization-correlated shift. The mechanical layer is sensitive; what is
+untested is the judge-scored layer at realistic effect sizes — a narrower and
+cheaper question than "is the setup worthless."
+
+Chase first, before any new experiment: SmolLM3's ~16% verbatim-repetition rate
+at BF16 is either a genuine 3B property under six-turn rejection or a harness bug
+(chat template, stop/EOS handling, dual-reasoning-mode misconfiguration). Reading
+a couple dozen flagged transcripts resolves it at the highest information per
+hour; if it is a harness bug, the invalid rates, the floor-level frustration
+(0.46/10, itself suspicious), and the gate outcomes are all contaminated. The run
+also exposed a gate design flaw: the capability gate assumes a healthy BF16
+reference, so it cannot distinguish "quantization degraded the model" from "this
+model is degenerate at this task, period," and here it ran on one leg (perplexity
+was skipped).
+
+Plan of record, in order: (1) audit the SmolLM3 serving config and read flagged
+transcripts — model or harness; (2) validate the judge layer directly on
+constructed graded-distress transcripts (extend the manipulation-check machinery
+to an ordered set and confirm the judge recovers the ordering); (3) fetch the
+base checkpoint and run the registered regression-toward-base dimension — the
+large-effect end-to-end check; (4) run one controllable-effect positive control
+(prompt manipulation or Gemma-on-distress) with a stated MDE to place the
+sensitivity floor; (5) formally test the invalid-rate shift as an endpoint —
+nearly free, and it converts "we detected nothing" into "we detected a mechanical
+effect and bounded the behavioral ones." Considered and rejected: replicating the
+paper's attack-success result — it would validate an adversarial-safety
+instrument we do not plan to deploy in the welfare arms, so a green light there
+transfers nothing. SmolLM3 as a *positive control* is retired; the one thread
+that transfers — first-party AWQ vs a standard library (autoawq), a property of
+our pipeline rather than of SmolLM3 — is carried forward onto a coherent subject.
+
 ## 2026-08-12 — Method arm & instrument-sensitivity sweep (before scaling)
 
 Study 1's near-null on SmolLM3 — a model documented as quantization-fragile —

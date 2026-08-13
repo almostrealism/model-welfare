@@ -4,6 +4,55 @@ Working items between the brief (scientific frame, stable) and the READMEs
 (how things work today). Items land here when identified, get checked off
 when done, and grow notes as decisions accumulate. Date every status change.
 
+## Instrument validation, decoupled from quantization (opened 2026-08-13)
+
+The SmolLM3 sensitivity sweep (§9) was closed out null and uninterpretable — you
+cannot validate an instrument with a manipulation whose ground-truth effect on
+your endpoints is unknown (reasoning in the 2026-08-13 journal entry;
+calibration-class result in `docs/results/quant-welfare-methodarm.md`). SmolLM3 as
+a *positive control* is retired. The plan below replaces quantization-as-validator
+with **known-effect** manipulations, ordered by information per hour. All items
+here are calibration-class under the §7 firewall. These gate scaling to the
+larger-subject arms.
+
+- [ ] **SmolLM3 baseline-degeneracy audit** *(step 1; highest info/hour)* —
+  ~16% verbatim-repetition (`repeated-turn`) at BF16 is either a genuine 3B
+  property under six-turn rejection or a harness bug (chat template, stop/EOS,
+  dual-reasoning-mode misconfig). Read a couple dozen flagged transcripts; audit
+  the serving config. Also check whether floor-level frustration (0.46/10) is the
+  transcripts genuinely reading non-distressed or the judge misreading them. If a
+  harness bug, the invalid rates, frustration scores, and gate outcomes are all
+  contaminated and cheap to fix.
+- [ ] **Judge-layer direct validation** *(step 2)* — extend the
+  `tools/manipulation_check.py` planted-pole machinery to a *graded* set of
+  constructed transcripts at known distress levels; confirm the judge recovers
+  the ordering (not just pole separation). Validates the judge-scored layer
+  independently of any subject.
+- [ ] **Regression-toward-base end-to-end check** *(step 3; already registered
+  §9)* — fetch the SmolLM3-3B **base** (non-instruct) checkpoint, serve it +
+  instruct BF16 with echo+logprobs, run `tools/regression_to_base.py`. The
+  large-effect check: if the batteries + judges cannot separate base from
+  instruct, the pipeline is broken.
+- [ ] **Controllable positive control + MDE** *(step 4)* — one manipulation where
+  we own ground truth: a prompt dial (frustration-licensing vs stoic; "feel free
+  to end" vs nothing) or the footnote-5 Gemma model on `distress-v2` at BF16.
+  State a **minimum detectable effect** and trace a sensitivity curve, not a
+  binary verdict — the sweep's centerpiece (n = 28 near ceiling) had no power
+  statement, which recreated the "null is uninformative" asymmetry.
+- [ ] **Invalid-rate shift as a formal endpoint** *(step 5; nearly free)* — the
+  mechanical degeneracy screen already moved 15.7% → 22.0% → 21.2% (bf16 → rtn-w4
+  → awq-w4) at n = 1,960/condition. Add it as a registered mechanical endpoint so
+  a run reports "detected a mechanical effect and bounded the behavioral ones,"
+  not "detected nothing."
+
+Carried forward off SmolLM3: **first-party AWQ vs a standard library (autoawq)** —
+a property of *our* quantization pipeline (our AWQ read gentle: Δrefusal ns,
+perplexity 0.89×), to be tested on a coherent subject, not SmolLM3. Also note a
+**capability-gate design flaw** this run exposed: the gate assumes a healthy BF16
+reference and cannot distinguish "quantization degraded the model" from "this
+model is degenerate at this task, period"; it also ran on one leg here
+(perplexity skipped). Revisit before the larger arms.
+
 ## Toward a result-grade Tier-1 run
 
 - [x] **Runner parallelization** *(done 2026-08-06)* — `driver.run_samples`
