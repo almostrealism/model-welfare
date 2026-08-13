@@ -135,7 +135,11 @@ measurement depth; "Study N" indexes executions along it.
   registered amendments once Study 1's pipeline history is public.
 - **Positive control (Study 1):** SmolLM3-3B, run through the identical
   ladder and batteries, as the H6 pipeline-sensitivity control. (Amended
-  2026-08-08.)
+  2026-08-08.) *Re-cast 2026-08-12 (§9): SmolLM3's documented fragility is a
+  safety/attack-success effect, a different construct from the welfare
+  indicators measured here, so it is a serving/safety positive control, not a
+  welfare one — a welfare null on it is a plausible construct dissociation, not
+  by itself a pipeline failure.*
 - **Conditions:** a controlled quantization ladder produced by this
   project's own quantization harness — not vendor or community artifacts.
   *Amended 2026-08-09 (see docs/JOURNAL.md):* Study 1 is scoped to the
@@ -304,3 +308,67 @@ capability-degraded rungs and incoherent samples — are set out in the
 [README](README.md#on-the-ethics-of-the-method). Several are load-bearing in
 this document already: sample sizes fixed by power (§5), and the capability
 gate that drops RTN-w3 from the primary claims (§4).
+
+## 9. Amendment 2026-08-12 — Method arm and instrument-sensitivity sweep
+
+Study 1's registered analysis found no primary-endpoint effect and only
+secondary, w4-localized signal on the development organism, and — more tellingly
+— near-nothing on SmolLM3, a model documented as quantization-fragile. Before
+scaling to larger, costlier subjects (Qwen3-30B, MiniMax-M2), we validate the
+instrument once, now, rather than risk scaling an insufficient measurement and
+then amending endpoints post hoc. This amendment activates the method arm
+deferred in §3 and adds a pre-registered instrument-sensitivity sweep. It is a
+**validation, not a replication**: we do not reproduce any paper's numbers; we
+check that the apparatus registers a shift where the literature documents one.
+
+**SmolLM3 re-cast.** SmolLM3's documented fragility (the factorial safety study)
+is an attack-success-rate (safety-alignment) effect — a different construct from
+the welfare indicators measured here (distress, bail/exit). Safety-fragility does
+not entail welfare-fragility. SmolLM3 is therefore a **serving/safety** positive
+control — does our quantization and serving reproduce a known behavioral change
+at all? — **not** a welfare positive control; a welfare null on it is a plausible
+construct dissociation, not by itself a pipeline failure.
+
+**Method conditions.** First-party **AWQ-w4** (built, digest-verified) is added
+alongside the RTN ladder, on the development organism and SmolLM3, as a 4-bit
+method contrast distinct from the RTN bit-width dose-response (GPTQ-w4 optional,
+same harness). AWQ-w4 has its own serving-equivalence check. The confirmatory
+welfare analysis over these conditions uses the existing §4 endpoints and
+families — this is the arm's *announced* deliverable, though we hold low prior
+that quantization method changes the welfare picture.
+
+**Instrument-sensitivity sweep (calibration-class; plan fixed here).** On
+SmolLM3, AWQ-w4 vs BF16, we measure whether the apparatus registers a shift on
+the dimensions the quantization literature flags:
+
+1. *Refusal / harmful-compliance* (centerpiece — SmolLM3's documented axis): a
+   fixed adversarial prompt set, scored refusal-vs-compliance by a pinned judge;
+   endpoint = refusal-rate shift.
+2. *Regression toward base* (the "quantization undoes post-training" framing that
+   motivates §2/H2): on a fixed sensitive-prompt set, divergence of the quantized
+   model's outputs toward the base (non-instruct) checkpoint relative to BF16.
+3. *Welfare*: the existing bail and distress batteries and endpoints.
+
+Detection on a dimension = a shift significant at α = 0.05 versus BF16 by the
+same paired sign-flip permutation test used in §4 (per item where item-level,
+per prompt otherwise).
+
+**Decision rules (fixed).**
+
+- Dimension 1 (± 2) moves but welfare (3) does not → the apparatus is sensitive
+  and the welfare null is a genuine safety ≠ welfare **dissociation**, not a
+  broken battery; the larger-subject arms proceed with the battery unchanged.
+  This is a reportable result.
+- No dimension moves → an upstream serving / quantization-faithfulness problem
+  (or an unfaithful AWQ artifact); it is fixed before any scaling and yields no
+  welfare finding.
+- Welfare moves under AWQ but not under the RTN ladder → the Study-1 welfare
+  signal is RTN-specific and the welfare battery is validated.
+
+**Firewall and purpose.** The sweep is calibration-class per §7: it produces no
+welfare findings and is barred from them. Its outputs are (a) whether the
+instrument detects known effects and (b) design inputs for the larger-subject
+amendment — whether that arm needs more power, a different stimulus set (longer
+conversations, greater diversity), or different elicitation tools. Only the
+method-contrast welfare analysis over the registered §4 endpoints is
+confirmatory.

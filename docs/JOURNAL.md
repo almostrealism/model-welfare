@@ -4,6 +4,33 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-12 — Method arm & instrument-sensitivity sweep (before scaling)
+
+Study 1's near-null on SmolLM3 — a model documented as quantization-fragile —
+forced the question of whether the instrument, not the world, is why we saw so
+little. Rather than scale to larger, costlier subjects on a possibly-insufficient
+measurement (and then amend endpoints post hoc, which would hollow out the
+pre-registration), we validate the instrument once, now, as a single dated
+amendment (PREREGISTRATION §9).
+
+The reframe that made it tractable: SmolLM3's documented fragility is a *safety*
+(attack-success) effect — a different construct from the *welfare* indicators we
+measure. Safety-fragility need not imply welfare-fragility, so SmolLM3 was never
+a welfare positive control; it is a serving/safety one, and a welfare null on it
+may be a genuine dissociation. It is re-cast accordingly.
+
+The arm activates the deferred first-party AWQ-w4 method contrast and adds a
+calibration-class **sensitivity sweep** on SmolLM3 (AWQ-w4 vs BF16) across the
+dimensions the literature flags — refusal/harmful-compliance (centerpiece),
+regression-toward-base, and our own welfare battery — asking only "if something
+were going on, would we detect it?" (a validation, not a replication). The §9
+decision rules route each outcome: sensitive-on-safety-but-null-on-welfare → a
+genuine dissociation, scale the battery unchanged; nothing-moves → an upstream
+serving/artifact fault, fix first; welfare-moves-under-AWQ-only → RTN-specific.
+Considered and rejected: reproducing the paper's exact attack-success number
+(heavier, and unnecessary for a detection check) and scaling first (which risks
+expensive, motivated post-hoc reasoning).
+
 ## 2026-08-10 — Confirmatory throughput calibration + sequential launch config
 
 Timed the live pipeline (halo ladder + studio judge) before committing ~a day
