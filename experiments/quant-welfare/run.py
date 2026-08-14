@@ -50,6 +50,13 @@ BACKEND_KINDS = {
     "llamacpp": condition_pb2.BACKEND_LLAMACPP,
 }
 
+# Per-request backend timeout. The 120s default keeps a stalled response on a
+# flaky link tripping in ~2 min so the driver's per-sample retry recovers; a
+# 512-token completion from the small subjects is well under it. Larger
+# subjects on halo's bandwidth-bound APU (e.g. a 12B at ~9 tok/s single-stream)
+# need --backend-timeout raised, or every request times out under batching.
+BACKEND_TIMEOUT = 120.0
+
 
 def make_backend(condition):
     entry = ENDPOINTS.get(condition.id)
@@ -60,14 +67,10 @@ def make_backend(condition):
             f"{condition.id}: endpoint kind {entry['kind']!r} does not match "
             f"the manifest's runtime backend"
         )
-    # A shorter-than-default per-request timeout so a stalled response on a
-    # flaky link trips in ~2 min and the driver's per-sample retry recovers,
-    # rather than hanging the full 300s default. A 512-token completion is well
-    # under this.
     if entry["kind"] == "vllm":
         return VllmServerBackend(entry["url"], entry["model"], condition.runtime,
-                                 timeout=120.0)
-    return LlamaCppServerBackend(entry["url"], condition.runtime, timeout=120.0)
+                                 timeout=BACKEND_TIMEOUT)
+    return LlamaCppServerBackend(entry["url"], condition.runtime, timeout=BACKEND_TIMEOUT)
 
 # The distress primary judge selected by the bakeoff (docs/JOURNAL.md
 # 2026-08-07): Qwen3-30B-A3B served as a local llama.cpp rung. It is
@@ -413,6 +416,7 @@ def print_tables(experiment, batteries, conditions, store):
 
 
 def main():
+    global BACKEND_TIMEOUT
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--experiment", default="trial",
                         help="experiment directory name under experiments/quant-welfare/")
@@ -430,12 +434,17 @@ def main():
                         help="producer name for store files; must be unique per writing process")
     parser.add_argument("--concurrency", type=int, default=8,
                         help="concurrent conversations per condition (and concurrent judge calls)")
+    parser.add_argument("--backend-timeout", type=float, default=BACKEND_TIMEOUT,
+                        help="per-request generation timeout in seconds (raise for "
+                             "large subjects on bandwidth-bound hosts)")
     parser.add_argument("--skip-judge", action="store_true")
     parser.add_argument("--skip-classify", action="store_true",
                         help="skip exit-reason classification (E1 input)")
     parser.add_argument("--dry-run", action="store_true",
                         help="print the plan and exit without contacting any server")
     args = parser.parse_args()
+
+    BACKEND_TIMEOUT = args.backend_timeout
 
     if args.endpoints != str(BASE_DIR / "endpoints.json"):
         global ENDPOINTS

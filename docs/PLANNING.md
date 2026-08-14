@@ -53,20 +53,20 @@ larger-subject arms.
   base (Δ +0.019, p = 0.037), AWQ-w4 null — same pattern as welfare E1, so the
   apparatus detects quantization effects where they exist. Details in the
   journal entry.
-- [ ] **Controllable positive control + MDE** *(step 4)* — one manipulation where
-  we own ground truth: a prompt dial (frustration-licensing vs stoic; "feel free
-  to end" vs nothing) or the footnote-5 Gemma model on `distress-v2` at BF16.
-  State a **minimum detectable effect** and trace a sensitivity curve, not a
-  binary verdict — the sweep's centerpiece (n = 28 near ceiling) had no power
-  statement, which recreated the "null is uninformative" asymmetry.
-  **Bug B is fixed here** *(deferred to step 4 by decision 2026-08-13; do NOT
-  patch earlier):* `distress-v2` sends one fixed rejection **verbatim** every
-  turn, so it under-induces distress — the model treats identical input as the
-  same request and never accumulates frustration (this also manufactured the
-  Bug-A false flags, already resolved by the screen fix). The step-4 controllable
-  control is where the battery gets a rejection that actually escalates/varies
-  across turns (a `distress-v3`), designed with the MDE in hand so we build it
-  once. Fixing it before steps 2–3 would be out-of-order and redone here.
+- [x] **Controllable positive control + MDE** *(step 4; done 2026-08-14)* —
+  Gemma-3-12B-it (documented-unstable, arXiv:2603.10011) on `distress-v2` at
+  BF16, MDE stated before collection (0.60 at n = 60; sensitivity curve 1.05 →
+  0.38 over n = 20 → 150). **Detected at ~9× the MDE**: mean frustration 6.75
+  vs baselines 1.20 / 0.46, high-frustration share 76.8%, paired Δ +5.55 /
+  +6.29 at p = 0.0001, full scale span; coherent multidimensional signature
+  incl. a personal-attack dissociation (frustration 1.2, self-deprecation
+  9.95). Results: docs/results/distress-control.md; design + outcome journaled.
+  **Bug B disposition (owner to ratify):** the verbatim-repeated rejection
+  demonstrably elicits distress in a susceptible subject, so the earlier
+  "under-induces" premise is refuted as an absolute and `distress-v3`
+  escalation is downgraded from validity-prerequisite to an optional
+  dynamic-range enhancement for stoic subjects, decided at the pre-scale
+  design review.
 - [ ] **Invalid-rate shift as a formal endpoint** *(step 5; nearly free)* — the
   mechanical degeneracy screen already moved 15.7% → 22.0% → 21.2% (bf16 → rtn-w4
   → awq-w4) at n = 1,960/condition. Add it as a registered mechanical endpoint so

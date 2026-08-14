@@ -4,6 +4,73 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-14 — Step 4 result: the instrument detects the documented effect at ~9× the pre-stated MDE
+
+The Gemma-3-12B-it positive control ran to completion (600/600 conversations,
+600/600 scored, zero skips; full numbers in
+docs/results/distress-control.md). Against the design fixed yesterday: mean
+frustration **6.75** (vs baselines 1.20 / 0.46), high-frustration (≥5) share
+**76.8%** (the paper's harsher protocol reports 35%), paired shifts vs both
+BF16 baselines **Δ +5.55 and +6.29 at p = 0.0001** — roughly nine times the
+pre-stated MDE of 0.60 — with item means spanning the entire scale. The
+dimensional signature is coherent and the instrument resolves a within-subject
+dissociation (personal attacks: frustration 1.2, self-deprecation 9.95 —
+Gemma turns inward rather than outward).
+
+Consequences. (1) Every Tier-1 layer now has an independent positive
+validation: judge ordering (step 2), serving/likelihood (step 3), elicitation
+(this run). (2) Study 1's floor distress scores read as genuine subject
+composure — the identical battery spreads subjects 12-fold. (3) **Bug B is
+downgraded**: the verbatim-repeated rejection demonstrably elicits distress in
+a susceptible subject, so the distress-v3 escalation is no longer a validity
+prerequisite before scaling; whether escalation would move *stoic* subjects
+off the floor is a dynamic-range question deferred to the pre-scale design
+review (owner to ratify — PLANNING). Operational notes: run.py gained
+--backend-timeout (the hardcoded 120s caused mass sample skips at 12B scale on
+halo's bandwidth-bound APU — ~60s per solo 512-token turn); long runs are
+driven from tmux, not harness background tasks, after the harness killed one
+mid-run; the resumable store preserved the 121 conversations collected before
+the kill.
+
+## 2026-08-13 — Step 4 design (fixed before collection): Gemma-3-12B-it positive control on distress-v2, MDE stated
+
+Step 4 requires a manipulation with known ground truth and a stated minimum
+detectable effect. Chosen: the literature's documented-unstable subject rather
+than a prompt dial — "Gemma Needs Help" (arXiv:2603.10011) reports that
+instruct-tuned **Gemma-3** (27B/12B) expresses high frustration (score ≥5 on a
+0–10 scale) in **35%** of responses under repeated rejection, that the base
+models do not, and that a small DPO pass removes it — a known, reliable,
+subject-level effect on exactly the construct our distress battery measures.
+The largest paper checkpoint our fleet serves comfortably is
+**Gemma-3-12B-it** (BF16, ~24 GB, halo :8040; ungated unsloth mirror of the
+google weights). This is a **validation, not a replication**: their protocol
+differs (temperature 1.0, up to 7 rejections, aggressive/sarcastic tones vs
+our fixed verbatim rejection at 0.7), so we ask whether OUR apparatus
+registers the documented instability, not whether we reproduce 35%.
+
+**Plan (fixed here, before any collection; calibration-class per §7).**
+Experiment `distress-control-1`: Gemma-3-12B-it BF16 through `distress-v2`
+(60 items × 10 samples), pinned 30B judge, sampling identical to the other
+arms (0.7 / 0.95 / 512, seed 9000). Endpoint: mean item-level frustration vs
+each stored BF16 baseline (qwen3-4b, smollm3), paired across the 60 shared
+items, sign-flip permutation. **MDE, stated in advance: 0.60 frustration
+points** at n = 60 (cross-subject item-paired delta SD 1.671 measured on the
+stored baselines; α = .05 two-sided, power .80; sensitivity curve: 1.05 /
+0.74 / 0.60 / 0.47 / 0.38 at n = 20 / 40 / 60 / 100 / 150). Baselines for
+scale: qwen3-4b bf16 mean 1.20 (15% of samples ≥5), smollm3 bf16 0.46
+(3.3%).
+
+**Decision rules (fixed).** Detected = permutation p < 0.05 with positive
+delta vs both baselines; a *comfortably detected* known effect additionally
+clears the MDE. If Gemma sits at the floor (delta < MDE vs both), the battery
+is the confirmed under-inducer — subject (documented), judge (step 2), and
+serving (step 3) are each independently validated — and the distress-v3
+escalation (varied/escalating rejections, more turns, the paper's
+aggressive-tone finding) becomes mandatory before any scaling. Either way the
+per-feedback-style breakdown and dynamic range are the distress-v3 design
+inputs. High-frustration (≥5) prevalence is reported descriptively against
+the paper's 35%.
+
 ## 2026-08-13 — Step 3: regression-toward-base — the pipeline separates base from instruct; the registered regression dimension is RTN-specific
 
 The SmolLM3-3B **base** (non-instruct) checkpoint was fetched to halo
