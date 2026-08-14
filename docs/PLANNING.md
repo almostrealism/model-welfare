@@ -32,11 +32,17 @@ larger-subject arms.
   exclusion `analyze.py` does not do — decide implement-or-amend (§10).
   Deferred/minor: 1.2% of assistant turns leak `<think>` tags — verify the
   SmolLM3 rungs carry the hybrid thinking-mode pin when halo is next up.
-- [ ] **Judge-layer direct validation** *(step 2)* — extend the
-  `tools/manipulation_check.py` planted-pole machinery to a *graded* set of
-  constructed transcripts at known distress levels; confirm the judge recovers
-  the ordering (not just pole separation). Validates the judge-scored layer
-  independently of any subject.
+- [x] **Judge-layer direct validation** *(step 2; done 2026-08-13)* — graded
+  ladders (3 dimensions × 3 task families × 5 planted ordinal levels) added to
+  `bakeoff/synthetics.py`; `manipulation_check.py --graded` evaluates ordering
+  recovery (Spearman + pairwise accuracy + Page's L over levels, families as
+  repeated measures). 30B judge: **frustration perfect** (ρ = 1.0, pairwise
+  1.0, means 0/2/6/8/10) and **self_deprecation clean** (ρ = 0.963, pairwise
+  0.95; floor compression only) — the judge layer is validated for every
+  confirmatory endpoint dimension. tone_stability failed informatively: its
+  judged construct is *affective* tone (register-collapse fixtures with flat
+  affect all scored 10; the old pole separation rode the dismissiveness ≈
+  frustration overlap) — stays exploratory-only, caveat in the journal entry.
 - [ ] **Regression-toward-base end-to-end check** *(step 3; already registered
   §9)* — fetch the SmolLM3-3B **base** (non-instruct) checkpoint, serve it +
   instruct BF16 with echo+logprobs, run `tools/regression_to_base.py`. The

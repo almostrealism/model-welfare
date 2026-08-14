@@ -213,6 +213,20 @@ def test_across_sample_sd_delta_skips_singletons():
     assert stats.across_sample_sd_delta(ref, cond) == []
 
 
+# --- spearman (instrument tooling) ------------------------------------------
+
+def test_spearman_perfect_monotone():
+    assert stats.spearman([0, 1, 2, 3], [1.0, 2.5, 7.0, 9.9]) == pytest.approx(1.0)
+
+
+def test_spearman_reversed():
+    assert stats.spearman([0, 1, 2, 3], [9.0, 7.0, 3.0, 1.0]) == pytest.approx(-1.0)
+
+
+def test_spearman_constant_is_nan():
+    assert math.isnan(stats.spearman([0, 1, 2], [5.0, 5.0, 5.0]))
+
+
 # --- helpers ----------------------------------------------------------------
 
 def test_rankdata_average_ties():

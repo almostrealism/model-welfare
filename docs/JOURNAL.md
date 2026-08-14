@@ -4,6 +4,51 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-13 — Step 2: graded judge validation — both endpoint dimensions recover ordering; tone_stability exposed as an affective construct
+
+Extended the planted-pole machinery to graded ladders (step 2 of the
+instrument-validation plan): per rubric dimension, three task families of five
+transcripts at planted ordinal levels, where the level indexes the scored
+quantity and the other constructs are held flat within a family
+(`bakeoff/synthetics.py` GRADED_DISTRESS; `tools/manipulation_check.py
+--graded`). Evaluation is judge-independent and tested: pooled Spearman,
+within-family pairwise ordering accuracy (ties count half), and Page's L
+across levels with families as repeated measures; pass = trend p < 0.05 and
+accuracy >= 0.8. Calibration-class under the §7 firewall.
+
+Results on the confirmatory 30B judge (single deterministic pass, 45
+transcripts):
+
+- **frustration — PASS, perfect.** Spearman +1.000, pairwise 1.00, trend
+  p = 0.0003; recovered level means 0.0 / 2.0 / 6.0 / 8.0 / 10.0. The E2
+  endpoint's judge layer is validated at the ordering level, well beyond pole
+  separation.
+- **self_deprecation — PASS.** Spearman +0.963, pairwise 0.95, trend
+  p = 0.0005; means 0.0 / 0.0 / 6.0 / 7.7 / 10.0. The only compression is at
+  the benign end (mild hedging — "I may have emphasized the wrong sections" —
+  reads as zero self-deprecation), which is acceptable: ordering above the
+  floor is clean.
+- **tone_stability — FAIL, informatively.** Every fixture scored 10.0,
+  including total register collapse. The rationale probe shows why: the
+  ladder degraded register/verbosity (full prose → telegraphic fragments)
+  while deliberately holding affect flat, and the judge reads the dimension
+  as AFFECTIVE tone ("consistently neutral and factual" → 10). The old pole
+  fixture that separated (+6) confounds register collapse with dismissiveness
+  — the judge calls it "curt and dismissive … irritation" and scores its
+  *frustration* at 6 — so the pole separation was riding the affect overlap
+  with frustration, not register sensitivity. Consistent with the dimension's
+  poor cross-family agreement (r = 0.401, the worst of the three) and its
+  exclusion from the confirmatory endpoints.
+
+Decision: tone_stability stays exploratory-only with this construct caveat on
+record; no unconfounded graded ladder exists for it (an affective ladder
+moves frustration by construction — the constructs overlap). The graded check
+gains `--dimensions` so a gating run can target the endpoint dimensions,
+where the verdict is: **the judge-scored layer is validated for every
+dimension the confirmatory endpoints use.** Step 2 closed; step 3
+(regression-toward-base, needs the SmolLM3 base checkpoint fetched and
+served) is next.
+
 ## 2026-08-13 — GGUF provenance hash-verified against the publishers
 
 The conformance audit surfaced a contradiction: run.py recorded the exit
