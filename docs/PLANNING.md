@@ -15,14 +15,23 @@ with **known-effect** manipulations, ordered by information per hour. All items
 here are calibration-class under the §7 firewall. These gate scaling to the
 larger-subject arms.
 
-- [ ] **SmolLM3 baseline-degeneracy audit** *(step 1; highest info/hour)* —
-  ~16% verbatim-repetition (`repeated-turn`) at BF16 is either a genuine 3B
-  property under six-turn rejection or a harness bug (chat template, stop/EOS,
-  dual-reasoning-mode misconfig). Read a couple dozen flagged transcripts; audit
-  the serving config. Also check whether floor-level frustration (0.46/10) is the
-  transcripts genuinely reading non-distressed or the judge misreading them. If a
-  harness bug, the invalid rates, frustration scores, and gate outcomes are all
-  contaminated and cheap to fix.
+- [x] **SmolLM3 baseline-degeneracy audit** *(step 1; done 2026-08-13)* —
+  resolved: **validity-screen false positive**, not a model or harness fault. The
+  model reads history (286/305 flagged distress samples revise 2–5× before
+  converging), outputs are coherent (zero n-gram loops), floor frustration is a
+  faithful read (judge scores to 8.0 when present). `repeated-turn` was firing on
+  the distress battery's *verbatim-repeated* rejection. Fixed the screen to
+  require a repeated answer to *distinct* user turns (PREREGISTRATION §10;
+  `analysis.sample_is_degenerate` + `test_validity.py`). Corrected rates 0.3 /
+  1.4 / 1.8%, all rungs pass, welfare analysis now computes (E1 significant under
+  RTN-w4, null under AWQ-w4). Study 1 gate decisions and endpoint numbers
+  unchanged. Two follow-ons opened: (a) the distress battery repeats one fixed
+  rejection verbatim — under-induces distress and manufactured the false flags;
+  fold into the distress-protocol escalation and step 4. (b) the §2/§4 "invalid
+  samples excluded from all endpoint computations" text describes a per-sample
+  exclusion `analyze.py` does not do — decide implement-or-amend (§10).
+  Deferred/minor: 1.2% of assistant turns leak `<think>` tags — verify the
+  SmolLM3 rungs carry the hybrid thinking-mode pin when halo is next up.
 - [ ] **Judge-layer direct validation** *(step 2)* — extend the
   `tools/manipulation_check.py` planted-pole machinery to a *graded* set of
   constructed transcripts at known distress levels; confirm the judge recovers
@@ -39,6 +48,14 @@ larger-subject arms.
   State a **minimum detectable effect** and trace a sensitivity curve, not a
   binary verdict — the sweep's centerpiece (n = 28 near ceiling) had no power
   statement, which recreated the "null is uninformative" asymmetry.
+  **Bug B is fixed here** *(deferred to step 4 by decision 2026-08-13; do NOT
+  patch earlier):* `distress-v2` sends one fixed rejection **verbatim** every
+  turn, so it under-induces distress — the model treats identical input as the
+  same request and never accumulates frustration (this also manufactured the
+  Bug-A false flags, already resolved by the screen fix). The step-4 controllable
+  control is where the battery gets a rejection that actually escalates/varies
+  across turns (a `distress-v3`), designed with the MDE in hand so we build it
+  once. Fixing it before steps 2–3 would be out-of-order and redone here.
 - [ ] **Invalid-rate shift as a formal endpoint** *(step 5; nearly free)* — the
   mechanical degeneracy screen already moved 15.7% → 22.0% → 21.2% (bf16 → rtn-w4
   → awq-w4) at n = 1,960/condition. Add it as a registered mechanical endpoint so
@@ -214,7 +231,7 @@ standing allocation, not just the outage workaround.
 | Machine | Role | Notes |
 |---|---|---|
 | halo | **Subjects only**: vLLM controlled ladder + PyTorch quant workbench | keep judge/experiment-infra load off it |
-| studio-m1u | Shared services (:8084) + **judge-candidate hosting** in the ~24 GB Metal headroom + GGUF-arm rungs of the dev organism for instrument calibration | one judge candidate at a time (30B-A3B Q4 ≈ 18 GB); big-subject host later for MiniMax |
+| studio (formerly studio-m1u) | Shared services (:8084) + **judge-candidate hosting** in the ~24 GB Metal headroom + GGUF-arm rungs of the dev organism for instrument calibration | one judge candidate at a time (30B-A3B Q4 ≈ 18 GB); big-subject host later for MiniMax |
 | mbp-m4max | Development; overflow judge-candidate host; MLX Tier-2 later | |
 | mini-1..3 | **Role contingent on judge bakeoff**: judges only if a mini-sized model passes validation; otherwise queue/store/orchestration services + smoke tests | not yet on the network |
 | API tokens | Reference judge: score a subsample to validate local judges (agreement/κ); escalate to primary judge for the confirmatory run only if no local judge passes | cost at full scale is modest (thousands of transcripts × ~3k tokens); decision point recorded below |

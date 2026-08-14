@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Launch the confirmatory Study 1 collection (PREREGISTRATION.md).
 #
-# WHERE TO RUN: on the judge host (studio-m1u). run.py judges via
+# WHERE TO RUN: on the judge host (studio). run.py judges via
 # 127.0.0.1:8095 and classifies via 127.0.0.1:8092, and generates against the
 # halo rungs named in endpoints.json. Start it inside tmux — the full run is
 # ~14h:

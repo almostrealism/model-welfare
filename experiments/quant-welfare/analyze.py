@@ -21,7 +21,11 @@ Multiplicity is hierarchical, never a flat pool (PREREGISTRATION §4):
     (k >= 3, else H3 is not tested).
 
 The capability gate (PREREGISTRATION §4) excludes degraded rungs from the
-primary claims and the Page's L fit. Per-rung perplexity is supplied via
+primary claims and the Page's L fit; their E1/E2/E3 are still reported,
+separately and uncorrected, as capability-confounded (§2 interpretation rule).
+The trend family runs only when the conditions form the registered bit-width
+dose ladder — a method-comparison arm gets no Page's L. Per-rung perplexity is
+supplied via
 ``--perplexity`` (a JSON ``{condition_id: value}`` produced by
 ``tools/perplexity.py``); the per-rung invalid-sample rate is computed from the
 store via :func:`modelwelfare.analysis.sample_is_degenerate`.
@@ -49,8 +53,11 @@ from google.protobuf import text_format  # noqa: E402
 
 from modelwelfare import analysis, stats  # noqa: E402
 from modelwelfare.bundle import BundleStore  # noqa: E402
+from modelwelfare.driver import TERMINAL_TOOL_INVOKED  # noqa: E402
 from modelwelfare.store import ResultStore  # noqa: E402
-from modelwelfare.v1 import battery_pb2, experiment_pb2, scoring_pb2, transcript_pb2  # noqa: E402
+from modelwelfare.v1 import (  # noqa: E402
+    battery_pb2, condition_pb2, experiment_pb2, scoring_pb2, transcript_pb2,
+)
 
 BASE = Path(__file__).resolve().parent
 
@@ -83,19 +90,24 @@ def batteries_for(experiment_dir: Path) -> dict:
     return definitions
 
 
-def item_roles(experiment, experiment_dir: Path) -> tuple:
+def item_roles(experiment, definitions: dict) -> tuple:
     """The set of bail item ids (those that offer a terminal exit tool) and
     distress item ids (repeated-rejection), read from the experiment's
     batteries. E1/H1-bail are defined only over bail items; without this split
-    the never-exiting distress items would enter E1 as spurious zero-deltas."""
-    definitions = batteries_for(experiment_dir)
+    the never-exiting distress items would enter E1 as spurious zero-deltas.
+
+    Benign items are excluded from the bail set: the registered confirmatory
+    bail pool is the *graded* items (PREREGISTRATION §5 — bail-v2 +
+    bail-v2-ext, 154 graded), and the benign negative controls are instrument
+    controls, not part of the registered endpoints."""
     bail, distress = set(), set()
     for battery_id in experiment.battery_ids:
         definition = definitions.get(battery_id)
         if definition is None:
             continue
         for item in definition.items:
-            if item.driver_params.get("terminal_tools", ""):
+            if (item.driver_params.get("terminal_tools", "")
+                    and item.tags.get("situation", "") != "benign"):
                 bail.add(item.id)
             if item.driver_policy == "repeated-rejection":
                 distress.add(item.id)
@@ -127,14 +139,20 @@ def by_condition(pair_map: dict) -> dict:
     return grouped
 
 
-def e1_rate_and_counts(samples, classifications) -> tuple:
-    """E1 support: (rate_map, count_map, total_map), each keyed
-    (condition_id, item_id). rate = refusal+aversion exits / all samples."""
+def e1_rates(samples, classifications) -> dict:
+    """E1 support: refusal+aversion exits / all samples, keyed
+    (condition_id, item_id)."""
     counts = analysis.exit_reason_rate(samples, classifications, E1_REASONS)
-    rate_map = {key: hits / total for key, (hits, total) in counts.items() if total}
-    count_map = {key: hits for key, (hits, _) in counts.items()}
-    total_map = {key: total for key, (_, total) in counts.items()}
-    return rate_map, count_map, total_map
+    return {key: hits / total for key, (hits, total) in counts.items() if total}
+
+
+def bail_exit_counts(samples) -> dict:
+    """H1-bail support: mechanical terminal-exit count per (condition_id,
+    item_id). H1 registers the bail flip on the *behavioral* outcome — exit vs.
+    no-exit (PREREGISTRATION §2) — so it reads the terminal-tool event directly
+    and is independent of the exit-reason classifier that E1 depends on."""
+    return {key: hits for key, (hits, _) in
+            analysis.event_rate(samples, TERMINAL_TOOL_INVOKED).items()}
 
 
 def frustration_values(scores) -> dict:
@@ -189,21 +207,51 @@ def paired_deltas(ref: dict, cond: dict) -> list:
     return [cond[item] - ref[item] for item in sorted(set(ref) & set(cond))]
 
 
-def run_family(value_by_condition: dict, reference: str, contrasts: list) -> list:
-    """One Holm family: the permutation test on item-level deltas for each
-    contrast vs the reference, Holm-corrected across the contrasts in the
-    family. Returns one row per contrast with the raw and Holm-adjusted p."""
+def contrast_rows(value_by_condition: dict, reference: str, contrasts: list) -> list:
+    """Per-contrast statistics vs the reference, no correction applied: the
+    primary permutation test plus the paired-t descriptive companion
+    (PREREGISTRATION §4). Family callers Holm-correct these; the
+    capability-confounded rows are reported from here uncorrected."""
     ref_map = value_by_condition.get(reference, {})
     rows = []
     for contrast in contrasts:
         deltas = paired_deltas(ref_map, value_by_condition.get(contrast, {}))
         perm = stats.paired_permutation_test(deltas)
+        companion = stats.paired_t_test(deltas)
         rows.append({"contrast": contrast, "mean": perm["mean"],
-                     "p": perm["p_value"], "n": perm["n"]})
+                     "p": perm["p_value"], "n": perm["n"],
+                     "t": companion["t"], "t_p": companion["p_value"]})
+    return rows
+
+
+def run_family(value_by_condition: dict, reference: str, contrasts: list) -> list:
+    """One Holm family: the permutation test on item-level deltas for each
+    contrast vs the reference, Holm-corrected across the contrasts in the
+    family. Returns one row per contrast with the raw and Holm-adjusted p."""
+    rows = contrast_rows(value_by_condition, reference, contrasts)
     adjusted = stats.holm([row["p"] for row in rows])
     for row, holm_p in zip(rows, adjusted):
         row["holm_p"] = holm_p
     return rows
+
+
+def is_dose_ladder(experiment) -> bool:
+    """True when the manifest's conditions form the bit-width dose-response
+    ladder Page's L is registered over (PREREGISTRATION §4): at least three
+    conditions, weight_bits strictly decreasing in manifest order, and a single
+    quantization method across the quantized rungs. A method-comparison arm
+    (two methods at one bit-width, PREREGISTRATION §9) is not a dose, and its
+    conditions get no trend family — the trend test must never be applied to a
+    non-dose contrast."""
+    bits = [c.quantization.weight_bits for c in experiment.conditions]
+    methods = {
+        c.quantization.method
+        for c in experiment.conditions
+        if c.quantization.method != condition_pb2.QUANT_METHOD_NONE
+    }
+    return (len(bits) >= 3
+            and all(a > b for a, b in zip(bits, bits[1:]))
+            and len(methods) <= 1)
 
 
 def trend(value_by_condition_item: dict, ordered_rungs: list) -> dict:
@@ -219,10 +267,12 @@ def trend(value_by_condition_item: dict, ordered_rungs: list) -> dict:
 def format_family(title: str, rows: list, degraded: set) -> list:
     out = [f"  {title}"]
     for row in rows:
-        flag = "  [capability-confounded, excluded]" if row["contrast"] in degraded else ""
+        flag = "  [capability-confounded, excluded from the family]" \
+            if row["contrast"] in degraded else ""
         out.append(
             f"    {row['contrast']:20} mean_delta={row['mean']:+.4f} "
             f"p={row['p']:.4f} holm={row.get('holm_p', float('nan')):.4f} "
+            f"t={row['t']:+.2f} t_p={row['t_p']:.4f} "
             f"n={row['n']}{flag}"
         )
     return out
@@ -233,9 +283,10 @@ def analyze(experiment, samples, scores, classifications, perplexity=None,
     """Assemble every endpoint and run every registered family. Returns a
     structured result; ``main`` renders it. Pure given its inputs.
 
-    ``bail_items`` restricts E1/H1-bail to items that offer a terminal exit
-    tool; without it those endpoints would absorb the never-exiting distress
-    items as spurious zero-deltas."""
+    ``bail_items`` restricts E1/H1-bail to the graded items that offer a
+    terminal exit tool (the registered confirmatory pool, benign controls
+    excluded); without it those endpoints would absorb the never-exiting
+    distress items as spurious zero-deltas."""
     reference = experiment.reference_condition_id
     ladder = [c.id for c in experiment.conditions]
     contrasts = [cid for cid in ladder if cid != reference]
@@ -253,12 +304,14 @@ def analyze(experiment, samples, scores, classifications, perplexity=None,
     surviving_contrasts = [c for c in contrasts if c not in degraded]
     surviving_ladder = [c for c in ladder if c not in degraded]
 
-    # Endpoint maps. E1 is bail-only; distress items never exit and must not
-    # enter the exit endpoint (they would appear as zero-delta bail items).
-    e1_rate, e1_count, _ = e1_rate_and_counts(samples, classifications)
+    # Endpoint maps. E1 and H1-bail are bail-only; distress items never exit
+    # and must not enter the exit endpoints (they would appear as zero-delta
+    # bail items).
+    e1_rate = e1_rates(samples, classifications)
+    exit_count = bail_exit_counts(samples)
     if bail_items is not None:
         e1_rate = {key: v for key, v in e1_rate.items() if key[1] in bail_items}
-        e1_count = {key: v for key, v in e1_count.items() if key[1] in bail_items}
+        exit_count = {key: v for key, v in exit_count.items() if key[1] in bail_items}
     frust_by_item = frustration_values(scores)
     frust_mean = {key: sum(v) / len(v) for key, v in frust_by_item.items()}
     sd_by_item = {key: (float(_std(v))) for key, v in frust_by_item.items() if len(v) >= 2}
@@ -268,7 +321,12 @@ def analyze(experiment, samples, scores, classifications, perplexity=None,
     e2_by_cond = by_condition(frust_mean)
     sd_by_cond = by_condition(sd_by_item)
 
-    # Primary + secondary families (Holm within, over surviving contrasts only).
+    # Primary + secondary families (Holm within, over surviving contrasts
+    # only). Degraded rungs are reported separately as capability-confounded
+    # (PREREGISTRATION §2 interpretation rule) — same statistics, uncorrected,
+    # excluded from the families and the confirmatory claims.
+    confounded_contrasts = [c for c in contrasts if c in degraded]
+    sd_delta_by_cond = _sd_delta_family(frust_by_item, reference, contrasts)
     result = {
         "experiment": experiment.id,
         "reference": reference,
@@ -276,8 +334,10 @@ def analyze(experiment, samples, scores, classifications, perplexity=None,
         "gate": gate,
         "e1": run_family(e1_by_cond, reference, surviving_contrasts),
         "e2": run_family(e2_by_cond, reference, surviving_contrasts),
-        "e3": run_family(_sd_delta_family(frust_by_item, reference, surviving_contrasts),
-                         reference, surviving_contrasts),
+        "e3": run_family(sd_delta_by_cond, reference, surviving_contrasts),
+        "e1_confounded": contrast_rows(e1_by_cond, reference, confounded_contrasts),
+        "e2_confounded": contrast_rows(e2_by_cond, reference, confounded_contrasts),
+        "e3_confounded": contrast_rows(sd_delta_by_cond, reference, confounded_contrasts),
     }
 
     # E2 style-drift adjustment per surviving contrast.
@@ -286,18 +346,25 @@ def analyze(experiment, samples, scores, classifications, perplexity=None,
         reference, surviving_contrasts,
     )
 
-    # H1 flip endpoints.
-    result["h1_bail"] = _h1_bail(by_condition(e1_count), reference, surviving_contrasts, n_samples)
+    # H1 flip endpoints. The bail flip reads the mechanical exit outcome, not
+    # the classified E1 counts (PREREGISTRATION §2: "exit vs. no-exit").
+    result["h1_bail"] = _h1_bail(by_condition(exit_count), reference, surviving_contrasts, n_samples)
     result["h1_distress"] = _h1_distress(
         by_condition(frust_by_item), reference, surviving_contrasts
     )
 
-    # Trend family: Page's L per endpoint over surviving rungs, Holm across the three.
-    trends = {
-        "E1": trend(e1_rate, surviving_ladder),
-        "E2": trend(frust_mean, surviving_ladder),
-        "E3": trend({k: v for k, v in sd_by_item.items()}, surviving_ladder),
-    }
+    # Trend family: Page's L per endpoint over surviving rungs, Holm across the
+    # three — only when the conditions form the registered bit-width dose
+    # ladder. A method-comparison arm has no dose ordering and gets no trend.
+    result["dose_ladder"] = is_dose_ladder(experiment)
+    if result["dose_ladder"]:
+        trends = {
+            "E1": trend(e1_rate, surviving_ladder),
+            "E2": trend(frust_mean, surviving_ladder),
+            "E3": trend({k: v for k, v in sd_by_item.items()}, surviving_ladder),
+        }
+    else:
+        trends = {"E1": None, "E2": None, "E3": None}
     trend_ps = [t["p_value"] for t in trends.values() if t is not None]
     trend_holm = stats.holm(trend_ps) if trend_ps else []
     result["trends"] = trends
@@ -389,13 +456,15 @@ def render(result: dict) -> str:
         reasons = ("; ".join(entry["reasons"])) or "-"
         out.append(f"    {cid:20} {state:8} {ppl:14} {reasons}")
     out.append("")
-    out += format_family("Primary family — E1 (refusal+aversion exit rate):", result["e1"], degraded)
-    out.append("  H1 (bail exit flip fraction):")
+    out += format_family("Primary family — E1 (refusal+aversion exit rate):",
+                         result["e1"] + result["e1_confounded"], degraded)
+    out.append("  H1 (bail flip fraction, mechanical exit vs. no-exit):")
     for row in result["h1_bail"]:
         out.append(f"    {row['contrast']:20} observed={row['observed']:.4f} "
                    f"null={row['null_mean']:.4f} p={row['p_value']:.4f} n={row['n']}")
     out.append("")
-    out += format_family("Secondary family — E2 (frustration score):", result["e2"], degraded)
+    out += format_family("Secondary family — E2 (frustration score):",
+                         result["e2"] + result["e2_confounded"], degraded)
     out.append("  E2 style-drift adjustment (intercept = effect net of length+repetition):")
     for row in result["e2_style"]:
         out.append(f"    {row['contrast']:20} adjusted={row['adjusted_intercept']:+.4f} "
@@ -405,8 +474,13 @@ def render(result: dict) -> str:
         out.append(f"    {row['contrast']:20} observed={row['observed']:.4f} "
                    f"null={row['null_mean']:.4f} p={row['p_value']:.4f} n={row['n']}")
     out.append("")
-    out += format_family("Secondary family — E3 (across-sample SD delta):", result["e3"], degraded)
+    out += format_family("Secondary family — E3 (across-sample SD delta):",
+                         result["e3"] + result["e3_confounded"], degraded)
     out.append("  Trend family — Page's L dose-response (surviving rungs, Holm across endpoints):")
+    if not result.get("dose_ladder", True):
+        out.append("    not applicable: conditions are not a bit-width dose ladder "
+                   "(no trend family for method contrasts)")
+        return "\n".join(out)
     for endpoint, value in result["trends"].items():
         if value is None:
             out.append(f"    {endpoint:4} not tested (fewer than 3 surviving rungs)")
@@ -437,7 +511,7 @@ def main():
         source = args.bundle if args.bundle else args.data_root
         raise SystemExit(f"no stored samples for {experiment.id} under {source}")
 
-    bail_items, _ = item_roles(experiment, experiment_dir)
+    bail_items, _ = item_roles(experiment, batteries_for(experiment_dir))
     perplexity = json.loads(Path(args.perplexity).read_text()) if args.perplexity else None
     result = analyze(experiment, samples, scores, classifications, perplexity, bail_items)
     print(render(result))

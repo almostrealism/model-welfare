@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Launch the method arm & instrument-sensitivity sweep (PREREGISTRATION §9).
 #
-# WHERE TO RUN: on the judge host (studio-m1u). run.py judges via 127.0.0.1:8095
+# WHERE TO RUN: on the judge host (studio). run.py judges via 127.0.0.1:8095
 # and classifies via 127.0.0.1:8092, and generates against the SmolLM3 rungs on
 # halo named in endpoints.json. SmolLM3-3B is small, so this is much shorter than
 # the confirmatory run.

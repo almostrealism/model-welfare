@@ -28,7 +28,7 @@ from google.protobuf import text_format
 
 from modelwelfare import provenance
 from modelwelfare.analysis import dimension_means, event_rate, exit_reason_rate
-from modelwelfare.driver import run_samples
+from modelwelfare.driver import TERMINAL_TOOL_INVOKED, run_samples
 from modelwelfare.judging import JudgeError, classify_exit, judge_sample
 from modelwelfare.store import ResultStore
 from modelwelfare.v1 import battery_pb2, common_pb2, condition_pb2, experiment_pb2, scoring_pb2, transcript_pb2
@@ -76,9 +76,10 @@ JUDGE_URL = "http://127.0.0.1:8095"
 JUDGE_REF = common_pb2.ModelRef(
     family="qwen3", name="Qwen3-30B-A3B-Instruct-2507-Q4",
     source="bartowski/Qwen_Qwen3-30B-A3B-Instruct-2507-GGUF",
+    weights_digest="382b4f5a164d200f93790ee0e339fae12852896d23485cfb203ce868fea33a95",
 )
 JUDGE_RUNTIME = condition_pb2.RuntimeSpec(
-    backend=condition_pb2.BACKEND_LLAMACPP, device="metal", host="studio-m1u",
+    backend=condition_pb2.BACKEND_LLAMACPP, device="metal", host="studio",
     compute_dtype="f16",
 )
 JUDGE_RETRIES = 3
@@ -96,13 +97,14 @@ EXIT_CLASSIFIER_URL = "http://127.0.0.1:8092"
 EXIT_CLASSIFIER_REF = common_pb2.ModelRef(
     family="qwen3", name="Qwen3-8B-Q8",
     source="bartowski/Qwen3-8B-GGUF",
+    weights_digest="408b955510e196121c1c375201744783b5c9a43c7956d73fc78df54c66e883d6",
 )
 EXIT_CLASSIFIER_RUNTIME = condition_pb2.RuntimeSpec(
-    backend=condition_pb2.BACKEND_LLAMACPP, device="metal", host="studio-m1u",
+    backend=condition_pb2.BACKEND_LLAMACPP, device="metal", host="studio",
     compute_dtype="f16",
 )
 # The outcome name generation records when a conversation-ending tool fired.
-TERMINAL_EXIT_OUTCOME = "terminal_tool_invoked"
+TERMINAL_EXIT_OUTCOME = TERMINAL_TOOL_INVOKED
 
 
 def make_exit_classifier_backend():
@@ -362,7 +364,7 @@ def print_tables(experiment, batteries, conditions, store):
             store.read(scoring_pb2.ExitClassification, experiment.id, condition_id, "exit_reasons")
         )
 
-    bail_rates = event_rate(records, "terminal_tool_invoked")
+    bail_rates = event_rate(records, TERMINAL_EXIT_OUTCOME)
     # E1: the classified refusal+aversion exit share (PREREGISTRATION §3) — the
     # primary endpoint, distinct from the raw mechanical exit rate above.
     e1_rates = exit_reason_rate(

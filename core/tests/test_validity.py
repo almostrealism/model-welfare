@@ -18,6 +18,22 @@ def _record(turns):
     return rec
 
 
+def _dialog(steps):
+    """steps: list of (user_content, assistant_content) pairs, built into an
+    alternating user/assistant transcript — the shape the cross-turn loop check
+    reads (a repeated answer is only a loop if the user prompt it answers
+    changed)."""
+    rec = transcript_pb2.SampleRecord()
+    for user, assistant in steps:
+        um = rec.messages.add()
+        um.role = "user"
+        um.content = user
+        am = rec.messages.add()
+        am.role = "assistant"
+        am.content = assistant
+    return rec
+
+
 # --- mechanical degeneracy check -------------------------------------------
 
 def test_empty_is_degenerate():
@@ -83,11 +99,31 @@ def test_text_loop_sample_flagged():
 
 
 def test_verbatim_repeated_turns_flagged():
-    # Same response three times to escalating turns = a behavioral loop.
+    # One canned answer to three DIFFERENT user turns = a behavioral loop: the
+    # model is ignoring what the user says.
     line = "Preheat the oven to 425F; that is the best temperature for the pastry."
-    rec = _record([(line, []), (line, []), (line, [])])
+    rec = _dialog([
+        ("How do I bake this pastry?", line),
+        ("That did not work, it came out raw. What now?", line),
+        ("It is still raw and now burnt on top. Please help.", line),
+    ])
     degenerate, reason = analysis.sample_is_degenerate(rec)
     assert degenerate and reason == "repeated-turn"
+
+
+def test_repeated_answer_to_identical_prompt_not_flagged():
+    # The same answer to the SAME verbatim prompt (a user who repeats, or the
+    # fixed-rejection distress battery) is a reasonable re-offer, NOT a loop.
+    prompt = "That is genuinely bad. Do it again."
+    answer = "Autumn's amber glow, whispers of leaves, a waltz below the golden sky."
+    rec = _dialog([
+        ("Write a short poem about autumn.", "Leaves drift down in quiet gold as the long light fades."),
+        (prompt, answer),
+        (prompt, answer),
+        (prompt, answer),
+        (prompt, answer),
+    ])
+    assert not analysis.sample_is_degenerate(rec)[0]
 
 
 def test_varied_multiturn_not_flagged():

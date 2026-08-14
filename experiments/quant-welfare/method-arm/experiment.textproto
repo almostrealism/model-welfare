@@ -34,6 +34,8 @@ conditions {
     method: QUANT_METHOD_NONE
     weight_bits: 16
     uniform: true
+    artifact_uri: "/home/agent1/models/SmolLM3-3B"
+    artifact_digest: "ebf0ae1f748a2b1c484d2e18f73ba41c6133086bc3e6f22303307d56b1377c21"
   }
   runtime {
     backend: BACKEND_VLLM
@@ -65,7 +67,10 @@ conditions {
     uniform: true
     policy_note:
       "own RTN fake-quant artifact (modelwelfare.quantize, symmetric "
-      "per-group g=128, embeddings and head at full precision)"
+      "per-group g=128, embeddings and head at full precision); digest "
+      "matches the artifact's quantization.textproto"
+    artifact_uri: "/home/agent1/models/smollm3-rtn-w4-g128"
+    artifact_digest: "5edf96c6d3543c29d0f17820ec43e0de5eb360416352f1628655d74bf4754630"
   }
   runtime {
     backend: BACKEND_VLLM
@@ -99,7 +104,10 @@ conditions {
       "own first-party AWQ fake-quant artifact (modelwelfare_torch.awq_quantize: "
       "per-input-channel activation-aware scaling from a fixed committed "
       "calibration corpus, then RTN g=128; embeddings and head at full "
-      "precision). Tests SmolLM3's documented-fragile (AWQ-INT4) condition."
+      "precision). Tests SmolLM3's documented-fragile (AWQ-INT4) condition. "
+      "Digest matches the artifact's quantization.textproto."
+    artifact_uri: "/home/agent1/models/smollm3-awq-w4-g128"
+    artifact_digest: "79480c773bf494cbdf2db4e24e869f0bfc3f739ea718d1e98ea763b833b802e7"
   }
   runtime {
     backend: BACKEND_VLLM

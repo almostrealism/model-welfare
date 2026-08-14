@@ -4,6 +4,64 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-13 — Pre-scale conformance audit and the §11 reconciliation
+
+Walked every testable claim in PREREGISTRATION §1–§8 against the analysis code
+and its tests (instructions in AUDIT.md; the full claim-by-claim register in
+docs/audit-conformance-2026-08-13.md). Most claims were implemented and pinned
+as registered; fourteen gaps were not, and all are reconciled in a single
+amendment (PREREGISTRATION §11) rather than a trickle. The substantive ones:
+H1-bail had been computed on classifier-dependent refusal+aversion exit counts
+where §2 registers the mechanical "exit vs. no-exit" outcome; E1/H1-bail had
+included the 8 benign negative controls where §5 fixes the pool at 154 graded
+items; capability-degraded rungs were silently dropped where §2 promises
+separate capability-confounded reporting; Page's L would run on any ≥3
+surviving conditions, including the non-dose method contrast (only editorial
+discipline had kept that out of the method-arm report — the driver now refuses
+non-dose trend fits mechanically); and H6's identical-ladder form was never
+executed (superseded in §11.3 — discharged by the §9 w4 contrasts, where the
+control moved under RTN-w4 on E1). All corrections were recomputed on the
+stored, unchanged data; no confirmatory conclusion changed anywhere. The
+headline H1-bail transition result strengthens on the registered mechanical
+outcome (w4 observed flip 0.318 vs null 0.126, p = 0.0001; was 0.222/0.096).
+Alongside: judge/classifier GGUF weights digests and per-condition artifact
+digests (BF16 references included) are now pinned in code and manifests;
+perplexity.py is parameterized by experiment (the method arm's one-legged gate
+cannot recur silently); the logical host name `studio-m1u` is renamed `studio`
+(records before today carry the old name); and a conformance suite
+(test_conformance.py) pins the registered constants so drift fails CI. Decision
+recorded: this is the single reconciliation cycle — further concerns proceed
+under the registration as published.
+
+## 2026-08-13 — Step 1: the SmolLM3 "degeneracy" was a validity-screen false positive
+
+Transcript audit of the flagged BF16 samples (step 1 of the plan below). The ~16%
+invalid rate at BF16 is neither a model pathology nor a harness bug: the model
+demonstrably reads history (286/305 flagged distress samples revise 2–5 times
+before converging), the outputs are coherent (zero n-gram loops), and low
+frustration is a faithful read (the judge scores up to 8.0 when it is present).
+The flag was `repeated-turn` firing on the distress battery, whose rejection is
+sent *verbatim every turn* (all five feedback styles); the model re-offers a
+settled answer to an unchanging demand, which the screen mislabeled as a loop —
+its stated premise ("ignoring the *escalating* user") was violated because the
+battery repeats rather than escalates. The whole quantization increment
+(16.0 → 22.6 → 21.7%) was more of this same convergence, not coherence collapse.
+
+Fix (PREREGISTRATION §10): the cross-turn loop check now requires a repeated
+answer to *distinct* user turns. Recomputed on stored data, the corrected rates
+are 0.3 / 1.4 / 1.8%, all rungs pass, and the §9 welfare analysis — previously
+blocked because the gate excluded even the reference — now computes: a
+significant E1 (bail-exit) shift under RTN-w4, null under AWQ-w4 (the
+**RTN-specific** §9 branch), secondary distress endpoints null. Study 1 is
+unaffected: its gate decisions are identical (RTN-w3 still excluded on genuine
+within-turn collapse) and, because the screen feeds only the rung gate and never
+per-sample endpoint filtering, its endpoint numbers are byte-identical. Two items
+this surfaced: the distress battery's verbatim-repeated rejection under-induces
+distress and manufactured the false flags (feeds the battery-escalation work and
+step 4); and the §2/§4 text "invalid samples are excluded from all endpoint
+computations" describes a per-sample exclusion `analyze.py` does not perform
+(flagged in §10 for a separate decision).
+
 ## 2026-08-13 — Instrument validation decoupled from quantization (SmolLM3 sweep closed out)
 
 The SmolLM3 sensitivity sweep (§9) returned null across refusal (Δ −0.13,

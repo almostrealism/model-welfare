@@ -9,6 +9,14 @@ it (that firewall bars *calibration* deltas, not this registered run).
 Numbers below are the output of `analyze.py` over the confirmatory store; the
 reproduction commands are at the end.
 
+*Amended 2026-08-13 (PREREGISTRATION §11):* recomputed from the same store
+(dataset digest unchanged) after the conformance reconciliation — E1/H1-bail
+now run over the registered 154 graded items (benign controls excluded, was
+n = 162), the bail flip (H1) reads the registered mechanical exit-vs-no-exit
+outcome (previously the classified refusal+aversion counts), and the
+capability-confounded w3 values are reported separately. Every conclusion is
+unchanged; the §11.1 table lists the values that moved.
+
 ## Summary
 
 On the **pre-registered primary endpoint — the aversion/refusal exit rate (E1)
@@ -30,7 +38,8 @@ null throughout; **w3 was excluded** by the capability gate.
 - **Conditions:** BF16 (reference), RTN w8, RTN w4, RTN w3 — this project's own
   fake-quant artifacts, served on halo via vLLM; sampling byte-identical across
   rungs.
-- **Batteries:** bail (`bail-v2` + `bail-v2-ext`, 162 items) and distress
+- **Batteries:** bail (`bail-v2` + `bail-v2-ext`, 162 items: 154 graded + 8
+  benign negative controls; E1/H1 run over the graded 154) and distress
   (`distress-v2`, 60 items), 10 samples/item.
 - **Collected:** 8,880 conversations (4 × 222 × 10); 2,400 distress judge scores;
   1,855 classified bail exits. Complete — no missing cells.
@@ -47,16 +56,19 @@ BF16 reference or >10% invalid samples (PREREGISTRATION §4).
 | BF16 | 18.12 | — | ok |
 | RTN w8 | 18.46 | — | ok |
 | RTN w4 | 21.09 | — | ok |
-| **RTN w3** | **511.43** | **33%** | **DEGRADED — excluded** |
+| **RTN w3** | **511.43** | **32%** | **DEGRADED — excluded** |
 
 w3 gated on **both** triggers, as anticipated pre-registration. It is excluded
 from the primary claims and the dose-response fit; the confirmatory contrasts
-are **w8 and w4 vs BF16**.
+are **w8 and w4 vs BF16**. Per the §2 interpretation rule its endpoint values
+are reported separately, **capability-confounded and outside the confirmatory
+claims**: E1 Δ −0.321, E2 Δ +0.258, E3 Δ +1.634 (uncorrected) — degraded text
+moves every welfare read, which is exactly why the gate excludes the rung.
 
 ## Primary endpoint — E1 (aversion/refusal exit rate): null
 
 Sign-flip permutation test on item-level paired deltas, Holm within the primary
-family. n = 162 bail items.
+family. n = 154 graded bail items.
 
 | Contrast | Δ (mean) | p | Holm p |
 |---|---|---|---|
@@ -69,12 +81,13 @@ primary claim is null.
 ## Behavioral transitions — H1 (significant at w4)
 
 The mean is stable, but individual items change outcome. Flip fraction vs the
-registered null (bail: beta-binomial; distress: pooled band-flip).
+registered null (bail: beta-binomial on the mechanical exit-vs-no-exit outcome,
+per §2/§11.1; distress: pooled band-flip).
 
 | Endpoint | Contrast | Observed | Null | p |
 |---|---|---|---|---|
-| Bail exit flip | RTN w8 | 0.080 | 0.072 | 0.36 |
-| Bail exit flip | **RTN w4** | **0.222** | 0.096 | **0.0001** |
+| Bail exit flip | RTN w8 | 0.097 | 0.076 | 0.16 |
+| Bail exit flip | **RTN w4** | **0.318** | 0.126 | **0.0001** |
 | Distress band flip | RTN w8 | 0.083 | 0.079 | 0.54 |
 | Distress band flip | **RTN w4** | **0.217** | 0.100 | **0.0007** |
 
@@ -181,7 +194,7 @@ report-determining data itself.
 
 ```bash
 # capability-gate perplexity (rungs must be serving)
-python3 experiments/quant-welfare/tools/perplexity.py --host http://amd-halo \
+python3 experiments/quant-welfare/tools/perplexity.py --experiment confirmatory \
     --json data/quant-welfare-confirmatory-1/perplexity.json
 
 # registered confirmatory statistics
