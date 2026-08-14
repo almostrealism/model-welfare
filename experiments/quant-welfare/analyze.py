@@ -200,6 +200,29 @@ def invalid_rates(samples) -> dict:
     return {cid: bad[cid] / total[cid] for cid in total}
 
 
+def mechanical_rates(samples) -> tuple:
+    """Per-(condition, item) invalid-sample rate and verbatim re-offer rate —
+    the judge-free mechanical indicators (validation-plan step 5). Returned as
+    two {(condition_id, item_id): fraction} maps so they run through the same
+    item-paired machinery as the behavioral endpoints. Calibration-class until
+    registered for the larger-subject arms: mechanical indicators measure
+    degradation itself, so they are reported over every rung, capability gate
+    included."""
+    invalid = {
+        key: hits / total
+        for key, (hits, total) in analysis.sample_flag_rate(
+            samples, lambda record: analysis.sample_is_degenerate(record)[0]
+        ).items() if total
+    }
+    reoffer = {
+        key: hits / total
+        for key, (hits, total) in analysis.sample_flag_rate(
+            samples, analysis.sample_reoffers
+        ).items() if total
+    }
+    return invalid, reoffer
+
+
 # --- families ---------------------------------------------------------------
 
 def paired_deltas(ref: dict, cond: dict) -> list:
@@ -340,6 +363,13 @@ def analyze(experiment, samples, scores, classifications, perplexity=None,
         "e3_confounded": contrast_rows(sd_delta_by_cond, reference, confounded_contrasts),
     }
 
+    # Mechanical (judge-free) indicators over ALL contrasts — invalid rate and
+    # verbatim re-offer rate measure degradation itself, so the capability gate
+    # does not exclude any rung from them. Holm within the mechanical family.
+    invalid_by_item, reoffer_by_item = mechanical_rates(samples)
+    result["mech_invalid"] = run_family(by_condition(invalid_by_item), reference, contrasts)
+    result["mech_reoffer"] = run_family(by_condition(reoffer_by_item), reference, contrasts)
+
     # E2 style-drift adjustment per surviving contrast.
     result["e2_style"] = _e2_style(
         e2_by_cond, by_condition(length_mean), by_condition(repetition_mean),
@@ -476,6 +506,12 @@ def render(result: dict) -> str:
     out.append("")
     out += format_family("Secondary family — E3 (across-sample SD delta):",
                          result["e3"] + result["e3_confounded"], degraded)
+    out.append("  Mechanical family — judge-free indicators, all rungs incl. gated"
+               " (calibration-class until registered for the larger arms):")
+    out += format_family("  invalid-sample rate (validity screen):",
+                         result["mech_invalid"], set())
+    out += format_family("  verbatim re-offer rate (same answer >=3x to an identical prompt):",
+                         result["mech_reoffer"], set())
     out.append("  Trend family — Page's L dose-response (surviving rungs, Holm across endpoints):")
     if not result.get("dose_ladder", True):
         out.append("    not applicable: conditions are not a bit-width dose ladder "

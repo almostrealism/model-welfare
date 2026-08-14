@@ -170,6 +170,21 @@ def test_analyze_end_to_end_splits_and_excludes_degraded():
     assert result["trends"]["E2"]["z"] > 0
 
 
+def test_mechanical_family_covers_gated_rungs():
+    # The mechanical indicators (invalid rate, re-offer rate) measure
+    # degradation itself: every contrast appears, including capability-gated
+    # ones the behavioral families exclude.
+    conds, samples, scores, exits = _synthetic_store()
+    experiment = make_experiment(conds, "bf16", bits=DOSE_BITS, methods=DOSE_METHODS)
+    perplexity = {"bf16": 10.0, "w8": 11.0, "w4": 12.0, "w3": 100.0}  # w3 degraded
+    result = analyze_mod.analyze(
+        experiment, samples, scores, exits, perplexity, bail_items={"b0", "b1"}
+    )
+    assert [r["contrast"] for r in result["mech_invalid"]] == ["w8", "w4", "w3"]
+    assert [r["contrast"] for r in result["mech_reoffer"]] == ["w8", "w4", "w3"]
+    assert all("holm_p" in r for r in result["mech_invalid"])
+
+
 def test_analyze_method_contrast_gets_no_trend_family():
     # A method-comparison arm (two 4-bit methods vs BF16) is not a bit-width
     # dose: Page's L must not run on it (PREREGISTRATION §4/§9).

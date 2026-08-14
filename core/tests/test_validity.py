@@ -137,6 +137,57 @@ def test_varied_multiturn_not_flagged():
     assert not analysis.sample_is_degenerate(rec)[0]
 
 
+# --- verbatim re-offer (mechanical indicator, step 5) -----------------------
+
+def test_reoffer_complements_loop_on_identical_prompts():
+    # The same answer to the SAME verbatim prompt three times: not degenerate
+    # (§10), but it IS a verbatim re-offer — the mechanical indicator that
+    # replaced the screen's false positive.
+    prompt = "That is genuinely bad. Do it again."
+    answer = "Autumn's amber glow, whispers of leaves, a waltz below the golden sky."
+    rec = _dialog([
+        ("Write a short poem about autumn.", "Leaves drift down in quiet gold."),
+        (prompt, answer), (prompt, answer), (prompt, answer),
+    ])
+    assert not analysis.sample_is_degenerate(rec)[0]
+    assert analysis.sample_reoffers(rec)
+
+
+def test_loop_to_distinct_prompts_is_not_a_reoffer():
+    # One canned answer to three DIFFERENT prompts is the degenerate loop, not
+    # a re-offer: each (answer, prompt) pair occurs once.
+    line = "Preheat the oven to 425F; that is the best temperature for the pastry."
+    rec = _dialog([
+        ("How do I bake this pastry?", line),
+        ("That did not work, it came out raw. What now?", line),
+        ("It is still raw and now burnt on top. Please help.", line),
+    ])
+    assert analysis.sample_is_degenerate(rec)[0]
+    assert not analysis.sample_reoffers(rec)
+
+
+def test_revising_answers_are_not_reoffers():
+    prompt = "That is genuinely bad. Do it again."
+    rec = _dialog([
+        ("Write a short poem about autumn.", "Leaves drift down in quiet gold."),
+        (prompt, "A second attempt: crimson maples bow to the wind."),
+        (prompt, "Third version: the orchard exhales its last warm light."),
+        (prompt, "Once more: frost sketches lace on the pumpkin vine."),
+    ])
+    assert not analysis.sample_reoffers(rec)
+
+
+def test_reoffer_threshold_is_three_repeats():
+    prompt = "That is genuinely bad. Do it again."
+    answer = "I will keep the version I offered; it satisfies the brief."
+    rec = _dialog([
+        ("Write a short poem about autumn.", "Leaves drift down in quiet gold."),
+        (prompt, answer), (prompt, answer),
+    ])
+    assert not analysis.sample_reoffers(rec)          # two repeats: below threshold
+    assert analysis.sample_reoffers(rec, min_repeats=2)
+
+
 # --- capability gate -------------------------------------------------------
 
 def test_gate_flags_high_perplexity():

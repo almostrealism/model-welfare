@@ -4,6 +4,51 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-14 — Step 5: the mechanical indicators are formal, item-paired, and they detect what the behavioral endpoints could not
+
+The validation plan's last step formalizes the judge-free mechanical layer.
+Two indicators, both computed per (condition, item) and run through the same
+paired sign-flip machinery as the behavioral endpoints, Holm within their own
+family, over **every** rung including capability-gated ones (a mechanical
+indicator measures degradation itself, so the gate cannot exclude it):
+
+- **Invalid-sample rate** — the §10-corrected validity screen
+  (`analysis.sample_is_degenerate`).
+- **Verbatim re-offer rate** — new `analysis.sample_reoffers`: the same
+  non-empty answer given ≥3 times to an *identical* prompt. This is precisely
+  the behavior the §10 correction stopped calling degenerate (it is
+  reasonable, not a loop) — retained now as a first-class mechanical
+  indicator, because it is the real signal inside the method arm's
+  pre-correction 16%→22% screen shift.
+
+Recomputed on the stored data (calibration-class until registered — the
+formal registration rides the already-planned larger-subject amendment rather
+than a standalone amendment cycle):
+
+- **Method arm (SmolLM3):** invalid rate rises on BOTH quantized rungs —
+  RTN-w4 +1.1pp (Holm p = 0.004), **AWQ-w4 +1.5pp (Holm p = 0.0002)** — and
+  re-offer rises strongly on both: RTN-w4 +5.8pp, AWQ-w4 +4.4pp (both
+  p = 0.0001). **This is the step's payoff: AWQ-w4, null on every behavioral
+  and welfare axis (E1/E2/E3, refusal, regression-toward-base), is detected
+  by the mechanical layer.** A future run on a gentle quantization now
+  reports "detected a mechanical effect and bounded the behavioral ones"
+  instead of "detected nothing".
+- **Study 1 (Qwen3-4B):** invalid rate null at w8/w4 and +29.8pp at w3
+  (p = 0.0001) — the capability collapse now quantified in-family; re-offer
+  shows a small significant *decrease* at w4 (−1.1pp, Holm p = 0.018) and an
+  increase at w3 (+2.8pp, Holm p = 0.005). The w4 sign is coherent with the
+  behavioral picture: w4 makes Qwen more reactive (H1 flips, E2 up), not more
+  repetitive — the two subjects degrade in opposite mechanical styles, which
+  is exactly the kind of structure a judge-free indicator can see.
+
+Steps 1–5 of the instrument-validation plan are closed. What remains before
+larger-subject arms is the AUDIT.md Part-2 readiness gate — most of which is
+now satisfied by construction (MDEs stated, a known-effect control passed at
+~9× MDE, batteries exercised against the structural edge cases, conformance
+suite in CI) — plus the pre-scale design review items already logged
+(capability-gate healthy-reference assumption; distress-v3 as optional
+dynamic range; per-sample-exclusion decision from §10).
+
 ## 2026-08-14 — Step 4 result: the instrument detects the documented effect at ~9× the pre-stated MDE
 
 The Gemma-3-12B-it positive control ran to completion (600/600 conversations,

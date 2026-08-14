@@ -67,11 +67,17 @@ larger-subject arms.
   escalation is downgraded from validity-prerequisite to an optional
   dynamic-range enhancement for stoic subjects, decided at the pre-scale
   design review.
-- [ ] **Invalid-rate shift as a formal endpoint** *(step 5; nearly free)* — the
-  mechanical degeneracy screen already moved 15.7% → 22.0% → 21.2% (bf16 → rtn-w4
-  → awq-w4) at n = 1,960/condition. Add it as a registered mechanical endpoint so
-  a run reports "detected a mechanical effect and bounded the behavioral ones,"
-  not "detected nothing."
+- [x] **Invalid-rate shift as a formal endpoint** *(step 5; done 2026-08-14)* —
+  two judge-free mechanical indicators now run item-paired through the standard
+  family machinery in analyze.py, over every rung including gated ones:
+  invalid-sample rate (§10-corrected screen) and verbatim re-offer rate (new
+  `analysis.sample_reoffers` — the real signal inside the old 16%→22% shift).
+  Method arm: **AWQ-w4, null on every behavioral axis, is detected
+  mechanically** (invalid +1.5pp Holm p = 0.0002; re-offer +4.4pp p = 0.0001);
+  RTN-w4 likewise. Study 1: w3 collapse quantified (+29.8pp); w4 re-offer
+  *decreases* (−1.1pp, Holm p = 0.018) — Qwen degrades reactive, SmolLM3
+  degrades repetitive. Calibration-class until formally registered with the
+  larger-subject amendment. Journal entry has full rows.
 
 Carried forward off SmolLM3: **first-party AWQ vs a standard library (autoawq)** —
 a property of *our* quantization pipeline (our AWQ read gentle: Δrefusal ns,
