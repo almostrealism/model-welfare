@@ -508,12 +508,23 @@ this arm (item 4).
    the pinned rubric and transcript, and the prompt template wording is now
    pinned by digest in the conformance suite. The prompt text itself is not
    stored per score.
-2. **§3 judge digest.** "Pinned digest" for the local judges: scores collected
-   to date pin the judge and exit classifier by family/name/source (and
-   provenance), not by weights digest. The `weights_digest` field is populated
-   from this amendment forward for both (30B judge GGUF SHA-256
+2. **§3 judge digest and classifier source.** "Pinned digest" for the local
+   judges: scores collected to date pin the judge and exit classifier by
+   family/name/source (and provenance), not by weights digest. The
+   `weights_digest` field is populated from this amendment forward for both
+   (30B judge GGUF SHA-256
    `382b4f5a164d200f93790ee0e339fae12852896d23485cfb203ce868fea33a95`; 8B
    classifier `408b955510e196121c1c375201744783b5c9a43c7956d73fc78df54c66e883d6`).
+   Provenance was then hash-verified against the publishers' LFS digests for
+   every GGUF in use, with exactly one copy of each file on the judge host and
+   none elsewhere: the 30B judge and both 4B calibration files match
+   **bartowski** exactly (as recorded), while both Qwen3-8B files match the
+   **official `Qwen/Qwen3-8B-GGUF`** exactly — so exit classifications stored
+   before this amendment carry an incorrect source string
+   ("bartowski/Qwen3-8B-GGUF", a repo that does not exist under that name).
+   The source is corrected to `Qwen/Qwen3-8B-GGUF` going forward; the
+   weights digest identifies the file authoritatively either way, and no
+   analysis reads the source string.
 3. **§3 quantization artifact digests.** Artifact SHA-256 digests are computed
    and recorded with each artifact (`quantization.textproto` beside the
    weights); as of this amendment they are also copied into the checked-in

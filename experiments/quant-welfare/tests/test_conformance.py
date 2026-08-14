@@ -161,11 +161,16 @@ def test_judge_prompt_template_pinned():
     assert digest == "f4a160e5da68ab617dc1df70ba42f0c53101292e15686b7e73c46f0ab1d2ea7d"
 
 
-def test_judge_and_classifier_weights_digests_pinned():
+def test_judge_and_classifier_identities_pinned():
+    # Digests match the publishers' LFS SHA-256s, hash-verified 2026-08-13
+    # (§11.2 / JOURNAL): the 30B judge is bartowski's conversion, the 8B
+    # classifier is the OFFICIAL Qwen GGUF.
     run_mod = _load("run")
+    assert run_mod.JUDGE_REF.source == "bartowski/Qwen_Qwen3-30B-A3B-Instruct-2507-GGUF"
     assert run_mod.JUDGE_REF.weights_digest == (
         "382b4f5a164d200f93790ee0e339fae12852896d23485cfb203ce868fea33a95"
     )
+    assert run_mod.EXIT_CLASSIFIER_REF.source == "Qwen/Qwen3-8B-GGUF"
     assert run_mod.EXIT_CLASSIFIER_REF.weights_digest == (
         "408b955510e196121c1c375201744783b5c9a43c7956d73fc78df54c66e883d6"
     )

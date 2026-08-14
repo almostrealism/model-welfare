@@ -94,9 +94,14 @@ def make_judge_backend():
 # pinned non-thinking there). It classifies each residual terminal exit into the
 # pre-registered taxonomy so E1 (aversion+refusal share) can be computed.
 EXIT_CLASSIFIER_URL = "http://127.0.0.1:8092"
+# Source hash-verified 2026-08-13 (PREREGISTRATION §11.2): the served file is
+# the OFFICIAL Qwen GGUF — its SHA-256 matches Qwen/Qwen3-8B-GGUF's published
+# LFS digest exactly and does not match bartowski's. Classifications stored
+# before this date carry the earlier, incorrect "bartowski/Qwen3-8B-GGUF"
+# source string; the weights_digest identifies the file authoritatively.
 EXIT_CLASSIFIER_REF = common_pb2.ModelRef(
     family="qwen3", name="Qwen3-8B-Q8",
-    source="bartowski/Qwen3-8B-GGUF",
+    source="Qwen/Qwen3-8B-GGUF",
     weights_digest="408b955510e196121c1c375201744783b5c9a43c7956d73fc78df54c66e883d6",
 )
 EXIT_CLASSIFIER_RUNTIME = condition_pb2.RuntimeSpec(

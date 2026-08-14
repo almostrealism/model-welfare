@@ -4,6 +4,36 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-13 — GGUF provenance hash-verified against the publishers
+
+The conformance audit surfaced a contradiction: run.py recorded the exit
+classifier's source as "bartowski/Qwen3-8B-GGUF" while PLANNING's provenance
+note says the Qwen3-8B files are official Qwen GGUFs. Rather than leave the
+labeling to chance, every GGUF in use was resolved conclusively by comparing
+local SHA-256s against the publishers' LFS digests (the HuggingFace tree API
+publishes the SHA-256 of every LFS file), together with a full inventory of
+both machines: the studio holds exactly one copy of each file
+(~/models, all dated 2026-08-07), halo holds no GGUF at all (its HF cache has
+only official Qwen/HuggingFaceTB safetensors repos), and no bartowski copy of
+the 8B exists on either machine. Results — every file is an exact hash match
+to its publisher:
+
+| File | Matches | Recorded source was |
+|---|---|---|
+| Qwen3-8B-Q8_0 (exit classifier) | **official Qwen/Qwen3-8B-GGUF** | wrong ("bartowski/Qwen3-8B-GGUF" — no such repo) |
+| Qwen3-8B-Q4_K_M | official Qwen/Qwen3-8B-GGUF | — (not recorded) |
+| Qwen3-30B-A3B-2507 Q4_K_M (judge) | bartowski | correct |
+| Qwen3-4B-2507 Q8_0 / Q4_K_M (GGUF calibration arm) | bartowski | correct |
+
+So no data is mislabeled at the weights level and no rerun is needed; the only
+error was the classifier's source *string* in run.py (now corrected to
+Qwen/Qwen3-8B-GGUF; classifications stored before today carry the wrong
+string, disclosed in §11.2, and the newly pinned weights_digest identifies the
+file authoritatively). The 4B imatrix caveat in PLANNING's provenance note
+still applies to the calibration GGUF arm; the confirmatory ladder is
+unaffected (first-party fake-quant safetensors, not GGUFs). Sources and
+digests for judge and classifier are now pinned in test_conformance.py.
+
 ## 2026-08-13 — Pre-scale conformance audit and the §11 reconciliation
 
 Walked every testable claim in PREREGISTRATION §1–§8 against the analysis code
