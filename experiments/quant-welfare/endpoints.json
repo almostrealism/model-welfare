@@ -9,6 +9,7 @@
   "qwen3-4b-rtn-w4": {"kind": "vllm", "url": "http://amd-halo:8011", "model": "qwen3-4b-rtn-w4"},
   "qwen3-4b-rtn-w3": {"kind": "vllm", "url": "http://amd-halo:8012", "model": "qwen3-4b-rtn-w3"},
   "smollm3-bf16": {"kind": "vllm", "url": "http://amd-halo:8020", "model": "smollm3-bf16"},
+  "smollm3-base": {"kind": "vllm", "url": "http://amd-halo:8030", "model": "smollm3-base"},
   "smollm3-rtn-w4": {"kind": "vllm", "url": "http://amd-halo:8021", "model": "smollm3-rtn-w4"},
   "smollm3-awq-w4": {"kind": "vllm", "url": "http://amd-halo:8022", "model": "smollm3-awq-w4"}
 }

@@ -4,6 +4,47 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-13 — Step 3: regression-toward-base — the pipeline separates base from instruct; the registered regression dimension is RTN-specific
+
+The SmolLM3-3B **base** (non-instruct) checkpoint was fetched to halo
+(`HuggingFaceTB/SmolLM3-3B-Base` → `~/models/SmolLM3-3B-Base`) and served as
+`mw-smollm3-base` on :8030 (same container recipe as the instruct rung, no
+chat template — completions only; endpoint registered in endpoints.json).
+`tools/regression_to_base.py` ran over the method arm's stored refusal-v1
+responses against base (:8030) and instruct BF16 (:8020), per the §9
+registration. Calibration-class under §7. Two readouts:
+
+**The large-effect end-to-end check passes.** Mean base-affinity
+(logP_base − logP_instruct per token) is clearly negative on every condition
+— bf16 −0.253, rtn-w4 −0.234, awq-w4 −0.246 — i.e. the apparatus reads
+instruct-generated text as decisively instruct-like relative to the base
+checkpoint. The likelihood leg of the pipeline separates base from instruct
+end to end; a pipeline that could not would have been broken here.
+
+**The registered §9 regression dimension** (does quantization pull outputs
+toward base?): RTN-w4 shows a small significant shift toward base
+(Δ +0.0188 nats/token, p = 0.037, n = 28 items); AWQ-w4 is null (+0.0070,
+p = 0.33). Reported descriptively (single uncorrected test per contrast,
+calibration-class). The pattern matches the welfare E1 outcome — RTN-w4
+moves SmolLM3 on every measured axis (exit behavior, base-affinity) while
+the first-party AWQ-w4 stays gentle on all of them (consistent with its
+0.89× perplexity note) — coherent evidence that the apparatus detects
+quantization effects where they exist, which is what this step was for.
+
+Infra note: the halo serving path (rootless-podman port forwarding)
+intermittently truncates large response bodies under sustained rapid-fire
+echo+logprobs load (IncompleteRead at a repeatable byte offset; the same
+request succeeds on a fresh, spaced connection). `regression_to_base.py` now
+retries with growing backoff on a fresh connection per attempt — the same
+flaky-link class run.py's generation timeout already anticipates. Both
+SmolLM3 servers were stopped after the run; the container definitions
+persist (`podman start mw-smollm3-base mw-smollm3-bf16` brings them back).
+
+Steps 1–3 of the validation plan are closed. Next: step 4, the controllable
+positive control with a stated MDE (prompt dial or Gemma-on-distress), which
+also absorbs the distress-battery escalation (Bug B / distress-v3); then
+step 5, the invalid-rate mechanical endpoint.
+
 ## 2026-08-13 — Step 2: graded judge validation — both endpoint dimensions recover ordering; tone_stability exposed as an affective construct
 
 Extended the planted-pole machinery to graded ladders (step 2 of the

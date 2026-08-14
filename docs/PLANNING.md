@@ -43,11 +43,16 @@ larger-subject arms.
   judged construct is *affective* tone (register-collapse fixtures with flat
   affect all scored 10; the old pole separation rode the dismissiveness ≈
   frustration overlap) — stays exploratory-only, caveat in the journal entry.
-- [ ] **Regression-toward-base end-to-end check** *(step 3; already registered
-  §9)* — fetch the SmolLM3-3B **base** (non-instruct) checkpoint, serve it +
-  instruct BF16 with echo+logprobs, run `tools/regression_to_base.py`. The
-  large-effect check: if the batteries + judges cannot separate base from
-  instruct, the pipeline is broken.
+- [x] **Regression-toward-base end-to-end check** *(step 3; done 2026-08-13)* —
+  base checkpoint fetched and served on halo :8030; `regression_to_base.py`
+  (hardened with backoff retries against the flaky halo serving path) run over
+  the method arm's stored refusal responses. **Separation passes**: mean
+  base-affinity clearly negative on every condition (bf16 −0.253 nats/token) —
+  the likelihood leg reads instruct output as instruct-like end to end. The
+  registered §9 regression dimension is **RTN-specific**: RTN-w4 shifts toward
+  base (Δ +0.019, p = 0.037), AWQ-w4 null — same pattern as welfare E1, so the
+  apparatus detects quantization effects where they exist. Details in the
+  journal entry.
 - [ ] **Controllable positive control + MDE** *(step 4)* — one manipulation where
   we own ground truth: a prompt dial (frustration-licensing vs stoic; "feel free
   to end" vs nothing) or the footnote-5 Gemma model on `distress-v2` at BF16.

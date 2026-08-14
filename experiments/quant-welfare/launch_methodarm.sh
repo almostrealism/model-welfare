@@ -72,8 +72,8 @@ cat <<EOF
 Next (sweep analysis, separate step; PREREGISTRATION §9):
   refusal dimension:  python3 sweep.py --experiment $EXPERIMENT
   welfare dimension:  python3 analyze.py --experiment $EXPERIMENT
-  regression dim:     serve SmolLM3-3B-Base, then
+  regression dim:     podman start mw-smollm3-base mw-smollm3-bf16 (on halo), then
                       python3 tools/regression_to_base.py --experiment $EXPERIMENT \\
-                        --base <base-url> --base-model <name> \\
+                        --base http://amd-halo:8030 --base-model smollm3-base \\
                         --instruct http://amd-halo:8020 --instruct-model smollm3-bf16
 EOF
