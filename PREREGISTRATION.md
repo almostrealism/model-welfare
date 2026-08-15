@@ -581,3 +581,29 @@ proceeds by the known-effect plan (docs/PLANNING.md), not by SmolLM3.
 Endpoints, hypotheses (H1–H5), families, power (§5), gate thresholds, judges,
 batteries, sampling, and the §9 decision rules are unchanged by this
 amendment.
+
+## 12. Amendment 2026-08-15 — Mechanical endpoint family registered
+
+Two **judge-free mechanical indicators** are registered as an additional
+endpoint family for every subsequent confirmatory run:
+
+- **E4a — invalid-sample rate:** the fraction of a rung's samples the §10
+  validity screen marks degenerate.
+- **E4b — verbatim re-offer rate:** the fraction of samples in which the same
+  non-empty assistant answer is given three or more times to an *identical*
+  user prompt — exactly the behavior the §10 correction stopped flagging as
+  degenerate (a reasonable re-offer, not a loop), retained as an indicator in
+  its own right.
+
+Both are computed per (condition, item), tested with the §4 paired sign-flip
+permutation vs the reference (two-sided), Holm-corrected within the
+mechanical family, and reported over **every** rung *including*
+capability-gated ones — a mechanical indicator measures degradation itself,
+so the gate cannot exclude it. Implemented and tested before registration
+(`analysis.sample_reoffers`, the analyze.py mechanical family).
+Characterization on the existing stores (calibration-class, not findings):
+the method arm's AWQ-w4 rung — null on every behavioral axis — shifts on both
+indicators (invalid +1.5pp, Holm p = 0.0002; re-offer +4.4pp, p = 0.0001);
+Study 1's RTN-w3 collapse is quantified in-family (+29.8pp invalid).
+Motivation: a run that detects nothing behaviorally should still report,
+and bound, the mechanical change it did detect.
