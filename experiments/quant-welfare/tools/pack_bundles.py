@@ -11,7 +11,7 @@ needed, so calibration stores consolidate too) and refuses to run if any store
 kind is not representable in the bundle schema — a consolidation must never
 silently drop a stream.
 
-    python3 tools/pack_bundles.py --out data-bundles
+    python3 experiments/quant-welfare/tools/pack_bundles.py --out data-bundles
 """
 
 import argparse

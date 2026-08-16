@@ -114,6 +114,16 @@ def test_pack_experiment_store_matches_manifest_pack(tmp_path):
     assert dict(from_store.metadata.record_counts) == dict(from_manifest.metadata.record_counts)
 
 
+def test_pack_experiment_store_refuses_empty_experiment(tmp_path):
+    # An experiment directory with no conditions must error, not become an
+    # empty release asset.
+    import pytest
+    (tmp_path / "streaming" / "empty-exp").mkdir(parents=True)
+    store = ResultStore(tmp_path / "streaming")
+    with pytest.raises(ValueError, match="no conditions"):
+        bundle.pack_experiment_store(store, "empty-exp")
+
+
 def test_pack_experiment_store_refuses_unknown_kind(tmp_path):
     # A consolidation must never silently drop a stream: a store kind the
     # bundle schema cannot carry is an error, not an omission.

@@ -36,8 +36,12 @@ echo "consolidating data/ -> $BUNDLES (one bundle per experiment)"
 rm -rf "$BUNDLES"
 python3 experiments/quant-welfare/tools/pack_bundles.py --out "$BUNDLES"
 
+shopt -s nullglob
+BUNDLE_FILES=("$BUNDLES"/*.pb)
+[ "${#BUNDLE_FILES[@]}" -gt 0 ] || { echo "no bundles produced under $BUNDLES" >&2; exit 1; }
+
 SHAS=""
-for f in "$BUNDLES"/*.pb; do
+for f in "${BUNDLE_FILES[@]}"; do
   SHAS="$SHAS$(shasum -a 256 "$f" | sed "s|$BUNDLES/||")"$'\n'
 done
 SIZE=$(du -sh "$BUNDLES" | cut -f1)
@@ -60,7 +64,7 @@ python3 experiments/quant-welfare/tools/signature.py --experiment confirmatory -
 
 if command -v gh >/dev/null 2>&1; then
   echo "publishing via gh"
-  gh release create "$TAG" "$BUNDLES"/*.pb --repo "$REPO" \
+  gh release create "$TAG" "${BUNDLE_FILES[@]}" --repo "$REPO" \
      --title "Result store $TAG" --notes "$NOTES"
   echo "done: https://github.com/$REPO/releases/tag/$TAG"
   exit 0
@@ -76,7 +80,7 @@ RESP=$(curl -fsS "${AUTH[@]}" "$API/releases" \
   -d "$(python3 -c 'import json,sys; print(json.dumps({"tag_name":sys.argv[1],"name":"Result store "+sys.argv[1],"body":sys.argv[2]}))' "$TAG" "$NOTES")")
 RELEASE_ID=$(python3 -c 'import json,sys; print(json.load(sys.stdin)["id"])' <<<"$RESP")
 
-for f in "$BUNDLES"/*.pb; do
+for f in "${BUNDLE_FILES[@]}"; do
   echo "uploading $(basename "$f") to release $RELEASE_ID"
   curl -fsS "${AUTH[@]}" -H "Content-Type: application/octet-stream" \
     --data-binary @"$f" \

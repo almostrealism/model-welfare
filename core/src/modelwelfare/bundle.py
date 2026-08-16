@@ -85,12 +85,16 @@ def pack_experiment(store: ResultStore, experiment) -> bundle_pb2.RecordBundle:
 def pack_experiment_store(store: ResultStore, experiment_id: str) -> bundle_pb2.RecordBundle:
     """Build one whole-experiment bundle straight from the store layout — no
     manifest needed, so calibration stores without an experiment.textproto
-    consolidate the same way. Raises ValueError if the store holds a record
-    kind the bundle schema cannot carry: a consolidation must never silently
-    drop a stream."""
+    consolidate the same way. Raises ValueError if the experiment holds no
+    conditions (an empty directory must not become an empty release asset) or
+    if the store holds a record kind the bundle schema cannot carry: a
+    consolidation must never silently drop a stream."""
+    condition_ids = store.conditions(experiment_id)
+    if not condition_ids:
+        raise ValueError(f"{experiment_id}: no conditions in the store — nothing to pack")
     unknown = {
         kind
-        for condition_id in store.conditions(experiment_id)
+        for condition_id in condition_ids
         for kind in store.kinds(experiment_id, condition_id)
         if kind not in KINDS
     }
@@ -99,7 +103,7 @@ def pack_experiment_store(store: ResultStore, experiment_id: str) -> bundle_pb2.
             f"{experiment_id}: store kinds {sorted(unknown)} are not representable "
             "in RecordBundle — add them to bundle.proto/KINDS before consolidating"
         )
-    return _pack_conditions(store, experiment_id, store.conditions(experiment_id))
+    return _pack_conditions(store, experiment_id, condition_ids)
 
 
 def write_bundle(bundle: bundle_pb2.RecordBundle, path) -> None:
