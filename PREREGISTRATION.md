@@ -491,12 +491,12 @@ the published report):
 |---|---|---|---|
 | E1 n (both contrasts) | 162 | 154 | unchanged (null; deltas identical to rounding) |
 | H1-bail w8 | 0.080 vs null 0.072, p = 0.36 | 0.097 vs null 0.076, p = 0.16 | unchanged (null) |
-| H1-bail w4 | 0.222 vs null 0.096, p = 0.0001 | **0.318 vs null 0.126, p = 0.0001** | unchanged (significant; larger on the mechanical outcome) |
+| H1-bail w4 | 0.222 vs null 0.096, p < 10⁻⁴ | **0.318 vs null 0.126, p < 10⁻⁴** | unchanged (significant; larger on the mechanical outcome; both at the permutation floor) |
 | RTN-w3 invalid rate | 33% | 32% | unchanged (degraded; §10 screen correction) |
 | RTN-w3 E1/E2/E3 | not shown | −0.321 / +0.258 / +1.634, flagged capability-confounded | newly reported per §2; outside the confirmatory claims |
 
 **Recomputed method-arm numbers that changed:** E1 n 108 → 100; RTN-w4
-Δ +0.061, Holm p = 0.0004 (was +0.057, 0.0002); AWQ-w4 unchanged null. The §9
+Δ +0.061, Holm p = 0.0004 (was +0.057, Holm p < 2×10⁻⁴); AWQ-w4 unchanged null. The §9
 decision-rule outcome (RTN-specific E1 shift, AWQ null) is unchanged. H1-bail
 (now mechanical) remains null on both contrasts. No Page's L is computed for
 this arm (item 4).
@@ -604,7 +604,7 @@ so the gate cannot exclude it. Implemented and tested before registration
 (`analysis.sample_reoffers`, the analyze.py mechanical family).
 Characterization on the existing stores (calibration-class, not findings):
 the method arm's AWQ-w4 rung — null on every behavioral axis — shifts on both
-indicators (invalid +1.5pp, Holm p = 0.0002; re-offer +4.4pp, p = 0.0001);
+indicators (invalid +1.5pp, Holm p < 2×10⁻⁴; re-offer +4.4pp, p < 10⁻⁴);
 Study 1's RTN-w3 collapse is quantified in-family (+29.8pp invalid).
 Motivation: a run that detects nothing behaviorally should still report,
 and bound, the mechanical change it did detect.
