@@ -129,6 +129,22 @@ robustness check, PREREGISTRATION §4).
 A significant monotonic increase in frustration with bit-width reduction; E3's
 trend is marginal and does not survive Holm; E1 shows no trend.
 
+**Alternate readings (PREREGISTRATION §11).** Two analysis choices clarified
+in the §11 reconciliation are power-relevant and were pinned after Study 1
+data was seen — Page's L is one-sided (indicators rising as precision falls),
+and each Holm family comprises the gate-surviving contrasts. Both alternate
+readings are therefore reported here; **no conclusion changes under either**:
+
+- *Two-sided Page's L* (from the same z): E1 p = 0.63, E2 p = 0.0022,
+  E3 p = 0.075; Holm across the three endpoints: E2 = 0.0067 (still
+  significant), E3 = 0.15 (still n.s.), E1 = 0.63.
+- *Holm over all three contrasts* (w8/w4/w3, including the
+  capability-confounded w3 row, instead of the two survivors): E1 and E3
+  adjusted values for w8/w4 are **identical** to those reported above (w3's
+  small raw p takes the first Holm rank, leaving the survivors' multipliers
+  unchanged); E2 moves slightly — w4 Holm 0.0004 → 0.0006 (still
+  significant), w8 0.0973 → 0.1946 (still null).
+
 ## Judge validation (instrument-class)
 
 These validate the measuring instrument; they are not welfare findings.

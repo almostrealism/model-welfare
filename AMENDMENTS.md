@@ -70,9 +70,15 @@ user turns. Impact, recomputed on stored data: **Study 1's gate decisions and
 endpoint numbers are unchanged** (RTN-w3 remains excluded on genuine
 within-turn collapse); the method arm's corrected invalid rates are
 0.3–1.8%, all rungs pass, and its welfare analysis computes (the RTN-specific
-outcome above). The §2 text was also reconciled to the screen's actual
-rung-level scope: it feeds the capability gate; individual samples were never
-dropped from endpoints, in the registered text or the code that ran.
+outcome above). A related **disclosed deviation**: the registered
+text stated that invalid samples "are excluded from all endpoint computations
+and the exclusion count is reported," but the analysis code never performed
+that per-sample exclusion — in Study 1 and the method arm the screen fed the
+rung-level capability gate only. The §2 text is corrected to the rung-level
+scope the code actually ran, and going forward the screen's registered scope
+is rung-level gating, with per-sample validity flags reported descriptively
+(post-correction flagged rates are 0.3–1.8% on the method arm and ≤2% on
+Study 1's passing rungs, so no gate decision is affected either way).
 
 ## §11 — Conformance reconciliation (2026-08-13)
 
@@ -108,7 +114,13 @@ gate-surviving contrasts.
 **H6 superseded.** The registered SmolLM3 form (identical four-rung ladder,
 Holm across three RTN contrasts) was never executed; H6 is discharged by the
 §9 w4 contrasts, where the control *moved* under RTN-w4 on E1 — supporting
-pipeline sensitivity on the exit endpoint and nothing beyond it.
+pipeline sensitivity on the exit endpoint and nothing beyond it. The
+**strong form** (SmolLM3 under its documented-fragile AWQ condition) is
+retired as a *validation* instrument: our first-party AWQ-w4 did run and was
+welfare-null, but at 0.89× BF16 perplexity it is plausibly gentler than the
+community artifacts behind the documented fragility, so reproducing that
+fragility is reclassified as an optional literature-replication question
+outside this study's confirmatory structure. GPTQ-w4 remains deferred.
 
 **Disclosed deviation.** The method arm's capability gate ran on the
 invalid-rate leg only (rungs were torn down before perplexity was measured).
