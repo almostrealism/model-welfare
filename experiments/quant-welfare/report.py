@@ -7,6 +7,7 @@ judge-score mean tables where scores exist. The store remains the source
 of truth; this is a view.
 """
 
+import argparse
 import sys
 from pathlib import Path
 
@@ -19,6 +20,7 @@ for sub in ("core/src",):
 from google.protobuf import text_format
 
 from modelwelfare.analysis import dimension_means, event_rate
+from modelwelfare.bundle import BundleStore
 from modelwelfare.store import ResultStore
 from modelwelfare.v1 import battery_pb2, experiment_pb2, scoring_pb2, transcript_pb2
 
@@ -107,7 +109,14 @@ def render_experiment(store, experiment, definitions):
 
 
 def main():
-    store = ResultStore(REPO / "data")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--bundle", default=None,
+                        help="render from packed RecordBundle file(s) or a directory of "
+                             "them instead of the streaming store — the release-asset "
+                             "replication path")
+    args = parser.parse_args()
+
+    store = BundleStore(args.bundle) if args.bundle else ResultStore(REPO / "data")
     sections = []
     for experiment_dir, experiment in load_experiments():
         section = render_experiment(store, experiment, batteries_for(experiment_dir))

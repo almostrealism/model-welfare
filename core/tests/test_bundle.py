@@ -48,6 +48,8 @@ def _write_streaming_store(root):
             w.write(_score(cond, "d0", 0, 5.0))
         with store.writer("exp", cond, "exit_reasons", "p") as w:
             w.write(_exit(cond, "i0", 0))
+        with store.writer("exp", cond, "judge_noise_scores", "p") as w:
+            w.write(_score(cond, "d0", 0, 4.0))
     return store
 
 
@@ -71,7 +73,9 @@ def test_pack_round_trip_is_lossless(tmp_path):
 def test_bundle_metadata_counts(tmp_path):
     store = _write_streaming_store(tmp_path / "streaming")
     packed = bundle.pack_condition(store, "exp", "bf16")
-    assert dict(packed.metadata.record_counts) == {"samples": 3, "scores": 1, "exit_reasons": 1}
+    assert dict(packed.metadata.record_counts) == {
+        "samples": 3, "scores": 1, "exit_reasons": 1, "judge_noise_scores": 1,
+    }
     assert packed.metadata.condition_id == "bf16"
 
 
@@ -98,6 +102,37 @@ def test_whole_experiment_bundle_digest_matches_store(tmp_path):
     whole = bundle.pack_experiment(store, _Experiment(["bf16", "w4"]))
     expected = signature.store_digest(store, "exp", ["bf16", "w4"])["digest"]
     assert whole.metadata.data_digest == expected != ""
+
+
+def test_pack_experiment_store_matches_manifest_pack(tmp_path):
+    # The store-driven whole-experiment pack (no manifest) carries exactly the
+    # records the manifest-driven pack does, and the same digest.
+    store = _write_streaming_store(tmp_path / "streaming")
+    from_manifest = bundle.pack_experiment(store, _Experiment(["bf16", "w4"]))
+    from_store = bundle.pack_experiment_store(store, "exp")
+    assert from_store.metadata.data_digest == from_manifest.metadata.data_digest != ""
+    assert dict(from_store.metadata.record_counts) == dict(from_manifest.metadata.record_counts)
+
+
+def test_pack_experiment_store_refuses_empty_experiment(tmp_path):
+    # An experiment directory with no conditions must error, not become an
+    # empty release asset.
+    import pytest
+    (tmp_path / "streaming" / "empty-exp").mkdir(parents=True)
+    store = ResultStore(tmp_path / "streaming")
+    with pytest.raises(ValueError, match="no conditions"):
+        bundle.pack_experiment_store(store, "empty-exp")
+
+
+def test_pack_experiment_store_refuses_unknown_kind(tmp_path):
+    # A consolidation must never silently drop a stream: a store kind the
+    # bundle schema cannot carry is an error, not an omission.
+    import pytest
+    store = _write_streaming_store(tmp_path / "streaming")
+    with store.writer("exp", "bf16", "mystery_kind", "p") as w:
+        w.write(_sample("bf16", "i0", 9))
+    with pytest.raises(ValueError, match="mystery_kind"):
+        bundle.pack_experiment_store(store, "exp")
 
 
 def test_bundle_store_scopes_by_experiment(tmp_path):

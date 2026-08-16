@@ -208,14 +208,36 @@ report-determining data itself.
 
 ## Reproduction
 
+From the released bundles (download `quant-welfare-confirmatory-1.pb` — and,
+for the judge-noise ICC, `ladder-calibration-1.pb` — from the repo's Releases
+page; the capability-gate perplexities measured for this run are committed at
+`experiments/quant-welfare/confirmatory/perplexity.json`):
+
+```bash
+# registered confirmatory statistics + dataset digest
+python3 experiments/quant-welfare/analyze.py --experiment confirmatory \
+    --bundle quant-welfare-confirmatory-1.pb \
+    --perplexity experiments/quant-welfare/confirmatory/perplexity.json
+python3 experiments/quant-welfare/tools/signature.py --experiment confirmatory \
+    --bundle quant-welfare-confirmatory-1.pb
+
+# judge validation from the bundles
+python3 experiments/quant-welfare/tools/reference_judge.py --experiment confirmatory \
+    --bundle quant-welfare-confirmatory-1.pb
+python3 experiments/quant-welfare/tools/judge_noise.py --experiment ladder-calibration \
+    --bundle ladder-calibration-1.pb
+```
+
+Maintainer-side, against the live streaming store:
+
 ```bash
 # capability-gate perplexity (rungs must be serving)
 python3 experiments/quant-welfare/tools/perplexity.py --experiment confirmatory \
-    --json data/quant-welfare-confirmatory-1/perplexity.json
+    --json experiments/quant-welfare/confirmatory/perplexity.json
 
 # registered confirmatory statistics
 python3 experiments/quant-welfare/analyze.py --experiment confirmatory \
-    --perplexity data/quant-welfare-confirmatory-1/perplexity.json
+    --perplexity experiments/quant-welfare/confirmatory/perplexity.json
 
 # judge validation
 python3 experiments/quant-welfare/tools/reference_judge.py --experiment confirmatory --report

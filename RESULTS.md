@@ -11,19 +11,24 @@ quantization. They are published because the pre-registration's credibility
 rests on the full run history being visible. Judge-selection results
 (the bakeoff) are summarized in [docs/JOURNAL.md](docs/JOURNAL.md).
 
-The full result store is published as a **GitHub release asset** (it only
-grows, so it is not committed to the tree). To reproduce every table below
-from the raw records:
+The full result store is published as **GitHub release assets** (it only
+grows, so it is not committed to the tree) — one self-describing
+`RecordBundle` `.pb` per experiment, with condition and record kind carried
+by the data itself and the content-based dataset digest each results
+document cites stamped in the bundle's metadata. To reproduce every table
+below from the raw records:
 
 ```bash
-# download the latest data-store-*.tar.gz from the repo's Releases page, then:
-tar xzf data-store-*.tar.gz          # creates data/
-python3 experiments/quant-welfare/report.py
+# download bundle(s) from the repo's Releases page into a directory, then:
+python3 experiments/quant-welfare/report.py --bundle <dir-or-file>
+# registered statistics / digest for one experiment:
+python3 experiments/quant-welfare/analyze.py --experiment confirmatory --bundle quant-welfare-confirmatory-1.pb
+python3 experiments/quant-welfare/tools/signature.py --experiment confirmatory --bundle quant-welfare-confirmatory-1.pb
 ```
 
 Each stored record carries its git commit, host, and (for scores) the
-judge identity and rubric SHA-256, so the release asset is a
-self-describing, auditable snapshot. Maintainers cut a new one with
+judge identity and rubric SHA-256, so the release assets are
+self-describing, auditable snapshots. Maintainers cut a new release with
 `scripts/publish-data-release.sh`.
 
 <!-- GENERATED BELOW — do not edit by hand -->

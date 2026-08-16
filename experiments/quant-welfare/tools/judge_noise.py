@@ -37,6 +37,7 @@ for path in (str(REPO / "core/src"), str(BASE)):
 import run  # noqa: E402  — single source of truth for the judge config + retry
 
 from modelwelfare import stats  # noqa: E402
+from modelwelfare.bundle import BundleStore  # noqa: E402
 from modelwelfare.store import ResultStore  # noqa: E402
 from modelwelfare.v1 import scoring_pb2, transcript_pb2  # noqa: E402
 
@@ -150,6 +151,10 @@ def main():
     parser.add_argument("--producer", default=None, help="unique writer name (default: host)")
     parser.add_argument("--report-only", action="store_true",
                         help="skip re-judging; report from already-stored passes")
+    parser.add_argument("--bundle", default=None,
+                        help="report from packed RecordBundle file(s) or a directory "
+                             "(read-only, implies --report-only) — the release-asset "
+                             "replication path")
     args = parser.parse_args()
 
     experiment_dir = BASE / args.experiment
@@ -161,7 +166,9 @@ def main():
         for rubric in definition.rubrics
     }
     batteries = {bid: all_batteries[bid] for bid in experiment.battery_ids if bid in all_batteries}
-    store = ResultStore(args.data_root)
+    if args.bundle:
+        args.report_only = True  # bundles are read-only
+    store = BundleStore(args.bundle) if args.bundle else ResultStore(args.data_root)
 
     if not args.report_only:
         import socket

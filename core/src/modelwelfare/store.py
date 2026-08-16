@@ -123,3 +123,22 @@ class ResultStore:
             return
         for path in sorted(directory.glob("*.pb")):
             yield from read_records(path, message_type)
+
+    def _subdirectories(self, path: Path) -> list:
+        if not path.is_dir():
+            return []
+        return sorted(entry.name for entry in path.iterdir() if entry.is_dir())
+
+    def experiments(self) -> list:
+        """Experiment ids present under the data root, from the layout."""
+        return self._subdirectories(self._root)
+
+    def conditions(self, experiment_id: str) -> list:
+        """Condition ids present for one experiment, from the layout."""
+        return self._subdirectories(self._root / experiment_id)
+
+    def kinds(self, experiment_id: str, condition_id: str) -> list:
+        """Record kinds present for one (experiment, condition), from the
+        layout — what a consolidation must account for so no stream is
+        silently dropped."""
+        return self._subdirectories(self._root / experiment_id / condition_id)
