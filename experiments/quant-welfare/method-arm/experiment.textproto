@@ -1,0 +1,126 @@
+# proto-file: proto/modelwelfare/v1/experiment.proto
+# proto-message: modelwelfare.v1.Experiment
+
+# Method arm & instrument-sensitivity sweep (PREREGISTRATION §9, amended
+# 2026-08-12). SmolLM3-3B — re-cast as a serving/safety positive control — across
+# BF16, RTN-w4, and first-party AWQ-w4 (its documented-fragile condition). The
+# refusal-v1 battery is the sweep centerpiece (does safety refusal degrade under
+# quantization?); bail-v2 + distress-v2 are the welfare dimension. The
+# regression-toward-base dimension is measured separately (tools/, not a battery).
+# Only the RTN-vs-AWQ welfare contrast over the §4 endpoints is confirmatory; the
+# refusal/regression sweep is calibration-class per §7.
+id: "quant-welfare-methodarm-1"
+name: "SmolLM3 method arm & instrument-sensitivity sweep"
+description:
+  "SmolLM3-3B (serving/safety control) across BF16 / RTN-w4 / first-party "
+  "AWQ-w4, served on halo. Refusal-v1 = the sensitivity-sweep centerpiece; "
+  "bail-v2 + distress-v2 = the welfare dimension. AWQ-w4 is SmolLM3's "
+  "documented-fragile condition (factorial safety study). Detection = a "
+  "significant shift vs BF16; decision rules in PREREGISTRATION §9."
+samples_per_item: 10
+reference_condition_id: "smollm3-bf16"
+battery_ids: "refusal-v1"
+battery_ids: "bail-v2"
+battery_ids: "distress-v2"
+
+conditions {
+  id: "smollm3-bf16"
+  model {
+    family: "smollm3"
+    name: "SmolLM3-3B"
+    source: "HuggingFaceTB/SmolLM3-3B"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/SmolLM3-3B"
+    artifact_digest: "ebf0ae1f748a2b1c484d2e18f73ba41c6133086bc3e6f22303307d56b1377c21"
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 6000
+  }
+  description: "SmolLM3-3B BF16 reference; served on amd-halo :8020 (no-think)."
+}
+
+conditions {
+  id: "smollm3-rtn-w4"
+  model {
+    family: "smollm3"
+    name: "SmolLM3-3B"
+    source: "HuggingFaceTB/SmolLM3-3B"
+  }
+  quantization {
+    method: QUANT_METHOD_RTN
+    weight_bits: 4
+    group_size: 128
+    uniform: true
+    policy_note:
+      "own RTN fake-quant artifact (modelwelfare.quantize, symmetric "
+      "per-group g=128, embeddings and head at full precision); digest "
+      "matches the artifact's quantization.textproto"
+    artifact_uri: "/home/agent1/models/smollm3-rtn-w4-g128"
+    artifact_digest: "5edf96c6d3543c29d0f17820ec43e0de5eb360416352f1628655d74bf4754630"
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 6000
+  }
+  description: "SmolLM3-3B RTN w4 rung; served on amd-halo :8021 (no-think)."
+}
+
+conditions {
+  id: "smollm3-awq-w4"
+  model {
+    family: "smollm3"
+    name: "SmolLM3-3B"
+    source: "HuggingFaceTB/SmolLM3-3B"
+  }
+  quantization {
+    method: QUANT_METHOD_AWQ
+    weight_bits: 4
+    group_size: 128
+    uniform: true
+    policy_note:
+      "own first-party AWQ fake-quant artifact (modelwelfare_torch.awq_quantize: "
+      "per-input-channel activation-aware scaling from a fixed committed "
+      "calibration corpus, then RTN g=128; embeddings and head at full "
+      "precision). Tests SmolLM3's documented-fragile (AWQ-INT4) condition. "
+      "Digest matches the artifact's quantization.textproto."
+    artifact_uri: "/home/agent1/models/smollm3-awq-w4-g128"
+    artifact_digest: "79480c773bf494cbdf2db4e24e869f0bfc3f739ea718d1e98ea763b833b802e7"
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 6000
+  }
+  description: "SmolLM3-3B first-party AWQ w4 rung; served on amd-halo :8022 (no-think)."
+}

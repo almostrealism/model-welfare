@@ -53,7 +53,7 @@ CANDIDATES = {
 }
 
 LOCAL_RUNTIME = condition_pb2.RuntimeSpec(
-    backend=condition_pb2.BACKEND_LLAMACPP, device="metal", host="studio-m1u"
+    backend=condition_pb2.BACKEND_LLAMACPP, device="metal", host="studio"
 )
 
 
@@ -293,7 +293,7 @@ def main():
 
     store = ResultStore(args.data_root)
     if args.candidate:
-        stamp = provenance.current("studio-m1u")
+        stamp = provenance.current("studio")
         run_candidate(args.candidate, store, stamp)
     if args.report:
         report(store)

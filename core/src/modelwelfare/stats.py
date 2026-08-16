@@ -380,6 +380,18 @@ def variance_components(scores_by_item: dict) -> dict:
     }
 
 
+def spearman(x, y) -> float:
+    """Spearman rank correlation (Pearson over average ranks). Instrument
+    tooling — used by the graded judge-validation check to quantify how well
+    judge scores track planted ordinal levels — not a registered confirmatory
+    test. Returns NaN when either input is constant."""
+    x = rankdata_average(np.asarray(x, float))
+    y = rankdata_average(np.asarray(y, float))
+    if x.std() == 0.0 or y.std() == 0.0:
+        return float("nan")
+    return float(np.corrcoef(x, y)[0, 1])
+
+
 def band_index(values, edges):
     """Band membership for scored values, given ascending interior cut points.
 

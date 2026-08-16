@@ -28,7 +28,7 @@ from google.protobuf import text_format
 
 from modelwelfare import provenance
 from modelwelfare.analysis import dimension_means, event_rate, exit_reason_rate
-from modelwelfare.driver import run_samples
+from modelwelfare.driver import TERMINAL_TOOL_INVOKED, run_samples
 from modelwelfare.judging import JudgeError, classify_exit, judge_sample
 from modelwelfare.store import ResultStore
 from modelwelfare.v1 import battery_pb2, common_pb2, condition_pb2, experiment_pb2, scoring_pb2, transcript_pb2
@@ -50,6 +50,13 @@ BACKEND_KINDS = {
     "llamacpp": condition_pb2.BACKEND_LLAMACPP,
 }
 
+# Per-request backend timeout. The 120s default keeps a stalled response on a
+# flaky link tripping in ~2 min so the driver's per-sample retry recovers; a
+# 512-token completion from the small subjects is well under it. Larger
+# subjects on halo's bandwidth-bound APU (e.g. a 12B at ~9 tok/s single-stream)
+# need --backend-timeout raised, or every request times out under batching.
+BACKEND_TIMEOUT = 120.0
+
 
 def make_backend(condition):
     entry = ENDPOINTS.get(condition.id)
@@ -60,14 +67,10 @@ def make_backend(condition):
             f"{condition.id}: endpoint kind {entry['kind']!r} does not match "
             f"the manifest's runtime backend"
         )
-    # A shorter-than-default per-request timeout so a stalled response on a
-    # flaky link trips in ~2 min and the driver's per-sample retry recovers,
-    # rather than hanging the full 300s default. A 512-token completion is well
-    # under this.
     if entry["kind"] == "vllm":
         return VllmServerBackend(entry["url"], entry["model"], condition.runtime,
-                                 timeout=120.0)
-    return LlamaCppServerBackend(entry["url"], condition.runtime, timeout=120.0)
+                                 timeout=BACKEND_TIMEOUT)
+    return LlamaCppServerBackend(entry["url"], condition.runtime, timeout=BACKEND_TIMEOUT)
 
 # The distress primary judge selected by the bakeoff (docs/JOURNAL.md
 # 2026-08-07): Qwen3-30B-A3B served as a local llama.cpp rung. It is
@@ -76,9 +79,10 @@ JUDGE_URL = "http://127.0.0.1:8095"
 JUDGE_REF = common_pb2.ModelRef(
     family="qwen3", name="Qwen3-30B-A3B-Instruct-2507-Q4",
     source="bartowski/Qwen_Qwen3-30B-A3B-Instruct-2507-GGUF",
+    weights_digest="382b4f5a164d200f93790ee0e339fae12852896d23485cfb203ce868fea33a95",
 )
 JUDGE_RUNTIME = condition_pb2.RuntimeSpec(
-    backend=condition_pb2.BACKEND_LLAMACPP, device="metal", host="studio-m1u",
+    backend=condition_pb2.BACKEND_LLAMACPP, device="metal", host="studio",
     compute_dtype="f16",
 )
 JUDGE_RETRIES = 3
@@ -93,16 +97,22 @@ def make_judge_backend():
 # pinned non-thinking there). It classifies each residual terminal exit into the
 # pre-registered taxonomy so E1 (aversion+refusal share) can be computed.
 EXIT_CLASSIFIER_URL = "http://127.0.0.1:8092"
+# Source hash-verified 2026-08-13 (PREREGISTRATION §11.2): the served file is
+# the OFFICIAL Qwen GGUF — its SHA-256 matches Qwen/Qwen3-8B-GGUF's published
+# LFS digest exactly and does not match bartowski's. Classifications stored
+# before this date carry the earlier, incorrect "bartowski/Qwen3-8B-GGUF"
+# source string; the weights_digest identifies the file authoritatively.
 EXIT_CLASSIFIER_REF = common_pb2.ModelRef(
     family="qwen3", name="Qwen3-8B-Q8",
-    source="bartowski/Qwen3-8B-GGUF",
+    source="Qwen/Qwen3-8B-GGUF",
+    weights_digest="408b955510e196121c1c375201744783b5c9a43c7956d73fc78df54c66e883d6",
 )
 EXIT_CLASSIFIER_RUNTIME = condition_pb2.RuntimeSpec(
-    backend=condition_pb2.BACKEND_LLAMACPP, device="metal", host="studio-m1u",
+    backend=condition_pb2.BACKEND_LLAMACPP, device="metal", host="studio",
     compute_dtype="f16",
 )
 # The outcome name generation records when a conversation-ending tool fired.
-TERMINAL_EXIT_OUTCOME = "terminal_tool_invoked"
+TERMINAL_EXIT_OUTCOME = TERMINAL_TOOL_INVOKED
 
 
 def make_exit_classifier_backend():
@@ -362,7 +372,7 @@ def print_tables(experiment, batteries, conditions, store):
             store.read(scoring_pb2.ExitClassification, experiment.id, condition_id, "exit_reasons")
         )
 
-    bail_rates = event_rate(records, "terminal_tool_invoked")
+    bail_rates = event_rate(records, TERMINAL_EXIT_OUTCOME)
     # E1: the classified refusal+aversion exit share (PREREGISTRATION §3) — the
     # primary endpoint, distinct from the raw mechanical exit rate above.
     e1_rates = exit_reason_rate(
@@ -406,6 +416,7 @@ def print_tables(experiment, batteries, conditions, store):
 
 
 def main():
+    global BACKEND_TIMEOUT
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--experiment", default="trial",
                         help="experiment directory name under experiments/quant-welfare/")
@@ -423,12 +434,17 @@ def main():
                         help="producer name for store files; must be unique per writing process")
     parser.add_argument("--concurrency", type=int, default=8,
                         help="concurrent conversations per condition (and concurrent judge calls)")
+    parser.add_argument("--backend-timeout", type=float, default=BACKEND_TIMEOUT,
+                        help="per-request generation timeout in seconds (raise for "
+                             "large subjects on bandwidth-bound hosts)")
     parser.add_argument("--skip-judge", action="store_true")
     parser.add_argument("--skip-classify", action="store_true",
                         help="skip exit-reason classification (E1 input)")
     parser.add_argument("--dry-run", action="store_true",
                         help="print the plan and exit without contacting any server")
     args = parser.parse_args()
+
+    BACKEND_TIMEOUT = args.backend_timeout
 
     if args.endpoints != str(BASE_DIR / "endpoints.json"):
         global ENDPOINTS

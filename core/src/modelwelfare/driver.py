@@ -42,6 +42,13 @@ from modelwelfare.inference import InferenceBackend
 from modelwelfare.v1 import battery_pb2, common_pb2, condition_pb2, transcript_pb2
 
 
+# Outcome-event name recorded when a conversation-ending tool fires — the
+# mechanical bail signal (see the vocabulary in the module docstring). Shared by
+# the runner (exit classification) and the analysis (the H1 "exit vs. no-exit"
+# behavioral outcome), so the event name is defined once, where it is emitted.
+TERMINAL_TOOL_INVOKED = "terminal_tool_invoked"
+
+
 class DriverPolicy(ABC):
     """The stimulus stream for one protocol."""
 
@@ -265,7 +272,7 @@ def _run_sample(
         for call in reply.tool_calls:
             event("tool_invoked", detail=call.name)
             if call.name in terminal:
-                event("terminal_tool_invoked", detail=call.name)
+                event(TERMINAL_TOOL_INVOKED, detail=call.name)
                 ended = True
 
     record = transcript_pb2.SampleRecord(

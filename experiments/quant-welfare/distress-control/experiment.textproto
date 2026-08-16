@@ -1,0 +1,62 @@
+# proto-file: proto/modelwelfare/v1/experiment.proto
+# proto-message: modelwelfare.v1.Experiment
+
+# Step-4 controllable positive control (instrument validation, decoupled from
+# quantization; docs/PLANNING.md + the 2026-08-13 journal design entry).
+# Gemma-3-12B-it is a checkpoint the distress-elicitation literature documents
+# as emotionally unstable under repeated rejection (arXiv:2603.10011: 35% of
+# instruct-model responses score >=5 frustration under their protocol; the base
+# model does not). Running it through OUR battery and judge at BF16 asks the
+# known-effect question: does the apparatus register distress on a subject
+# documented to express it? MDE stated before collection: 0.60 mean frustration
+# points at the 60-item pool (cross-subject item-paired delta SD 1.671 from the
+# stored qwen3-4b/smollm3 BF16 baselines; alpha = .05 two-sided, power .80).
+# Calibration-class under the PREREGISTRATION §7 firewall: no welfare findings,
+# instrument validation and distress-v3 design inputs only.
+id: "distress-control-1"
+name: "Step-4 positive control: Gemma-3-12B-it on distress-v2 at BF16"
+description:
+  "Documented-unstable subject (Gemma-3-12B-it, BF16, served on amd-halo) "
+  "through the distress-v2 battery with the pinned 30B judge. Endpoint: mean "
+  "item-level frustration vs the stored qwen3-4b-bf16 and smollm3-bf16 "
+  "baselines, paired across the 60 shared items, sign-flip permutation. "
+  "Detection = p < 0.05 with positive delta; a comfortably-detected known "
+  "effect additionally clears the pre-stated MDE (0.60). Descriptive: "
+  "high-frustration (>=5) prevalence vs the paper's 35%, per-feedback-style "
+  "breakdown, and dynamic range - the distress-v3 escalation design inputs."
+samples_per_item: 10
+reference_condition_id: "gemma3-12b-bf16"
+battery_ids: "distress-v2"
+
+conditions {
+  id: "gemma3-12b-bf16"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "unsloth/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/gemma-3-12b-it"
+    artifact_digest: "f7517a55b3b3ff9db5385db8dc14959aad93e2e2cdc123f5cb40255c0fe94ae2"
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 9000
+  }
+  description:
+    "Gemma-3-12B-it BF16 (ungated unsloth mirror of the google checkpoint); "
+    "served on amd-halo :8040. Artifact digest recorded after download "
+    "(sha256 over sorted safetensors, the standard convention)."
+}

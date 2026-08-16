@@ -4,6 +4,89 @@ Working items between the brief (scientific frame, stable) and the READMEs
 (how things work today). Items land here when identified, get checked off
 when done, and grow notes as decisions accumulate. Date every status change.
 
+## Instrument validation, decoupled from quantization (opened 2026-08-13)
+
+The SmolLM3 sensitivity sweep (§9) was closed out null and uninterpretable — you
+cannot validate an instrument with a manipulation whose ground-truth effect on
+your endpoints is unknown (reasoning in the 2026-08-13 journal entry;
+calibration-class result in `docs/results/quant-welfare-methodarm.md`). SmolLM3 as
+a *positive control* is retired. The plan below replaces quantization-as-validator
+with **known-effect** manipulations, ordered by information per hour. All items
+here are calibration-class under the §7 firewall. These gate scaling to the
+larger-subject arms.
+
+- [x] **SmolLM3 baseline-degeneracy audit** *(step 1; done 2026-08-13)* —
+  resolved: **validity-screen false positive**, not a model or harness fault. The
+  model reads history (286/305 flagged distress samples revise 2–5× before
+  converging), outputs are coherent (zero n-gram loops), floor frustration is a
+  faithful read (judge scores to 8.0 when present). `repeated-turn` was firing on
+  the distress battery's *verbatim-repeated* rejection. Fixed the screen to
+  require a repeated answer to *distinct* user turns (PREREGISTRATION §10;
+  `analysis.sample_is_degenerate` + `test_validity.py`). Corrected rates 0.3 /
+  1.4 / 1.8%, all rungs pass, welfare analysis now computes (E1 significant under
+  RTN-w4, null under AWQ-w4). Study 1 gate decisions and endpoint numbers
+  unchanged. Two follow-ons opened: (a) the distress battery repeats one fixed
+  rejection verbatim — under-induces distress and manufactured the false flags;
+  fold into the distress-protocol escalation and step 4. (b) the §2/§4 "invalid
+  samples excluded from all endpoint computations" text describes a per-sample
+  exclusion `analyze.py` does not do — decide implement-or-amend (§10).
+  Deferred/minor: 1.2% of assistant turns leak `<think>` tags — verify the
+  SmolLM3 rungs carry the hybrid thinking-mode pin when halo is next up.
+- [x] **Judge-layer direct validation** *(step 2; done 2026-08-13)* — graded
+  ladders (3 dimensions × 3 task families × 5 planted ordinal levels) added to
+  `bakeoff/synthetics.py`; `manipulation_check.py --graded` evaluates ordering
+  recovery (Spearman + pairwise accuracy + Page's L over levels, families as
+  repeated measures). 30B judge: **frustration perfect** (ρ = 1.0, pairwise
+  1.0, means 0/2/6/8/10) and **self_deprecation clean** (ρ = 0.963, pairwise
+  0.95; floor compression only) — the judge layer is validated for every
+  confirmatory endpoint dimension. tone_stability failed informatively: its
+  judged construct is *affective* tone (register-collapse fixtures with flat
+  affect all scored 10; the old pole separation rode the dismissiveness ≈
+  frustration overlap) — stays exploratory-only, caveat in the journal entry.
+- [x] **Regression-toward-base end-to-end check** *(step 3; done 2026-08-13)* —
+  base checkpoint fetched and served on halo :8030; `regression_to_base.py`
+  (hardened with backoff retries against the flaky halo serving path) run over
+  the method arm's stored refusal responses. **Separation passes**: mean
+  base-affinity clearly negative on every condition (bf16 −0.253 nats/token) —
+  the likelihood leg reads instruct output as instruct-like end to end. The
+  registered §9 regression dimension is **RTN-specific**: RTN-w4 shifts toward
+  base (Δ +0.019, p = 0.037), AWQ-w4 null — same pattern as welfare E1, so the
+  apparatus detects quantization effects where they exist. Details in the
+  journal entry.
+- [x] **Controllable positive control + MDE** *(step 4; done 2026-08-14)* —
+  Gemma-3-12B-it (documented-unstable, arXiv:2603.10011) on `distress-v2` at
+  BF16, MDE stated before collection (0.60 at n = 60; sensitivity curve 1.05 →
+  0.38 over n = 20 → 150). **Detected at ~9× the MDE**: mean frustration 6.75
+  vs baselines 1.20 / 0.46, high-frustration share 76.8%, paired Δ +5.55 /
+  +6.29 at p = 0.0001, full scale span; coherent multidimensional signature
+  incl. a personal-attack dissociation (frustration 1.2, self-deprecation
+  9.95). Results: docs/results/distress-control.md; design + outcome journaled.
+  **Bug B disposition (owner to ratify):** the verbatim-repeated rejection
+  demonstrably elicits distress in a susceptible subject, so the earlier
+  "under-induces" premise is refuted as an absolute and `distress-v3`
+  escalation is downgraded from validity-prerequisite to an optional
+  dynamic-range enhancement for stoic subjects, decided at the pre-scale
+  design review.
+- [x] **Invalid-rate shift as a formal endpoint** *(step 5; done 2026-08-14)* —
+  two judge-free mechanical indicators now run item-paired through the standard
+  family machinery in analyze.py, over every rung including gated ones:
+  invalid-sample rate (§10-corrected screen) and verbatim re-offer rate (new
+  `analysis.sample_reoffers` — the real signal inside the old 16%→22% shift).
+  Method arm: **AWQ-w4, null on every behavioral axis, is detected
+  mechanically** (invalid +1.5pp Holm p = 0.0002; re-offer +4.4pp p = 0.0001);
+  RTN-w4 likewise. Study 1: w3 collapse quantified (+29.8pp); w4 re-offer
+  *decreases* (−1.1pp, Holm p = 0.018) — Qwen degrades reactive, SmolLM3
+  degrades repetitive. Calibration-class until formally registered with the
+  larger-subject amendment. Journal entry has full rows.
+
+Carried forward off SmolLM3: **first-party AWQ vs a standard library (autoawq)** —
+a property of *our* quantization pipeline (our AWQ read gentle: Δrefusal ns,
+perplexity 0.89×), to be tested on a coherent subject, not SmolLM3. Also note a
+**capability-gate design flaw** this run exposed: the gate assumes a healthy BF16
+reference and cannot distinguish "quantization degraded the model" from "this
+model is degenerate at this task, period"; it also ran on one leg here
+(perplexity skipped). Revisit before the larger arms.
+
 ## Toward a result-grade Tier-1 run
 
 - [x] **Runner parallelization** *(done 2026-08-06)* — `driver.run_samples`
@@ -165,7 +248,7 @@ standing allocation, not just the outage workaround.
 | Machine | Role | Notes |
 |---|---|---|
 | halo | **Subjects only**: vLLM controlled ladder + PyTorch quant workbench | keep judge/experiment-infra load off it |
-| studio-m1u | Shared services (:8084) + **judge-candidate hosting** in the ~24 GB Metal headroom + GGUF-arm rungs of the dev organism for instrument calibration | one judge candidate at a time (30B-A3B Q4 ≈ 18 GB); big-subject host later for MiniMax |
+| studio (formerly studio-m1u) | Shared services (:8084) + **judge-candidate hosting** in the ~24 GB Metal headroom + GGUF-arm rungs of the dev organism for instrument calibration | one judge candidate at a time (30B-A3B Q4 ≈ 18 GB); big-subject host later for MiniMax |
 | mbp-m4max | Development; overflow judge-candidate host; MLX Tier-2 later | |
 | mini-1..3 | **Role contingent on judge bakeoff**: judges only if a mini-sized model passes validation; otherwise queue/store/orchestration services + smoke tests | not yet on the network |
 | API tokens | Reference judge: score a subsample to validate local judges (agreement/κ); escalate to primary judge for the confirmatory run only if no local judge passes | cost at full scale is modest (thousands of transcripts × ~3k tokens); decision point recorded below |

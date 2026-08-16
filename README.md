@@ -156,7 +156,7 @@ table in sync with reality — records are joined and audited by these names.
 
 | Logical name | Machine | Runtimes | Role |
 |---|---|---|---|
-| `studio-m1u` | Mac Studio, M1 Ultra, 192 GB | llama.cpp, MLX | primary big-model host |
+| `studio` | Mac Studio, M1 Ultra, 192 GB | llama.cpp, MLX | primary big-model host (records before 2026-08-13 carry the former name `studio-m1u`) |
 | `halo` | Ryzen AI Max+, 128 GB | PyTorch (ROCm/CPU) | quantization workbench, hookable inference |
 | `mbp-m4max` | MacBook Pro M4 Max, 128 GB | MLX, llama.cpp | development, dev-organism work |
 | `mini-1`..`mini-3` | Mac mini M4, 16 GB | llama.cpp, MLX | judges, queue, result store, smoke tests |

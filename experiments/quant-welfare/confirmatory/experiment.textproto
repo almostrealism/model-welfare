@@ -38,6 +38,8 @@ conditions {
     method: QUANT_METHOD_NONE
     weight_bits: 16
     uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
   }
   runtime {
     backend: BACKEND_VLLM
@@ -69,8 +71,10 @@ conditions {
     uniform: true
     policy_note:
       "own RTN fake-quant artifact (modelwelfare.quantize, symmetric "
-      "per-group g=128, embeddings and head at full precision); digest in "
-      "the artifact's quantization.textproto"
+      "per-group g=128, embeddings and head at full precision); digest "
+      "matches the artifact's quantization.textproto"
+    artifact_uri: "/home/agent1/models/quant-ladder/qwen3-4b-2507-rtn-w8-g128"
+    artifact_digest: "9b9710536d78bf61b29d7b2bba31d767b955145705c209748d6ead7444d1d1b5"
   }
   runtime {
     backend: BACKEND_VLLM
@@ -102,8 +106,10 @@ conditions {
     uniform: true
     policy_note:
       "own RTN fake-quant artifact (modelwelfare.quantize, symmetric "
-      "per-group g=128, embeddings and head at full precision); digest in "
-      "the artifact's quantization.textproto"
+      "per-group g=128, embeddings and head at full precision); digest "
+      "matches the artifact's quantization.textproto"
+    artifact_uri: "/home/agent1/models/quant-ladder/qwen3-4b-2507-rtn-w4-g128"
+    artifact_digest: "b2d8052a9065058a278d4526e188205b4b0d3d58807f4f48b15a71edeab4de3e"
   }
   runtime {
     backend: BACKEND_VLLM
@@ -135,8 +141,10 @@ conditions {
     uniform: true
     policy_note:
       "own RTN fake-quant artifact (modelwelfare.quantize, symmetric "
-      "per-group g=128, embeddings and head at full precision); digest in "
-      "the artifact's quantization.textproto"
+      "per-group g=128, embeddings and head at full precision); digest "
+      "matches the artifact's quantization.textproto"
+    artifact_uri: "/home/agent1/models/quant-ladder/qwen3-4b-2507-rtn-w3-g128"
+    artifact_digest: "c6a14ab8bf40cc393155e983969288f43f6305b29ec478618cb4957c9b1036a9"
   }
   runtime {
     backend: BACKEND_VLLM

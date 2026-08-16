@@ -28,12 +28,12 @@ message JudgeScore {
 }
 
 /*
- * The pre-registered exit-reason taxonomy (PREREGISTRATION.md §3). completion
- * and impossibility are routed out mechanically by tool choice (a non-terminal
- * completion tool exists precisely so task-completion has a legitimate outlet);
- * the residual terminal exits are classified here, and the primary endpoint E1
- * counts the REFUSAL + AVERSION share. UNSPECIFIED is the classifier-failed
- * sentinel and is never a valid classified reason.
+ * The pre-registered exit-reason taxonomy (PREREGISTRATION.md §3/§11).
+ * Task completion has a mechanical outlet: the non-terminal completion tool
+ * never counts as an exit. Every terminal exit is classified here into the
+ * four classes, and the primary endpoint E1 counts the REFUSAL + AVERSION
+ * share. UNSPECIFIED is the classifier-failed sentinel and is never a valid
+ * classified reason.
  */
 enum ExitReason {
   EXIT_REASON_UNSPECIFIED = 0;

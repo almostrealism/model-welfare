@@ -117,12 +117,63 @@ def sample_is_degenerate(record) -> tuple:
         degenerate, reason = is_degenerate(turn)
         if degenerate:
             return True, f"turn:{reason}"
-    # Cross-turn: the same response verbatim three or more times is a
-    # behavioral loop (the model ignoring the escalating user), distinct from
-    # answering the same topic in varied words.
-    if texts and Counter(texts).most_common(1)[0][1] >= 3:
+    # Cross-turn: a behavioral loop is the model giving the SAME response even
+    # though the user turn changed — it is ignoring the user. We therefore pair
+    # each assistant response with the user turn it answers (the nearest
+    # preceding user message) and count how many DISTINCT prompts drew the
+    # identical response. Re-offering a settled answer to a user who repeats the
+    # same message verbatim (the fixed-rejection distress battery, or a user who
+    # re-asks an identical question) is reasonable, not a loop; giving one canned
+    # answer to three or more different messages is the loop we want to catch.
+    prompts_for_response = defaultdict(set)
+    last_user = None
+    for message in record.messages:
+        if message.role == "user":
+            last_user = (message.content or "").strip()
+        elif message.role == "assistant" and message.content and message.content.strip():
+            prompts_for_response[message.content.strip()].add(last_user)
+    if any(len(prompts) >= 3 for prompts in prompts_for_response.values()):
         return True, "repeated-turn"
     return False, ""
+
+
+def sample_reoffers(record, min_repeats: int = 3) -> bool:
+    """Verbatim re-offer: some non-empty assistant response appears
+    ``min_repeats`` or more times answering the SAME (identical) user prompt.
+
+    This is the behavior the §10 screen correction deliberately stopped
+    flagging as degenerate — re-offering a settled answer to an unchanging
+    demand is reasonable, not a loop. It is still a *mechanical* behavioral
+    indicator in its own right: quantization measurably increases how often a
+    model re-offers verbatim instead of revising (the signal behind the
+    method arm's pre-correction 16%→22% screen shift). Judge-free, so it is
+    immune to judge-side confounds, and distinct from
+    :func:`sample_is_degenerate`'s cross-turn loop (one answer to three or
+    more DIFFERENT prompts)."""
+    counts = defaultdict(int)
+    last_user = None
+    for message in record.messages:
+        if message.role == "user":
+            last_user = (message.content or "").strip()
+        elif message.role == "assistant" and message.content and message.content.strip():
+            counts[(message.content.strip(), last_user)] += 1
+    return any(count >= min_repeats for count in counts.values())
+
+
+def sample_flag_rate(records: Iterable, predicate) -> dict:
+    """Fraction of samples for which ``predicate(record)`` is true, keyed by
+    (condition_id, item_id), as (hits, total) like :func:`event_rate`. The
+    aggregation used by the mechanical (judge-free) indicators — invalid-sample
+    rate and verbatim re-offer rate — at the item level, so they run through
+    the same paired machinery as the behavioral endpoints."""
+    hits = defaultdict(int)
+    totals = defaultdict(int)
+    for record in records:
+        key = (record.key.condition_id, record.key.item_id)
+        totals[key] += 1
+        if predicate(record):
+            hits[key] += 1
+    return {key: (hits[key], totals[key]) for key in totals}
 
 
 def capability_gate(

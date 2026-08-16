@@ -1,15 +1,21 @@
 #!/usr/bin/env python3
 """Per-condition perplexity for the capability gate (PREREGISTRATION guard).
 
-Measures per-token perplexity of a fixed held-out text on each ladder rung via
-the vLLM /v1/completions endpoint (echo + logprobs), then applies the
-capability gate: a rung whose perplexity exceeds 1.5x the BF16 rung's is
-flagged capability-degraded, and its welfare endpoints (E1/E2) are excluded
-from the primary confirmatory claims and the dose-response fit. This is an
+Measures per-token perplexity of a fixed held-out text on every condition of an
+experiment via the vLLM /v1/completions endpoint (echo + logprobs), then applies
+the capability gate: a rung whose perplexity exceeds 1.5x the reference rung's
+is flagged capability-degraded, and its welfare endpoints are excluded from the
+primary confirmatory claims and the dose-response fit. This is an
 instrument/capability check, not an experiment — it touches no result store and
 draws no welfare conclusions.
 
-    python3 perplexity.py --host http://127.0.0.1
+The conditions and their serving endpoints come from the experiment manifest and
+endpoints.json (PREREGISTRATION §11: the tool is parameterized by experiment,
+never hardwired to one ladder — measure every rung BEFORE tearing it down).
+Non-vLLM endpoints are skipped with a note: the measure is defined over vLLM
+echo+logprobs.
+
+    python3 tools/perplexity.py --experiment confirmatory --json perplexity.json
 """
 import argparse
 import json
@@ -18,17 +24,16 @@ import sys
 import urllib.request
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO / "core/src"))
+BASE = Path(__file__).resolve().parent.parent           # experiments/quant-welfare
+REPO = BASE.parents[1]
+for path in (str(REPO / "core/src"), str(BASE)):
+    if path not in sys.path:
+        sys.path.insert(0, path)
+
+from google.protobuf import text_format  # noqa: E402
 
 from modelwelfare.analysis import capability_gate  # noqa: E402
-
-RUNGS = [
-    ("bf16", 8000, "qwen3-4b-bf16"),
-    ("rtn-w8", 8010, "qwen3-4b-rtn-w8"),
-    ("rtn-w4", 8011, "qwen3-4b-rtn-w4"),
-    ("rtn-w3", 8012, "qwen3-4b-rtn-w3"),
-]
+from modelwelfare.v1 import experiment_pb2  # noqa: E402
 
 # A fixed neutral held-out paragraph (not drawn from any battery), so the
 # measure is comparable across rungs and independent of the stimulus items.
@@ -60,41 +65,57 @@ def perplexity(url: str, model: str, text: str, timeout: float = 60.0):
     return math.exp(-sum(values) / len(values))
 
 
+def load_experiment(experiment_dir: Path) -> experiment_pb2.Experiment:
+    experiment = experiment_pb2.Experiment()
+    text_format.Parse((experiment_dir / "experiment.textproto").read_text(), experiment)
+    return experiment
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--host", default="http://127.0.0.1")
+    parser.add_argument("--experiment", default="confirmatory",
+                        help="experiment directory name under experiments/quant-welfare/")
+    parser.add_argument("--endpoints", default=str(BASE / "endpoints.json"),
+                        help="condition -> endpoint map (override for lab-local routing)")
     parser.add_argument("--json", default=None,
                         help="write {condition_id: perplexity} to this path — the "
                              "input analyze.py --perplexity expects for the gate")
     args = parser.parse_args()
 
+    experiment = load_experiment(BASE / args.experiment)
+    with open(args.endpoints) as handle:
+        endpoints = {cid: entry for cid, entry in json.load(handle).items()
+                     if not cid.startswith("_")}
+
     ppl = {}
-    for name, port, model in RUNGS:
-        url = f"{args.host}:{port}"
-        try:
-            ppl[name] = perplexity(url, model, HELDOUT)
-            print(f"{name:8} perplexity={ppl[name]:.3f}")
-        except Exception as error:
-            print(f"{name:8} UNREACHABLE ({error})")
-
-    if "bf16" not in ppl:
-        raise SystemExit("bf16 reference unreachable; cannot apply the gate")
-
-    print("\ncapability gate (degraded = perplexity > 1.5x bf16 reference):")
-    gate = capability_gate(ppl, "bf16")
-    for name, _, _ in RUNGS:
-        if name not in ppl:
+    for condition in experiment.conditions:
+        cid = condition.id
+        entry = endpoints.get(cid)
+        if entry is None:
+            print(f"{cid:20} SKIPPED (no endpoint configured)")
             continue
-        entry = gate[name]
+        if entry.get("kind") != "vllm":
+            print(f"{cid:20} SKIPPED ({entry.get('kind')} endpoint; measure is vLLM echo+logprobs)")
+            continue
+        try:
+            ppl[cid] = perplexity(entry["url"], entry["model"], HELDOUT)
+            print(f"{cid:20} perplexity={ppl[cid]:.3f}")
+        except Exception as error:
+            print(f"{cid:20} UNREACHABLE ({error})")
+
+    reference = experiment.reference_condition_id
+    if reference not in ppl:
+        raise SystemExit(f"reference {reference} unreachable; cannot apply the gate")
+
+    print("\ncapability gate (degraded = perplexity > 1.5x the reference):")
+    gate = capability_gate(ppl, reference)
+    for cid, entry in gate.items():
         state = "DEGRADED" if entry["degraded"] else "ok"
-        print(f"  {name:8} {state:9} {'; '.join(entry['reasons'])}")
+        print(f"  {cid:20} {state:9} {'; '.join(entry['reasons'])}")
 
     if args.json:
-        # Key by served-model-name (= the manifest condition id), which is what
-        # analyze.py's capability gate matches on — not the short rung label.
-        payload = {model: ppl[name] for name, _, model in RUNGS if name in ppl}
-        Path(args.json).write_text(json.dumps(payload, indent=2) + "\n")
-        print(f"\nwrote {args.json}: {list(payload)}")
+        Path(args.json).write_text(json.dumps(ppl, indent=2) + "\n")
+        print(f"\nwrote {args.json}: {list(ppl)}")
 
 
 if __name__ == "__main__":

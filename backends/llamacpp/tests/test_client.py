@@ -12,7 +12,7 @@ from modelwelfare_llamacpp import LlamaCppServerBackend
 RUNTIME = condition_pb2.RuntimeSpec(
     backend=condition_pb2.BACKEND_LLAMACPP,
     device="metal",
-    host="studio-m1u",
+    host="studio",
     compute_dtype="f16",
     backend_version="b1234",
 )
