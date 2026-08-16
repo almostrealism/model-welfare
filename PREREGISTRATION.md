@@ -345,7 +345,8 @@ construct dissociation, not by itself a pipeline failure.
 **Method conditions.** First-party **AWQ-w4** (built, digest-verified) is added
 alongside the RTN ladder, on the development organism and SmolLM3, as a 4-bit
 method contrast distinct from the RTN bit-width dose-response (GPTQ-w4 optional,
-same harness). AWQ-w4 has its own serving-equivalence check. The confirmatory
+same harness). AWQ-w4 has its own serving-equivalence check *(deviation
+disclosed 2026-08-15: not run before the arm; see AMENDMENTS)*. The confirmatory
 welfare analysis over these conditions uses the existing §4 endpoints and
 families — this is the arm's *announced* deliverable, though we hold low prior
 that quantization method changes the welfare picture.
