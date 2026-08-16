@@ -70,6 +70,15 @@ moves every welfare read, which is exactly why the gate excludes the rung.
 Sign-flip permutation test on item-level paired deltas, Holm within the primary
 family. n = 154 graded bail items.
 
+*Reporting convention for permutation p-values (applies to every table
+below):* the (b+1)/(m+1) estimator with m = 10,000 permutations (as
+registered) has a resolution floor of ~10⁻⁴. Entries at the floor — where the
+observed statistic exceeded every permuted one (b = 0) — are reported as
+**p < 10⁻⁴**; two floor entries must not be read as equal values.
+Holm-adjusted floor values carry the family multiplier (< k×10⁻⁴). Near-floor
+values with b ≥ 1 (e.g. 0.0002, 0.0007) are genuine estimates and are
+reported as equalities.
+
 | Contrast | Δ (mean) | p | Holm p |
 |---|---|---|---|
 | RTN w8 | −0.011 | 0.31 | 0.62 |
@@ -87,7 +96,7 @@ per §2/§11.1; distress: pooled band-flip).
 | Endpoint | Contrast | Observed | Null | p |
 |---|---|---|---|---|
 | Bail exit flip | RTN w8 | 0.097 | 0.076 | 0.16 |
-| Bail exit flip | **RTN w4** | **0.318** | 0.126 | **0.0001** |
+| Bail exit flip | **RTN w4** | **0.318** | 0.126 | **< 10⁻⁴** |
 | Distress band flip | RTN w8 | 0.083 | 0.079 | 0.54 |
 | Distress band flip | **RTN w4** | **0.217** | 0.100 | **0.0007** |
 

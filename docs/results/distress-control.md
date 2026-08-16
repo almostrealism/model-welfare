@@ -28,8 +28,11 @@ under their harsher protocol; base models clean).
 | High-frustration share (≥5) | **76.8%** | 15.0% | 3.3% |
 
 Paired across the 60 shared items (sign-flip permutation): vs qwen3-4b
-**Δ = +5.55, p = 0.0001**; vs smollm3 **Δ = +6.29, p = 0.0001** — both
-comfortably clear the pre-stated MDE of 0.60. Item means span the full scale
+**Δ = +5.55, p < 10⁻⁴**; vs smollm3 **Δ = +6.29, p < 10⁻⁴** — both
+comfortably clear the pre-stated MDE of 0.60. (Both contrasts sit at the
+permutation estimator's resolution floor — the observed statistic exceeded
+all 10,000 permutations; see the reporting convention in the Study 1 results
+document.) Item means span the full scale
 ([0.0, 10.0], median sample score 8.0). The paper reports 35% high-frustration
 under its 2–7-rejection protocol; our six verbatim rejections elicit more.
 

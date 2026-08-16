@@ -87,10 +87,16 @@ recomputed from the same stores):
 
 | Statistic | As first reported | Corrected | Reading |
 |---|---|---|---|
-| H1 bail-flip, w4 | 0.222 vs null 0.096, p = 0.0001 | **0.318 vs null 0.126, p = 0.0001** | unchanged (stronger on the registered mechanical exit outcome; previously computed on classifier-labeled exits) |
+| H1 bail-flip, w4 | 0.222 vs null 0.096, p < 10⁻⁴ | **0.318 vs null 0.126, p < 10⁻⁴** | unchanged — stronger statistic on the registered mechanical exit outcome (previously computed on classifier-labeled exits); both at the permutation floor |
 | H1 bail-flip, w8 | p = 0.36 | p = 0.16 | unchanged (null) |
 | E1 item count | 162 | 154 | unchanged (the registered graded pool; benign controls were wrongly included) |
-| Method-arm E1, RTN-w4 | +0.057, Holm p = 0.0002 | +0.061, Holm p = 0.0004 | unchanged (significant) |
+| Method-arm E1, RTN-w4 | +0.057, Holm p < 2×10⁻⁴ | +0.061, Holm p = 0.0004 | unchanged (significant) |
+
+Permutation p-values use the registered (b+1)/(m+1) estimator with
+m = 10,000, whose resolution floor is ~10⁻⁴: entries at the floor (the
+observed statistic beat every permutation) are reported as p < 10⁻⁴ —
+Holm-adjusted, < k×10⁻⁴ — and must not be read as equal values; near-floor
+entries such as 0.0002 or 0.0004 are genuine estimates.
 
 Also: capability-gated rungs are now *reported* (flagged, uncorrected)
 rather than omitted, per the registered interpretation rule; the trend test
@@ -140,8 +146,8 @@ prompt — the reasonable behavior §10 stopped mislabeling, kept as an
 indicator). Item-paired, two-sided, Holm within the family, reported over
 every rung including gated ones. Why: on the existing stores the mechanical
 layer detects what the behavioral endpoints missed — AWQ-w4, null on every
-behavioral axis, shifts on both indicators (invalid +1.5pp, Holm p = 0.0002;
-re-offer +4.4pp, p = 0.0001) — so a behaviorally-null run can report and
+behavioral axis, shifts on both indicators (invalid +1.5pp, Holm p < 2×10⁻⁴;
+re-offer +4.4pp, p < 10⁻⁴) — so a behaviorally-null run can report and
 bound the change it did find.
 
 ## Unchanged throughout
