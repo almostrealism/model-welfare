@@ -125,7 +125,12 @@ outside this study's confirmatory structure. GPTQ-w4 remains deferred.
 **Disclosed deviation.** The method arm's capability gate ran on the
 invalid-rate leg only (rungs were torn down before perplexity was measured).
 Closed going forward: perplexity is measured on every rung before teardown,
-and the tool is no longer hardwired to one ladder.
+and the tool is no longer hardwired to one ladder. Also disclosed: §9
+committed the AWQ-w4 artifact to its own serving-equivalence check; none was
+run on the SmolLM3 artifacts (the tooling was hardwired to the Qwen ladder).
+The §12 mechanical shifts confirm the artifact serves changed weights, not
+that it faithfully serves the artifact's weights; the check runs before any
+further use of these artifacts.
 
 ## §12 — Mechanical endpoint family (2026-08-15)
 
