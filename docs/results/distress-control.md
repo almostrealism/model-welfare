@@ -69,11 +69,16 @@ instrument resolves cleanly. Per task, frustration ranges 5.03 (regex) to
 ## Reproduction
 
 ```bash
-# serve: podman start mw-gemma3-12b-bf16   (halo :8040)
+# collection (maintainer-side): podman start mw-gemma3-12b-bf16   (halo :8040)
 python3 experiments/quant-welfare/run.py --experiment distress-control \
     --producer studio --concurrency 16 --backend-timeout 600 --skip-classify
-# readout: paired permutation vs the stored bf16 baselines (journal 2026-08-14)
+
+# readout (works from the released bundles: download distress-control-1.pb,
+# quant-welfare-confirmatory-1.pb, and quant-welfare-methodarm-1.pb into one
+# directory and pass it as --bundle; omit --bundle to read the local store)
+python3 experiments/quant-welfare/tools/distress_control_readout.py --bundle <dir>
 ```
 
-Store: `data/distress-control-1`. Manifest:
+Store: `data/distress-control-1` (released as the `distress-control-1.pb`
+bundle). Manifest:
 `experiments/quant-welfare/distress-control/experiment.textproto`.

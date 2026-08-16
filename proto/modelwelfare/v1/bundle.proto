@@ -20,7 +20,10 @@ import "modelwelfare/v1/scoring.proto";
  * the canonical content hash (modelwelfare.signature) and is empty when the
  * bundle was written without that module available. reference_scores are the
  * cross-family reference-judge scores, kept distinct from the primary scores as
- * the streaming store keeps its separate reference_scores kind.
+ * the streaming store keeps its separate reference_scores kind;
+ * judge_noise_scores are likewise the repeated-judge noise-measurement passes
+ * (judge_sample_index > 0), a distinct stream so noise passes can never be
+ * mistaken for confirmatory scores.
  */
 
 message BundleMetadata {
@@ -37,4 +40,5 @@ message RecordBundle {
   repeated JudgeScore scores = 3;
   repeated ExitClassification exit_reasons = 4;
   repeated JudgeScore reference_scores = 5;
+  repeated JudgeScore judge_noise_scores = 6;
 }

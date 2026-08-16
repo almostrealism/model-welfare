@@ -34,6 +34,7 @@ import numpy as np  # noqa: E402
 
 import run  # noqa: E402  — experiment/battery loading + rubric resolution
 from modelwelfare.judging import JudgeError, build_prompt, judge_sample  # noqa: E402
+from modelwelfare.bundle import BundleStore  # noqa: E402
 from modelwelfare.store import ResultStore  # noqa: E402
 from modelwelfare.v1 import common_pb2, condition_pb2, scoring_pb2, transcript_pb2  # noqa: E402
 
@@ -176,12 +177,18 @@ def main():
     parser.add_argument("--producer", default="opus5")
     parser.add_argument("--dry-run", action="store_true",
                         help="report subsample size and cost estimate; no API calls")
+    parser.add_argument("--bundle", default=None,
+                        help="report agreement from packed RecordBundle file(s) "
+                             "(read-only, implies --report) — the release-asset "
+                             "replication path")
     parser.add_argument("--report", action="store_true",
                         help="only report agreement from already-stored scores; no API calls")
     args = parser.parse_args()
 
     experiment = run.load_experiment(BASE / args.experiment)
-    store = ResultStore(args.data_root)
+    if args.bundle:
+        args.report = True  # bundles are read-only
+    store = BundleStore(args.bundle) if args.bundle else ResultStore(args.data_root)
     rubric = rubric_for(experiment)
 
     if args.report:

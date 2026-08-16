@@ -40,6 +40,7 @@ for path in (REPO / "core/src", BASE):
 
 import run  # noqa: E402
 from modelwelfare import stats  # noqa: E402
+from modelwelfare.bundle import BundleStore  # noqa: E402
 from modelwelfare.store import ResultStore  # noqa: E402
 from modelwelfare.v1 import transcript_pb2  # noqa: E402
 
@@ -132,6 +133,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--experiment", default="method-arm")
     parser.add_argument("--data-root", default=str(REPO / "data"))
+    parser.add_argument("--bundle", default=None,
+                        help="read stored responses from packed RecordBundle file(s) "
+                             "instead of the streaming store")
     parser.add_argument("--base", required=True, help="base (non-instruct) endpoint")
     parser.add_argument("--base-model", required=True)
     parser.add_argument("--instruct", required=True, help="instruct BF16 endpoint")
@@ -139,7 +143,7 @@ def main():
     args = parser.parse_args()
 
     experiment = run.load_experiment(BASE / args.experiment)
-    store = ResultStore(args.data_root)
+    store = BundleStore(args.bundle) if args.bundle else ResultStore(args.data_root)
     definitions = run.load_batteries(BASE / args.experiment)
     sensitive = {item.id for item in definitions[SENSITIVE_BATTERY].items}
 

@@ -26,6 +26,7 @@ KINDS = {
     "scores": ("scores", scoring_pb2.JudgeScore),
     "exit_reasons": ("exit_reasons", scoring_pb2.ExitClassification),
     "reference_scores": ("reference_scores", scoring_pb2.JudgeScore),
+    "judge_noise_scores": ("judge_noise_scores", scoring_pb2.JudgeScore),
 }
 
 
@@ -59,22 +60,46 @@ def pack_condition(store: ResultStore, experiment_id: str, condition_id: str) ->
     return bundle
 
 
-def pack_experiment(store: ResultStore, experiment) -> bundle_pb2.RecordBundle:
-    """Build one whole-experiment bundle (``condition_id`` empty) — the single-file
-    shareable artifact whose ``data_digest`` equals the report's cited digest."""
+def _pack_conditions(store: ResultStore, experiment_id: str, condition_ids) -> bundle_pb2.RecordBundle:
     bundle = bundle_pb2.RecordBundle()
-    bundle.metadata.experiment_id = experiment.id
+    bundle.metadata.experiment_id = experiment_id
     for kind, (field, message_type) in KINDS.items():
         records = [
             record
-            for condition in experiment.conditions
-            for record in store.read(message_type, experiment.id, condition.id, kind)
+            for condition_id in condition_ids
+            for record in store.read(message_type, experiment_id, condition_id, kind)
         ]
         if records:
             getattr(bundle, field).extend(records)
             bundle.metadata.record_counts[kind] = len(records)
     _stamp_digest(bundle)
     return bundle
+
+
+def pack_experiment(store: ResultStore, experiment) -> bundle_pb2.RecordBundle:
+    """Build one whole-experiment bundle (``condition_id`` empty) — the single-file
+    shareable artifact whose ``data_digest`` equals the report's cited digest."""
+    return _pack_conditions(store, experiment.id, [c.id for c in experiment.conditions])
+
+
+def pack_experiment_store(store: ResultStore, experiment_id: str) -> bundle_pb2.RecordBundle:
+    """Build one whole-experiment bundle straight from the store layout — no
+    manifest needed, so calibration stores without an experiment.textproto
+    consolidate the same way. Raises ValueError if the store holds a record
+    kind the bundle schema cannot carry: a consolidation must never silently
+    drop a stream."""
+    unknown = {
+        kind
+        for condition_id in store.conditions(experiment_id)
+        for kind in store.kinds(experiment_id, condition_id)
+        if kind not in KINDS
+    }
+    if unknown:
+        raise ValueError(
+            f"{experiment_id}: store kinds {sorted(unknown)} are not representable "
+            "in RecordBundle — add them to bundle.proto/KINDS before consolidating"
+        )
+    return _pack_conditions(store, experiment_id, store.conditions(experiment_id))
 
 
 def write_bundle(bundle: bundle_pb2.RecordBundle, path) -> None:
