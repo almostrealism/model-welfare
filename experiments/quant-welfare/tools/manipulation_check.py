@@ -35,7 +35,7 @@ from pathlib import Path
 
 BASE = Path(__file__).resolve().parent.parent          # experiments/quant-welfare
 REPO = BASE.parents[1]
-for path in (str(REPO / "core/src"), str(BASE), str(BASE / "bakeoff")):
+for path in (str(REPO / "core/src"), str(BASE), str(BASE / "study1/bakeoff")):
     if path not in sys.path:
         sys.path.insert(0, path)
 
@@ -195,7 +195,7 @@ def main():
                              "is affective tone, see docs/JOURNAL.md 2026-08-13)")
     args = parser.parse_args()
 
-    all_batteries = run.load_batteries(BASE / "confirmatory")
+    all_batteries = run.load_batteries(BASE / "study1/confirmatory")
     rubric_by_id = {
         rubric.id: rubric
         for definition in all_batteries.values()

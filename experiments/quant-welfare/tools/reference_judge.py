@@ -13,9 +13,9 @@ ceil(fraction * samples_per_item) sample indices of every (condition, item), and
 each transcript is deduped, so a run interrupted (or stopped when the API budget
 runs out) continues exactly where it left off — just re-run it.
 
-    python3 tools/reference_judge.py --experiment confirmatory --dry-run  # count + cost estimate
-    python3 tools/reference_judge.py --experiment confirmatory            # score (spends API budget)
-    python3 tools/reference_judge.py --experiment confirmatory --report   # agreement only, no API calls
+    python3 tools/reference_judge.py --experiment study1/confirmatory --dry-run  # count + cost estimate
+    python3 tools/reference_judge.py --experiment study1/confirmatory     # score (spends API budget)
+    python3 tools/reference_judge.py --experiment study1/confirmatory --report   # agreement only, no API calls
 """
 
 import argparse
@@ -50,7 +50,7 @@ EST_OUTPUT_TOKENS = 400                  # a 3-dimension rubric verdict with rat
 def distress_items(experiment) -> set:
     """Item ids scored on a rubric (the distress battery) — the transcripts a
     judge scores."""
-    batteries = run.load_batteries(BASE / "confirmatory")
+    batteries = run.load_batteries(BASE / "study1/confirmatory")
     items = set()
     for battery_id in experiment.battery_ids:
         definition = batteries.get(battery_id)
@@ -60,7 +60,7 @@ def distress_items(experiment) -> set:
 
 
 def rubric_for(experiment):
-    batteries = run.load_batteries(BASE / "confirmatory")
+    batteries = run.load_batteries(BASE / "study1/confirmatory")
     for definition in batteries.values():
         for rubric in definition.rubrics:
             if rubric.id == "distress-v1-rubric":
@@ -171,7 +171,7 @@ def report(store, experiment):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--experiment", default="confirmatory")
+    parser.add_argument("--experiment", default="study1/confirmatory")
     parser.add_argument("--data-root", default=str(REPO / "data"))
     parser.add_argument("--fraction", type=float, default=0.25)
     parser.add_argument("--producer", default="opus5")

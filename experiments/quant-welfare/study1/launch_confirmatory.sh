@@ -21,11 +21,11 @@
 # Overrides: MW_GEN_CONCURRENCY, MW_JUDGE_CONCURRENCY, MW_EXPERIMENT, MW_PRODUCER.
 set -euo pipefail
 
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 REPO="$(cd ../.. && pwd)"
 export PYTHONPATH="$REPO/core/src:${PYTHONPATH:-}"
 
-EXPERIMENT="${MW_EXPERIMENT:-confirmatory}"
+EXPERIMENT="${MW_EXPERIMENT:-study1/confirmatory}"
 RUNGS=(qwen3-4b-bf16 qwen3-4b-rtn-w8 qwen3-4b-rtn-w4 qwen3-4b-rtn-w3)
 GEN_CONCURRENCY="${MW_GEN_CONCURRENCY:-24}"
 JUDGE_CONCURRENCY="${MW_JUDGE_CONCURRENCY:-8}"

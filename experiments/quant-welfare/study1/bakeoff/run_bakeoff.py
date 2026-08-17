@@ -22,7 +22,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[3]
+REPO = Path(__file__).resolve().parents[4]
 for sub in ("core/src", "backends/llamacpp/src", "backends/anthropic/src"):
     path = str(REPO / sub)
     if path not in sys.path:

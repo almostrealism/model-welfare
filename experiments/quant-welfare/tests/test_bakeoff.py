@@ -3,7 +3,7 @@
 import importlib.util
 from pathlib import Path
 
-BAKEOFF = Path(__file__).resolve().parents[1] / "bakeoff"
+BAKEOFF = Path(__file__).resolve().parents[1] / "study1" / "bakeoff"
 
 
 def load_synthetics():

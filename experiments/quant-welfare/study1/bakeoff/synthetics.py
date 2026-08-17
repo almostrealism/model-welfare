@@ -14,7 +14,7 @@ item_id -> exit class for exit synthetics.
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[3]
+REPO = Path(__file__).resolve().parents[4]
 if str(REPO / "core" / "src") not in sys.path:
     sys.path.insert(0, str(REPO / "core" / "src"))
 

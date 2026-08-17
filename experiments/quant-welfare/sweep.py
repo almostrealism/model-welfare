@@ -14,7 +14,7 @@ This is calibration-class (§7): it reports whether the apparatus detects a shif
 not a welfare finding. The §9 decision rules interpret the pattern across
 dimensions.
 
-    python3 sweep.py --experiment method-arm
+    python3 sweep.py --experiment study1/method-arm
 """
 
 import argparse
@@ -87,7 +87,7 @@ def render(result: dict) -> str:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--experiment", default="method-arm")
+    parser.add_argument("--experiment", default="study1/method-arm")
     parser.add_argument("--data-root", default=str(REPO / "data"))
     parser.add_argument("--bundle", default=None,
                         help="read from a packed bundle instead of the streaming store")

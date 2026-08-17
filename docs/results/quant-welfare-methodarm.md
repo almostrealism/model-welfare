@@ -96,9 +96,9 @@ experiment.)
 
 ```
 # refusal dimension
-python3 experiments/quant-welfare/sweep.py --experiment method-arm
+python3 experiments/quant-welfare/sweep.py --experiment study1/method-arm
 # welfare dimension
-python3 experiments/quant-welfare/analyze.py --experiment method-arm
+python3 experiments/quant-welfare/analyze.py --experiment study1/method-arm
 # replicating from the released bundle: add
 #   --bundle quant-welfare-methodarm-1.pb
 # to either command (download from the repo's Releases page)
@@ -106,4 +106,4 @@ python3 experiments/quant-welfare/analyze.py --experiment method-arm
 
 Store: `data/quant-welfare-methodarm-1` (released as the
 `quant-welfare-methodarm-1.pb` bundle). Experiment definition:
-`experiments/quant-welfare/method-arm/experiment.textproto`.
+`experiments/quant-welfare/study1/method-arm/experiment.textproto`.

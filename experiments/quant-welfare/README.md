@@ -1,28 +1,41 @@
 # quant-welfare — quantization × welfare indicators
 
-The study described in [PROJECT_BRIEF.md](../../PROJECT_BRIEF.md). Everything
-here is study-specific: condition ladders, stimulus batteries, rubrics, and
+The program described in [PROJECT_BRIEF.md](../../PROJECT_BRIEF.md). Everything
+here is program-specific: condition ladders, stimulus batteries, rubrics, and
 the runner. Generic machinery lives in `core/` and `backends/`.
 
-## Experiments in this directory
+## Layout: shared assets at the top, one directory per study
+
+Shared, study-agnostic assets live at this level: the drivers (`run.py`,
+`analyze.py`, `report.py`, `sweep.py`), `tools/`, `tests/`, the shared
+`batteries/` pools, and `endpoints.json`. Everything a single study owns —
+its run manifests, frozen instruments, launch scripts, and (from Study 2
+onward) its registration document — lives in that study's directory:
+`study1/`, `study2/`, ... Study 1's registration predates this layout and
+remains at the repository root ([PREREGISTRATION.md](../../PREREGISTRATION.md))
+as published; Study 2's is [study2/REGISTRATION.md](study2/REGISTRATION.md).
 
 Each subdirectory with an `experiment.textproto` is one run manifest;
-`--experiment <dir>` selects it. All runs to date are **calibration-class**
-(barred from findings — see the pre-registration note below); the
-confirmatory run is not yet registered as a manifest here.
+`--experiment <path>` selects it by path relative to this directory
+(e.g. `--experiment study1/confirmatory`). Store/bundle experiment ids come
+from the manifest, not the directory, and are unaffected by this layout.
 
 | Directory | Purpose |
 |---|---|
-| `trial/` | first Tier-1 pipeline shakeout (Qwen3-8B BF16 vs vendor AWQ); documented below |
-| `calibration/` | v1-pool difficulty calibration on GGUF dev-organism rungs |
-| `calibration2/` | v2-pool (bail-v2 + distress-v2) difficulty calibration; feeds the power recompute |
-| `calibration2-ext/` | round-2 bail expansion (bail-v2-ext) calibration |
-| `ladder-calibration/` | calibration on the real controlled ladder (BF16 vs own RTN-w4); run 2026-08-09 (ladder-calibration-1) |
-| `smollm3-probe/` | SmolLM3-3B RTN exploratory characterization for the H6 pipeline-sensitivity control |
-| `bail-arms/` | three-arm comparison selecting the non-terminal completion tool (see journal) |
-| `bakeoff/` | judge selection: synthetic manipulation checks + real transcripts (not a run manifest — see `bakeoff/run_bakeoff.py`) |
+| `study1/trial/` | first Tier-1 pipeline shakeout (Qwen3-8B BF16 vs vendor AWQ); documented below |
+| `study1/calibration/` | v1-pool difficulty calibration on GGUF dev-organism rungs |
+| `study1/calibration2/` | v2-pool (bail-v2 + distress-v2) difficulty calibration; feeds the power recompute |
+| `study1/calibration2-ext/` | round-2 bail expansion (bail-v2-ext) calibration |
+| `study1/ladder-calibration/` | calibration on the real controlled ladder (BF16 vs own RTN-w4); run 2026-08-09 (ladder-calibration-1) |
+| `study1/smollm3-probe/` | SmolLM3-3B RTN exploratory characterization for the H6 pipeline-sensitivity control |
+| `study1/bail-arms/` | three-arm comparison selecting the non-terminal completion tool (see journal) |
+| `study1/bakeoff/` | judge selection: synthetic manipulation checks + real transcripts (not a run manifest — see `bakeoff/run_bakeoff.py`) |
+| `study1/confirmatory/` | **the registered Study 1 confirmatory run** (quant-welfare-confirmatory-1) + its committed gate perplexities |
+| `study1/method-arm/` | the §9 method arm (SmolLM3 BF16 / RTN-w4 / AWQ-w4) |
+| `study1/distress-control/` | step-4 positive control (Gemma-3-12B-it on distress-v2) |
+| `study2/` | Study 2 (Tier-2 representational) — registration draft; manifests and frozen instruments to come |
 | `batteries/` | shared stimulus pools reused across manifests |
-| `tools/` | battery generators and the serving-equivalence check |
+| `tools/` | battery generators, analysis/replication tools, the serving-equivalence check |
 
 ## Trial run (`trial/`)
 

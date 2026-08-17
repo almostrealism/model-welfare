@@ -19,8 +19,8 @@
 #
 # Readers consume the assets per RESULTS.md: download bundle(s), then
 #   python3 experiments/quant-welfare/report.py --bundle <dir-or-file>
-#   python3 experiments/quant-welfare/analyze.py --experiment confirmatory --bundle <file>
-#   python3 experiments/quant-welfare/tools/signature.py --experiment confirmatory --bundle <file>
+#   python3 experiments/quant-welfare/analyze.py --experiment study1/confirmatory --bundle <file>
+#   python3 experiments/quant-welfare/tools/signature.py --experiment study1/confirmatory --bundle <file>
 
 set -euo pipefail
 
@@ -58,8 +58,8 @@ report's digest can be confirmed from the corresponding bundle alone.
 Reproduce from a download directory:
 \`\`\`
 python3 experiments/quant-welfare/report.py --bundle <dir-or-file>
-python3 experiments/quant-welfare/analyze.py --experiment confirmatory --bundle quant-welfare-confirmatory-1.pb
-python3 experiments/quant-welfare/tools/signature.py --experiment confirmatory --bundle quant-welfare-confirmatory-1.pb
+python3 experiments/quant-welfare/analyze.py --experiment study1/confirmatory --bundle quant-welfare-confirmatory-1.pb
+python3 experiments/quant-welfare/tools/signature.py --experiment study1/confirmatory --bundle quant-welfare-confirmatory-1.pb
 \`\`\`"
 
 if command -v gh >/dev/null 2>&1; then

@@ -6,7 +6,7 @@ modelwelfare.signature), so it is the value a report cites: anyone holding the
 data — as the streaming store or a single consolidated .pb — recomputes it to
 confirm they have the right, uncorrupted dataset.
 
-    python3 tools/signature.py --experiment confirmatory
+    python3 tools/signature.py --experiment study1/confirmatory
 """
 
 import argparse
@@ -28,7 +28,7 @@ from modelwelfare.v1 import scoring_pb2  # noqa: E402
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--experiment", default="confirmatory")
+    parser.add_argument("--experiment", default="study1/confirmatory")
     parser.add_argument("--data-root", default=str(REPO / "data"))
     parser.add_argument("--bundle", default=None,
                         help="compute the digest from a packed bundle file or directory")

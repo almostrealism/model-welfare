@@ -13,13 +13,13 @@ from modelwelfare.driver import policy_for
 from modelwelfare.v1 import battery_pb2, experiment_pb2
 
 BASE = Path(__file__).resolve().parents[1]
-TRIAL = BASE / "trial"
+TRIAL = BASE / "study1/trial"
 SHARED = BASE / "batteries"
 
 
 def experiments():
     parsed = []
-    for manifest in sorted(BASE.glob("*/experiment.textproto")):
+    for manifest in sorted(BASE.glob("**/experiment.textproto")):
         experiment = experiment_pb2.Experiment()
         text_format.Parse(manifest.read_text(), experiment)
         parsed.append((manifest.parent, experiment))

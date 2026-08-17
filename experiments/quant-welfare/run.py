@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Runner for the quant-welfare trial experiment.
 
-Loads the manifests under trial/, generates samples for every (condition,
+Loads the manifests under study1/trial/, generates samples for every (condition,
 battery item) through the vLLM ladder on halo, judges batteries that carry
 rubrics, and prints item-level tables against the reference condition.
 
@@ -418,7 +418,7 @@ def print_tables(experiment, batteries, conditions, store):
 def main():
     global BACKEND_TIMEOUT
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--experiment", default="trial",
+    parser.add_argument("--experiment", default="study1/trial",
                         help="experiment directory name under experiments/quant-welfare/")
     parser.add_argument("--data-root", default=str(REPO / "data"))
     parser.add_argument("--endpoints", default=str(BASE_DIR / "endpoints.json"),

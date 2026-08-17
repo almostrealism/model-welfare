@@ -31,10 +31,10 @@ supplied via
 store via :func:`modelwelfare.analysis.sample_is_degenerate`.
 
 Run against the confirmatory store once it exists; run against a calibration
-store (e.g. ``--experiment ladder-calibration``) only to exercise the wiring —
+store (e.g. ``--experiment study1/ladder-calibration``) only to exercise the wiring —
 those deltas are barred from findings by the §7 firewall.
 
-    python3 analyze.py --experiment confirmatory --perplexity perplexity.json
+    python3 analyze.py --experiment study1/confirmatory --perplexity perplexity.json
 """
 
 import argparse
@@ -529,7 +529,7 @@ def render(result: dict) -> str:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--experiment", default="confirmatory",
+    parser.add_argument("--experiment", default="study1/confirmatory",
                         help="experiment subdirectory under this directory")
     parser.add_argument("--data-root", default=str(REPO / "data"))
     parser.add_argument("--bundle", default=None,
