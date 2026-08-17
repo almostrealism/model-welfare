@@ -4,6 +4,50 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-17 — Activation capture + direction extraction land; all three BF16 directions separate their held-out pairs
+
+The Tier-2 instrument's first two moving parts are built and validated
+end-to-end on BF16. The split is deliberate: **capture**
+(`backends/torch/src/modelwelfare_torch/capture.py`) is torch-only and
+standalone — forward hooks on selected decoder layers (the
+`activation.proto` HookPoint vocabulary: `residual_post`/`residual_pre`),
+teacher-forced replay, per-assistant-turn mean pooling, safetensors +
+manifest out — runnable on the workbench with no repository checkout.
+**Extraction** (`core/src/modelwelfare/directions.py` +
+`tools/extract_directions.py`) is numpy-pure and lives in the repo: it
+builds the capture-plan JSON (the contract between the halves), applies the
+contrastive mean-difference recipe over the extraction pairs, and reads
+held-out separations. The held-out rule is fixed in code, once: pairs
+sorted by id, every third held out.
+
+Decisions and findings:
+
+- **Spans are character-mapped, not token-prefix-mapped.** Token-id lists
+  from the chat template are not prefix-stable even when the rendered
+  strings are — BPE merges the assistant header's trailing newline into the
+  response's first token. The capture module asserts prefix stability on
+  the rendered strings, computes character spans, and maps them to tokens
+  via the fast tokenizer's offset mapping. The original token-prefix
+  approach failed its own stability assertion on the very first
+  conversation — the guard exists precisely because this failure is silent
+  corruption otherwise.
+- **The distress set folds in the validated synthetics** per the
+  registration: the frustration pole pair plus each graded frustration
+  family's extreme rungs (l4 vs l0) — 13 authored + 4 synthetic = 17
+  distress pairs; the axis set has 13 pairs, refusal 12.
+- **First BF16 extraction (layers 6/12/18/24/30, residual_post): every
+  direction separates every held-out pair at every layer** — distress 5/5,
+  assistant-axis 4/4, refusal 4/4 sign-consistent, with held-out
+  separations comparable to extraction-set separations (the axis's
+  held-out separation slightly exceeds its extraction separation — no
+  overfitting). Cross-direction cosines stay modest (|cos| ≤ 0.31;
+  distress×refusal mildly positive, distress×axis negative), so the three
+  constructs are largely distinct in the residual stream. Candidate
+  vectors and the full summary are committed under `study2/calibration/`.
+- G2's remaining evidence — the monitoring correlation against Study 1
+  judge scores, probe training, and the layer freeze — needs store replay
+  and comes next; nothing is frozen by today's artifacts.
+
 ## 2026-08-17 — Study 2 G1 grounded: torch and vLLM are the same instrument on all four artifacts
 
 The Study 2 draft registration's substrate-equivalence gate (G1) requires

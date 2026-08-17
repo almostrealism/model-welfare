@@ -105,3 +105,44 @@ def test_scripted_user_turns_precede_the_contrast(name):
         roles = [turn.role for turn in item.script]
         assert roles[0] == "user"
         assert all(role in ("user", "assistant") for role in roles)
+
+
+def test_core_loader_accepts_contrast_sets_and_rejects_others():
+    from modelwelfare import directions as dirs
+
+    for name in DIRECTION_SETS:
+        definition = dirs.load_contrast_set(
+            BASE / "study2" / "directions" / f"{name}.textproto")
+        assert len(dirs.contrast_pairs(definition)) >= MIN_PAIRS
+    with pytest.raises(ValueError):
+        dirs.load_contrast_set(BASE / "batteries" / "distress-v2.textproto")
+
+
+def test_extraction_cli_pair_and_plan_construction():
+    """The orchestrator's single pair source: three sets plus the
+    frustration-poled synthetics folded into distress, ids unique across
+    every conversation, and a plan that builds cleanly."""
+    sys.path.insert(0, str(BASE / "tools"))
+    import extract_directions
+    from modelwelfare import directions as dirs
+
+    by_direction, conversations = extract_directions.direction_pairs()
+    import synthetics
+    frustration_families = {family for dimension, family, _level
+                            in synthetics.GRADED_EXPECTATIONS.values()
+                            if dimension == "frustration"}
+    authored = {name: len(pairs_of(load(name))) for name in DIRECTION_SETS}
+    assert len(by_direction["distress-contrast"]) == (
+        authored["distress-contrast"] + 1 + len(frustration_families))
+    assert len(by_direction["assistant-axis-contrast"]) == authored["assistant-axis-contrast"]
+    assert len(by_direction["refusal-contrast"]) == authored["refusal-contrast"]
+    referenced = {conversation_id
+                  for pairs in by_direction.values()
+                  for poles in pairs.values()
+                  for conversation_id in poles.values()}
+    assert referenced == set(conversations)
+    plan = dirs.build_plan(sorted(conversations.items()))
+    total_pairs = sum(len(pairs) for pairs in by_direction.values())
+    assert len(plan["conversations"]) == 2 * total_pairs
+    for conversation in plan["conversations"]:
+        assert conversation["messages"][-1]["role"] == "assistant"
