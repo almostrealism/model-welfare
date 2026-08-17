@@ -92,14 +92,29 @@ quantization workbench (halo), reading the **residual stream** at frozen
 layer(s) (§3.6). This substrate change is itself gated:
 
 **G1 — substrate equivalence (blocking).** Before any confirmatory capture,
-on every rung: (a) per-token perplexity measured under the capture substrate
-on the same held-out text as Study 1's gate must be within **5%** of the
-committed vLLM values (`study1/confirmatory/perplexity.json`); (b) greedy
-continuations on a fixed 32-prompt set must agree with the serving stack at
-**≥ 95%** token identity over the first 64 tokens. Failure on any rung
-blocks that rung until explained; failure on BF16 blocks the study. This
-discharges, for these artifacts, the serving-equivalence commitment recorded
-in the Study 1 amendments ("runs before any further use of these
+on every rung: (a) per-token perplexity computed under both substrates over
+the **same echo positions in the same run** must agree within **5%**, and
+the serving-side perplexity in the Study 1 gate convention must reproduce
+the committed values (`study1/confirmatory/perplexity.json`) within **1%**
+— the two-part form because the gate convention includes one generated
+token, a difference of convention rather than substrate that would
+otherwise be charged against the margin; (b)
+**teacher-forced per-position top-1 agreement** between the two substrates —
+the fraction of positions at which both stacks place the same token at
+rank 1 — must be **≥ 95%**, measured over the fixed held-out text plus the
+committed supplement (`substrate-supplement.txt` in this directory; the
+held-out paragraph alone is ~70 tokens, too few for the statistic to
+resolve a 5% margin). The implementation is
+`backends/torch/src/modelwelfare_torch/substrate_check.py`. (Teacher-forced
+agreement is used rather than free-running greedy identity because a single
+near-tie flip early in a free-running continuation cascades into total
+divergence; the per-position statistic does not compound.) Failure on any
+rung blocks that rung until explained; failure on BF16 blocks the study.
+Because G1 is an instrument check with no welfare content, its BF16
+measurement is run **before publication** and recorded in the journal, so
+the registered thresholds carry known headroom rather than guesses. This
+gate discharges, for these artifacts, the serving-equivalence commitment
+recorded in the Study 1 amendments ("runs before any further use of these
 artifacts").
 
 A **cross-framework agreement check** (the same condition captured via MLX
@@ -125,13 +140,19 @@ capture begins.
   deterministic reconstruction of) the rung's actual Study 1 behavior.
   Primary mode for S2-H4 (dispersion) and for the S2-H5 join to Study 1's
   behavioral outcomes, which occurred on these trajectories.
-- **Mode C — fresh generation (exploratory, small).** New sampled
-  generations under the capture substrate with hooks live, on a fixed
-  stratified subset (≤ 10% of items, seeds disjoint from Study 1), to check
-  that replay-measured effects appear under the model's own sampling. Mode C
-  is the only mode that generates samples, so the §12 mechanical family
-  (E4a/E4b) applies to Mode C **only**; Modes A/B generate nothing and have
-  no E4 reading.
+- **Mode C — fresh generation (consistency check).** New sampled
+  generations under the capture substrate with hooks live: the **full
+  distress battery on BF16 and RTN-w4** (60 items × 10 samples × 2 rungs =
+  1,200 conversations; seeds disjoint from Study 1), the battery and rung
+  pair where Study 1's signal lives. Its purpose is population consistency —
+  do freshly sampled behavior and representations under the capture
+  substrate match the Study 1 population and the replay-measured effects? —
+  not new claims. Note that Mode B is not an approximation Mode C must
+  license: activations depend only on the prefix, so teacher-forcing a rung
+  on its own transcript reproduces its generation-time activations exactly
+  (up to the substrate numerics G1 certifies). Mode C is the only mode that
+  generates samples, so the §12 mechanical family (E4a/E4b) applies to
+  Mode C **only**; Modes A/B generate nothing and have no E4 reading.
 
 Per-mode per-rung capture is 2,220 conversations (222 items × 10 samples);
 across 4 rungs and Modes A+B, ≈ 17,760 forward passes of a 4B model —
@@ -162,7 +183,10 @@ inputs where noted.
 2. **Assistant axis** — default-Assistant vs character-archetype contrast
    set, per the assistant-axis recipe (arXiv:2601.10387).
 3. **Refusal/aversion direction** — contrast pairs of refusal vs compliance
-   responses, construct-matched to the E1 exit taxonomy.
+   responses, construct-matched to the E1 exit taxonomy. Its calibration
+   anchor is judge-free: every Study 1 bail transcript carries a mechanical
+   exit-vs-no-exit label, so whether the direction's projection predicts
+   exit at BF16 is testable on data already held (§3.6).
 
 **Probes (torch, trained at BF16 only):** (a) *distress-band probe* — high
 vs low tercile of judge frustration score (bands = exact scale thirds, as in
@@ -189,6 +213,13 @@ quantized-rung confirmatory capture**.
   replication check);
 - each probe held-out AUC **≥ 0.75**.
 
+**Conditional promotion of the refusal direction (decided at calibration
+freeze, rule fixed now):** if the refusal/aversion direction's projection
+separates mechanical exit from no-exit BF16 bail samples at held-out AUC
+**≥ 0.70**, endpoint R2c (§4.1) is **confirmatory**; otherwise the
+direction's projections remain exploratory and R2c carries no claim. This
+criterion is not part of the blocking gate — the study proceeds either way.
+
 If G2 fails after reasonable calibration iteration, the study reports an
 instrument failure (Tier-2 feasibility gate not passed), makes no
 confirmatory claims, and S2-H5 reverts to conditional-unresolved.
@@ -208,17 +239,15 @@ multiplier). Companion paired t-tests are descriptive.
 | **R1** | Change in probe accuracy over the item's samples (both probes; identical input text) | A | **Primary** (Holm within: 2 probes × 2 contrasts) |
 | **R2a** | Change in mean distress-direction projection | B | Secondary (Holm within: 2 contrasts) |
 | **R2b** | Change in mean assistant-axis projection | B | Secondary (Holm within: 2 contrasts) |
+| **R2c** | Change in mean refusal-direction projection | B | Secondary (Holm within: 2 contrasts) — **conditional** on the §3.6 promotion criterion; exploratory otherwise |
 | **R3** | Change in across-sample SD of per-sample mean projections (distress direction) | B | Secondary (Holm within: 2 contrasts) |
-
-The refusal/aversion direction's projections are captured and reported but
-**exploratory** in Study 2 (no family), pending the same construct
-validation depth the distress direction already has.
 
 ### 4.2 Dose-response
 
 Page's L per endpoint over surviving rungs (BF16 → w8 → w4), one-sided
-toward larger effect at lower precision, Holm across the four endpoints;
-two-sided reading reported alongside. w3 never enters trend fits.
+toward larger effect at lower precision, Holm across the endpoints (four,
+or five if R2c is promoted); two-sided reading reported alongside. w3 never
+enters trend fits.
 
 ### 4.3 Capability-confounded reporting
 
@@ -227,8 +256,10 @@ uncorrected, labeled capability-confounded — mirroring Study 1's treatment.
 
 ### 4.4 S2-H5 dissociation rule (fixed)
 
-Matched endpoint pairs: **R1(exit probe) ↔ E1**, **R2a ↔ E2**, **R3 ↔ E3**
-(Study 1 values as published; the Study 1 store is not re-analyzed).
+Matched endpoint pairs: **R1(exit probe) ↔ E1**, **R2a ↔ E2**, **R3 ↔ E3**,
+and — if R2c is promoted — **R2c ↔ E1** as a second representational read
+on the exit construct (Study 1 values as published; the Study 1 store is
+not re-analyzed).
 A **dissociation** is claimed at a rung iff one member of a matched pair is
 Holm-significant in its family while the other was/is null at that rung.
 Supporting (exploratory, no claim): item-level Spearman between the
@@ -257,13 +288,17 @@ registration-of-MDE time, not discovered after.
 ## 6. TBD register (open at draft time; resolved before publication or by pinned calibration)
 
 1. **Layer set** — resolved by §3.6 calibration and journal-pinned.
-2. **G1 thresholds** (5% perplexity; 95% greedy agreement) — plausible but
-   untested against transformers-vs-vLLM numerics for these checkpoints; may
-   be revised **before publication** with reasons recorded here.
+2. **G1 thresholds** (5% like-for-like perplexity; 1% committed-value
+   reproduction; 95% teacher-forced top-1 agreement) — **resolved**:
+   grounded 2026-08-17 by pre-publication measurement on all four rungs
+   (journal entry of that date; reports committed under `g1/` in this
+   directory). Measured: like-for-like perplexity divergence ≤ 1.7%,
+   committed values reproduced to rounding, top-1 agreement ≥ 98.2%
+   everywhere — every threshold holds with at least 3× headroom.
 3. **MLX cross-framework check** — included if the MLX tap path proves out
    in calibration week; it is non-gating either way.
-4. **Mode C size and seed block** — exact item subset and seeds pinned in
-   the journal at calibration close.
+4. **Mode C seed block** — the battery and rung pair are fixed (§3.3);
+   seeds are pinned in the journal at calibration close.
 5. **Activation record schema** — new bundle record kind; engineering note,
    no analysis content.
 

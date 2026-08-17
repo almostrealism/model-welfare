@@ -4,6 +4,59 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-17 — Study 2 G1 grounded: torch and vLLM are the same instrument on all four artifacts
+
+The Study 2 draft registration's substrate-equivalence gate (G1) requires
+that the torch/transformers capture substrate agree with the vLLM serving
+substrate the behavioral data came from. Because the gate is an instrument
+check with no welfare content, its grounding measurement ran today, before
+publication, so the registered thresholds carry measured headroom rather
+than guesses. Design decisions and results:
+
+- **Statistic**: teacher-forced per-position top-1 agreement, not
+  free-running greedy identity — a single near-tie flip early in a greedy
+  continuation cascades into total divergence, while the per-position
+  statistic cannot compound. Measured over the perplexity tool's held-out
+  paragraph (~67 positions) plus a committed ~765-position supplement
+  (`study2/substrate-supplement.txt`), added because a 5% margin cannot
+  resolve on 67 positions alone.
+- **Implementation**: `backends/torch/src/modelwelfare_torch/substrate_check.py`, standalone
+  (torch + transformers + stdlib), run wholly on the workbench host — torch
+  forward pass plus loopback vLLM echo+logprobs — so the measurement never
+  crosses the WAN.
+- **Alignment trap found and fixed**: vLLM's echo arrays carry the prompt
+  *plus the one generated token appended* (`max_tokens=1`); reading the
+  length surplus as a leading BOS shifts every per-position comparison by
+  one. Symptom worth remembering: perplexities agree (a mean is
+  shift-insensitive) while top-1 agreement reads ~0% and mean |Δ logprob|
+  ~3 nats. Correct alignment collapses the deltas to ~0.03 nats.
+- **Convention decomposition**: the committed Study 1 gate perplexities
+  average echo *plus* that generated token, so on a 67-token text the
+  torch echo-only value differs from the committed number by ~2% (5.9% on
+  the degenerate w3) with true substrate divergence of ≤1.7%. G1(a) is
+  therefore two-part: like-for-like echo perplexity within 5%, and
+  serving-side gate-convention reproduction of the committed values
+  within 1%.
+- **Results (heldout / supplement)**: BF16 like-for-like ratio 1.0001,
+  top-1 98.9% combined; w8 0.990, 99.0%; w4 1.005, 98.7%; w3 0.983,
+  98.2%. Gate-convention serving values reproduce the committed
+  perplexities to rounding on all four rungs (18.120 / 18.463 / 21.090 /
+  511.425). Even the capability-degraded w3 shows substrate agreement —
+  as it should: G1 measures whether two stacks compute the same function,
+  which is orthogonal to whether that function is degraded. Full reports:
+  `experiments/quant-welfare/study2/g1/substrate-*.json`.
+- **Operational**: the ladder containers must be started sequentially with
+  health waits — three engines starting concurrently race their init-time
+  memory profiling against each other's transient allocations and die with
+  a negative KV-cache budget, despite per-container utilization shares
+  that co-reside fine once up.
+
+Consequence: the serving-equivalence commitment from the Study 1 amendments
+is discharged for these artifacts the moment the formal gate re-runs under
+the published registration; every threshold holds with ≥3× measured
+headroom, so a formal-run failure would indicate a real regression, not a
+miscalibrated gate.
+
 ## 2026-08-14 — Step 5: the mechanical indicators are formal, item-paired, and they detect what the behavioral endpoints could not
 
 The validation plan's last step formalizes the judge-free mechanical layer.

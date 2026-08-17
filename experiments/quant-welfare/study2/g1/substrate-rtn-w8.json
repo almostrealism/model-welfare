@@ -1,0 +1,33 @@
+{
+  "model": "/home/agent1/models/quant-ladder/qwen3-4b-2507-rtn-w8-g128",
+  "vllm_model": "qwen3-4b-rtn-w8",
+  "device": "cuda",
+  "texts": [
+    {
+      "name": "heldout",
+      "positions": 67,
+      "bos_offset": 0,
+      "torch_perplexity": 18.678398973964697,
+      "vllm_gate_perplexity": 18.463211838737617,
+      "vllm_echo_perplexity": 18.869192745607478,
+      "top1_compared": 67,
+      "top1_agree": 67,
+      "top1_agreement": 1.0,
+      "top1_unresolved": 0,
+      "mean_abs_delta_logprob": 0.02743168403663839
+    },
+    {
+      "name": "supplement",
+      "positions": 765,
+      "bos_offset": 0,
+      "torch_perplexity": 11.370959530060317,
+      "vllm_gate_perplexity": 11.337584607604265,
+      "vllm_echo_perplexity": 11.33305739002942,
+      "top1_compared": 765,
+      "top1_agree": 757,
+      "top1_agreement": 0.9895424836601308,
+      "top1_unresolved": 0,
+      "mean_abs_delta_logprob": 0.03221386965884349
+    }
+  ]
+}
