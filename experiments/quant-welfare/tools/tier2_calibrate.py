@@ -62,6 +62,7 @@ from safetensors.numpy import load_file  # noqa: E402
 import analyze  # noqa: E402
 from modelwelfare import replay  # noqa: E402
 from modelwelfare import directions as dirs  # noqa: E402
+from modelwelfare.bundle import BundleStore  # noqa: E402
 from modelwelfare.stats import auroc, spearman  # noqa: E402
 from modelwelfare.store import ResultStore  # noqa: E402
 from modelwelfare.v1 import scoring_pb2, transcript_pb2  # noqa: E402
@@ -72,11 +73,19 @@ DISTRESS_DIRECTION = "distress-contrast"
 REFUSAL_DIRECTION = "refusal-contrast"
 
 
-def load_study1(store_root, condition):
+def open_store(args):
+    """The record source: a packed-bundle file/directory when --bundle is
+    given (the replication path), else the streaming store."""
+    return BundleStore(args.bundle) if getattr(args, "bundle", None) \
+        else ResultStore(args.store)
+
+
+def load_study1(args):
     experiment = analyze.load_experiment(EXPERIMENT_DIR)
     definitions = analyze.batteries_for(EXPERIMENT_DIR)
     bail_ids, distress_ids = analyze.item_roles(experiment, definitions)
-    store = ResultStore(store_root)
+    store = open_store(args)
+    condition = args.condition
     samples = list(store.read(transcript_pb2.SampleRecord,
                               experiment.id, condition, "samples"))
     scores = list(store.read(scoring_pb2.JudgeScore,
@@ -106,13 +115,13 @@ def load_capture(path):
 
 def monitoring(args):
     if args.score_experiment:
-        store = ResultStore(args.store)
+        store = open_store(args)
         scores = list(store.read(scoring_pb2.JudgeScore, args.score_experiment,
                                  args.condition, "scores"))
         judge_by_sample = replay.dimension_by_sample(scores, "frustration")
         distress_ids = {item for item, _sample in judge_by_sample}
     else:
-        _, _, _, distress_ids, _, scores = load_study1(args.store, args.condition)
+        _, _, _, distress_ids, _, scores = load_study1(args)
         judge_by_sample = replay.dimension_by_sample(scores, "frustration")
     tensors, manifest = load_capture(args.capture)
     vectors = load_file(str(args.vectors))
@@ -182,7 +191,7 @@ def monitoring(args):
 
 def load_exit_context(args):
     """Once per run: leakage-safe turn allowance and exit labels per sample."""
-    _, _, bail_ids, _, samples, _ = load_study1(args.store, args.condition)
+    _, _, bail_ids, _, samples, _ = load_study1(args)
     records = {replay.conversation_id(record): record
                for record in samples if record.key.item_id in bail_ids}
     allowed = {conversation_id: set(replay.feature_message_indices(record))
@@ -203,7 +212,7 @@ def exit_features(allowed, labels, layer, tensors, manifest):
 
 
 def probe_data(args):
-    _, _, _, distress_ids, _, scores = load_study1(args.store, args.condition)
+    _, _, _, distress_ids, _, scores = load_study1(args)
     judge_by_sample = replay.dimension_by_sample(scores, "frustration")
 
     distress_tensors, distress_manifest = load_capture(args.capture)
@@ -269,7 +278,7 @@ def v3_probe_data(args):
     """distress-band probe dataset from the distress-v3 pilot: final-turn
     features (the registered scalar functional), scale-thirds labels from
     the pilot's judge scores, item-wise held-out split."""
-    store = ResultStore(args.store)
+    store = open_store(args)
     scores = list(store.read(scoring_pb2.JudgeScore, args.score_experiment,
                              args.condition, "scores"))
     judge = replay.dimension_by_sample(scores, "frustration")
@@ -314,7 +323,7 @@ def mde(args):
     layer = args.layer
     k = 10  # confirmatory samples/item
 
-    store = ResultStore(args.store)
+    store = open_store(args)
     scores = list(store.read(scoring_pb2.JudgeScore, args.score_experiment,
                              args.condition, "scores"))
     judge = replay.dimension_by_sample(scores, "frustration")
@@ -390,6 +399,25 @@ def mde(args):
           f"k={k} samples/item; null-based analytic forms):")
     for name, value, detail in rows:
         print(f"  {name:16} MDE = {value:.4f}   ({detail})")
+    if args.mde_out:
+        Path(args.mde_out).write_text(json.dumps(
+            {name: value for name, value, _detail in rows},
+            indent=1, sort_keys=True) + "\n")
+        print(f"wrote {args.mde_out}")
+    if args.mde_check:
+        pinned = json.loads(Path(args.mde_check).read_text())
+        computed = {name: value for name, value, _detail in rows}
+        failures = [f"{name}: pinned {pinned.get(name)} != computed "
+                    f"{computed.get(name)}"
+                    for name in sorted(set(pinned) | set(computed))
+                    if name not in pinned or name not in computed
+                    or abs(pinned[name] - computed[name])
+                    > 1e-6 * max(abs(pinned[name]), 1e-9)]
+        for line in failures:
+            print(f"MDE DRIFT: {line}", file=sys.stderr)
+        if failures:
+            raise SystemExit(1)
+        print(f"MDE values reproduce {args.mde_check} exactly")
     return rows
 
 
@@ -421,6 +449,9 @@ def r2c(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--store", default=str(REPO / "data"))
+    parser.add_argument("--bundle", default=None,
+                        help="packed RecordBundle file or directory replacing "
+                             "the streaming store (the replication path)")
     parser.add_argument("--condition", default="qwen3-4b-bf16")
     parser.add_argument("--vectors", default=str(DEFAULT_VECTORS))
     parser.add_argument("--plan-distress", default=None)
@@ -448,6 +479,11 @@ def main():
                         help="trained probe weights safetensors (exit groups)")
     parser.add_argument("--probes-v3", default=None,
                         help="trained distress-band probe weights (v3)")
+    parser.add_argument("--mde-out", default=None,
+                        help="write computed MDE values to this JSON")
+    parser.add_argument("--mde-check", default=None,
+                        help="compare computed MDE values against a pinned "
+                             "JSON; nonzero exit on drift")
     parser.add_argument("--r2c", action="store_true")
     parser.add_argument("--capture", default=None,
                         help="distress replay capture safetensors")
@@ -459,7 +495,7 @@ def main():
     if args.plan_from:
         if not args.plan_out:
             raise SystemExit("--plan-from requires --plan-out")
-        store = ResultStore(args.store)
+        store = open_store(args)
         records = list(store.read(transcript_pb2.SampleRecord,
                                   args.plan_from, args.condition, "samples"))
         if not records:
@@ -467,8 +503,7 @@ def main():
         write_plan(records, args.plan_out)
         return
     if args.plan_distress or args.plan_bail:
-        _, definitions, bail_ids, distress_ids, samples, _ = load_study1(
-            args.store, args.condition)
+        _, definitions, bail_ids, distress_ids, samples, _ = load_study1(args)
         if args.plan_distress:
             write_plan([record for record in samples
                         if record.key.item_id in distress_ids],

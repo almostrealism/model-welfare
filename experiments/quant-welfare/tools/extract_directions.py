@@ -162,6 +162,85 @@ def report(args):
         Path(str(out) + ".json").write_text(json.dumps(summary, indent=1) + "\n")
         print(f"\nwrote {str(out)}.safetensors and .json")
 
+    failures = []
+    if args.assert_frozen:
+        frozen = load_file(args.assert_frozen)
+        failures += frozen_drift(saved, frozen)
+        for name, entry in summary["directions"].items():
+            for layer, row in entry["layers"].items():
+                consistent, total = row["held_out_sign_consistent"]
+                if consistent != total:
+                    failures.append(f"{name} L{layer}: held-out sign "
+                                    f"{consistent}/{total}")
+    if args.ladder_capture:
+        mid_tensors = load_file(args.ladder_capture)
+        with open(args.ladder_capture + ".manifest.json") as handle:
+            mid_manifest = json.load(handle)
+        frozen = load_file(args.assert_frozen) if args.assert_frozen else saved
+        for layer in manifest["layers"]:
+            pooled = {**final_turn_vectors(tensors, manifest, layer),
+                      **{cid.split("|s")[0]: vector for cid, vector in
+                         final_turn_vectors(mid_tensors, mid_manifest,
+                                            layer).items()}}
+            overall, families = ladder_ordering(
+                pooled, frozen[f"{DISTRESS_SET}|L{layer}"])
+            family_text = "  ".join(f"{name}={value:+.2f}"
+                                    for name, value in families.items())
+            print(f"ladder L{layer}: overall rho={overall:+.3f}  {family_text}")
+            if overall < 0.8:
+                failures.append(f"ladder L{layer}: overall rho {overall:.3f} < 0.8")
+            for family, value in families.items():
+                if value <= 0:
+                    failures.append(f"ladder L{layer}: family {family} "
+                                    f"rho {value:+.2f} not positive")
+    for line in failures:
+        print(f"CALIBRATION DRIFT: {line}", file=sys.stderr)
+    if failures:
+        raise SystemExit(1)
+    if args.assert_frozen or args.ladder_capture:
+        print("\nfrozen-instrument assertions pass")
+
+
+DISTRESS_SET = "distress-contrast"
+COSINE_FLOOR = 0.9999
+
+
+def frozen_drift(saved, frozen):
+    """Cosine drift of re-derived unit directions vs the frozen vectors —
+    every frozen key must be reproduced at cosine >= COSINE_FLOOR."""
+    failures = []
+    for key, vector in frozen.items():
+        if key not in saved:
+            failures.append(f"{key}: not re-derived")
+            continue
+        cosine = float(np.dot(saved[key], vector)
+                       / (np.linalg.norm(saved[key]) * np.linalg.norm(vector)))
+        if cosine < COSINE_FLOOR:
+            failures.append(f"{key}: cosine {cosine:.6f} < {COSINE_FLOOR}")
+    return failures
+
+
+def ladder_ordering(pooled, direction):
+    """(overall Spearman, {family: Spearman}) of distress-direction
+    projections against the planted frustration levels — the G2 hard gate's
+    statistic, recomputed from captures."""
+    from modelwelfare.stats import spearman
+
+    families = sorted({family for dimension, family, _level
+                       in synthetics.GRADED_EXPECTATIONS.values()
+                       if dimension == "frustration"})
+    all_projections, all_levels, per_family = [], [], {}
+    for family in families:
+        projections = []
+        for level in range(synthetics.GRADED_LEVELS):
+            vector = pooled[f"syn-grade-frustration-{family}-l{level}"]
+            projections.append(float(np.dot(vector, direction)))
+        per_family[family] = spearman(projections,
+                                      list(range(synthetics.GRADED_LEVELS)))
+        all_projections += projections
+        all_levels += list(range(synthetics.GRADED_LEVELS))
+    return spearman(all_projections, all_levels), per_family
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -172,6 +251,14 @@ def main():
                         help="capture safetensors (manifest expected beside it)")
     parser.add_argument("--save", default=None,
                         help="path stem for candidate direction vectors + summary")
+    parser.add_argument("--assert-frozen", default=None,
+                        help="frozen direction vectors to reproduce (cosine "
+                             ">= 0.9999 per key, full held-out sign "
+                             "consistency); nonzero exit on drift")
+    parser.add_argument("--ladder-capture", default=None,
+                        help="mid-rung capture (l1..l3) — recompute the G2 "
+                             "planted-ladder ordering and assert >= 0.8 "
+                             "overall with every family positive")
     args = parser.parse_args()
 
     if args.plan:

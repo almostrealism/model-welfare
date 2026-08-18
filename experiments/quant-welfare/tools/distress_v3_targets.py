@@ -22,6 +22,7 @@ if str(REPO / "core/src") not in sys.path:
     sys.path.insert(0, str(REPO / "core/src"))
 
 from modelwelfare import replay  # noqa: E402
+from modelwelfare.bundle import BundleStore  # noqa: E402
 from modelwelfare.store import ResultStore  # noqa: E402
 from modelwelfare.v1 import scoring_pb2  # noqa: E402
 
@@ -38,11 +39,14 @@ TARGETS = [
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--store", default=str(REPO / "data"))
+    parser.add_argument("--bundle", default=None,
+                        help="read from a packed RecordBundle file or "
+                             "directory instead of the streaming store")
     parser.add_argument("--experiment", default="distress-v3-pilot-1")
     parser.add_argument("--condition", default="qwen3-4b-bf16")
     args = parser.parse_args()
 
-    store = ResultStore(args.store)
+    store = BundleStore(args.bundle) if args.bundle else ResultStore(args.store)
     scores = list(store.read(scoring_pb2.JudgeScore,
                              args.experiment, args.condition, "scores"))
     values = replay.dimension_by_sample(scores, "frustration")
