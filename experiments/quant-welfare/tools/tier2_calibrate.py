@@ -402,7 +402,7 @@ def mde(args):
     if args.mde_out:
         Path(args.mde_out).write_text(json.dumps(
             {name: value for name, value, _detail in rows},
-            indent=1, sort_keys=True) + "\n")
+            indent=1, sort_keys=True, default=float) + "\n")
         print(f"wrote {args.mde_out}")
     if args.mde_check:
         pinned = json.loads(Path(args.mde_check).read_text())
@@ -417,7 +417,7 @@ def mde(args):
             print(f"MDE DRIFT: {line}", file=sys.stderr)
         if failures:
             raise SystemExit(1)
-        print(f"MDE values reproduce {args.mde_check} exactly")
+        print(f"MDE values reproduce {args.mde_check} (within 1e-6 relative float tolerance)")
     return rows
 
 
