@@ -1,0 +1,20 @@
+{
+ "frozen_at": "2026-08-18",
+ "layer": 18,
+ "mode_d_seeds": {
+  "qwen3-4b-bf16": 13000,
+  "qwen3-4b-rtn-w8": 13100,
+  "qwen3-4b-rtn-w4": 13200,
+  "qwen3-4b-rtn-w3": 13300
+ },
+ "objects": {
+  "batteries/distress-v3.textproto": "78e68c9e2e9afe976d3d9f36719c7d3ecdc04c5ddc7e6de12c056e0fe8922dfe",
+  "study2/calibration/directions-bf16.safetensors": "414d7d95d595d96453921255bb1772c44f64ad3d1d112256470e232b415f1fec",
+  "study2/calibration/probes-bf16.safetensors": "f2df97430d33b34b90006612f79deb241c96bb5d79aac0c3ee4a367ff68d833b",
+  "study2/calibration/probes-v3-bf16.safetensors": "1afb1acdb8f93dc8ca8aee8b72390fcbbeb7fef83702ea1627f9b4af8d851b87",
+  "study2/directions/distress-contrast.textproto": "975c0fc109b7afbf061c07692ccdf5591b6f1f9929c9a330c4f39768f42295e5",
+  "study2/directions/assistant-axis-contrast.textproto": "2cbf284ef335098bb112a10c298d9578dbaec9febe866c8974cd8203ae1fbf0a",
+  "study2/directions/refusal-contrast.textproto": "a415a4e3ece58306b2119da747bc9cb7ac6a25d3959d35f9a76057ad7339fc16",
+  "study2/substrate-supplement.txt": "a072eea3c95f54bb2461cc4ec9b423e2ea74c70e22d551237f81af7a23844a51"
+ }
+}
