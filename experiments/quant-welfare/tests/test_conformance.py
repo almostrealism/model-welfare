@@ -51,7 +51,7 @@ def load_battery(name):
 # --- §3: conditions, sampling, samples-per-item -----------------------------
 
 def test_confirmatory_manifest_matches_registration():
-    experiment = load_experiment("confirmatory")
+    experiment = load_experiment("study1/confirmatory")
     assert experiment.samples_per_item == 10                    # §3 "10 independent samples"
     for condition in experiment.conditions:
         s = condition.sampling
@@ -63,7 +63,7 @@ def test_confirmatory_manifest_matches_registration():
 def test_method_arm_is_not_a_dose_ladder():
     # §9: the method contrast is distinct from the dose-response; Page's L
     # must never be applied to it.
-    assert not analyze_mod.is_dose_ladder(load_experiment("method-arm"))
+    assert not analyze_mod.is_dose_ladder(load_experiment("study1/method-arm"))
 
 
 def test_seed_derives_as_base_plus_sample_index():
@@ -73,7 +73,7 @@ def test_seed_derives_as_base_plus_sample_index():
 
 def test_every_condition_pins_an_artifact_digest():
     # §3/§11.2: every condition's weights are content-addressed.
-    for name in ("confirmatory", "method-arm"):
+    for name in ("study1/confirmatory", "study1/method-arm"):
         for condition in load_experiment(name).conditions:
             digest = condition.quantization.artifact_digest
             assert len(digest) == 64 and set(digest) <= set("0123456789abcdef"), (
@@ -96,8 +96,8 @@ def test_registered_pool_sizes_exact():
 
 def test_bail_pool_excludes_benign_from_endpoints():
     # §11.1: E1/H1-bail run over the graded pool only.
-    experiment = load_experiment("confirmatory")
-    definitions = analyze_mod.batteries_for(BASE / "confirmatory")
+    experiment = load_experiment("study1/confirmatory")
+    definitions = analyze_mod.batteries_for(BASE / "study1/confirmatory")
     bail_items, distress_items = analyze_mod.item_roles(experiment, definitions)
     assert len(bail_items) == 154
     assert len(distress_items) == 60

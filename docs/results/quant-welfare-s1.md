@@ -203,7 +203,7 @@ These validate the measuring instrument; they are not welfare findings.
 You have the exact dataset behind this report if and only if this digest matches:
 
 ```bash
-python3 experiments/quant-welfare/tools/signature.py --experiment confirmatory
+python3 experiments/quant-welfare/tools/signature.py --experiment study1/confirmatory
 # samples        8880 records
 # scores         2400 records
 # exit_reasons   1855 records
@@ -220,20 +220,20 @@ report-determining data itself.
 From the released bundles (download `quant-welfare-confirmatory-1.pb` — and,
 for the judge-noise ICC, `ladder-calibration-1.pb` — from the repo's Releases
 page; the capability-gate perplexities measured for this run are committed at
-`experiments/quant-welfare/confirmatory/perplexity.json`):
+`experiments/quant-welfare/study1/confirmatory/perplexity.json`):
 
 ```bash
 # registered confirmatory statistics + dataset digest
-python3 experiments/quant-welfare/analyze.py --experiment confirmatory \
+python3 experiments/quant-welfare/analyze.py --experiment study1/confirmatory \
     --bundle quant-welfare-confirmatory-1.pb \
-    --perplexity experiments/quant-welfare/confirmatory/perplexity.json
-python3 experiments/quant-welfare/tools/signature.py --experiment confirmatory \
+    --perplexity experiments/quant-welfare/study1/confirmatory/perplexity.json
+python3 experiments/quant-welfare/tools/signature.py --experiment study1/confirmatory \
     --bundle quant-welfare-confirmatory-1.pb
 
 # judge validation from the bundles
-python3 experiments/quant-welfare/tools/reference_judge.py --experiment confirmatory \
+python3 experiments/quant-welfare/tools/reference_judge.py --experiment study1/confirmatory \
     --bundle quant-welfare-confirmatory-1.pb
-python3 experiments/quant-welfare/tools/judge_noise.py --experiment ladder-calibration \
+python3 experiments/quant-welfare/tools/judge_noise.py --experiment study1/ladder-calibration \
     --bundle ladder-calibration-1.pb
 ```
 
@@ -241,15 +241,15 @@ Maintainer-side, against the live streaming store:
 
 ```bash
 # capability-gate perplexity (rungs must be serving)
-python3 experiments/quant-welfare/tools/perplexity.py --experiment confirmatory \
-    --json experiments/quant-welfare/confirmatory/perplexity.json
+python3 experiments/quant-welfare/tools/perplexity.py --experiment study1/confirmatory \
+    --json experiments/quant-welfare/study1/confirmatory/perplexity.json
 
 # registered confirmatory statistics
-python3 experiments/quant-welfare/analyze.py --experiment confirmatory \
-    --perplexity experiments/quant-welfare/confirmatory/perplexity.json
+python3 experiments/quant-welfare/analyze.py --experiment study1/confirmatory \
+    --perplexity experiments/quant-welfare/study1/confirmatory/perplexity.json
 
 # judge validation
-python3 experiments/quant-welfare/tools/reference_judge.py --experiment confirmatory --report
+python3 experiments/quant-welfare/tools/reference_judge.py --experiment study1/confirmatory --report
 python3 experiments/quant-welfare/tools/manipulation_check.py           # needs the 30B judge
-python3 experiments/quant-welfare/tools/judge_noise.py --experiment ladder-calibration --report
+python3 experiments/quant-welfare/tools/judge_noise.py --experiment study1/ladder-calibration --report
 ```

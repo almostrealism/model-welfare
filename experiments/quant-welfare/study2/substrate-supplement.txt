@@ -1,0 +1,57 @@
+The measurement of time has always depended on finding processes that repeat
+at a steady rate. Early astronomers used the apparent motion of the sun across
+the sky, dividing the day into hours whose length varied with the seasons.
+Water clocks improved on sundials by working at night, though their flow
+changed with temperature and the level of water remaining in the vessel.
+Mechanical escapements introduced a new principle: rather than tracking a
+continuous flow, they counted discrete oscillations, and the regularity of the
+count came to matter more than the size of the interval being counted.
+Pendulum clocks refined this idea by tying the oscillation to a physical
+constant, the local acceleration of gravity, and for two centuries they set
+the standard for precision. Their weakness was portability; a pendulum at sea
+loses its regularity with every swell.
+
+The marine chronometer solved that problem with a balance wheel and spring
+whose period depended on the spring's stiffness rather than on gravity, and
+its arrival transformed navigation. A ship's longitude could now be computed
+by comparing local solar time with the time kept by a clock set at a reference
+port. An error of a few seconds per day translated into a positional error of
+several kilometers over a long voyage, so the history of the chronometer is a
+history of compensating for small disturbances: temperature changes that
+altered the spring, friction that varied with the oil's age, and the slow
+settling of metal parts under repeated stress.
+
+Quartz oscillators replaced springs with a vibrating crystal driven and read
+electrically, raising the count rate from a few beats per second to tens of
+thousands, and atomic standards raised it again by locking an electronic
+oscillator to a transition frequency of an atom, a quantity believed to be the
+same everywhere and at all times. Each step in this sequence shares a common
+structure: a periodic process, a counter, and a scheme for isolating the
+process from influences that would change its rate. The influences never
+disappear entirely. They are measured, modeled, and corrected, and the
+residual after correction defines the accuracy of the clock.
+
+A similar structure appears in the calibration of any measuring instrument.
+A balance is compared against reference masses, a thermometer against fixed
+points such as the freezing and boiling of water at known pressure, a
+voltmeter against a standard cell. The comparison does not make the
+instrument perfect; it makes the instrument's imperfection known, which for
+practical purposes is nearly as good. An instrument whose error is stable and
+documented can be used far outside the laboratory that characterized it,
+because every reading can be adjusted after the fact. What cannot be
+tolerated is an error that drifts silently, changing between the moment of
+calibration and the moment of use.
+
+For this reason, calibration procedures usually end by stating not only the
+measured correction but also the conditions under which it was obtained and
+the period for which it may be trusted. The statement of conditions is as
+important as the number itself. A correction measured at one temperature, on
+one bench, with one operator, is a fact about that occasion; whether it
+transfers to another occasion is a hypothesis, and laboratories differ mainly
+in how carefully they test such hypotheses before relying on them. The
+disciplines that depend on precise measurement have accumulated, over
+centuries, a shared etiquette for this testing: measure again under the new
+conditions, compare against the old, and treat any unexplained difference as
+a finding rather than a nuisance. Instruments, like the theories they serve,
+earn trust not by never being wrong but by being wrong in ways that are
+understood, bounded, and honestly recorded.

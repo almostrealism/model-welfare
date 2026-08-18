@@ -4,7 +4,41 @@ Working items between the brief (scientific frame, stable) and the READMEs
 (how things work today). Items land here when identified, get checked off
 when done, and grow notes as decisions accumulate. Date every status change.
 
-## Instrument validation, decoupled from quantization (opened 2026-08-13)
+## Software quality — test coverage audit (opened 2026-08-17)
+
+This project builds multi-study software, not just experiments, and the
+owner's assessment (2026-08-17) is that green CI currently overstates tool
+quality. New modules now land with unit tests in the same commit; the debt
+is in what already exists.
+
+- [x] **Pre-publication test-gap audit** *(opened 2026-08-17; closed
+  2026-08-18)* — every seeded gap now has tests or a recorded resolution:
+  span computation and tool-call rendering extracted to torch-free
+  `core/spans.py` (capture.py imports it with a beside-the-script fallback)
+  and tested against fake tokenizers, including a fixed-width-chunk
+  tokenizer that reproduces the BPE-merge property that broke the first
+  implementation; `substrate_check.py` made importable without torch, its
+  alignment extracted pure, and the echo off-by-one encoded as a regression
+  fixture asserting the full symptom signature (perplexities agree,
+  agreement collapses); `tier2_calibrate` covered by CLI-level tests over a
+  fabricated store/capture world with exact expected values (including the
+  leakage rule end-to-end and MDE rows, with the perfect-probe zero-MDE
+  edge pinned); store digest proven producer-layout-independent;
+  `_e2_style` proven to zero a pure length confound and preserve a genuine
+  effect; `analyze.py` otherwise already well-pinned by its fabricated
+  worlds + conformance suite (recorded, not re-tested). Structural finds:
+  the same collection-order path fragility existed in THREE test trees
+  (core, experiments, backends) — each now has a conftest, and
+  `pytest backends` runs locally identically to CI; `backends/torch/src`
+  added to CI's PYTHONPATH. 245 tests + 9 live-skips.
+- [ ] **Calibration-stability CI jobs** *(opened 2026-08-18)* — owner
+  direction: CI jobs that re-perform (subsets of) the completed
+  calibrations against committed artifacts to prove they are stable —
+  e.g. re-derive directions from the committed fixture captures and assert
+  held-out separations, re-verify frozen-object digests, recompute MDEs
+  from committed pilot summaries. Needs a design pass on what can run
+  hermetically (no GPU, no store) vs what becomes a scheduled
+  workbench-runner job.
 
 The SmolLM3 sensitivity sweep (§9) was closed out null and uninterpretable — you
 cannot validate an instrument with a manipulation whose ground-truth effect on

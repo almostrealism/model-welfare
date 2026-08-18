@@ -6,7 +6,7 @@
 set -euo pipefail
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO="$(cd "$DIR/../../.." && pwd)"
+REPO="$(cd "$DIR/../../../.." && pwd)"
 RUNGS="$REPO/services/llamacpp/rungs.sh"
 
 wait_healthy() {

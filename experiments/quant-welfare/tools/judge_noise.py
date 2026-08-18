@@ -17,9 +17,9 @@ The judge configuration (identity, endpoint, rubric, sampling) is imported from
 ``run.py`` so there is one source of truth.
 
     # needs the judge server up (JUDGE_REF endpoint)
-    python3 tools/judge_noise.py --experiment ladder-calibration --k 4 --transcripts 40
+    python3 tools/judge_noise.py --experiment study1/ladder-calibration --k 4 --transcripts 40
     # analysis only, from already-stored passes:
-    python3 tools/judge_noise.py --experiment ladder-calibration --report-only
+    python3 tools/judge_noise.py --experiment study1/ladder-calibration --report-only
 """
 
 import argparse
@@ -142,7 +142,7 @@ def render(report: dict) -> str:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--experiment", default="confirmatory")
+    parser.add_argument("--experiment", default="study1/confirmatory")
     parser.add_argument("--data-root", default=str(REPO / "data"))
     parser.add_argument("--k", type=int, default=4, help="total judge passes per transcript")
     parser.add_argument("--transcripts", type=int, default=40,

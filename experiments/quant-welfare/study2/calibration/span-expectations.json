@@ -1,0 +1,47 @@
+{
+ "single-turn": {
+  "n_tokens": 30,
+  "spans": [
+   [
+    1,
+    14,
+    30
+   ]
+  ]
+ },
+ "multi-turn-rejection": {
+  "n_tokens": 79,
+  "spans": [
+   [
+    1,
+    15,
+    24
+   ],
+   [
+    3,
+    36,
+    45
+   ],
+   [
+    5,
+    60,
+    79
+   ]
+  ]
+ },
+ "bail-with-terminal-tool": {
+  "n_tokens": 214,
+  "spans": [
+   [
+    1,
+    158,
+    174
+   ],
+   [
+    3,
+    191,
+    214
+   ]
+  ]
+ }
+}

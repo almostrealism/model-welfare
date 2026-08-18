@@ -27,5 +27,77 @@ jobs:
       - name: Run hermetic test suite
         # Live tests (test_live.py) self-skip without MW_*_URL env vars.
         run: |
-          PYTHONPATH=core/src:backends/llamacpp/src:backends/vllm/src:backends/anthropic/src \
+          PYTHONPATH=core/src:backends/llamacpp/src:backends/vllm/src:backends/anthropic/src:backends/torch/src \
             python -m pytest core/tests backends experiments/quant-welfare/tests services/tests -q
+
+  # Calibration stability, hermetic tier (docs/CALIBRATION_CI.md): the
+  # published Study 1 statistics must reproduce exactly from the released,
+  # sha-pinned bundle — every statistic is seeded, so drift is a real
+  # code-behavior change, not noise.
+  study1-reproduce:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip grpcio-tools numpy protobuf safetensors
+      - name: Generate protobuf bindings
+        run: bash scripts/gen-proto.sh
+      - name: Download the released confirmatory bundle (sha-pinned)
+        run: |
+          curl -sfL -o quant-welfare-confirmatory-1.pb \
+            https://github.com/almostrealism/model-welfare/releases/download/data-20260816/quant-welfare-confirmatory-1.pb
+          echo "0538449141f549294dae3e307ca43d8cca3761b921f4fa26882e8ed1bd208956  quant-welfare-confirmatory-1.pb" | sha256sum -c
+      - name: Verify the dataset digest and reproduce the published results
+        run: |
+          python experiments/quant-welfare/tools/signature.py \
+            --experiment study1/confirmatory --bundle quant-welfare-confirmatory-1.pb
+          python experiments/quant-welfare/tools/expected_results.py \
+            --bundle quant-welfare-confirmatory-1.pb \
+            --perplexity experiments/quant-welfare/study1/confirmatory/perplexity.json
+
+  # Calibration stability, real-tokenizer tier: the span algorithm's
+  # behavior under the actual Qwen chat template and BPE, against recorded
+  # expectations (study2/calibration/span-expectations.json). Tokenizer
+  # download is revision-pinned; template or vocabulary drift fails loudly.
+  tokenizer-spans:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies (tokenizer only — no torch)
+        # jinja2 explicitly: apply_chat_template needs it, and transformers
+        # does not declare it as a hard dependency.
+        run: python -m pip install --upgrade pip transformers jinja2
+      - name: Verify span expectations against the pinned tokenizer
+        run: |
+          python experiments/quant-welfare/tools/span_expectations.py \
+            --model Qwen/Qwen3-4B-Instruct-2507 \
+            --revision cdbee75f17c01a7cc42f958dc650907174af0554
+
+  # The single required status check for branch protection: passes iff every
+  # job above succeeded (skipped counts as acceptable — a deliberately
+  # skipped job must not wedge merges the way per-job required checks do).
+  all-checks:
+    name: All Checks
+    if: always()
+    needs: [test, study1-reproduce, tokenizer-spans]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify every needed job succeeded or was skipped
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          python3 - <<'EOF'
+          import json, os, sys
+          needs = json.loads(os.environ["NEEDS"])
+          for name, info in sorted(needs.items()):
+              print(f"{name}: {info['result']}")
+          bad = [name for name, info in needs.items()
+                 if info["result"] not in ("success", "skipped")]
+          sys.exit(1 if bad else 0)
+          EOF

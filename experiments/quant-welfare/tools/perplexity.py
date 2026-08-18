@@ -15,7 +15,7 @@ never hardwired to one ladder — measure every rung BEFORE tearing it down).
 Non-vLLM endpoints are skipped with a note: the measure is defined over vLLM
 echo+logprobs.
 
-    python3 tools/perplexity.py --experiment confirmatory --json perplexity.json
+    python3 tools/perplexity.py --experiment study1/confirmatory --json perplexity.json
 """
 import argparse
 import json
@@ -73,7 +73,7 @@ def load_experiment(experiment_dir: Path) -> experiment_pb2.Experiment:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--experiment", default="confirmatory",
+    parser.add_argument("--experiment", default="study1/confirmatory",
                         help="experiment directory name under experiments/quant-welfare/")
     parser.add_argument("--endpoints", default=str(BASE / "endpoints.json"),
                         help="condition -> endpoint map (override for lab-local routing)")

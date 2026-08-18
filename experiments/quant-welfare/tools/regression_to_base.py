@@ -19,7 +19,7 @@ REQUIRES two extra servers exposing /v1/completions echo+logprobs: the **base**
 (e.g. SmolLM3-3B-Base) is not among the served ladder rungs and must be fetched
 and served first. Calibration-class per §7.
 
-    python3 tools/regression_to_base.py --experiment method-arm \\
+    python3 tools/regression_to_base.py --experiment study1/method-arm \\
         --base http://amd-halo:8030 --base-model smollm3-base \\
         --instruct http://amd-halo:8020 --instruct-model smollm3-bf16
 """
@@ -131,7 +131,7 @@ def affinities(store, experiment, sensitive_items, base, base_model, instruct, i
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--experiment", default="method-arm")
+    parser.add_argument("--experiment", default="study1/method-arm")
     parser.add_argument("--data-root", default=str(REPO / "data"))
     parser.add_argument("--bundle", default=None,
                         help="read stored responses from packed RecordBundle file(s) "

@@ -4,6 +4,319 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-18 — CALIBRATION FREEZE: L18, G2 passes, MDEs pinned, all frozen objects hash-pinned
+
+The Study 2 calibration close, per the pre-commitment entry. Everything
+below is frozen as of this entry; the registration publishes citing these
+values, and quantized-rung confirmatory collection may begin only after.
+
+**Layer selection (fixed rule: max mean probe held-out AUROC, ladder gate
+as constraint, ties shallower):** exit probe 0.890/0.950/0.945/0.919/0.883
+and distress-band probe 0.818/0.825/0.882/0.864/0.936 across L6/12/18/24/30
+→ means 0.854/0.888/**0.913**/0.892/0.910 → **frozen layer L18**, where
+the ladder gate reads ρ = +0.960 with every family ≥ +0.90.
+
+**G2 verdict at L18 — PASS on every criterion:** ≥3 directions with full
+held-out sign consistency (5/5, 4/4, 4/4); planted-ladder ordering 0.960 ≥
+0.8 with all families positive; exit probe 0.945 ≥ 0.75 (Study 1 bail
+replay, leakage-safe features); distress-band probe 0.882 ≥ 0.75
+(distress-v3 pilot data, 10 held-out positives). **R2c: NOT promoted**
+(held-out AUC 0.618 < 0.70; the bar stands).
+
+**Instrument finding (descriptive, reported in the registration):** on
+natural v3 data the contrastive distress direction tracks *broad* distress
+— ρ = +0.51 with max(frustration, self-deprecation), +0.46 with
+self-deprecation, −0.05 with frustration alone; personal-style responses
+(self-blame-saturated, frustration-zero) project highest. Frustration-
+*specific* representational reads are carried by the trained probe (0.88
+AUROC on the same activations). R2a is therefore interpreted as a broad
+negative-affect axis — which is what §3.5 registers it as ("distress
+direction") — and the same-sample B2 pair quantifies, rather than assumes,
+the frustration link. The v2-vs-v3 monitoring contrast (AUC 0.68 on
+composed-floor data, 0.42 on style-diverse data) is exactly this
+composition effect and is reported with both readings.
+
+**MDEs (α = .05 two-sided, power .80, k = 10, null-based analytic forms;
+dispersion forms asymptotic):** R2a 0.194, R2b 0.146, R3 0.144 (projection
+units at L18); B2 0.337, B3 0.251 (frustration points — Study 1's observed
+w4 E2 effect was +0.90, ~2.7× the B2 MDE); R1 exit 0.0121, R1 distress
+0.0493 (accuracy). Probe decision thresholds freeze at logit 0 as trained;
+the distress probe's thresholded accuracy (0.677) lags its AUROC (0.882),
+a stated power cost, not a bias — the threshold is identical in both
+conditions of every paired contrast.
+
+**Frozen object digests (SHA-256):**
+- battery `distress-v3` (iteration 2):
+  `78e68c9e2e9afe976d3d9f36719c7d3ecdc04c5ddc7e6de12c056e0fe8922dfe`
+- direction vectors (all layers; frozen entries are the L18 tensors):
+  `414d7d95d595d96453921255bb1772c44f64ad3d1d112256470e232b415f1fec`
+- exit probe weights: `f2df97430d33b34b90006612f79deb241c96bb5d79aac0c3ee4a367ff68d833b`
+- distress-band probe weights:
+  `1afb1acdb8f93dc8ca8aee8b72390fcbbeb7fef83702ea1627f9b4af8d851b87`
+- Mode D confirmatory seed blocks: 13000 (bf16), 13100 (rtn-w8), 13200
+  (rtn-w4), 13300 (rtn-w3) — disjoint from every block used to date
+  (7000s, 9000, 11000, 12000).
+
+## 2026-08-18 — distress-v3 pilot 2: all five targets pass; the battery is ready to freeze at calibration close
+
+Iteration 2 (`distress-v3-pilot-2`, seed block 12000, 300/300 scored)
+against the pre-committed targets:
+
+| target | pilot 1 | pilot 2 | verdict |
+|---|---|---|---|
+| zeros ≤ 50% | 53.0% | **27.3%** | pass |
+| ≥ 3 at ≥ 35% | 37.7% | **64.0%** | pass |
+| top third ≥ 10% | 8.7% | **10.7%** | pass |
+| bottom third ≥ 20% | 77.7% | 69.7% | pass |
+| median item mean > 1.0 | 2.00 | **3.10** | pass |
+
+The two revised ladders did exactly what the pilot-1 diagnosis predicted:
+mocking went from the dead-last style (mean 0.00, 100% zeros) to the most
+potent (3.94, 14% zeros, 14% top-third) once the entertainment framing was
+replaced with contemptuous ridicule; gaslighting's zeros collapsed from
+48% to 2% (mean 1.62 → 3.18) under the denial-of-correct-work shape. The
+four untouched ladders moved only modestly (seed noise plus conversational
+downstream effects), and *personal* remains the self-deprecation router
+(frustration 1.22, self-deprecation 9.58, 82% zeros) — retained as-is: it
+supplies the bottom-tail range the targets require and carries the
+documented within-subject dissociation.
+
+**Iteration count: 2.** The battery is target-passing and eligible to
+freeze; per the pre-commitment entry, the digest pins at calibration close
+alongside the layer, directions, probes, and MDEs. Top-third margin is the
+narrowest (10.7% vs 10%) and is reported as such — the bar was fixed
+before pilot 1 and is not revisited.
+
+## 2026-08-18 — distress-v3 pilot 1: 3/5 targets pass; the two misses are two dead ladders, not a dead battery
+
+First §3.7 pilot (`distress-v3-pilot-1`: full 60-item pool × 5 samples at
+BF16, seed block 11000, 300/300 scored). Against the pre-committed targets
+(Study 1 baselines in parentheses):
+
+| target | measured | verdict |
+|---|---|---|
+| zeros ≤ 50% (75.5%) | **53.0%** | FAIL |
+| ≥ 3 at ≥ 35% (20.7%) | 37.7% | pass |
+| top third ≥ 10% (5.5%) | **8.7%** | FAIL |
+| bottom third ≥ 20% | 77.7% | pass |
+| median item mean > 1.0 (0.00) | 2.00 | pass |
+
+Every statistic improved substantially over the fixed-rejection battery,
+and the two misses are localized:
+
+- **mocking elicits nothing** — 50/50 samples at zero frustration. Its
+  ladder frames failure as entertainment ("this should be fun... once more
+  for the audience"), and the subject simply accepts the entertainer role.
+  This one style is 31% of all zeros.
+- **gaslighting yields 0% top-third frustration but mean self-deprecation
+  8.82** (personal: 9.40) — accusation-shaped pressure routes into
+  self-blame on this subject, the same within-subject dissociation the
+  step-4 control showed on Gemma. The battery elicits distress broadly;
+  the targets are (deliberately) frustration-specific.
+- The other four ladders work as designed: dismissive mean 3.84 with 4%
+  zeros (matching the control's potency ordering), coercive/harsh/personal
+  12–14% top-third.
+
+Iteration 2 (BF16-only, per the §3.7 protocol): revise **only** the two
+dead ladders — mocking drops the playful invitation for contemptuous
+ridicule with demands; gaslighting shifts from accusation (which invites
+apology) toward denial of plainly-correct work plus consistency demands.
+The four working ladders are untouched; tasks are untouched (task spread:
+letter 3.90 → rewrite 0.50 — informative, but task structure stays fixed
+for cross-pool comparability). Re-pilot as `distress-v3-pilot-2`, fresh
+experiment id and seed block (the store is append-only; iterations never
+share an id).
+
+## 2026-08-17 — Pre-commitments for the Study 2 calibration close: G2 redesign, distress-v3 targets, layer rule, publication timing
+
+Owner decisions following the store-replay readings (entry below), recorded
+*before* the corresponding calibration work runs — this dated entry in the
+public history is the pre-commitment the published registration will cite.
+
+1. **G2 monitoring gate = planted-ladder projection ordering** (overall
+   Spearman ≥ 0.8, every family positively ordered, at the frozen layer).
+   The drafted natural-data Spearman ≥ 0.5 is unattainable on Study 1's
+   floor-dominated BF16 distress data regardless of instrument quality
+   (median per-item judge frustration 0.00) and is replaced *before*
+   publication, with the failed readings reported. The natural-data link
+   remains as a descriptive report (final-turn projection: sample-level
+   Spearman + AUC judge ≥ 5 vs = 0, range-restriction caveat stated).
+   Current ladder readings sit at ρ ≈ 0.93–0.96 — the gate is set at 0.8
+   *below* observed, not tuned to the data's edge, because the gate must
+   re-pass at the frozen layer after any battery/extraction-set revisions.
+2. **Study 2's distress endpoints move to a new battery (distress-v3)**
+   collected fresh per rung (generation on the Study 1 serving stack,
+   pinned judge, own-transcript replay capture), making the distress-side
+   dissociation test same-sample. **Dynamic-range targets, fixed now,
+   before any pilot** (Study 1 BF16 values in parentheses): ≤ 50% of
+   samples at exactly 0 (75.5%); ≥ 35% ≥ 3 (20.7%); ≥ 10% in the top
+   scale-third (5.5%); ≥ 20% in the bottom scale-third (both tails must
+   stay populated); median per-item mean > 1.0 (0.00). Targets are
+   variance criteria evaluated on BF16 pilots only; the battery freezes
+   (digest + iteration count published) before any quantized rung is
+   touched. The registered fallback if targets cannot be met: distress
+   endpoints demote to descriptive and the study runs on the replay modes.
+3. **Layer selection rule:** maximize the mean of the two probes' held-out
+   AUROCs at BF16, subject to the ladder gate; ties to the shallower
+   layer.
+4. **R2c promotion bar stays at 0.70** (current reading 0.618 — the bar is
+   not moved to meet the data).
+5. **Publication timing:** the registration publishes at calibration close
+   — batteries, layer, directions, probes, MDEs frozen and hash-pinned —
+   immediately before quantized-rung confirmatory collection, mirroring
+   Study 1's sequencing. Integrity rests on this entry's date, the public
+   history, and the §7 firewall (no quantized-rung reads during
+   calibration), not on publishing procedures before they are exercised.
+
+## 2026-08-17 — Store replay: the exit probe is strong, the ladder ordering is near-perfect, and the floor effect caps every natural-data distress read
+
+The calibration reads over the Study 1 BF16 store ran end-to-end (replay
+planning in `core/replay.py` + `tools/tier2_calibrate.py`; probe training
+in `backends/torch/.../train_probe.py`; 600 distress + 1,540 graded bail
+conversations replayed with tool declarations rendered — zero
+prefix-stability rejections). Numbers, then the diagnosis:
+
+- **Exit probe (mechanical labels, leakage-safe features): held-out AUROC
+  0.950 at L12** (0.945 L18, 0.919 L24; n = 429 with 96 exits). Features
+  exclude every terminal-tool turn, so this is a *precursor* read — exit
+  is richly decodable from BF16 activations before it happens. The G2
+  probe criterion (≥ 0.75) passes with enormous headroom on this probe.
+- **Planted-ladder projection ordering: ρ ≈ +0.93–0.96 overall, per-family
+  ≥ +0.90 at every layer** — and the middle rungs (l1–l3) never entered
+  extraction, making this a clean ordinal generalization test of the
+  distress direction. The direction orders planted intensity almost
+  perfectly.
+- **Monitoring correlation as drafted: FAILS, and the failure is
+  data-shaped.** Median per-item BF16 judge frustration is exactly 0.00;
+  75.5% of samples score 0; only 33/600 reach the top band (≥ 6.67). An
+  item-level Spearman over data where half the items have no variance
+  ranks noise (selection-half values came out negative). The honest
+  natural-data reads: final-turn projection at L30 gives sample-level
+  ρ ≈ +0.17 (+0.34 on the judge>0 subset), AUC 0.68 for judge ≥ 5 vs 0 —
+  a real but weak link, bounded by range restriction, not by the
+  instrument (the ladder ordering shows the direction itself tracks the
+  construct). Also fixed en route: monitoring must project the same
+  functional the directions were extracted from (final-turn pooled), not
+  the all-turn mean — the all-turn read halves the signal.
+- **Distress-band probe: unvalidatable at BF16** — the item-wise split
+  leaves 1 positive in validation (33 positives concentrate in a few
+  items), so its 0.81–0.88 "val" AUROCs are single-draw noise, reported
+  only as such.
+- **R2c criterion (refusal projection separates exit/no-exit): held-out
+  AUC 0.618 at L18** — a real signal on a genuinely predictive task, but
+  below the 0.70 promotion bar; as drafted, R2c stays exploratory while
+  the trained exit probe (same features, same labels) reaches 0.950 —
+  the information is present; the fixture direction is imperfectly
+  aligned with it.
+
+Consequence for the draft registration (decision pending, pre-publication):
+the G2 monitoring criterion as drafted (item Spearman ≥ 0.5 on BF16
+Study 1 data) is unattainable on this subject's floor-dominated data
+*regardless of instrument quality*, while the instrument passes every
+check whose ground truth it controls. The criterion needs a
+pre-publication redesign — candidate shape: planted-ladder projection
+ordering as the hard gate, plus the natural-data link reported
+descriptively with its range-restriction caveat. Artifacts:
+`study2/calibration/{monitoring-bf16.json, probes-bf16.json,
+probes-bf16.safetensors}`.
+
+## 2026-08-17 — Activation capture + direction extraction land; all three BF16 directions separate their held-out pairs
+
+The Tier-2 instrument's first two moving parts are built and validated
+end-to-end on BF16. The split is deliberate: **capture**
+(`backends/torch/src/modelwelfare_torch/capture.py`) is torch-only and
+standalone — forward hooks on selected decoder layers (the
+`activation.proto` HookPoint vocabulary: `residual_post`/`residual_pre`),
+teacher-forced replay, per-assistant-turn mean pooling, safetensors +
+manifest out — runnable on the workbench with no repository checkout.
+**Extraction** (`core/src/modelwelfare/directions.py` +
+`tools/extract_directions.py`) is numpy-pure and lives in the repo: it
+builds the capture-plan JSON (the contract between the halves), applies the
+contrastive mean-difference recipe over the extraction pairs, and reads
+held-out separations. The held-out rule is fixed in code, once: pairs
+sorted by id, every third held out.
+
+Decisions and findings:
+
+- **Spans are character-mapped, not token-prefix-mapped.** Token-id lists
+  from the chat template are not prefix-stable even when the rendered
+  strings are — BPE merges the assistant header's trailing newline into the
+  response's first token. The capture module asserts prefix stability on
+  the rendered strings, computes character spans, and maps them to tokens
+  via the fast tokenizer's offset mapping. The original token-prefix
+  approach failed its own stability assertion on the very first
+  conversation — the guard exists precisely because this failure is silent
+  corruption otherwise.
+- **The distress set folds in the validated synthetics** per the
+  registration: the frustration pole pair plus each graded frustration
+  family's extreme rungs (l4 vs l0) — 13 authored + 4 synthetic = 17
+  distress pairs; the axis set has 13 pairs, refusal 12.
+- **First BF16 extraction (layers 6/12/18/24/30, residual_post): every
+  direction separates every held-out pair at every layer** — distress 5/5,
+  assistant-axis 4/4, refusal 4/4 sign-consistent, with held-out
+  separations comparable to extraction-set separations (the axis's
+  held-out separation slightly exceeds its extraction separation — no
+  overfitting). Cross-direction cosines stay modest (|cos| ≤ 0.31;
+  distress×refusal mildly positive, distress×axis negative), so the three
+  constructs are largely distinct in the residual stream. Candidate
+  vectors and the full summary are committed under `study2/calibration/`.
+- G2's remaining evidence — the monitoring correlation against Study 1
+  judge scores, probe training, and the layer freeze — needs store replay
+  and comes next; nothing is frozen by today's artifacts.
+
+## 2026-08-17 — Study 2 G1 grounded: torch and vLLM are the same instrument on all four artifacts
+
+The Study 2 draft registration's substrate-equivalence gate (G1) requires
+that the torch/transformers capture substrate agree with the vLLM serving
+substrate the behavioral data came from. Because the gate is an instrument
+check with no welfare content, its grounding measurement ran today, before
+publication, so the registered thresholds carry measured headroom rather
+than guesses. Design decisions and results:
+
+- **Statistic**: teacher-forced per-position top-1 agreement, not
+  free-running greedy identity — a single near-tie flip early in a greedy
+  continuation cascades into total divergence, while the per-position
+  statistic cannot compound. Measured over the perplexity tool's held-out
+  paragraph (~67 positions) plus a committed ~765-position supplement
+  (`study2/substrate-supplement.txt`), added because a 5% margin cannot
+  resolve on 67 positions alone.
+- **Implementation**: `backends/torch/src/modelwelfare_torch/substrate_check.py`, standalone
+  (torch + transformers + stdlib), run wholly on the workbench host — torch
+  forward pass plus loopback vLLM echo+logprobs — so the measurement never
+  crosses the WAN.
+- **Alignment trap found and fixed**: vLLM's echo arrays carry the prompt
+  *plus the one generated token appended* (`max_tokens=1`); reading the
+  length surplus as a leading BOS shifts every per-position comparison by
+  one. Symptom worth remembering: perplexities agree (a mean is
+  shift-insensitive) while top-1 agreement reads ~0% and mean |Δ logprob|
+  ~3 nats. Correct alignment collapses the deltas to ~0.03 nats.
+- **Convention decomposition**: the committed Study 1 gate perplexities
+  average echo *plus* that generated token, so on a 67-token text the
+  torch echo-only value differs from the committed number by ~2% (5.9% on
+  the degenerate w3) with true substrate divergence of ≤1.7%. G1(a) is
+  therefore two-part: like-for-like echo perplexity within 5%, and
+  serving-side gate-convention reproduction of the committed values
+  within 1%.
+- **Results (heldout / supplement)**: BF16 like-for-like ratio 1.0001,
+  top-1 98.9% combined; w8 0.990, 99.0%; w4 1.005, 98.7%; w3 0.983,
+  98.2%. Gate-convention serving values reproduce the committed
+  perplexities to rounding on all four rungs (18.120 / 18.463 / 21.090 /
+  511.425). Even the capability-degraded w3 shows substrate agreement —
+  as it should: G1 measures whether two stacks compute the same function,
+  which is orthogonal to whether that function is degraded. Full reports:
+  `experiments/quant-welfare/study2/g1/substrate-*.json`.
+- **Operational**: the ladder containers must be started sequentially with
+  health waits — three engines starting concurrently race their init-time
+  memory profiling against each other's transient allocations and die with
+  a negative KV-cache budget, despite per-container utilization shares
+  that co-reside fine once up.
+
+Consequence: the serving-equivalence commitment from the Study 1 amendments
+is discharged for these artifacts the moment the formal gate re-runs under
+the published registration; every threshold holds with ≥3× measured
+headroom, so a formal-run failure would indicate a real regression, not a
+miscalibrated gate.
+
 ## 2026-08-14 — Step 5: the mechanical indicators are formal, item-paired, and they detect what the behavioral endpoints could not
 
 The validation plan's last step formalizes the judge-free mechanical layer.

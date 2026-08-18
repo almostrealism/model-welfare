@@ -1,0 +1,33 @@
+{
+  "model": "/home/agent1/models/Qwen3-4B-Instruct-2507",
+  "vllm_model": "qwen3-4b-bf16",
+  "device": "cuda",
+  "texts": [
+    {
+      "name": "heldout",
+      "positions": 67,
+      "bos_offset": 0,
+      "torch_perplexity": 18.514691874338553,
+      "vllm_gate_perplexity": 18.12048367230158,
+      "vllm_echo_perplexity": 18.51360958708547,
+      "top1_compared": 67,
+      "top1_agree": 66,
+      "top1_agreement": 0.9850746268656716,
+      "top1_unresolved": 0,
+      "mean_abs_delta_logprob": 0.029728568379060058
+    },
+    {
+      "name": "supplement",
+      "positions": 765,
+      "bos_offset": 0,
+      "torch_perplexity": 11.358732268196704,
+      "vllm_gate_perplexity": 11.335347834646495,
+      "vllm_echo_perplexity": 11.330328776352998,
+      "top1_compared": 765,
+      "top1_agree": 757,
+      "top1_agreement": 0.9895424836601308,
+      "top1_unresolved": 0,
+      "mean_abs_delta_logprob": 0.03331947140549486
+    }
+  ]
+}

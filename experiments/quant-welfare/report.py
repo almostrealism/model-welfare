@@ -31,7 +31,7 @@ MARKER = "<!-- GENERATED BELOW — do not edit by hand -->"
 
 def load_experiments():
     parsed = []
-    for manifest in sorted(BASE.glob("*/experiment.textproto")):
+    for manifest in sorted(BASE.glob("**/experiment.textproto")):
         experiment = experiment_pb2.Experiment()
         text_format.Parse(manifest.read_text(), experiment)
         parsed.append((manifest.parent, experiment))

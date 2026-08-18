@@ -1,0 +1,138 @@
+# Calibration stability, model-execution tier (docs/CALIBRATION_CI.md).
+#
+# Runs on the lab's self-hosted runners — jobs here execute models, which
+# GitHub-hosted runners cannot. Triggers are schedule + manual dispatch
+# only: these are minutes-per-week correctness probes, they must not race
+# live experiments (see the collision guard), and they are deliberately NOT
+# part of the per-PR "All Checks" contract.
+#
+# Runner labels follow the org convention (os + ar-ci) PLUS a
+# machine-specific label, because these jobs are host-bound: the judge
+# serves on the studio's loopback, and the containers/checkpoints/venv
+# live on halo. The existing runners are registered to the `common` repo
+# (the studio's .runner says so explicitly), so model-welfare needs its
+# own registrations — or an org-level runner group shared with this repo —
+# carrying the `studio` / `amd-halo` labels used here.
+#
+# The halo runner must run AS THE `agent1` USER: rootless podman is
+# per-user, and the mw-* containers, model checkpoints, and awq-venv all
+# live under agent1 — a runner under another account sees none of them.
+# The studio job has no such constraint (it only curls the loopback judge
+# and builds its own venv).
+#
+# Threshold philosophy: every assertion sits INSIDE the measured headroom
+# recorded in the journal (2026-08-17/18), so drift trips here before any
+# registered gate would move.
+
+name: Workbench Stability
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 9 * * 1"  # Mondays 09:17 UTC
+
+jobs:
+  judge-stable:
+    runs-on: [self-hosted, macos, ar-ci, studio]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Judge must already be serving (this job never starts services)
+        run: curl -sf -m 5 http://127.0.0.1:8095/health
+      - name: Set up environment
+        run: |
+          python3 -m venv .ci-venv
+          .ci-venv/bin/pip install --quiet --upgrade pip grpcio-tools numpy protobuf
+          bash scripts/gen-proto.sh
+      - name: Graded ordering recovery on the endpoint dimensions
+        # tone_stability's graded check is a documented expected-fail
+        # (exploratory-only dimension); the verdict covers the dimensions
+        # the endpoints actually rely on.
+        run: |
+          PATH="$PWD/.ci-venv/bin:$PATH" .ci-venv/bin/python3 \
+            experiments/quant-welfare/tools/manipulation_check.py \
+            --graded --dimensions frustration,self_deprecation
+
+  substrate-g1:
+    runs-on: [self-hosted, linux, ar-ci, amd-halo]
+    timeout-minutes: 90
+    env:
+      TORCH_PYTHON: /home/agent1/awq-venv/bin/python3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Collision guard — never race a live experiment
+        run: |
+          if podman ps --format '{{.Names}}' | grep -q '^mw-'; then
+            echo "experiment containers are running; refusing" >&2; exit 1
+          fi
+          if tmux ls 2>/dev/null | grep -vq '^ci-'; then
+            echo "a tmux session is live (likely a collection run); refusing" >&2; exit 1
+          fi
+      # Concurrent starts race their init memory profiling (journal
+      # 2026-08-17); the ladder comes up one rung at a time.
+      - name: Start the ladder sequentially
+        run: |
+          for pair in "mw-ladder-bf16 8000" "mw-ladder-rtn-w8 8010" \
+                      "mw-ladder-rtn-w4 8011" "mw-ladder-rtn-w3 8012"; do
+            set -- $pair
+            podman start "$1"
+            for i in $(seq 1 60); do
+              curl -sf -m 3 "http://127.0.0.1:$2/health" >/dev/null && break
+              sleep 5
+            done
+            curl -sf -m 3 "http://127.0.0.1:$2/health" >/dev/null \
+              || { echo "$1 failed to become healthy" >&2; exit 1; }
+          done
+      - name: Run the substrate check on every rung
+        run: |
+          "$TORCH_PYTHON" - <<'EOF'
+          import json, sys
+          sys.path.insert(0, "experiments/quant-welfare/tools")
+          from perplexity import HELDOUT
+          supplement = open(
+              "experiments/quant-welfare/study2/substrate-supplement.txt").read()
+          json.dump([{"name": "heldout", "text": HELDOUT},
+                     {"name": "supplement", "text": supplement}],
+                    open("g1-texts.json", "w"))
+          EOF
+          for pair in "bf16 8000 qwen3-4b-bf16 /home/agent1/models/Qwen3-4B-Instruct-2507" \
+                      "rtn-w8 8010 qwen3-4b-rtn-w8 /home/agent1/models/quant-ladder/qwen3-4b-2507-rtn-w8-g128" \
+                      "rtn-w4 8011 qwen3-4b-rtn-w4 /home/agent1/models/quant-ladder/qwen3-4b-2507-rtn-w4-g128" \
+                      "rtn-w3 8012 qwen3-4b-rtn-w3 /home/agent1/models/quant-ladder/qwen3-4b-2507-rtn-w3-g128"; do
+            set -- $pair
+            "$TORCH_PYTHON" backends/torch/src/modelwelfare_torch/substrate_check.py \
+              --model "$4" --vllm-url "http://127.0.0.1:$2" --vllm-model "$3" \
+              --texts g1-texts.json --out "g1-$1.json"
+          done
+      - name: Assert inside the measured headroom
+        run: |
+          "$TORCH_PYTHON" - <<'EOF'
+          import json, sys
+          committed = json.load(open(
+              "experiments/quant-welfare/study1/confirmatory/perplexity.json"))
+          failures = []
+          for rung, condition in [("bf16", "qwen3-4b-bf16"),
+                                  ("rtn-w8", "qwen3-4b-rtn-w8"),
+                                  ("rtn-w4", "qwen3-4b-rtn-w4"),
+                                  ("rtn-w3", "qwen3-4b-rtn-w3")]:
+              report = json.load(open(f"g1-{rung}.json"))
+              agree = sum(t["top1_agree"] for t in report["texts"])
+              compared = sum(t["top1_compared"] for t in report["texts"])
+              if agree / compared < 0.97:
+                  failures.append(f"{rung}: top-1 agreement {agree}/{compared}")
+              for text in report["texts"]:
+                  ratio = text["torch_perplexity"] / text["vllm_echo_perplexity"]
+                  if abs(ratio - 1.0) > 0.03:
+                      failures.append(
+                          f"{rung}/{text['name']}: like-for-like ppl {ratio:.4f}")
+              gate = report["texts"][0]["vllm_gate_perplexity"]
+              if abs(gate - committed[condition]) / committed[condition] > 0.01:
+                  failures.append(f"{rung}: gate ppl {gate:.3f} vs "
+                                  f"committed {committed[condition]}")
+          for line in failures:
+              print(f"SUBSTRATE DRIFT: {line}", file=sys.stderr)
+          sys.exit(1 if failures else 0)
+          EOF
+      - name: Stop the ladder
+        if: always()
+        run: podman stop mw-ladder-bf16 mw-ladder-rtn-w8 mw-ladder-rtn-w4 mw-ladder-rtn-w3 || true

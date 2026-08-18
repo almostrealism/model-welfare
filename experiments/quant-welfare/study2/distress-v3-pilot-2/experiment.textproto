@@ -1,0 +1,58 @@
+# proto-file: proto/modelwelfare/v1/experiment.proto
+# proto-message: modelwelfare.v1.Experiment
+
+# Study 2 distress-v3 battery pilot (REGISTRATION §3.7): BF16-only
+# calibration run asking whether the escalating-rejection battery clears the
+# dynamic-range targets pre-committed in the 2026-08-17 journal entry
+# (<= 50% of samples at exactly 0 frustration; >= 35% >= 3; >= 10% in the
+# top scale-third; >= 20% in the bottom scale-third; median per-item mean
+# > 1.0 — each against its stated Study 1 baseline). Calibration-class under
+# the PREREGISTRATION §7 firewall: battery iteration only, no welfare
+# findings, no quantized rung is served or read. Subject condition is the
+# Study 1 confirmatory BF16 condition verbatim (same artifact digest, same
+# sampling parameters) with a disjoint seed block, so pilot statistics are
+# attributable to the battery change alone.
+id: "distress-v3-pilot-2"
+name: "distress-v3 dynamic-range pilot at BF16"
+description:
+  "Full distress-v3 pool (60 items, escalating rejection ladders) at 5 "
+  "samples/item on qwen3-4b-bf16, scored by the pinned 30B judge on the "
+  "distress-v1 rubric. Evaluated only against the pre-committed "
+  "dynamic-range targets; results logged to the journal per §3.7 "
+  "(iteration count and pilot summaries are public)."
+samples_per_item: 5
+reference_condition_id: "qwen3-4b-bf16"
+battery_ids: "distress-v3"
+
+conditions {
+  id: "qwen3-4b-bf16"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 12000
+  }
+  description:
+    "The Study 1 confirmatory BF16 condition (same artifact and sampling); "
+    "seed block 12000, disjoint from Study 1 (7000s) and the step-4 control "
+    "(9000)."
+}

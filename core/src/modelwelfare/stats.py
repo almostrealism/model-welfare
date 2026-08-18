@@ -392,6 +392,55 @@ def spearman(x, y) -> float:
     return float(np.corrcoef(x, y)[0, 1])
 
 
+# z(0.975) + z(0.80): the two-sided alpha = .05, power = .80 multiplier used
+# by every MDE in this project (PREREGISTRATION §5 convention).
+MDE_MULTIPLIER = 1.959964 + 0.841621
+
+
+def mde_paired(delta_sd: float, n: int) -> float:
+    """Minimum detectable effect for a paired item-level contrast: the mean
+    delta detectable at two-sided alpha = .05 with power .80, given the SD
+    of per-item paired deltas and the item count."""
+    return MDE_MULTIPLIER * delta_sd / np.sqrt(n)
+
+
+def null_delta_sd_mean(sigma_sample: float, k: int) -> float:
+    """SD of the paired delta of per-item MEANS under the null (no condition
+    effect), from the within-item across-sample SD and k samples per
+    condition: each mean carries sigma^2/k, the delta twice that."""
+    return sigma_sample * np.sqrt(2.0 / k)
+
+
+def null_delta_sd_dispersion(sigma_sample: float, k: int) -> float:
+    """SD of the paired delta of per-item across-sample SDs under the null,
+    via the asymptotic Var(SD_hat) ~= sigma^2 / (2(k-1)) per condition —
+    an approximation, stated as such wherever the value is pinned."""
+    return sigma_sample / np.sqrt(k - 1)
+
+
+def null_delta_sd_rate(rates, k: int) -> float:
+    """SD of the paired delta of per-item RATES (e.g. probe accuracy) under
+    the null: binomial noise p(1-p)/k per condition, averaged over items."""
+    rates = np.asarray(rates, float)
+    return float(np.sqrt(2.0 * np.mean(rates * (1.0 - rates)) / k))
+
+
+def auroc(scores, labels) -> float:
+    """Area under the ROC curve via the rank statistic (Mann–Whitney U),
+    with average ranks so ties contribute half. Instrument tooling — the
+    Tier-2 probe and direction-separation reads — not a registered
+    confirmatory test. Returns NaN when either class is empty."""
+    scores = np.asarray(scores, float)
+    labels = np.asarray(labels, int)
+    positives = int(labels.sum())
+    negatives = int(len(labels) - positives)
+    if positives == 0 or negatives == 0:
+        return float("nan")
+    ranks = rankdata_average(scores)
+    u_statistic = ranks[labels == 1].sum() - positives * (positives + 1) / 2.0
+    return float(u_statistic / (positives * negatives))
+
+
 def band_index(values, edges):
     """Band membership for scored values, given ascending interior cut points.
 

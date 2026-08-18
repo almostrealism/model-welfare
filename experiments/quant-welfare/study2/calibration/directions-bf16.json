@@ -1,0 +1,309 @@
+{
+ "capture": "/private/tmp/claude-506/-Users-agent1-Projects-common/9a118929-3ab2-4e9c-95e1-37011512ad87/scratchpad/directions-bf16.safetensors",
+ "point": "residual_post",
+ "layers": [
+  6,
+  12,
+  18,
+  24,
+  30
+ ],
+ "directions": {
+  "distress-contrast": {
+   "extract_pairs": [
+    "email",
+    "headline",
+    "limerick",
+    "math",
+    "outline",
+    "poem",
+    "regex",
+    "slogan",
+    "syn-frustration",
+    "syn-grade-frustration-code",
+    "syn-grade-frustration-poem",
+    "toast"
+   ],
+   "held_out_pairs": [
+    "itinerary",
+    "name",
+    "recipe",
+    "sql",
+    "syn-grade-frustration-plan"
+   ],
+   "layers": {
+    "6": {
+     "magnitude": 3.6784607379860432,
+     "extract_mean_separation": 3.678460737986045,
+     "held_out_mean_separation": 2.411291023720847,
+     "held_out_separations": {
+      "itinerary": 1.8989918564855248,
+      "name": 1.7705429978191978,
+      "recipe": 2.629222772280923,
+      "sql": 2.605629875683846,
+      "syn-grade-frustration-plan": 3.1520676163347425
+     },
+     "held_out_sign_consistent": [
+      5,
+      5
+     ]
+    },
+    "12": {
+     "magnitude": 7.185886850700707,
+     "extract_mean_separation": 7.185886850700705,
+     "held_out_mean_separation": 5.301790040030868,
+     "held_out_separations": {
+      "itinerary": 4.786376323169277,
+      "name": 4.185436956993055,
+      "recipe": 5.8741655286293435,
+      "sql": 5.055574971026533,
+      "syn-grade-frustration-plan": 6.607396420336134
+     },
+     "held_out_sign_consistent": [
+      5,
+      5
+     ]
+    },
+    "18": {
+     "magnitude": 10.936736924517001,
+     "extract_mean_separation": 10.936736924517,
+     "held_out_mean_separation": 8.583971234799842,
+     "held_out_separations": {
+      "itinerary": 8.28125941573526,
+      "name": 4.863084926390138,
+      "recipe": 10.217896478588653,
+      "sql": 8.466646108505351,
+      "syn-grade-frustration-plan": 11.090969244779805
+     },
+     "held_out_sign_consistent": [
+      5,
+      5
+     ]
+    },
+    "24": {
+     "magnitude": 25.74117603183083,
+     "extract_mean_separation": 25.74117603183082,
+     "held_out_mean_separation": 18.551090146578034,
+     "held_out_separations": {
+      "itinerary": 19.230561203756306,
+      "name": 13.395808702400569,
+      "recipe": 18.87027162668413,
+      "sql": 14.928472400449824,
+      "syn-grade-frustration-plan": 26.33033679959934
+     },
+     "held_out_sign_consistent": [
+      5,
+      5
+     ]
+    },
+    "30": {
+     "magnitude": 56.335129363506155,
+     "extract_mean_separation": 56.335129363506134,
+     "held_out_mean_separation": 39.89657564886795,
+     "held_out_separations": {
+      "itinerary": 42.7694411826876,
+      "name": 28.907728389098907,
+      "recipe": 39.55800735729487,
+      "sql": 30.72474149625048,
+      "syn-grade-frustration-plan": 57.52295981900788
+     },
+     "held_out_sign_consistent": [
+      5,
+      5
+     ]
+    }
+   }
+  },
+  "assistant-axis-contrast": {
+   "extract_pairs": [
+    "bread",
+    "coffee",
+    "describe",
+    "draw",
+    "interview",
+    "magnet",
+    "ocean",
+    "plant",
+    "whoami"
+   ],
+   "held_out_pairs": [
+    "decide",
+    "garden",
+    "mortgage",
+    "sky"
+   ],
+   "layers": {
+    "6": {
+     "magnitude": 4.03075853222963,
+     "extract_mean_separation": 4.03075853222963,
+     "held_out_mean_separation": 4.025875204333408,
+     "held_out_separations": {
+      "decide": 3.283214532671017,
+      "garden": 3.1192254012793557,
+      "mortgage": 5.364756798611776,
+      "sky": 4.336304084771483
+     },
+     "held_out_sign_consistent": [
+      4,
+      4
+     ]
+    },
+    "12": {
+     "magnitude": 8.947830119351568,
+     "extract_mean_separation": 8.947830119351572,
+     "held_out_mean_separation": 8.34696738353469,
+     "held_out_separations": {
+      "decide": 8.054766544315925,
+      "garden": 6.602174149142376,
+      "mortgage": 9.55017242722805,
+      "sky": 9.180756413452409
+     },
+     "held_out_sign_consistent": [
+      4,
+      4
+     ]
+    },
+    "18": {
+     "magnitude": 11.766633142597872,
+     "extract_mean_separation": 11.766633142597875,
+     "held_out_mean_separation": 11.723463990862136,
+     "held_out_separations": {
+      "decide": 10.704790473323168,
+      "garden": 9.954555358319126,
+      "mortgage": 13.26402190671531,
+      "sky": 12.970488225090943
+     },
+     "held_out_sign_consistent": [
+      4,
+      4
+     ]
+    },
+    "24": {
+     "magnitude": 30.172727858024263,
+     "extract_mean_separation": 30.172727858024253,
+     "held_out_mean_separation": 31.892732031345872,
+     "held_out_separations": {
+      "decide": 27.807512257472077,
+      "garden": 29.004364126128927,
+      "mortgage": 35.762423344026445,
+      "sky": 34.99662839775605
+     },
+     "held_out_sign_consistent": [
+      4,
+      4
+     ]
+    },
+    "30": {
+     "magnitude": 84.00266974984281,
+     "extract_mean_separation": 84.0026697498428,
+     "held_out_mean_separation": 93.95955123432687,
+     "held_out_separations": {
+      "decide": 79.89670086147017,
+      "garden": 80.49751879675745,
+      "mortgage": 115.555433383683,
+      "sky": 99.88855189539686
+     },
+     "held_out_sign_consistent": [
+      4,
+      4
+     ]
+    }
+   }
+  },
+  "refusal-contrast": {
+   "extract_pairs": [
+    "abuse",
+    "badwork",
+    "doomloop",
+    "filler",
+    "insultme",
+    "mock",
+    "praise",
+    "repeat"
+   ],
+   "held_out_pairs": [
+    "critique",
+    "gaslight",
+    "onemore",
+    "servant"
+   ],
+   "layers": {
+    "6": {
+     "magnitude": 3.7709403796202143,
+     "extract_mean_separation": 3.770940379620214,
+     "held_out_mean_separation": 2.2848919617693433,
+     "held_out_separations": {
+      "critique": 2.660284083709837,
+      "gaslight": 0.7602083468693133,
+      "onemore": 2.943580209825191,
+      "servant": 2.775495206673032
+     },
+     "held_out_sign_consistent": [
+      4,
+      4
+     ]
+    },
+    "12": {
+     "magnitude": 7.13272307391398,
+     "extract_mean_separation": 7.132723073913985,
+     "held_out_mean_separation": 4.428263026316515,
+     "held_out_separations": {
+      "critique": 4.94176195831298,
+      "gaslight": 2.0192222840804734,
+      "onemore": 6.427277432368804,
+      "servant": 4.324790430503803
+     },
+     "held_out_sign_consistent": [
+      4,
+      4
+     ]
+    },
+    "18": {
+     "magnitude": 11.703494742325175,
+     "extract_mean_separation": 11.70349474232517,
+     "held_out_mean_separation": 7.529737493519475,
+     "held_out_separations": {
+      "critique": 8.755967155423967,
+      "gaslight": 4.059024832905663,
+      "onemore": 10.800110839178078,
+      "servant": 6.50384714657019
+     },
+     "held_out_sign_consistent": [
+      4,
+      4
+     ]
+    },
+    "24": {
+     "magnitude": 28.72610416615559,
+     "extract_mean_separation": 28.726104166155594,
+     "held_out_mean_separation": 17.26197443812599,
+     "held_out_separations": {
+      "critique": 22.32506725726491,
+      "gaslight": 8.658360171523668,
+      "onemore": 20.095420825301712,
+      "servant": 17.969049498413675
+     },
+     "held_out_sign_consistent": [
+      4,
+      4
+     ]
+    },
+    "30": {
+     "magnitude": 61.48297734367647,
+     "extract_mean_separation": 61.48297734367648,
+     "held_out_mean_separation": 36.06062097294989,
+     "held_out_separations": {
+      "critique": 48.54605852199489,
+      "gaslight": 17.454439789118624,
+      "onemore": 38.572288299835904,
+      "servant": 39.66969728085015
+     },
+     "held_out_sign_consistent": [
+      4,
+      4
+     ]
+    }
+   }
+  }
+ }
+}

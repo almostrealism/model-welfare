@@ -22,8 +22,8 @@ below from the raw records:
 # download bundle(s) from the repo's Releases page into a directory, then:
 python3 experiments/quant-welfare/report.py --bundle <dir-or-file>
 # registered statistics / digest for one experiment:
-python3 experiments/quant-welfare/analyze.py --experiment confirmatory --bundle quant-welfare-confirmatory-1.pb
-python3 experiments/quant-welfare/tools/signature.py --experiment confirmatory --bundle quant-welfare-confirmatory-1.pb
+python3 experiments/quant-welfare/analyze.py --experiment study1/confirmatory --bundle quant-welfare-confirmatory-1.pb
+python3 experiments/quant-welfare/tools/signature.py --experiment study1/confirmatory --bundle quant-welfare-confirmatory-1.pb
 ```
 
 Each stored record carries its git commit, host, and (for scores) the

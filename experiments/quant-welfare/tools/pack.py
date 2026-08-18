@@ -5,7 +5,7 @@ Consolidates the streaming append store into one self-describing RecordBundle
 per condition — the shareable at-rest form. The streaming store is left intact;
 this only produces the portable copy.
 
-    python3 tools/pack.py --experiment confirmatory
+    python3 tools/pack.py --experiment study1/confirmatory
 """
 
 import argparse
@@ -25,7 +25,7 @@ from modelwelfare.store import ResultStore  # noqa: E402
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--experiment", default="confirmatory")
+    parser.add_argument("--experiment", default="study1/confirmatory")
     parser.add_argument("--data-root", default=str(REPO / "data"))
     parser.add_argument("--out", default=None,
                         help="output directory (default: <data-root>/<experiment-id>-bundle)")
