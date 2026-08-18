@@ -70,7 +70,9 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install dependencies (tokenizer only — no torch)
-        run: python -m pip install --upgrade pip transformers
+        # jinja2 explicitly: apply_chat_template needs it, and transformers
+        # does not declare it as a hard dependency.
+        run: python -m pip install --upgrade pip transformers jinja2
       - name: Verify span expectations against the pinned tokenizer
         run: |
           python experiments/quant-welfare/tools/span_expectations.py \
