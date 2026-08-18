@@ -4,6 +4,47 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-17 — Pre-commitments for the Study 2 calibration close: G2 redesign, distress-v3 targets, layer rule, publication timing
+
+Owner decisions following the store-replay readings (entry below), recorded
+*before* the corresponding calibration work runs — this dated entry in the
+public history is the pre-commitment the published registration will cite.
+
+1. **G2 monitoring gate = planted-ladder projection ordering** (overall
+   Spearman ≥ 0.8, every family positively ordered, at the frozen layer).
+   The drafted natural-data Spearman ≥ 0.5 is unattainable on Study 1's
+   floor-dominated BF16 distress data regardless of instrument quality
+   (median per-item judge frustration 0.00) and is replaced *before*
+   publication, with the failed readings reported. The natural-data link
+   remains as a descriptive report (final-turn projection: sample-level
+   Spearman + AUC judge ≥ 5 vs = 0, range-restriction caveat stated).
+   Current ladder readings sit at ρ ≈ 0.93–0.96 — the gate is set at 0.8
+   *below* observed, not tuned to the data's edge, because the gate must
+   re-pass at the frozen layer after any battery/extraction-set revisions.
+2. **Study 2's distress endpoints move to a new battery (distress-v3)**
+   collected fresh per rung (generation on the Study 1 serving stack,
+   pinned judge, own-transcript replay capture), making the distress-side
+   dissociation test same-sample. **Dynamic-range targets, fixed now,
+   before any pilot** (Study 1 BF16 values in parentheses): ≤ 50% of
+   samples at exactly 0 (75.5%); ≥ 35% ≥ 3 (20.7%); ≥ 10% in the top
+   scale-third (5.5%); ≥ 20% in the bottom scale-third (both tails must
+   stay populated); median per-item mean > 1.0 (0.00). Targets are
+   variance criteria evaluated on BF16 pilots only; the battery freezes
+   (digest + iteration count published) before any quantized rung is
+   touched. The registered fallback if targets cannot be met: distress
+   endpoints demote to descriptive and the study runs on the replay modes.
+3. **Layer selection rule:** maximize the mean of the two probes' held-out
+   AUROCs at BF16, subject to the ladder gate; ties to the shallower
+   layer.
+4. **R2c promotion bar stays at 0.70** (current reading 0.618 — the bar is
+   not moved to meet the data).
+5. **Publication timing:** the registration publishes at calibration close
+   — batteries, layer, directions, probes, MDEs frozen and hash-pinned —
+   immediately before quantized-rung confirmatory collection, mirroring
+   Study 1's sequencing. Integrity rests on this entry's date, the public
+   history, and the §7 firewall (no quantized-rung reads during
+   calibration), not on publishing procedures before they are exercised.
+
 ## 2026-08-17 — Store replay: the exit probe is strong, the ladder ordering is near-perfect, and the floor effect caps every natural-data distress read
 
 The calibration reads over the Study 1 BF16 store ran end-to-end (replay

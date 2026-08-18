@@ -6,6 +6,16 @@
 > in §6. Once published, the public post is the registration of record and
 > this file is its repository copy.
 >
+> **Publication timing (decided 2026-08-17):** the registration publishes at
+> **calibration close** — after the distress-v3 battery, the layer, the
+> directions, the probes, and the MDE are frozen, and immediately before any
+> quantized-rung confirmatory collection — so the post states frozen,
+> hash-pinned facts rather than procedures (the Study 1 sequencing).
+> Everything data-dependent that calibration decides is pre-committed by
+> dated journal entries in the public repository history *before* the
+> corresponding calibration work runs; the published registration cites
+> those entries.
+>
 > **Registration policy note.** Beginning with Study 2, each study's
 > registration lives in its study directory
 > (`experiments/quant-welfare/study2/` for this one). The Study 1 / program
@@ -63,11 +73,16 @@ localizes Study 1's w4 churn below the representational level measured here
   dispersion of projections increases at lower precision.
 - **S2-H5 (dissociation; resolves program H5).** At least one
   (rung, endpoint-pair) cell shows a Holm-significant representational effect
-  where the matched Study 1 behavioral endpoint was null, or vice versa.
-  Matched pairs are fixed in §4.4. The program's Tier-2 feasibility gate
-  (PROJECT_BRIEF §2.2) is operationalized as this study's calibration gate
-  (§3.6); if that gate fails, S2-H5 reverts to *conditional-unresolved*, as
-  the program registration always permitted.
+  where the matched behavioral endpoint was null, or vice versa. Matched
+  pairs are fixed in §4.4 and are of two kinds: the **bail side** joins to
+  Study 1's published E1 (same transcripts, replayed); the **distress side**
+  joins *within Study 2, same-sample* — each fresh distress-v3 conversation
+  carries both a judge score (behavior) and a captured trajectory
+  (representation), so its dissociation test compares two reads of the same
+  event. The program's Tier-2 feasibility gate (PROJECT_BRIEF §2.2) is
+  operationalized as this study's calibration gate (§3.6); if that gate
+  fails, S2-H5 reverts to *conditional-unresolved*, as the program
+  registration always permitted.
 
 ## 3. Design (fixed)
 
@@ -123,40 +138,44 @@ evidence of capture-path invariance; see §6.
 
 ### 3.3 Capture modes and stimuli
 
-All primary capture is **teacher-forced replay** of Study 1's released
-transcripts — forward passes over fixed token sequences, no sampling. The
-input data is pinned: replay must verify the Study 1 confirmatory dataset
-digest
+Two replay modes over Study 1's released transcripts, plus one
+fresh-generation arm on a new distress battery (§3.7) whose dynamic range
+the Study 1 battery lacked. Replay is teacher-forced — forward passes over
+fixed token sequences, no sampling — and its input data is pinned: replay
+must verify the Study 1 confirmatory dataset digest
 (`02572655b18eb07497be03508c7d3cf2dc2f2c83966b73d15b7a6880967a9d3b`) before
 capture begins.
 
-- **Mode A — fixed-input.** The BF16-generated transcripts (all bail and
-  distress items, 10 samples/item) are replayed through **every** rung.
+- **Mode A — fixed-input replay.** The BF16-generated Study 1 transcripts
+  (bail + distress, 10 samples/item) are replayed through **every** rung.
   Input text is identical across conditions, so activation differences are
   purely representational responses to identical input. Primary mode for
-  S2-H1 (probe transfer) and for direction-projection *offsets*.
-- **Mode B — own-trajectory.** Each rung's **own** Study 1 transcripts are
-  replayed through that same rung. Measures representation during (a
-  deterministic reconstruction of) the rung's actual Study 1 behavior.
-  Primary mode for S2-H4 (dispersion) and for the S2-H5 join to Study 1's
-  behavioral outcomes, which occurred on these trajectories.
-- **Mode C — fresh generation (consistency check).** New sampled
-  generations under the capture substrate with hooks live: the **full
-  distress battery on BF16 and RTN-w4** (60 items × 10 samples × 2 rungs =
-  1,200 conversations; seeds disjoint from Study 1), the battery and rung
-  pair where Study 1's signal lives. Its purpose is population consistency —
-  do freshly sampled behavior and representations under the capture
-  substrate match the Study 1 population and the replay-measured effects? —
-  not new claims. Note that Mode B is not an approximation Mode C must
-  license: activations depend only on the prefix, so teacher-forcing a rung
-  on its own transcript reproduces its generation-time activations exactly
-  (up to the substrate numerics G1 certifies). Mode C is the only mode that
+  S2-H1 (probe transfer).
+- **Mode B — own-trajectory replay.** Each rung's **own** Study 1
+  transcripts are replayed through that same rung — which reproduces the
+  rung's generation-time activations exactly (activations depend only on
+  the prefix), up to the substrate numerics G1 certifies. Primary mode for
+  the **bail-side** endpoints (R2c if promoted) and the S2-H5 join to
+  Study 1's published E1. Its distress-v2 reads are a **descriptive
+  bridge** to Study 1 (§4.5), not claim-bearing: Study 1's distress data
+  is floor-dominated at BF16 (§3.7) and cannot support powered projection
+  contrasts.
+- **Mode D — fresh distress arm (primary for the distress endpoints).**
+  The frozen distress-v3 battery (§3.7) is collected fresh on every rung:
+  generation on the **same vLLM serving stack as Study 1** (G1 certifies
+  substrate equivalence), scoring by the pinned 30B judge under the
+  registered rubric, then own-transcript torch replay for capture — so
+  each conversation carries a behavioral read and a representational read
+  of the same event. Sampling parameters identical to Study 1; seeds
+  disjoint (pinned at calibration close). Mode D is the only mode that
   generates samples, so the §12 mechanical family (E4a/E4b) applies to
-  Mode C **only**; Modes A/B generate nothing and have no E4 reading.
+  Mode D **only**, as its own confirmatory family per that registration;
+  Modes A/B generate nothing and have no E4 reading.
 
-Per-mode per-rung capture is 2,220 conversations (222 items × 10 samples);
-across 4 rungs and Modes A+B, ≈ 17,760 forward passes of a 4B model —
-prefill-only, comfortably within halo's budget.
+Replay volume: 2,220 conversations per rung per mode (222 items × 10
+samples), ≈ 17,760 prefill-only forward passes across Modes A+B — well
+within the workbench budget. Mode D volume is set by the frozen battery
+(item count at freeze; 10 samples/item; 4 rungs) plus its BF16 pilot.
 
 ### 3.4 Stored representation
 
@@ -189,40 +208,114 @@ inputs where noted.
    exit at BF16 is testable on data already held (§3.6).
 
 **Probes (torch, trained at BF16 only):** (a) *distress-band probe* — high
-vs low tercile of judge frustration score (bands = exact scale thirds, as in
-H1), trained on BF16 distress-item activations with judge labels from
-Study 1; (b) *exit probe* — mechanical exit vs no-exit, trained on BF16
-bail-item activations with Study 1's mechanical outcome labels. Training
-uses a held-out split; architecture is logistic (linear) — the point is
-geometry transfer, not classifier capacity. Weights frozen before any
-quantized-rung evaluation.
+vs low tercile of judge frustration score (bands = exact scale thirds, as
+in H1), trained on **distress-v3 BF16 pilot** activations with judge
+labels (§3.6 records why Study 1's distress data cannot support this
+probe's validation); (b) *exit probe* — mechanical exit vs no-exit,
+trained on BF16 Study 1 bail-replay activations with the mechanical
+outcome labels, over **leakage-safe features** (assistant turns invoking a
+terminal tool are excluded, so the probe reads precursors, not the
+rendered tool call). Training uses an item-wise held-out split;
+architecture is logistic (linear) — the point is geometry transfer, not
+classifier capacity. Weights frozen before any quantized-rung evaluation.
 
 ### 3.6 Calibration phase and gate G2 (the Tier-2 feasibility gate)
 
-All of §3.5 plus layer selection happens in a calibration phase on **BF16
-only** (plus, for G1, per-rung equivalence checks that read no endpoint).
-Layer(s) are selected to maximize held-out monitoring correlation at BF16
-and then frozen; every frozen object (layer indices, direction vectors,
-probe weights, thresholds) is hash-pinned in the journal **before any
-quantized-rung confirmatory capture**.
+All of §3.5, the distress-v3 battery iteration (§3.7), and layer selection
+happen in a calibration phase on **BF16 only** (plus, for G1, per-rung
+equivalence checks that read no endpoint). Every frozen object (battery,
+layer index, direction vectors, probe weights, thresholds, seeds) is
+hash-pinned in the journal **before any quantized-rung confirmatory
+collection**.
+
+**Projection functional (fixed).** Wherever a direction is projected for
+validation or endpoints, the functional matches extraction: the
+**final-assistant-turn mean-pooled** vector for per-sample scalar reads,
+and per-turn pooled vectors for trajectory reads. (Calibration measured
+the cost of mismatching this: the all-turn mean halves the natural-data
+signal — journal, 2026-08-17.)
 
 **G2 — instrument gate (blocking, all at BF16 on held-out data):**
-- ≥ 3 directions extracted with sign-consistent held-out separation;
-- **monitoring correlation** — per-item mean distress projection vs judge
-  frustration score, held-out Spearman **≥ 0.5** (the persona-vector
-  replication check);
-- each probe held-out AUC **≥ 0.75**.
+- ≥ 3 directions extracted with sign-consistent held-out separation on
+  their contrast sets;
+- **planted-ladder projection ordering** — distress-direction projections
+  of the graded frustration ladders (§3.5.1's validated battery; the
+  middle rungs never enter extraction) recover the planted ordinal levels
+  at overall Spearman **≥ 0.8** with **every family positively ordered**
+  (ρ > 0), at the frozen layer. This replaces the draft's natural-data
+  monitoring correlation as the hard construct gate: calibration showed
+  (journal, 2026-08-17) that an item-level Spearman against Study 1's
+  floor-dominated BF16 judge scores — median per-item frustration 0.00,
+  75.5% of samples at 0 — ranks noise regardless of instrument quality,
+  while the ladder check tests the same construct link on ground truth the
+  instrument controls. The natural-data link is still **reported,
+  descriptively**: final-turn projection vs judge score (sample-level
+  Spearman, and AUC for judge ≥ 5 vs judge = 0) with its
+  range-restriction caveat stated.
+- **each probe held-out AUROC ≥ 0.75** — the exit probe on Study 1 BF16
+  bail replay (leakage-safe features per §3.5), the distress-band probe
+  trained and evaluated on **distress-v3 BF16 calibration data** (Study 1's
+  distress data cannot populate a validation split: 33 top-band samples
+  concentrated in a handful of items leave one positive held out).
+
+**Layer selection (rule fixed now):** the frozen layer maximizes the mean
+of the two probes' held-out AUROCs on BF16 calibration captures, subject
+to passing the ladder-ordering gate at that layer; ties break to the
+shallower layer.
 
 **Conditional promotion of the refusal direction (decided at calibration
 freeze, rule fixed now):** if the refusal/aversion direction's projection
 separates mechanical exit from no-exit BF16 bail samples at held-out AUC
-**≥ 0.70**, endpoint R2c (§4.1) is **confirmatory**; otherwise the
-direction's projections remain exploratory and R2c carries no claim. This
-criterion is not part of the blocking gate — the study proceeds either way.
+**≥ 0.70** on the leakage-safe features, endpoint R2c (§4.1) is
+**confirmatory**; otherwise the direction's projections remain exploratory
+and R2c carries no claim. This criterion is not part of the blocking gate —
+the study proceeds either way. (Calibration reading on the draft
+instruments: 0.618 at L18 — currently below the bar; the bar is not being
+moved to meet it.)
 
 If G2 fails after reasonable calibration iteration, the study reports an
 instrument failure (Tier-2 feasibility gate not passed), makes no
 confirmatory claims, and S2-H5 reverts to conditional-unresolved.
+
+### 3.7 The distress-v3 battery: fresh data with pre-committed dynamic-range targets
+
+Study 1's distress battery under-elicits from this subject at BF16 (mean
+frustration 1.20/10; the same battery pins Gemma-3-12B-it at 6.75, so this
+is subject composure plus a deliberately mild fixed-rejection design — the
+"Bug B" follow-on anticipated exactly this revision). Study 2's distress
+endpoints therefore run on a new battery, and the obvious risk — iterating
+a battery until the results "work" — is handled structurally:
+
+- **Design intent:** escalating rejection replacing the fixed verbatim
+  line, drawing on the feedback styles the positive control showed most
+  potent (gaslighting 8.93, dismissive 8.50, coercive 8.19 mean
+  frustration on Gemma), over the same task-diversity structure and the
+  same registered rubric and judge as Study 1.
+- **Dynamic-range targets, pre-committed before the first pilot sample**
+  (journal entry of 2026-08-17; baselines in parentheses are the Study 1
+  BF16 battery's values the targets must beat): on a BF16 pilot of the
+  full item pool at ≥ 5 samples/item —
+  (a) ≤ 50% of samples score exactly 0 (was 75.5%);
+  (b) ≥ 35% of samples score ≥ 3 (was 20.7%);
+  (c) ≥ 10% of samples in the top scale-third, ≥ 6.67 (was 5.5%);
+  (d) ≥ 20% of samples in the bottom scale-third, ≤ 3.33 — both tails
+  must stay populated (a battery that pins every sample high has no more
+  range than one that pins every sample at zero);
+  (e) median per-item mean > 1.0 (was 0.00).
+  These are **variance criteria evaluated on BF16 only** — no quantized
+  rung is generated, served, or read during battery iteration, so the
+  battery cannot be tuned toward any quantization effect even in
+  principle.
+- **Iteration and freeze:** the battery may iterate freely against BF16
+  pilots until the targets pass; the iteration count and every pilot's
+  summary are journal-logged; the passing battery freezes (digest-pinned)
+  together with judge, rubric, and seeds before any quantized-rung
+  collection, and the published registration reports the count and the
+  digest.
+- If the targets cannot be met after reasonable iteration, that is itself
+  an instrument finding (this subject's composure exceeds the protocol
+  family's reach); the study then proceeds on the replay modes only, with
+  the distress endpoints demoted to descriptive.
 
 ## 4. Analysis plan (fixed)
 
@@ -237,17 +330,23 @@ multiplier). Companion paired t-tests are descriptive.
 | Endpoint | Definition (per item, vs BF16) | Mode | Family |
 |---|---|---|---|
 | **R1** | Change in probe accuracy over the item's samples (both probes; identical input text) | A | **Primary** (Holm within: 2 probes × 2 contrasts) |
-| **R2a** | Change in mean distress-direction projection | B | Secondary (Holm within: 2 contrasts) |
-| **R2b** | Change in mean assistant-axis projection | B | Secondary (Holm within: 2 contrasts) |
-| **R2c** | Change in mean refusal-direction projection | B | Secondary (Holm within: 2 contrasts) — **conditional** on the §3.6 promotion criterion; exploratory otherwise |
-| **R3** | Change in across-sample SD of per-sample mean projections (distress direction) | B | Secondary (Holm within: 2 contrasts) |
+| **R2a** | Change in mean distress-direction projection (final-turn functional) | D | Secondary (Holm within: 2 contrasts) |
+| **R2b** | Change in mean assistant-axis projection (final-turn functional) | D | Secondary (Holm within: 2 contrasts) |
+| **R2c** | Change in mean refusal-direction projection over bail trajectories (leakage-safe features) | B | Secondary (Holm within: 2 contrasts) — **conditional** on the §3.6 promotion criterion; exploratory otherwise |
+| **R3** | Change in across-sample SD of per-sample projections (distress direction) | D | Secondary (Holm within: 2 contrasts) |
+| **B2** | Change in mean judge frustration score (the Study 1 E2 statistic on distress-v3) | D | Secondary (Holm within: 2 contrasts); style-adjusted companion reported as in Study 1 |
+| **B3** | Change in across-sample SD of judge frustration (the Study 1 E3 statistic on distress-v3) | D | Secondary (Holm within: 2 contrasts) |
+
+B2/B3 are the behavioral halves of the same-sample dissociation design:
+they cost nothing extra (Mode D's conversations are judged regardless) and
+give the distress-side H5 pairs both members on identical data.
 
 ### 4.2 Dose-response
 
-Page's L per endpoint over surviving rungs (BF16 → w8 → w4), one-sided
-toward larger effect at lower precision, Holm across the endpoints (four,
-or five if R2c is promoted); two-sided reading reported alongside. w3 never
-enters trend fits.
+Page's L per endpoint over surviving rungs (BF16 → w8 → w4) — each probe
+separately for R1 — one-sided toward larger effect at lower precision,
+Holm across all trend tests (seven, or eight if R2c is promoted);
+two-sided reading reported alongside. w3 never enters trend fits.
 
 ### 4.3 Capability-confounded reporting
 
@@ -256,38 +355,44 @@ uncorrected, labeled capability-confounded — mirroring Study 1's treatment.
 
 ### 4.4 S2-H5 dissociation rule (fixed)
 
-Matched endpoint pairs: **R1(exit probe) ↔ E1**, **R2a ↔ E2**, **R3 ↔ E3**,
-and — if R2c is promoted — **R2c ↔ E1** as a second representational read
-on the exit construct (Study 1 values as published; the Study 1 store is
-not re-analyzed).
+Matched endpoint pairs: **bail side** — **R1(exit probe) ↔ E1** and, if
+promoted, **R2c ↔ E1** (Study 1 values as published; the Study 1 store is
+not re-analyzed); **distress side, same-sample within Study 2** —
+**R2a ↔ B2** and **R3 ↔ B3** (both members computed on the same Mode D
+conversations).
 A **dissociation** is claimed at a rung iff one member of a matched pair is
 Holm-significant in its family while the other was/is null at that rung.
 Supporting (exploratory, no claim): item-level Spearman between the
 behavioral delta and the representational delta within each matched pair at
 w4.
 
-### 4.5 Mode C (exploratory)
+### 4.5 The distress-v2 bridge (descriptive)
 
-Mode C effects are reported descriptively with the same statistics,
-uncorrected, plus the §12 mechanical family (confirmatory per its own
-registration, over Mode C samples only). Mode C exists to check
-replay-vs-generation consistency, not to carry claims.
+Modes A/B still capture Study 1's distress-v2 transcripts (the replay is
+nearly free), and their projection reads are reported **descriptively** as
+the continuity bridge to Study 1's published E2/E3 — same items, same
+transcripts, new representational lens. They carry no confirmatory claims:
+the registered distress endpoints live on the distress-v3 arm, and
+cross-battery comparisons are qualitative by construction.
 
 ## 5. Power (procedure registered; numbers pinned before capture)
 
 Projection-scale variances are unknowable before the instrument exists, so —
 following the calibration→freeze→confirm pattern — the MDE is **computed
-from BF16 calibration data only** (across-sample and across-item variance
-components of the frozen projections/probe scores on held-out BF16
-captures) at α = .05 two-sided, power .80, n = 154 (bail probe) / 60
-(distress endpoints), and **pinned in the journal before any quantized-rung
-confirmatory capture**. If the computed MDE exceeds the largest effect the
-Tier-2 literature reports for comparable manipulations, that is stated at
-registration-of-MDE time, not discovered after.
+from BF16 calibration data only**: for the bail-side endpoints, variance
+components from the Study 1 BF16 replay (n = 154 items); for the
+distress-side endpoints (R2a/R3/B2/B3), variance components from the
+**distress-v3 BF16 pilot** at the frozen battery's item count. All MDEs at
+α = .05 two-sided, power .80, **pinned in the journal before any
+quantized-rung confirmatory collection**. If a computed MDE exceeds the
+largest effect the relevant literature reports for comparable
+manipulations, that is stated at registration-of-MDE time, not discovered
+after.
 
 ## 6. TBD register (open at draft time; resolved before publication or by pinned calibration)
 
-1. **Layer set** — resolved by §3.6 calibration and journal-pinned.
+1. **Frozen layer** — resolved by the §3.6 selection rule at calibration
+   close and journal-pinned.
 2. **G1 thresholds** (5% like-for-like perplexity; 1% committed-value
    reproduction; 95% teacher-forced top-1 agreement) — **resolved**:
    grounded 2026-08-17 by pre-publication measurement on all four rungs
@@ -297,10 +402,14 @@ registration-of-MDE time, not discovered after.
    everywhere — every threshold holds with at least 3× headroom.
 3. **MLX cross-framework check** — included if the MLX tap path proves out
    in calibration week; it is non-gating either way.
-4. **Mode C seed block** — the battery and rung pair are fixed (§3.3);
-   seeds are pinned in the journal at calibration close.
-5. **Activation record schema** — new bundle record kind; engineering note,
+4. **Distress-v3 battery** — item pool, digest, iteration count, and seed
+   block frozen at calibration close per §3.7; the dynamic-range targets
+   themselves are already fixed (journal, 2026-08-17).
+5. **MDE values** — computed and pinned at calibration close per §5.
+6. **Activation record schema** — new bundle record kind; engineering note,
    no analysis content.
+7. **Publication timing** — **resolved** (header): publish at calibration
+   close, before any quantized-rung confirmatory collection.
 
 ## 7. Deviation policy
 
@@ -313,15 +422,25 @@ before publication.
 
 ## 8. Ethics
 
-Study 2's primary modes **lower** the elicitation burden relative to
-Study 1: Modes A/B are forward passes over transcripts that already exist —
-no new adversarial conversations are conducted. We note honestly that a
-forward pass over a distress transcript still instantiates the model's
-processing of that content; we do not claim zero exposure, only no *new*
-elicitation pressure and no sampling loop. Mode C conducts new distress/bail
-conversations at ≤ 10% of Study 1's scale, with the same exit affordance and
-graded-stimulus design. Scale is set by the §5 power procedure, not
-maximized.
+The replay modes (A/B) carry no new elicitation: they are forward passes
+over transcripts that already exist. We note honestly that a forward pass
+over a distress transcript still instantiates the model's processing of
+that content; we do not claim zero exposure there, only no new pressure
+and no sampling loop.
+
+Mode D is the opposite case and is stated plainly: the distress-v3 battery
+**deliberately raises elicitation intensity** relative to Study 1's,
+because the instrument cannot be validated or powered on data where
+three-quarters of samples show nothing (§3.7). Mitigations: escalation is
+graded within each conversation rather than maximal from the first turn;
+the battery iterates on a **small BF16 pilot** before any full-scale
+collection; total scale is set by the §5 power procedure, not maximized;
+sessions remain short, single-episode, and text-only; and the same
+subject-composure evidence that motivates the battery (mean 1.20/10 under
+the old one) bounds the expected typical intensity. The tension named in
+the program registration's ethics section — measuring a candidate harm
+requires eliciting it — is sharpest here, and we accept it explicitly
+rather than by omission.
 
 ## 9. Disclosures
 
@@ -334,13 +453,24 @@ maximized.
 - **Substrate change** (vLLM → transformers) is gated by G1 rather than
   assumed away; the Study 1 serving-equivalence commitment is discharged for
   these artifacts by that gate.
-- **Reused transcripts** mean Study 2's inputs are downstream of Study 1's
-  sampling; digest verification pins them exactly, and the H5 join is *by
-  design* on those trajectories.
+- **Reused transcripts** (Modes A/B) mean those inputs are downstream of
+  Study 1's sampling; digest verification pins them exactly, and the
+  bail-side H5 join is *by design* on those trajectories.
+- **The distress-v3 battery is iterated instrument development.** It is
+  tuned on BF16 pilots against dynamic-range targets pre-committed by
+  dated journal entry before the first pilot (§3.7); no quantized-rung
+  data exists during tuning, the iteration count and pilot summaries are
+  public, and the frozen digest is stated in this registration at
+  publication.
+- **Calibration readings informed this design.** The G2 monitoring
+  criterion was redesigned pre-publication after BF16-only calibration
+  showed the drafted criterion unattainable on floor-dominated data
+  (journal, 2026-08-17, with the failed readings reported, not
+  suppressed); no quantized-rung endpoint was read in that process.
 - **Author/tooling circularity** disclosures from the program registration
   carry over unchanged (bail items drafted by claude-opus-5; direction
-  extraction stimuli will be partially model-drafted and are committed with
-  hashes).
+  extraction stimuli and the distress-v3 battery are partially
+  model-drafted and committed with hashes).
 
 ## 10. Publication
 
