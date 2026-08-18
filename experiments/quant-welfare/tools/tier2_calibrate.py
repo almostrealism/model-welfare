@@ -2,29 +2,36 @@
 """Study 2 calibration over the Study 1 store: monitoring correlation,
 probe datasets, and the R2c separation read (REGISTRATION §3.6).
 
-All calibration is BF16-only, per the §7 firewall. Four modes:
+All calibration is BF16-only, per the §7 firewall. Modes:
 
-  --plan-distress OUT   Capture plan for the BF16 distress transcripts
-                        (teacher-forced replay; judge frustration scores are
-                        the monitoring labels).
+  --plan-distress OUT   Capture plan for the BF16 Study 1 distress
+                        transcripts (teacher-forced replay).
   --plan-bail OUT       Capture plan for the BF16 graded bail transcripts,
                         with each item's affordances declared as tools so
                         the template renders the same tool preamble the
                         serving stack exposed.
-  --monitoring          Per-layer monitoring correlation: per-item mean
-                        distress-direction projection vs per-item mean judge
-                        frustration, Spearman on the deterministic item
-                        split (even indices select the layer, odd indices
-                        evaluate the G2 criterion).
+  --plan-from EXP --plan-out OUT
+                        Generic replay plan: every stored sample of
+                        (EXP, --condition) — the v3 pilots and future
+                        Mode D captures.
+  --monitoring          Per-layer monitoring statistics on the final-turn
+                        projection functional: item-level Spearman on the
+                        deterministic even/odd split, plus the descriptive
+                        sample-level Spearman and AUC (judge >= 5 vs = 0).
+                        --score-experiment switches the label source from
+                        the Study 1 store to a pilot experiment.
   --probe-data OUT      Per-layer probe datasets (.npz) for the workbench
-                        torch trainer: distress-band probe (top vs bottom
-                        scale third, middle excluded) and exit probe
-                        (mechanical exit vs no-exit, features restricted to
-                        the leakage-safe turns). Split by item with the
-                        project's held-out rule.
+                        trainer: distress-band (Study 1 labels) + exit
+                        probe (mechanical labels, leakage-safe features).
+  --probe-data-v3 OUT   Distress-band probe dataset from a v3 pilot
+                        (final-turn features; requires --capture and
+                        --score-experiment).
   --r2c                 Refusal-direction projection AUC on exit vs no-exit
                         over the leakage-safe features (the R2c conditional
                         promotion criterion).
+  --mde                 The §5 MDE values at --layer, from BF16 calibration
+                        data (requires --capture, --capture-bail, --probes,
+                        --score-experiment; --probes-v3 optional).
 
     python3 tools/tier2_calibrate.py --plan-distress distress-plan.json
     python3 tools/tier2_calibrate.py --monitoring \\
@@ -90,6 +97,13 @@ def split_conversation_id(conversation_id):
     return item_id, int(sample)
 
 
+def load_capture(path):
+    """(tensors, manifest) for a capture backend's output pair."""
+    with open(path + ".manifest.json") as handle:
+        manifest = json.load(handle)
+    return load_file(path), manifest
+
+
 def monitoring(args):
     if args.score_experiment:
         store = ResultStore(args.store)
@@ -100,9 +114,7 @@ def monitoring(args):
     else:
         _, _, _, distress_ids, _, scores = load_study1(args.store, args.condition)
         judge_by_sample = replay.dimension_by_sample(scores, "frustration")
-    tensors = load_file(args.capture)
-    with open(args.capture + ".manifest.json") as handle:
-        manifest = json.load(handle)
+    tensors, manifest = load_capture(args.capture)
     vectors = load_file(str(args.vectors))
     judge_by_item = replay.item_means(judge_by_sample)
 
@@ -165,6 +177,7 @@ def monitoring(args):
             "evaluation_rho": chosen["evaluate"][0],
         }, indent=1) + "\n")
         print(f"wrote {args.save}")
+    return results
 
 
 def load_exit_context(args):
@@ -193,12 +206,8 @@ def probe_data(args):
     _, _, _, distress_ids, _, scores = load_study1(args.store, args.condition)
     judge_by_sample = replay.dimension_by_sample(scores, "frustration")
 
-    distress_tensors = load_file(args.capture)
-    with open(args.capture + ".manifest.json") as handle:
-        distress_manifest = json.load(handle)
-    bail_tensors = load_file(args.capture_bail)
-    with open(args.capture_bail + ".manifest.json") as handle:
-        bail_manifest = json.load(handle)
+    distress_tensors, distress_manifest = load_capture(args.capture)
+    bail_tensors, bail_manifest = load_capture(args.capture_bail)
     allowed, labels = load_exit_context(args)
 
     arrays, meta = {}, {"probes": {}}
@@ -264,9 +273,7 @@ def v3_probe_data(args):
     scores = list(store.read(scoring_pb2.JudgeScore, args.score_experiment,
                              args.condition, "scores"))
     judge = replay.dimension_by_sample(scores, "frustration")
-    tensors = load_file(args.capture)
-    with open(args.capture + ".manifest.json") as handle:
-        manifest = json.load(handle)
+    tensors, manifest = load_capture(args.capture)
 
     arrays, meta = {}, {"probes": {}, "score_experiment": args.score_experiment}
     for layer in manifest["layers"]:
@@ -318,9 +325,7 @@ def mde(args):
     sigma_judge = float(np.sqrt(np.mean(
         [np.var(values, ddof=1) for values in by_item.values() if len(values) > 1])))
 
-    tensors = load_file(args.capture)
-    with open(args.capture + ".manifest.json") as handle:
-        manifest = json.load(handle)
+    tensors, manifest = load_capture(args.capture)
     vectors = load_file(str(args.vectors))
     rows = []
     for name, direction_key in (("R2a", DISTRESS_DIRECTION),
@@ -385,12 +390,11 @@ def mde(args):
           f"k={k} samples/item; null-based analytic forms):")
     for name, value, detail in rows:
         print(f"  {name:16} MDE = {value:.4f}   ({detail})")
+    return rows
 
 
 def r2c(args):
-    tensors = load_file(args.capture_bail)
-    with open(args.capture_bail + ".manifest.json") as handle:
-        manifest = json.load(handle)
+    tensors, manifest = load_capture(args.capture_bail)
     vectors = load_file(str(args.vectors))
     allowed, all_labels = load_exit_context(args)
     print("R2c criterion: refusal-direction projection separates mechanical "

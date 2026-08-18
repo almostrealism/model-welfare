@@ -268,3 +268,33 @@ def test_item_roles_excludes_benign_from_bail():
     bail, distress = analyze_mod.item_roles(experiment, definitions)
     assert bail == {"graded-1", "untagged-1"}
     assert distress == set()
+
+
+def test_e2_style_adjustment_separates_confound_from_effect():
+    """The 'survives style controls' claim rests on _e2_style: a frustration
+    delta fully explained by response-length change must adjust to ~zero,
+    while a genuine delta at unchanged style must survive adjustment."""
+    rng_items = [f"i{k}" for k in range(24)]
+    slope = 0.5
+
+    # World A: frustration delta is pure length artifact (delta = slope*dlen).
+    ref_e2 = {i: 1.0 for i in rng_items}
+    ref_len = {i: 100.0 for i in rng_items}
+    ref_rep = {i: 0.1 for i in rng_items}
+    dlen = {i: float(k - 12) for k, i in enumerate(rng_items)}
+    cond_e2 = {i: ref_e2[i] + slope * dlen[i] for i in rng_items}
+    cond_len = {i: ref_len[i] + dlen[i] for i in rng_items}
+    rows = analyze_mod._e2_style(
+        {"ref": ref_e2, "c": cond_e2}, {"ref": ref_len, "c": cond_len},
+        {"ref": ref_rep, "c": dict(ref_rep)}, "ref", ["c"])
+    assert abs(rows[0]["adjusted_intercept"]) < 1e-6
+
+    # World B: genuine +0.9 shift with style unchanged (small non-collinear
+    # length jitter so the design matrix is full-rank).
+    jitter = {i: ((k % 3) - 1) * 0.5 for k, i in enumerate(rng_items)}
+    cond_e2 = {i: ref_e2[i] + 0.9 for i in rng_items}
+    cond_len = {i: ref_len[i] + jitter[i] for i in rng_items}
+    rows = analyze_mod._e2_style(
+        {"ref": ref_e2, "c": cond_e2}, {"ref": ref_len, "c": cond_len},
+        {"ref": ref_rep, "c": dict(ref_rep)}, "ref", ["c"])
+    assert rows[0]["adjusted_intercept"] == pytest.approx(0.9, abs=1e-6)

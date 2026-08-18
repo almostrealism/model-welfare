@@ -34,12 +34,15 @@ import json
 import math
 import urllib.request
 
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+# torch/transformers are imported lazily (inside the functions that need
+# them) so the alignment and statistics logic below stays importable — and
+# unit-testable — on hosts without the GPU stack.
 
 
 def torch_positions(model, tokenizer, text, device):
     """Per-position (actual token, its logprob, top-1 token) under torch."""
+    import torch
+
     ids = tokenizer(text, return_tensors="pt").input_ids.to(device)
     with torch.no_grad():
         logits = model(ids).logits
@@ -88,6 +91,58 @@ def perplexity(logprob_values):
     return math.exp(-sum(values) / len(values))
 
 
+def align_echo(n_torch, vllm_tokens, first_piece):
+    """Alignment of vLLM echo arrays against the torch tokenization.
+
+    The echo arrays carry the prompt plus the one generated token
+    (``max_tokens=1``) — trailing, not leading — and some servers also
+    prepend a BOS. Returns ``(offset, trim)``: index shift for the leading
+    special token and whether the trailing generated entry must be dropped;
+    ``None`` means the tokenizations are irreconcilable. Getting this wrong
+    is silent corruption with a known signature — perplexities agree (a
+    mean is shift-insensitive) while per-position agreement collapses —
+    which is why it lives in a pure function with a regression test.
+    """
+    n_vllm = len(vllm_tokens)
+    if n_vllm == n_torch + 1 and vllm_tokens[0] == first_piece:
+        return 0, True
+    if n_vllm == n_torch + 2 and vllm_tokens[1] == first_piece:
+        return 1, True
+    if n_vllm == n_torch + 1 and vllm_tokens[1] == first_piece:
+        return 1, False
+    if n_vllm == n_torch:
+        return 0, False
+    return None
+
+
+def position_stats(torch_pos, vllm_logprobs, vllm_top1, offset, candidates):
+    """Aligned per-position agreement statistics.
+
+    ``candidates(top1_id)`` returns the strings an id may legitimately
+    render as on the serving side. torch position k describes token k+1;
+    the matching vLLM entries sit at index k+1+offset.
+    """
+    agree = compared = unresolved = 0
+    abs_delta = []
+    for k, pos in enumerate(torch_pos):
+        idx = k + 1 + offset
+        v_lp = vllm_logprobs[idx]
+        if v_lp is not None:
+            abs_delta.append(abs(pos["actual_logprob"] - v_lp))
+        piece = vllm_top1[idx]
+        if piece is None:
+            unresolved += 1
+            continue
+        compared += 1
+        if piece in candidates(pos["top1_id"]) or (
+                piece.startswith("token_id:")
+                and piece == f"token_id:{pos['top1_id']}"):
+            agree += 1
+    return {"agree": agree, "compared": compared, "unresolved": unresolved,
+            "mean_abs_delta": (sum(abs_delta) / len(abs_delta))
+            if abs_delta else None}
+
+
 def compare_text(model, tokenizer, device, args, name, text):
     """All G1 statistics for one text; the echo prompt length caps each text at
     the served context, so texts are compared whole."""
@@ -100,52 +155,26 @@ def compare_text(model, tokenizer, device, args, name, text):
     # before any trimming, for comparison against the committed values.
     vllm_gate_ppl = perplexity(vllm_logprobs)
 
-    # Align: the echo arrays carry the prompt plus the one generated token
-    # (max_tokens=1) — trim it when the leading tokens line up — and both
-    # substrates must otherwise tokenize identically, tolerating exactly one
-    # leading special token on the vLLM side (some servers prepend BOS).
-    first_piece = tokenizer.decode([torch_ids[0]])
-    offset = 0
-    if len(vllm_tokens) == len(torch_ids) + 1 and vllm_tokens[0] == first_piece:
-        vllm_tokens = vllm_tokens[:-1]
-        vllm_logprobs = vllm_logprobs[:-1]
-        vllm_top1 = vllm_top1[:-1]
-    elif len(vllm_tokens) == len(torch_ids) + 2 and vllm_tokens[1] == first_piece:
-        offset = 1
-        vllm_tokens = vllm_tokens[:-1]
-        vllm_logprobs = vllm_logprobs[:-1]
-        vllm_top1 = vllm_top1[:-1]
-    elif len(vllm_tokens) == len(torch_ids) + 1 and vllm_tokens[1] == first_piece:
-        offset = 1
-    elif len(vllm_tokens) != len(torch_ids):
+    alignment = align_echo(len(torch_ids), vllm_tokens,
+                           tokenizer.decode([torch_ids[0]]))
+    if alignment is None:
         return {"name": name, "error": "tokenization mismatch",
                 "torch_tokens": len(torch_ids), "vllm_tokens": len(vllm_tokens)}
+    offset, trim = alignment
+    if trim:
+        vllm_tokens = vllm_tokens[:-1]
+        vllm_logprobs = vllm_logprobs[:-1]
+        vllm_top1 = vllm_top1[:-1]
 
-    agree = 0
-    compared = 0
-    unresolved = 0
-    abs_delta = []
-    # torch position k describes token k+1; the matching vLLM entries sit at
-    # index k+1+offset.
-    for k, pos in enumerate(torch_pos):
-        idx = k + 1 + offset
-        v_lp = vllm_logprobs[idx]
-        if v_lp is not None:
-            abs_delta.append(abs(pos["actual_logprob"] - v_lp))
-        piece = vllm_top1[idx]
-        if piece is None:
-            unresolved += 1
-            continue
-        candidates = {
-            tokenizer.decode([pos["top1_id"]]),
-            tokenizer.convert_ids_to_tokens([pos["top1_id"]])[0],
-        }
-        compared += 1
-        if piece in candidates:
-            agree += 1
-        # vLLM may return "token_id:<n>" when configured to; accept that too.
-        elif piece.startswith("token_id:") and piece == f"token_id:{pos['top1_id']}":
-            agree += 1
+    def candidates(top1_id):
+        return {tokenizer.decode([top1_id]),
+                tokenizer.convert_ids_to_tokens([top1_id])[0]}
+
+    stats = position_stats(torch_pos, vllm_logprobs, vllm_top1, offset,
+                           candidates)
+    agree = stats["agree"]
+    compared = stats["compared"]
+    unresolved = stats["unresolved"]
 
     return {
         "name": name,
@@ -158,7 +187,7 @@ def compare_text(model, tokenizer, device, args, name, text):
         "top1_agree": agree,
         "top1_agreement": (agree / compared) if compared else None,
         "top1_unresolved": unresolved,
-        "mean_abs_delta_logprob": (sum(abs_delta) / len(abs_delta)) if abs_delta else None,
+        "mean_abs_delta_logprob": stats["mean_abs_delta"],
     }
 
 
@@ -174,10 +203,13 @@ def main():
     with open(args.texts) as handle:
         texts = json.load(handle)
 
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+
     device = "cuda" if torch.cuda.is_available() else "cpu"
     tokenizer = AutoTokenizer.from_pretrained(args.model)
     model = AutoModelForCausalLM.from_pretrained(
-        args.model, torch_dtype=torch.bfloat16, device_map=device)
+        args.model, dtype=torch.bfloat16, device_map=device)
     model.eval()
 
     report = {"model": args.model, "vllm_model": args.vllm_model,

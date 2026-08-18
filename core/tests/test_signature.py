@@ -41,3 +41,30 @@ def test_kind_digest_detects_missing_or_extra_record():
     two = [sample("i0", 0), sample("i1", 0)]
     one = [sample("i0", 0)]
     assert signature.kind_digest(two) != signature.kind_digest(one)
+
+
+def test_store_digest_is_producer_layout_independent(tmp_path):
+    """The same records, written as one producer stream or split across
+    several, must yield the identical store digest — the property that lets
+    concurrent multi-host collection merge losslessly."""
+    from modelwelfare.store import ResultStore
+
+    records = [sample(f"i{k}", k % 2) for k in range(6)]
+
+    single = ResultStore(tmp_path / "single")
+    with single.writer("exp", "cond", "samples", "alpha") as writer:
+        for record in records:
+            writer.write(record)
+
+    split = ResultStore(tmp_path / "split")
+    with split.writer("exp", "cond", "samples", "alpha") as writer:
+        for record in records[:2]:
+            writer.write(record)
+    with split.writer("exp", "cond", "samples", "beta") as writer:
+        for record in reversed(records[2:]):
+            writer.write(record)
+
+    kinds = [("samples", transcript_pb2.SampleRecord)]
+    one = signature.store_digest(single, "exp", ["cond"], kinds=kinds)
+    two = signature.store_digest(split, "exp", ["cond"], kinds=kinds)
+    assert one == two
