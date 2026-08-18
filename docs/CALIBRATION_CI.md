@@ -115,10 +115,20 @@ constants so the manifest cannot be silently regenerated);
 `study1/confirmatory/expected-results.json` (verified to reproduce from
 both the streaming store and the released bundle); the `study1-reproduce`
 CI job (sha-pinned release asset + dataset-digest verification + golden
-check); and the `All Checks` aggregator. Remaining: the calibration-data
-release and the jobs consuming it (`directions-stable`, `mde-stable`,
-`pilot-targets-stable`), the `tokenizer-spans` job, and Tier 3 runner
-registration.
+check); and the `All Checks` aggregator.
+
+Also built (2026-08-18, second pass): the `tokenizer-spans` job
+(expectations generated against the real Qwen tokenizer on the workbench,
+committed at `study2/calibration/span-expectations.json`, re-checked in CI
+from a revision-pinned download) and `workbench-stability.yml` — the
+Tier 3 workflow (judge-stable on `studio`, substrate-g1 on `amd-halo`,
+schedule + dispatch, collision guard, sequential ladder start, thresholds
+inside measured headroom, teardown always). It merges inert until
+self-hosted runners with matching labels are enabled for this repo;
+Tier 3 is deliberately NOT in the All Checks needs list. Remaining: the
+calibration-data release and the jobs consuming it (`directions-stable`,
+`mde-stable`, `pilot-targets-stable`), `capture-stable` on the workbench,
+and runner registration/labels.
 
 **Release policy (owner, 2026-08-18): releases are frozen snapshots.**
 Notes, tag, and assets stay mutually consistent with the repository state
