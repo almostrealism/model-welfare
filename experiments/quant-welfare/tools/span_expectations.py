@@ -27,7 +27,11 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-if len(HERE.parents) > 2:  # repository checkout; shallow on the workbench
+# In a repository checkout, core/src sits two levels up; probe by existence
+# rather than by path depth, so a copy of this script in an arbitrary
+# workbench directory never inserts a bogus (or worse, wrong) core/src.
+if len(HERE.parents) > 2 and (HERE.parents[2] / "core" / "src"
+                              / "modelwelfare").is_dir():
     sys.path.insert(0, str(HERE.parents[2] / "core" / "src"))
 sys.path.insert(0, str(HERE))
 

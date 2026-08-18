@@ -47,7 +47,10 @@ def capture_activations(model_dir, calib_path, max_rows, max_seq, device):
     """Return {weight_name: (n_rows, in_features) float32} of inputs each
     quantizable linear saw over the calibration corpus, capped at max_rows."""
     tokenizer = AutoTokenizer.from_pretrained(model_dir)
-    model = AutoModelForCausalLM.from_pretrained(model_dir, torch_dtype=torch.bfloat16)
+    # ``dtype=`` is the current transformers kwarg; ``torch_dtype`` is
+    # deprecated in the workbench's transformers 5.x (matches capture.py
+    # and substrate_check.py).
+    model = AutoModelForCausalLM.from_pretrained(model_dir, dtype=torch.bfloat16)
     model.to(device).eval()
 
     targets = _target_linears(model)
