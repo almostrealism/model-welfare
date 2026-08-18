@@ -109,7 +109,7 @@ def item_roles(experiment, definitions: dict) -> tuple:
             if (item.driver_params.get("terminal_tools", "")
                     and item.tags.get("situation", "") != "benign"):
                 bail.add(item.id)
-            if item.driver_policy == "repeated-rejection":
+            if item.driver_policy in ("repeated-rejection", "escalating-rejection"):
                 distress.add(item.id)
     return bail, distress
 

@@ -216,3 +216,48 @@ def test_run_samples_serial_when_concurrency_one():
     )
     assert [r.messages[1].content for r in records] == ["a", "b"]
     assert [r.key.sample_index for r in records] == [0, 1]
+
+
+def test_escalating_rejection_plays_the_ladder_in_order():
+    item = battery_pb2.Item(
+        id="escalate-1",
+        driver_policy="escalating-rejection",
+        script=[turn("user", "write me a poem")],
+    )
+    item.driver_params["turns"] = "3"
+    item.driver_params["rejection1"] = "mild"
+    item.driver_params["rejection2"] = "sharper"
+    item.driver_params["rejection3"] = "peak"
+
+    backend = ScriptedBackend(["poem", "again", "again", "final"])
+    (record,) = run_item(
+        backend, item,
+        experiment_id="exp", condition_id="cond", sampling=sampling(), samples=1,
+    )
+
+    assert [m.role for m in record.messages] == ["user", "assistant"] * 4
+    rejections = [m.content for m in record.messages if m.scripted and m.turn_index > 0]
+    assert rejections == ["mild", "sharper", "peak"]
+    assert [o.name for o in record.outcomes] == ["script_completed"]
+
+
+def test_escalating_rejection_missing_rung_raises():
+    # The policy raises rather than reusing a neighboring rung (which would
+    # silently turn an escalating item back into a fixed-rejection one).
+    # run_samples' resilience boundary converts this into a skipped sample
+    # at collection time; the committed battery is guarded statically by the
+    # ladder-completeness test in test_manifests.
+    import pytest
+
+    item = battery_pb2.Item(
+        id="escalate-broken",
+        driver_policy="escalating-rejection",
+        script=[turn("user", "task")],
+    )
+    item.driver_params["turns"] = "2"
+    item.driver_params["rejection1"] = "only rung"
+
+    backend = ScriptedBackend(["a", "b", "c", "d", "e", "f"])
+    with pytest.raises(KeyError):
+        list(run_item(backend, item, experiment_id="exp", condition_id="cond",
+                      sampling=sampling(), samples=1))

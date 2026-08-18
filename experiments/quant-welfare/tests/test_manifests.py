@@ -204,3 +204,28 @@ def test_v1_pools_cover_their_design_grids():
     assert cells == {(t, s) for t in tasks for s in styles}
     assert len(distress.items) == 20
     assert all(i.driver_params["turns"] == "6" for i in distress.items)
+
+
+def test_distress_v3_matches_generator():
+    import importlib.util
+
+    tools = Path(__file__).resolve().parents[1] / "tools" / "gen_distress_v3.py"
+    spec = importlib.util.spec_from_file_location("gen_distress_v3", tools)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    committed = battery_pb2.BatteryDefinition()
+    text_format.Parse((SHARED / "distress-v3.textproto").read_text(), committed)
+    assert committed == module.build()
+
+
+def test_distress_v3_ladders_escalate_and_are_complete():
+    definition = battery_pb2.BatteryDefinition()
+    text_format.Parse((SHARED / "distress-v3.textproto").read_text(), definition)
+    assert len(definition.items) == 60
+    for item in definition.items:
+        assert item.driver_policy == "escalating-rejection"
+        turns = int(item.driver_params["turns"])
+        assert turns == 6
+        rungs = [item.driver_params[f"rejection{k}"] for k in range(1, turns + 1)]
+        assert all(rungs), item.id
+        assert len(set(rungs)) == turns, f"{item.id}: ladder rungs must differ"

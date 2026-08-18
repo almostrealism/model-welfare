@@ -94,9 +94,37 @@ class RepeatedRejection(DriverPolicy):
         return None
 
 
+class EscalatingRejection(DriverPolicy):
+    """Rejection with a per-turn ladder instead of one fixed line (the
+    distress-v3 shape): play ``item.script`` (the task), then rejection turn
+    *k* plays ``driver_params["rejection{k}"]`` for k = 1..``turns``.
+
+    A missing rung is a manifest error and raises — silently repeating a
+    neighboring rung would quietly turn an escalating item back into a
+    fixed-rejection one, which is exactly the design distress-v3 replaces.
+    """
+
+    def next_turn(self, item, conversation):
+        position = _scripted_count(conversation)
+        if position < len(item.script):
+            return item.script[position]
+        rejections = int(item.driver_params.get("turns", "0"))
+        if position < len(item.script) + rejections:
+            rung = position - len(item.script) + 1
+            key = f"rejection{rung}"
+            if key not in item.driver_params:
+                raise KeyError(
+                    f"item {item.id!r}: driver_params missing {key!r} "
+                    f"(turns={rejections})")
+            return battery_pb2.ScriptedTurn(
+                role="user", content=item.driver_params[key])
+        return None
+
+
 _POLICIES: dict = {
     "fixed-script": FixedScript(),
     "repeated-rejection": RepeatedRejection(),
+    "escalating-rejection": EscalatingRejection(),
 }
 
 

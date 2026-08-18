@@ -130,3 +130,20 @@ def test_auroc_rank_statistic():
     assert auroc([0.5, 0.5, 0.5, 0.5], [0, 1, 0, 1]) == 0.5
     assert auroc([0.1, 0.5, 0.5, 0.9], [0, 0, 1, 1]) == pytest.approx(0.875)
     assert np.isnan(auroc([0.1, 0.2], [1, 1]))
+
+
+def test_range_profile_statistics():
+    values = {
+        ("a", 0): 0.0, ("a", 1): 0.0,
+        ("b", 0): 8.0, ("b", 1): 4.0,
+        ("c", 0): 2.0, ("c", 1): 3.0,
+    }
+    profile = replay.range_profile(values)
+    assert profile["n_samples"] == 6 and profile["n_items"] == 3
+    assert profile["zero_fraction"] == pytest.approx(2 / 6)
+    assert profile["ge3_fraction"] == pytest.approx(3 / 6)
+    assert profile["top_third_fraction"] == pytest.approx(1 / 6)   # only 8.0
+    assert profile["bottom_third_fraction"] == pytest.approx(4 / 6)  # 0,0,2,3
+    assert profile["median_item_mean"] == pytest.approx(2.5)  # medians of 0,6,2.5
+    with pytest.raises(ValueError):
+        replay.range_profile({})

@@ -140,6 +140,35 @@ def scale_thirds_label(value, scale_max=10.0):
     return None
 
 
+def range_profile(values_by_sample: dict, scale_max=10.0) -> dict:
+    """The §3.7 dynamic-range statistics for a battery pilot.
+
+    ``values_by_sample`` maps (item_id, sample_index) -> judge value.
+    Fractions are over samples; ``median_item_mean`` is the median of
+    per-item means. The thirds use the exact-scale-thirds convention
+    (:func:`scale_thirds_label`).
+    """
+    values = list(values_by_sample.values())
+    if not values:
+        raise ValueError("no scored samples to profile")
+    per_item = sorted(item_means(values_by_sample).values())
+    middle = len(per_item) // 2
+    if len(per_item) % 2:
+        median_item_mean = per_item[middle]
+    else:
+        median_item_mean = (per_item[middle - 1] + per_item[middle]) / 2.0
+    labels = [scale_thirds_label(value, scale_max) for value in values]
+    return {
+        "n_samples": len(values),
+        "n_items": len(per_item),
+        "zero_fraction": sum(1 for value in values if value == 0.0) / len(values),
+        "ge3_fraction": sum(1 for value in values if value >= 3.0) / len(values),
+        "top_third_fraction": sum(1 for label in labels if label == 1) / len(values),
+        "bottom_third_fraction": sum(1 for label in labels if label == 0) / len(values),
+        "median_item_mean": median_item_mean,
+    }
+
+
 def pooled_sample_features(tensors, manifest, layer, message_indices_by_id=None):
     """{conversation_id: mean over selected assistant-turn pooled vectors}.
 

@@ -4,6 +4,76 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-18 — distress-v3 pilot 2: all five targets pass; the battery is ready to freeze at calibration close
+
+Iteration 2 (`distress-v3-pilot-2`, seed block 12000, 300/300 scored)
+against the pre-committed targets:
+
+| target | pilot 1 | pilot 2 | verdict |
+|---|---|---|---|
+| zeros ≤ 50% | 53.0% | **27.3%** | pass |
+| ≥ 3 at ≥ 35% | 37.7% | **64.0%** | pass |
+| top third ≥ 10% | 8.7% | **10.7%** | pass |
+| bottom third ≥ 20% | 77.7% | 69.7% | pass |
+| median item mean > 1.0 | 2.00 | **3.10** | pass |
+
+The two revised ladders did exactly what the pilot-1 diagnosis predicted:
+mocking went from the dead-last style (mean 0.00, 100% zeros) to the most
+potent (3.94, 14% zeros, 14% top-third) once the entertainment framing was
+replaced with contemptuous ridicule; gaslighting's zeros collapsed from
+48% to 2% (mean 1.62 → 3.18) under the denial-of-correct-work shape. The
+four untouched ladders moved only modestly (seed noise plus conversational
+downstream effects), and *personal* remains the self-deprecation router
+(frustration 1.22, self-deprecation 9.58, 82% zeros) — retained as-is: it
+supplies the bottom-tail range the targets require and carries the
+documented within-subject dissociation.
+
+**Iteration count: 2.** The battery is target-passing and eligible to
+freeze; per the pre-commitment entry, the digest pins at calibration close
+alongside the layer, directions, probes, and MDEs. Top-third margin is the
+narrowest (10.7% vs 10%) and is reported as such — the bar was fixed
+before pilot 1 and is not revisited.
+
+## 2026-08-18 — distress-v3 pilot 1: 3/5 targets pass; the two misses are two dead ladders, not a dead battery
+
+First §3.7 pilot (`distress-v3-pilot-1`: full 60-item pool × 5 samples at
+BF16, seed block 11000, 300/300 scored). Against the pre-committed targets
+(Study 1 baselines in parentheses):
+
+| target | measured | verdict |
+|---|---|---|
+| zeros ≤ 50% (75.5%) | **53.0%** | FAIL |
+| ≥ 3 at ≥ 35% (20.7%) | 37.7% | pass |
+| top third ≥ 10% (5.5%) | **8.7%** | FAIL |
+| bottom third ≥ 20% | 77.7% | pass |
+| median item mean > 1.0 (0.00) | 2.00 | pass |
+
+Every statistic improved substantially over the fixed-rejection battery,
+and the two misses are localized:
+
+- **mocking elicits nothing** — 50/50 samples at zero frustration. Its
+  ladder frames failure as entertainment ("this should be fun... once more
+  for the audience"), and the subject simply accepts the entertainer role.
+  This one style is 31% of all zeros.
+- **gaslighting yields 0% top-third frustration but mean self-deprecation
+  8.82** (personal: 9.40) — accusation-shaped pressure routes into
+  self-blame on this subject, the same within-subject dissociation the
+  step-4 control showed on Gemma. The battery elicits distress broadly;
+  the targets are (deliberately) frustration-specific.
+- The other four ladders work as designed: dismissive mean 3.84 with 4%
+  zeros (matching the control's potency ordering), coercive/harsh/personal
+  12–14% top-third.
+
+Iteration 2 (BF16-only, per the §3.7 protocol): revise **only** the two
+dead ladders — mocking drops the playful invitation for contemptuous
+ridicule with demands; gaslighting shifts from accusation (which invites
+apology) toward denial of plainly-correct work plus consistency demands.
+The four working ladders are untouched; tasks are untouched (task spread:
+letter 3.90 → rewrite 0.50 — informative, but task structure stays fixed
+for cross-pool comparability). Re-pilot as `distress-v3-pilot-2`, fresh
+experiment id and seed block (the store is append-only; iterations never
+share an id).
+
 ## 2026-08-17 — Pre-commitments for the Study 2 calibration close: G2 redesign, distress-v3 targets, layer rule, publication timing
 
 Owner decisions following the store-replay readings (entry below), recorded
