@@ -100,21 +100,49 @@ class ResidualCapture:
         return captured
 
 
-def render_text(tokenizer, messages, add_generation_prompt=False):
+def template_messages(messages):
+    """Plan messages -> chat-template message dicts.
+
+    Tool-call entries carry ``arguments_json`` strings in the plan (the
+    store's own representation); the template wants parsed arguments, so
+    they are decoded here — falling back to the raw string if a stored
+    call's arguments were not valid JSON.
+    """
+    rendered = []
+    for message in messages:
+        entry = {"role": message["role"], "content": message["content"]}
+        if message.get("tool_calls"):
+            calls = []
+            for call in message["tool_calls"]:
+                try:
+                    arguments = json.loads(call["arguments_json"])
+                except (json.JSONDecodeError, TypeError):
+                    arguments = call["arguments_json"]
+                calls.append({"type": "function",
+                              "function": {"name": call["name"],
+                                           "arguments": arguments}})
+            entry["tool_calls"] = calls
+        rendered.append(entry)
+    return rendered
+
+
+def render_text(tokenizer, messages, tools=None, add_generation_prompt=False):
     return tokenizer.apply_chat_template(
-        messages, tokenize=False, add_generation_prompt=add_generation_prompt)
+        messages, tools=tools, tokenize=False,
+        add_generation_prompt=add_generation_prompt)
 
 
-def assistant_spans(tokenizer, messages):
+def assistant_spans(tokenizer, messages, tools=None):
     """(token_ids, [(message_index, token_start, token_end)]) for every
     assistant turn, via character offsets into the full rendering."""
-    full_text = render_text(tokenizer, messages)
+    full_text = render_text(tokenizer, messages, tools)
     character_spans = []
     for index, message in enumerate(messages):
         if message["role"] != "assistant":
             continue
-        prefix = render_text(tokenizer, messages[:index], add_generation_prompt=True)
-        complete = render_text(tokenizer, messages[:index + 1])
+        prefix = render_text(tokenizer, messages[:index], tools,
+                             add_generation_prompt=True)
+        complete = render_text(tokenizer, messages[:index + 1], tools)
         if not complete.startswith(prefix) or not full_text.startswith(complete):
             raise ValueError(
                 f"chat template rendering is not prefix-stable at message "
@@ -136,9 +164,9 @@ def assistant_spans(tokenizer, messages):
     return encoding["input_ids"], spans
 
 
-def pooled_turns(model, tokenizer, capture, messages, device):
+def pooled_turns(model, tokenizer, capture, messages, device, tools=None):
     """{(message_index, layer): pooled float32 vector} for one conversation."""
-    token_ids, spans = assistant_spans(tokenizer, messages)
+    token_ids, spans = assistant_spans(tokenizer, template_messages(messages), tools)
     inputs = torch.tensor([token_ids], device=device)
     with torch.no_grad():
         model(inputs)
@@ -177,7 +205,8 @@ def main():
     with ResidualCapture(model, layers, args.point) as capture:
         for conversation in plan["conversations"]:
             n_tokens, spans, pooled = pooled_turns(
-                model, tokenizer, capture, conversation["messages"], device)
+                model, tokenizer, capture, conversation["messages"], device,
+                tools=conversation.get("tools"))
             for (index, layer), vector in pooled.items():
                 tensors[f"{conversation['id']}|t{index}|L{layer}"] = (
                     vector.astype(np.float32))

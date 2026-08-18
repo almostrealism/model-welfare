@@ -392,6 +392,22 @@ def spearman(x, y) -> float:
     return float(np.corrcoef(x, y)[0, 1])
 
 
+def auroc(scores, labels) -> float:
+    """Area under the ROC curve via the rank statistic (Mann–Whitney U),
+    with average ranks so ties contribute half. Instrument tooling — the
+    Tier-2 probe and direction-separation reads — not a registered
+    confirmatory test. Returns NaN when either class is empty."""
+    scores = np.asarray(scores, float)
+    labels = np.asarray(labels, int)
+    positives = int(labels.sum())
+    negatives = int(len(labels) - positives)
+    if positives == 0 or negatives == 0:
+        return float("nan")
+    ranks = rankdata_average(scores)
+    u_statistic = ranks[labels == 1].sum() - positives * (positives + 1) / 2.0
+    return float(u_statistic / (positives * negatives))
+
+
 def band_index(values, edges):
     """Band membership for scored values, given ascending interior cut points.
 

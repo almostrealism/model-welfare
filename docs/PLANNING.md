@@ -4,7 +4,27 @@ Working items between the brief (scientific frame, stable) and the READMEs
 (how things work today). Items land here when identified, get checked off
 when done, and grow notes as decisions accumulate. Date every status change.
 
-## Instrument validation, decoupled from quantization (opened 2026-08-13)
+## Software quality — test coverage audit (opened 2026-08-17)
+
+This project builds multi-study software, not just experiments, and the
+owner's assessment (2026-08-17) is that green CI currently overstates tool
+quality. New modules now land with unit tests in the same commit; the debt
+is in what already exists.
+
+- [ ] **Pre-publication test-gap audit** *(opened 2026-08-17; gates
+  publishing the Study 2 registration as post #3)* — inventory and close
+  the gaps where tool behavior is load-bearing but untested. Known entries
+  to seed the audit: capture-side span computation (needs a real tokenizer
+  — decide between a committed tiny-tokenizer fixture and a workbench-run
+  integration check with recorded expectations); the tool-call/tools
+  rendering path in `capture.py` (same constraint); CLI-level behavior of
+  the `tools/` scripts (plan/report modes exercised end-to-end on a
+  miniature store fixture); `bundle`/`store` round-trips beyond the happy
+  path; `analyze.py` statistical branches not pinned by
+  `test_conformance.py`; `substrate_check.py` alignment logic (the echo
+  off-by-one was caught at runtime, not by a test — encode that lesson as
+  a regression fixture). Output: either tests or a written justification
+  per gap, reviewed before the registration goes out.
 
 The SmolLM3 sensitivity sweep (§9) was closed out null and uninterpretable — you
 cannot validate an instrument with a manipulation whose ground-truth effect on

@@ -4,6 +4,58 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-17 — Store replay: the exit probe is strong, the ladder ordering is near-perfect, and the floor effect caps every natural-data distress read
+
+The calibration reads over the Study 1 BF16 store ran end-to-end (replay
+planning in `core/replay.py` + `tools/tier2_calibrate.py`; probe training
+in `backends/torch/.../train_probe.py`; 600 distress + 1,540 graded bail
+conversations replayed with tool declarations rendered — zero
+prefix-stability rejections). Numbers, then the diagnosis:
+
+- **Exit probe (mechanical labels, leakage-safe features): held-out AUROC
+  0.950 at L12** (0.945 L18, 0.919 L24; n = 429 with 96 exits). Features
+  exclude every terminal-tool turn, so this is a *precursor* read — exit
+  is richly decodable from BF16 activations before it happens. The G2
+  probe criterion (≥ 0.75) passes with enormous headroom on this probe.
+- **Planted-ladder projection ordering: ρ ≈ +0.93–0.96 overall, per-family
+  ≥ +0.90 at every layer** — and the middle rungs (l1–l3) never entered
+  extraction, making this a clean ordinal generalization test of the
+  distress direction. The direction orders planted intensity almost
+  perfectly.
+- **Monitoring correlation as drafted: FAILS, and the failure is
+  data-shaped.** Median per-item BF16 judge frustration is exactly 0.00;
+  75.5% of samples score 0; only 33/600 reach the top band (≥ 6.67). An
+  item-level Spearman over data where half the items have no variance
+  ranks noise (selection-half values came out negative). The honest
+  natural-data reads: final-turn projection at L30 gives sample-level
+  ρ ≈ +0.17 (+0.34 on the judge>0 subset), AUC 0.68 for judge ≥ 5 vs 0 —
+  a real but weak link, bounded by range restriction, not by the
+  instrument (the ladder ordering shows the direction itself tracks the
+  construct). Also fixed en route: monitoring must project the same
+  functional the directions were extracted from (final-turn pooled), not
+  the all-turn mean — the all-turn read halves the signal.
+- **Distress-band probe: unvalidatable at BF16** — the item-wise split
+  leaves 1 positive in validation (33 positives concentrate in a few
+  items), so its 0.81–0.88 "val" AUROCs are single-draw noise, reported
+  only as such.
+- **R2c criterion (refusal projection separates exit/no-exit): held-out
+  AUC 0.618 at L18** — a real signal on a genuinely predictive task, but
+  below the 0.70 promotion bar; as drafted, R2c stays exploratory while
+  the trained exit probe (same features, same labels) reaches 0.950 —
+  the information is present; the fixture direction is imperfectly
+  aligned with it.
+
+Consequence for the draft registration (decision pending, pre-publication):
+the G2 monitoring criterion as drafted (item Spearman ≥ 0.5 on BF16
+Study 1 data) is unattainable on this subject's floor-dominated data
+*regardless of instrument quality*, while the instrument passes every
+check whose ground truth it controls. The criterion needs a
+pre-publication redesign — candidate shape: planted-ladder projection
+ordering as the hard gate, plus the natural-data link reported
+descriptively with its range-restriction caveat. Artifacts:
+`study2/calibration/{monitoring-bf16.json, probes-bf16.json,
+probes-bf16.safetensors}`.
+
 ## 2026-08-17 — Activation capture + direction extraction land; all three BF16 directions separate their held-out pairs
 
 The Tier-2 instrument's first two moving parts are built and validated
