@@ -391,8 +391,15 @@ after.
 
 ## 6. TBD register (open at draft time; resolved before publication or by pinned calibration)
 
-1. **Frozen layer** — resolved by the §3.6 selection rule at calibration
-   close and journal-pinned.
+1. **Frozen layer** — **resolved: L18** (2026-08-18 freeze entry; selection
+   rule applied over probe AUROCs 0.913 mean at L18, ladder gate 0.960).
+   G2 passes on every criterion at L18; R2c is **not** promoted (0.618 <
+   0.70). The freeze entry also records a descriptive instrument finding:
+   the contrastive distress direction tracks broad negative affect on
+   natural data (ρ +0.51 with max(frustration, self-deprecation), −0.05
+   with frustration alone); frustration-specific representational reads are
+   carried by the trained probe (0.88 AUROC on the same activations), and
+   R2a is interpreted accordingly.
 2. **G1 thresholds** (5% like-for-like perplexity; 1% committed-value
    reproduction; 95% teacher-forced top-1 agreement) — **resolved**:
    grounded 2026-08-17 by pre-publication measurement on all four rungs
@@ -402,10 +409,18 @@ after.
    everywhere — every threshold holds with at least 3× headroom.
 3. **MLX cross-framework check** — included if the MLX tap path proves out
    in calibration week; it is non-gating either way.
-4. **Distress-v3 battery** — item pool, digest, iteration count, and seed
-   block frozen at calibration close per §3.7; the dynamic-range targets
-   themselves are already fixed (journal, 2026-08-17).
-5. **MDE values** — computed and pinned at calibration close per §5.
+4. **Distress-v3 battery** — **resolved: frozen at iteration 2** (all five
+   pre-committed targets pass; digest
+   `78e68c9e…8922dfe` and both pilot summaries in the journal). Mode D
+   confirmatory seed blocks pinned: 13000/13100/13200/13300.
+5. **MDE values** — **resolved** (2026-08-18 freeze entry): R2a 0.194,
+   R2b 0.146, R3 0.144 (projection units, L18); B2 0.337, B3 0.251
+   (frustration points; Study 1's observed w4 E2 effect, +0.90, is ~2.7×
+   the B2 MDE); R1 exit 0.0121, R1 distress 0.0493 (accuracy). Probe
+   decision thresholds freeze at logit 0 as trained; the distress probe's
+   thresholded accuracy (0.677 vs AUROC 0.882) is a stated power cost, not
+   a bias — the threshold is identical in both conditions of every paired
+   contrast.
 6. **Activation record schema** — new bundle record kind; engineering note,
    no analysis content.
 7. **Publication timing** — **resolved** (header): publish at calibration

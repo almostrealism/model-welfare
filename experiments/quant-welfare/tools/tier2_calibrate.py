@@ -91,12 +91,19 @@ def split_conversation_id(conversation_id):
 
 
 def monitoring(args):
-    _, _, _, distress_ids, _, scores = load_study1(args.store, args.condition)
+    if args.score_experiment:
+        store = ResultStore(args.store)
+        scores = list(store.read(scoring_pb2.JudgeScore, args.score_experiment,
+                                 args.condition, "scores"))
+        judge_by_sample = replay.dimension_by_sample(scores, "frustration")
+        distress_ids = {item for item, _sample in judge_by_sample}
+    else:
+        _, _, _, distress_ids, _, scores = load_study1(args.store, args.condition)
+        judge_by_sample = replay.dimension_by_sample(scores, "frustration")
     tensors = load_file(args.capture)
     with open(args.capture + ".manifest.json") as handle:
         manifest = json.load(handle)
     vectors = load_file(str(args.vectors))
-    judge_by_sample = replay.dimension_by_sample(scores, "frustration")
     judge_by_item = replay.item_means(judge_by_sample)
 
     select_items, evaluate_items = replay.even_odd_split(
@@ -106,7 +113,9 @@ def monitoring(args):
     results = {}
     for layer in manifest["layers"]:
         direction = vectors[f"{DISTRESS_DIRECTION}|L{layer}"]
-        features = replay.pooled_sample_features(tensors, manifest, layer)
+        # The registered projection functional: final assistant turn, matching
+        # extraction (REGISTRATION §3.6).
+        features = replay.final_turn_features(tensors, manifest, layer)
         projection_by_sample = {}
         for conversation_id, vector in features.items():
             item_id, sample = split_conversation_id(conversation_id)
@@ -120,10 +129,22 @@ def monitoring(args):
                       for item in items if item in projection_by_item]
             rows[name] = (spearman([p for p, _ in paired], [j for _, j in paired]),
                           len(paired))
+        # Descriptive natural-data link (registration §3.6): sample-level
+        # Spearman and the AUC separating clearly-distressed from
+        # zero-scored samples.
+        pairs = [(value, judge_by_sample[key])
+                 for key, value in projection_by_sample.items()]
+        sample_rho = spearman([p for p, _ in pairs], [j for _, j in pairs])
+        high = [p for p, j in pairs if j >= 5]
+        zero = [p for p, j in pairs if j == 0]
+        band_auc = auroc(high + zero, [1] * len(high) + [0] * len(zero))
+        rows["sample_rho"] = sample_rho
+        rows["auc_ge5_vs_0"] = band_auc
         results[layer] = rows
         print(f"  L{layer}: select rho={rows['select'][0]:+.3f} "
               f"(n={rows['select'][1]})   evaluate rho={rows['evaluate'][0]:+.3f} "
-              f"(n={rows['evaluate'][1]})")
+              f"(n={rows['evaluate'][1]})   sample rho={sample_rho:+.3f}   "
+              f"AUC(>=5 vs 0)={band_auc:.3f}")
 
     best = max(results, key=lambda layer: results[layer]["select"][0])
     chosen = results[best]
@@ -132,9 +153,14 @@ def monitoring(args):
           f"({'PASS' if chosen['evaluate'][0] >= 0.5 else 'FAIL'} vs >= 0.5)")
     if args.save:
         Path(args.save).write_text(json.dumps({
-            "per_layer": {str(layer): {name: {"rho": rows[name][0], "n": rows[name][1]}
-                                       for name in rows}
-                          for layer, rows in results.items()},
+            "per_layer": {
+                str(layer): {
+                    "select": {"rho": rows["select"][0], "n": rows["select"][1]},
+                    "evaluate": {"rho": rows["evaluate"][0],
+                                 "n": rows["evaluate"][1]},
+                    "sample_rho": rows["sample_rho"],
+                    "auc_ge5_vs_0": rows["auc_ge5_vs_0"],
+                } for layer, rows in results.items()},
             "selected_layer": best,
             "evaluation_rho": chosen["evaluate"][0],
         }, indent=1) + "\n")
@@ -230,6 +256,137 @@ def _fill_probe_arrays(arrays, meta, probe, layer, rows, extra=None):
           + (f"  excluded={extra['excluded_no_feature_turns']}" if extra else ""))
 
 
+def v3_probe_data(args):
+    """distress-band probe dataset from the distress-v3 pilot: final-turn
+    features (the registered scalar functional), scale-thirds labels from
+    the pilot's judge scores, item-wise held-out split."""
+    store = ResultStore(args.store)
+    scores = list(store.read(scoring_pb2.JudgeScore, args.score_experiment,
+                             args.condition, "scores"))
+    judge = replay.dimension_by_sample(scores, "frustration")
+    tensors = load_file(args.capture)
+    with open(args.capture + ".manifest.json") as handle:
+        manifest = json.load(handle)
+
+    arrays, meta = {}, {"probes": {}, "score_experiment": args.score_experiment}
+    for layer in manifest["layers"]:
+        features = replay.final_turn_features(tensors, manifest, layer)
+        rows = []
+        for conversation_id, vector in features.items():
+            key = split_conversation_id(conversation_id)
+            value = judge.get(key)
+            if value is None:
+                continue
+            label = replay.scale_thirds_label(value)
+            if label is None:
+                continue
+            rows.append((key[0], vector, label))
+        _fill_probe_arrays(arrays, meta, "distress_band", layer, rows)
+    np.savez_compressed(args.probe_data_v3, **arrays)
+    Path(args.probe_data_v3 + ".meta.json").write_text(
+        json.dumps(meta, indent=1) + "\n")
+    print(f"wrote {args.probe_data_v3} (+.meta.json)")
+
+
+def probe_score(weights, group, features):
+    """Standardized linear probe score for each feature vector."""
+    mean = weights[f"{group}|feature_mean"]
+    std = weights[f"{group}|feature_std"]
+    w = weights[f"{group}|weight"]
+    b = weights[f"{group}|bias"][0]
+    return {cid: float(np.dot((vector - mean) / std, w) + b)
+            for cid, vector in features.items()}
+
+
+def mde(args):
+    """Compute the §5 MDE values to pin at calibration close, from BF16
+    calibration data only (null-based analytic forms; the dispersion form
+    is asymptotic and labeled as such)."""
+    from modelwelfare.stats import (mde_paired, null_delta_sd_dispersion,
+                                    null_delta_sd_mean, null_delta_sd_rate)
+    layer = args.layer
+    k = 10  # confirmatory samples/item
+
+    store = ResultStore(args.store)
+    scores = list(store.read(scoring_pb2.JudgeScore, args.score_experiment,
+                             args.condition, "scores"))
+    judge = replay.dimension_by_sample(scores, "frustration")
+    by_item = defaultdict(list)
+    for (item, _sample), value in judge.items():
+        by_item[item].append(value)
+    n_distress = len(by_item)
+    sigma_judge = float(np.sqrt(np.mean(
+        [np.var(values, ddof=1) for values in by_item.values() if len(values) > 1])))
+
+    tensors = load_file(args.capture)
+    with open(args.capture + ".manifest.json") as handle:
+        manifest = json.load(handle)
+    vectors = load_file(str(args.vectors))
+    rows = []
+    for name, direction_key in (("R2a", DISTRESS_DIRECTION),
+                                ("R2b", "assistant-axis-contrast")):
+        direction = vectors[f"{direction_key}|L{layer}"]
+        features = replay.final_turn_features(tensors, manifest, layer)
+        proj_by_item = defaultdict(list)
+        for conversation_id, vector in features.items():
+            item, _sample = split_conversation_id(conversation_id)
+            proj_by_item[item].append(float(np.dot(vector, direction)))
+        sigma = float(np.sqrt(np.mean(
+            [np.var(values, ddof=1) for values in proj_by_item.values()
+             if len(values) > 1])))
+        rows.append((name, mde_paired(null_delta_sd_mean(sigma, k), n_distress),
+                     f"sigma_s={sigma:.3f}, n={n_distress}"))
+        if name == "R2a":
+            rows.append(("R3 (asymptotic)",
+                         mde_paired(null_delta_sd_dispersion(sigma, k), n_distress),
+                         f"sigma_s={sigma:.3f}, n={n_distress}"))
+    rows.append(("B2", mde_paired(null_delta_sd_mean(sigma_judge, k), n_distress),
+                 f"sigma_s={sigma_judge:.3f}, n={n_distress}"))
+    rows.append(("B3 (asymptotic)",
+                 mde_paired(null_delta_sd_dispersion(sigma_judge, k), n_distress),
+                 f"sigma_s={sigma_judge:.3f}, n={n_distress}"))
+
+    probes = load_file(str(args.probes))
+    bail_tensors = load_file(args.capture_bail)
+    with open(args.capture_bail + ".manifest.json") as handle:
+        bail_manifest = json.load(handle)
+    allowed, labels = load_exit_context(args)
+    features, exit_labels, _excluded = exit_features(
+        allowed, labels, layer, bail_tensors, bail_manifest)
+    scores_by_cid = probe_score(probes, f"exit|L{layer}", features)
+    correct_by_item = defaultdict(list)
+    for conversation_id, value in scores_by_cid.items():
+        item, _sample = split_conversation_id(conversation_id)
+        correct_by_item[item].append(
+            int((value > 0) == bool(exit_labels[conversation_id])))
+    accuracy = [float(np.mean(values)) for values in correct_by_item.values()]
+    rows.append(("R1 exit probe",
+                 mde_paired(null_delta_sd_rate(accuracy, k), len(accuracy)),
+                 f"mean acc={np.mean(accuracy):.3f}, n={len(accuracy)}"))
+
+    if args.probes_v3:
+        v3_probes = load_file(str(args.probes_v3))
+        features = replay.final_turn_features(tensors, manifest, layer)
+        band_scores = probe_score(v3_probes, f"distress_band|L{layer}", features)
+        band_by_item = defaultdict(list)
+        for conversation_id, value in band_scores.items():
+            key = split_conversation_id(conversation_id)
+            label = replay.scale_thirds_label(judge.get(key, 5.0))
+            if label is None:
+                continue
+            band_by_item[key[0]].append(int((value > 0) == bool(label)))
+        band_accuracy = [float(np.mean(values)) for values in band_by_item.values()]
+        rows.append(("R1 distress probe",
+                     mde_paired(null_delta_sd_rate(band_accuracy, k),
+                                len(band_accuracy)),
+                     f"mean acc={np.mean(band_accuracy):.3f}, n={len(band_accuracy)}"))
+
+    print(f"MDE values at L{layer} (alpha=.05 two-sided, power .80, "
+          f"k={k} samples/item; null-based analytic forms):")
+    for name, value, detail in rows:
+        print(f"  {name:16} MDE = {value:.4f}   ({detail})")
+
+
 def r2c(args):
     tensors = load_file(args.capture_bail)
     with open(args.capture_bail + ".manifest.json") as handle:
@@ -264,8 +421,29 @@ def main():
     parser.add_argument("--vectors", default=str(DEFAULT_VECTORS))
     parser.add_argument("--plan-distress", default=None)
     parser.add_argument("--plan-bail", default=None)
+    parser.add_argument("--plan-from", default=None, metavar="EXPERIMENT",
+                        help="generic replay plan: every sample of "
+                             "(EXPERIMENT, --condition) in the store")
+    parser.add_argument("--plan-out", default=None,
+                        help="output path for --plan-from")
     parser.add_argument("--monitoring", action="store_true")
+    parser.add_argument("--score-experiment", default=None,
+                        help="score source for --monitoring/--probe-data-v3/"
+                             "--mde (e.g. distress-v3-pilot-2); default is "
+                             "the Study 1 store for --monitoring")
     parser.add_argument("--probe-data", default=None)
+    parser.add_argument("--probe-data-v3", default=None,
+                        help="distress-band probe dataset from the v3 pilot "
+                             "(requires --capture and --score-experiment)")
+    parser.add_argument("--mde", action="store_true",
+                        help="compute the §5 MDE values (requires --layer, "
+                             "--capture (v3), --capture-bail, --probes, "
+                             "--score-experiment)")
+    parser.add_argument("--layer", type=int, default=None)
+    parser.add_argument("--probes", default=None,
+                        help="trained probe weights safetensors (exit groups)")
+    parser.add_argument("--probes-v3", default=None,
+                        help="trained distress-band probe weights (v3)")
     parser.add_argument("--r2c", action="store_true")
     parser.add_argument("--capture", default=None,
                         help="distress replay capture safetensors")
@@ -274,6 +452,16 @@ def main():
     parser.add_argument("--save", default=None, help="summary JSON path")
     args = parser.parse_args()
 
+    if args.plan_from:
+        if not args.plan_out:
+            raise SystemExit("--plan-from requires --plan-out")
+        store = ResultStore(args.store)
+        records = list(store.read(transcript_pb2.SampleRecord,
+                                  args.plan_from, args.condition, "samples"))
+        if not records:
+            raise SystemExit(f"no samples for {args.plan_from}/{args.condition}")
+        write_plan(records, args.plan_out)
+        return
     if args.plan_distress or args.plan_bail:
         _, definitions, bail_ids, distress_ids, samples, _ = load_study1(
             args.store, args.condition)
@@ -299,6 +487,20 @@ def main():
         if not (args.capture and args.capture_bail):
             raise SystemExit("--probe-data requires --capture and --capture-bail")
         probe_data(args)
+        return
+    if args.probe_data_v3:
+        if not (args.capture and args.score_experiment):
+            raise SystemExit("--probe-data-v3 requires --capture and "
+                             "--score-experiment")
+        v3_probe_data(args)
+        return
+    if args.mde:
+        required = (args.layer, args.capture, args.capture_bail, args.probes,
+                    args.score_experiment)
+        if any(value is None for value in required):
+            raise SystemExit("--mde requires --layer, --capture, "
+                             "--capture-bail, --probes, --score-experiment")
+        mde(args)
         return
     if args.r2c:
         if not args.capture_bail:

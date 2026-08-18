@@ -169,6 +169,22 @@ def range_profile(values_by_sample: dict, scale_max=10.0) -> dict:
     }
 
 
+def final_turn_features(tensors, manifest, layer):
+    """{conversation_id: the FINAL assistant turn's pooled vector at layer}.
+
+    This is the projection functional the Study 2 registration fixes for
+    per-sample scalar reads: it matches what direction extraction pools
+    (REGISTRATION §3.6) — the all-turn mean measurably halves the
+    natural-data signal.
+    """
+    features = {}
+    for conversation in manifest["conversations"]:
+        last = max(span["message_index"]
+                   for span in conversation["assistant_spans"])
+        features[conversation["id"]] = tensors[f"{conversation['id']}|t{last}|L{layer}"]
+    return features
+
+
 def pooled_sample_features(tensors, manifest, layer, message_indices_by_id=None):
     """{conversation_id: mean over selected assistant-turn pooled vectors}.
 

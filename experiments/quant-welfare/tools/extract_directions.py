@@ -105,11 +105,9 @@ def direction_pairs():
 
 def final_turn_vectors(tensors, manifest, layer):
     """{conversation_id: pooled vector of the FINAL assistant turn at layer}."""
-    vectors = {}
-    for conversation in manifest["conversations"]:
-        last = max(span["message_index"] for span in conversation["assistant_spans"])
-        vectors[conversation["id"]] = tensors[f"{conversation['id']}|t{last}|L{layer}"]
-    return vectors
+    from modelwelfare.replay import final_turn_features
+
+    return final_turn_features(tensors, manifest, layer)
 
 
 def report(args):

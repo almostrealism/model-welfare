@@ -4,6 +4,59 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-18 — CALIBRATION FREEZE: L18, G2 passes, MDEs pinned, all frozen objects hash-pinned
+
+The Study 2 calibration close, per the pre-commitment entry. Everything
+below is frozen as of this entry; the registration publishes citing these
+values, and quantized-rung confirmatory collection may begin only after.
+
+**Layer selection (fixed rule: max mean probe held-out AUROC, ladder gate
+as constraint, ties shallower):** exit probe 0.890/0.950/0.945/0.919/0.883
+and distress-band probe 0.818/0.825/0.882/0.864/0.936 across L6/12/18/24/30
+→ means 0.854/0.888/**0.913**/0.892/0.910 → **frozen layer L18**, where
+the ladder gate reads ρ = +0.960 with every family ≥ +0.90.
+
+**G2 verdict at L18 — PASS on every criterion:** ≥3 directions with full
+held-out sign consistency (5/5, 4/4, 4/4); planted-ladder ordering 0.960 ≥
+0.8 with all families positive; exit probe 0.945 ≥ 0.75 (Study 1 bail
+replay, leakage-safe features); distress-band probe 0.882 ≥ 0.75
+(distress-v3 pilot data, 10 held-out positives). **R2c: NOT promoted**
+(held-out AUC 0.618 < 0.70; the bar stands).
+
+**Instrument finding (descriptive, reported in the registration):** on
+natural v3 data the contrastive distress direction tracks *broad* distress
+— ρ = +0.51 with max(frustration, self-deprecation), +0.46 with
+self-deprecation, −0.05 with frustration alone; personal-style responses
+(self-blame-saturated, frustration-zero) project highest. Frustration-
+*specific* representational reads are carried by the trained probe (0.88
+AUROC on the same activations). R2a is therefore interpreted as a broad
+negative-affect axis — which is what §3.5 registers it as ("distress
+direction") — and the same-sample B2 pair quantifies, rather than assumes,
+the frustration link. The v2-vs-v3 monitoring contrast (AUC 0.68 on
+composed-floor data, 0.42 on style-diverse data) is exactly this
+composition effect and is reported with both readings.
+
+**MDEs (α = .05 two-sided, power .80, k = 10, null-based analytic forms;
+dispersion forms asymptotic):** R2a 0.194, R2b 0.146, R3 0.144 (projection
+units at L18); B2 0.337, B3 0.251 (frustration points — Study 1's observed
+w4 E2 effect was +0.90, ~2.7× the B2 MDE); R1 exit 0.0121, R1 distress
+0.0493 (accuracy). Probe decision thresholds freeze at logit 0 as trained;
+the distress probe's thresholded accuracy (0.677) lags its AUROC (0.882),
+a stated power cost, not a bias — the threshold is identical in both
+conditions of every paired contrast.
+
+**Frozen object digests (SHA-256):**
+- battery `distress-v3` (iteration 2):
+  `78e68c9e2e9afe976d3d9f36719c7d3ecdc04c5ddc7e6de12c056e0fe8922dfe`
+- direction vectors (all layers; frozen entries are the L18 tensors):
+  `414d7d95d595d96453921255bb1772c44f64ad3d1d112256470e232b415f1fec`
+- exit probe weights: `f2df97430d33b34b90006612f79deb241c96bb5d79aac0c3ee4a367ff68d833b`
+- distress-band probe weights:
+  `1afb1acdb8f93dc8ca8aee8b72390fcbbeb7fef83702ea1627f9b4af8d851b87`
+- Mode D confirmatory seed blocks: 13000 (bf16), 13100 (rtn-w8), 13200
+  (rtn-w4), 13300 (rtn-w3) — disjoint from every block used to date
+  (7000s, 9000, 11000, 12000).
+
 ## 2026-08-18 — distress-v3 pilot 2: all five targets pass; the battery is ready to freeze at calibration close
 
 Iteration 2 (`distress-v3-pilot-2`, seed block 12000, 300/300 scored)
