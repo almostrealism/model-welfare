@@ -1,0 +1,125 @@
+# Calibration stability, released-data tier (docs/CALIBRATION_CI.md).
+#
+# GitHub-hosted (free for a public repo): every job downloads sha-pinned
+# assets from the data-20260818 release and re-performs a calibration
+# against the committed frozen instruments. Same data + same code is
+# deterministic, so assertions are exact — drift is a real code-behavior
+# change. Weekly + dispatch rather than per-PR only because of download
+# weight (the per-PR contract already covers the hermetic pieces:
+# frozen-digest tests and study1-reproduce).
+
+name: Calibration Data Stability
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "41 9 * * 2"  # Tuesdays 09:41 UTC
+
+env:
+  RELEASE: https://github.com/almostrealism/model-welfare/releases/download/data-20260818
+
+jobs:
+  pilot-targets-stable:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip grpcio-tools numpy protobuf safetensors
+      - name: Generate protobuf bindings
+        run: bash scripts/gen-proto.sh
+      - name: Download the pilot bundles (sha-pinned)
+        run: |
+          curl -sfL -O "$RELEASE/distress-v3-pilot-1.pb"
+          curl -sfL -O "$RELEASE/distress-v3-pilot-2.pb"
+          sha256sum -c <<'EOF'
+          df78f67f4ce35aac2d89de48ab1d3e1c21beca8cb56435aba6ea137c11ca5d9d  distress-v3-pilot-1.pb
+          24ac63fd0fac7a339ac9e49ac3b176cb1fda898a5085c4708e43ccd7059b90cc  distress-v3-pilot-2.pb
+          EOF
+      - name: Pilot 1 must still FAIL its targets (2 of 5, as journaled)
+        run: |
+          if python experiments/quant-welfare/tools/distress_v3_targets.py \
+              --bundle distress-v3-pilot-1.pb --experiment distress-v3-pilot-1; then
+            echo "pilot 1 unexpectedly passes its targets" >&2; exit 1
+          fi
+      - name: Pilot 2 must still PASS all targets
+        run: |
+          python experiments/quant-welfare/tools/distress_v3_targets.py \
+            --bundle distress-v3-pilot-2.pb --experiment distress-v3-pilot-2
+
+  directions-stable:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip grpcio-tools numpy protobuf safetensors
+      - name: Generate protobuf bindings
+        run: bash scripts/gen-proto.sh
+      - name: Download the fixture and ladder captures (sha-pinned)
+        run: |
+          for f in capture-fixture-directions-bf16.safetensors \
+                   capture-fixture-directions-bf16.safetensors.manifest.json \
+                   capture-ladder-mid-bf16.safetensors \
+                   capture-ladder-mid-bf16.safetensors.manifest.json; do
+            curl -sfL -O "$RELEASE/$f"
+          done
+          sha256sum -c <<'EOF'
+          a872964bc4ba4f44e33dfff24841971d53be4afd1f021d2644bfbc2b6f5118ca  capture-fixture-directions-bf16.safetensors
+          25ba104e1acd2b51cebaafb9b0f292191194470d33f9fb0b4e26446d8d415ce7  capture-fixture-directions-bf16.safetensors.manifest.json
+          1351c360a54ae1f27e929cefb90616be2b9ec2dfdb4c75dde29dee91de1979c0  capture-ladder-mid-bf16.safetensors
+          f49cdf43fafc943895af5d6d8dd652a9aba1bf49e68144009f64b7ab14317fa5  capture-ladder-mid-bf16.safetensors.manifest.json
+          EOF
+      - name: Re-derive the frozen directions and the G2 ladder gate
+        run: |
+          python experiments/quant-welfare/tools/extract_directions.py --report \
+            --capture capture-fixture-directions-bf16.safetensors \
+            --assert-frozen experiments/quant-welfare/study2/calibration/directions-bf16.safetensors \
+            --ladder-capture capture-ladder-mid-bf16.safetensors
+
+  mde-stable:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip grpcio-tools numpy protobuf safetensors
+      - name: Generate protobuf bindings
+        run: bash scripts/gen-proto.sh
+      - name: Download bundles and captures (sha-pinned, ~530 MB)
+        run: |
+          mkdir bundles
+          curl -sfL -o bundles/quant-welfare-confirmatory-1.pb \
+            "$RELEASE/quant-welfare-confirmatory-1.pb"
+          curl -sfL -o bundles/distress-v3-pilot-2.pb \
+            "$RELEASE/distress-v3-pilot-2.pb"
+          for f in capture-distress-v3-replay-bf16.safetensors \
+                   capture-distress-v3-replay-bf16.safetensors.manifest.json \
+                   capture-bail-replay-bf16.safetensors \
+                   capture-bail-replay-bf16.safetensors.manifest.json; do
+            curl -sfL -O "$RELEASE/$f"
+          done
+          sha256sum -c <<'EOF'
+          dea595f375251126d75d7f6b942eb72785190bb15d939b042fc9e1325e75383d  bundles/quant-welfare-confirmatory-1.pb
+          24ac63fd0fac7a339ac9e49ac3b176cb1fda898a5085c4708e43ccd7059b90cc  bundles/distress-v3-pilot-2.pb
+          2eb7700658d124e7b3aae9349163bcd426f5e2b80d9f53d86336e8a3a241ee67  capture-distress-v3-replay-bf16.safetensors
+          1bd8ca1198e9213126e93f5deb3165f7fe7a12af8ec16edeb6eddbdf8d5bf8e7  capture-distress-v3-replay-bf16.safetensors.manifest.json
+          dfdb5c17aa209de4da02eaf879573a2d33276ce410d162209d0fce0cc3b44299  capture-bail-replay-bf16.safetensors
+          cfd6ba97101d01f90b4bc49c791f23d0ce794dc94a2042fa954919bfaf1f0b52  capture-bail-replay-bf16.safetensors.manifest.json
+          EOF
+      - name: Recompute the pinned MDEs at the frozen layer
+        run: |
+          python experiments/quant-welfare/tools/tier2_calibrate.py --mde --layer 18 \
+            --bundle bundles \
+            --capture capture-distress-v3-replay-bf16.safetensors \
+            --capture-bail capture-bail-replay-bf16.safetensors \
+            --probes experiments/quant-welfare/study2/calibration/probes-bf16.safetensors \
+            --probes-v3 experiments/quant-welfare/study2/calibration/probes-v3-bf16.safetensors \
+            --score-experiment distress-v3-pilot-2 \
+            --mde-check experiments/quant-welfare/study2/calibration/mde-pinned.json

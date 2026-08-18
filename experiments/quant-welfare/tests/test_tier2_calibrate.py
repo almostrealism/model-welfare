@@ -92,7 +92,8 @@ def make_args(tmp_path, **overrides):
                   vectors=write_vectors(tmp_path / "vectors.safetensors"),
                   capture=None, capture_bail=None, score_experiment=None,
                   save=None, layer=None, probes=None, probes_v3=None,
-                  probe_data_v3=None)
+                  probe_data_v3=None, bundle=None, mde_out=None,
+                  mde_check=None)
     values.update(overrides)
     return argparse.Namespace(**values)
 
