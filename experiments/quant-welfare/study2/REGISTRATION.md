@@ -79,10 +79,12 @@ localizes Study 1's w4 churn below the representational level measured here
   joins *within Study 2, same-sample* — each fresh distress-v3 conversation
   carries both a judge score (behavior) and a captured trajectory
   (representation), so its dissociation test compares two reads of the same
-  event. The program's Tier-2 feasibility gate (PROJECT_BRIEF §2.2) is
-  operationalized as this study's calibration gate (§3.6); if that gate
-  fails, S2-H5 reverts to *conditional-unresolved*, as the program
-  registration always permitted.
+  event. The go/no-go for this study's confirmatory claims is gate G2,
+  specified in full in §3.6 of this document — nothing about the gate is
+  delegated elsewhere. If G2 fails, S2-H5 reverts to
+  *conditional-unresolved*: the published program registration registered
+  H5 as conditional on Tier-2 feasibility, and a failed G2 is that
+  condition unmet.
 
 ## 3. Design (fixed)
 
@@ -125,12 +127,21 @@ agreement is used rather than free-running greedy identity because a single
 near-tie flip early in a free-running continuation cascades into total
 divergence; the per-position statistic does not compound.) Failure on any
 rung blocks that rung until explained; failure on BF16 blocks the study.
-Because G1 is an instrument check with no welfare content, its BF16
-measurement is run **before publication** and recorded in the journal, so
-the registered thresholds carry known headroom rather than guesses. This
-gate discharges, for these artifacts, the serving-equivalence commitment
-recorded in the Study 1 amendments ("runs before any further use of these
-artifacts").
+Because G1 is an instrument check with no welfare content, its measurement
+ran **before publication** — and on **all four rungs**, not only BF16.
+**Measured (2026-08-17; journal entry of that date; reports committed
+under `g1/` in this directory):** like-for-like perplexity ratios
+1.0001 / 0.990 / 1.005 / 0.983 across BF16/w8/w4/w3; serving-side
+gate-convention perplexities reproducing the committed values to rounding
+(18.120 / 18.463 / 21.090 / 511.425); teacher-forced top-1 agreement
+98.9 / 99.0 / 98.7 / 98.2%. **G1 passes on every rung with at least 3×
+headroom on every threshold** — the thresholds are registered with
+measured margins, not guesses — and a standing CI job
+(`substrate-g1` in `.github/workflows/workbench-stability.yml`)
+re-performs the check on the workbench weekly, so the gate's status is
+continuously re-proven rather than asserted once. This gate discharges,
+for these artifacts, the serving-equivalence commitment recorded in the
+Study 1 amendments ("runs before any further use of these artifacts").
 
 A **cross-framework agreement check** (the same condition captured via MLX
 array taps on a second machine) is planned as *validation-class, non-gating*
