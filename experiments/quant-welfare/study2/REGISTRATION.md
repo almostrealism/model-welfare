@@ -105,8 +105,8 @@ localizes Study 1's w4 churn below the representational level measured here
 
 Study 1 served these artifacts via vLLM. Tier 2 requires activations, so
 Study 2 runs them inside **transformers/PyTorch with forward hooks** on the
-quantization workbench (halo), reading the **residual stream** at frozen
-layer(s) (§3.6). This substrate change is itself gated:
+quantization workbench (halo), reading the **residual stream** at the
+frozen layer (L18; §3.6). This substrate change is itself gated:
 
 **G1 — substrate equivalence (blocking).** Before any confirmatory capture,
 on every rung: (a) per-token perplexity computed under both substrates over
@@ -144,8 +144,11 @@ for these artifacts, the serving-equivalence commitment recorded in the
 Study 1 amendments ("runs before any further use of these artifacts").
 
 A **cross-framework agreement check** (the same condition captured via MLX
-array taps on a second machine) is planned as *validation-class, non-gating*
-evidence of capture-path invariance; see §6.
+array taps on a second machine) was considered as *validation-class,
+non-gating* evidence of capture-path invariance and was **not exercised
+during calibration** (§6): capture-path assurance rests on G1's measured
+agreement and its weekly CI re-verification. MLX capture remains a
+program-level goal for the larger-subject arms.
 
 ### 3.3 Capture modes and stimuli
 
@@ -166,8 +169,9 @@ capture begins.
   transcripts are replayed through that same rung — which reproduces the
   rung's generation-time activations exactly (activations depend only on
   the prefix), up to the substrate numerics G1 certifies. Primary mode for
-  the **bail-side** endpoints (R2c if promoted) and the S2-H5 join to
-  Study 1's published E1. Its distress-v2 reads are a **descriptive
+  the bail-side trajectory reads — descriptive only, R2c not having been
+  promoted (§3.6/§4.1) — and the in-place reconstruction of the Study 1
+  behavior that E1's published values describe. Its distress-v2 reads are a **descriptive
   bridge** to Study 1 (§4.5), not claim-bearing: Study 1's distress data
   is floor-dominated at BF16 (§3.7) and cannot support powered projection
   contrasts.
@@ -178,20 +182,22 @@ capture begins.
   registered rubric, then own-transcript torch replay for capture — so
   each conversation carries a behavioral read and a representational read
   of the same event. Sampling parameters identical to Study 1; seeds
-  disjoint (pinned at calibration close). Mode C is the only mode that
+  disjoint from every block used to date (pinned: 13000 / 13100 / 13200 /
+  13300 per rung, §6 and FREEZE.json). Mode C is the only mode that
   generates samples, so the §12 mechanical family (E4a/E4b) applies to
   Mode C **only**, as its own confirmatory family per that registration;
   Modes A/B generate nothing and have no E4 reading.
 
 Replay volume: 2,220 conversations per rung per mode (222 items × 10
 samples), ≈ 17,760 prefill-only forward passes across Modes A+B — well
-within the workbench budget. Mode C volume is set by the frozen battery
-(item count at freeze; 10 samples/item; 4 rungs) plus its BF16 pilot.
+within the workbench budget. Mode C volume follows from the frozen battery: 60 items × 10
+samples × 4 rungs = 2,400 conversations, plus the two BF16 pilots already
+collected.
 
 ### 3.4 Stored representation
 
 For every (mode, condition, item, sample, turn): the **mean-pooled residual
-vector over the assistant span of that turn** at the frozen layer(s), plus
+vector over the assistant span of that turn** at the frozen layer (L18), plus
 the per-turn projections onto every frozen direction. Token-level (per-token
 projection time series) is retained for a fixed stratified subsample
 (~5% of conversations) for the exploratory drift analyses. Records enter the
@@ -228,16 +234,18 @@ outcome labels, over **leakage-safe features** (assistant turns invoking a
 terminal tool are excluded, so the probe reads precursors, not the
 rendered tool call). Training uses an item-wise held-out split;
 architecture is logistic (linear) — the point is geometry transfer, not
-classifier capacity. Weights frozen before any quantized-rung evaluation.
+classifier capacity. Weights frozen 2026-08-18 (digests in FREEZE.json and
+the freeze journal entry).
 
 ### 3.6 Calibration phase and gate G2 (the Tier-2 feasibility gate)
 
 All of §3.5, the distress-v3 battery iteration (§3.7), and layer selection
-happen in a calibration phase on **BF16 only** (plus, for G1, per-rung
+happened in a calibration phase on **BF16 only** (plus, for G1, per-rung
 equivalence checks that read no endpoint). Every frozen object (battery,
 layer index, direction vectors, probe weights, thresholds, seeds) is
 hash-pinned in the journal **before any quantized-rung confirmatory
-collection**.
+collection**. **This phase completed 2026-08-18**; the freeze journal
+entry and `FREEZE.json` carry the pins.
 
 **Projection functional (fixed).** Wherever a direction is projected for
 validation or endpoints, the functional matches extraction: the
@@ -269,10 +277,17 @@ signal — journal, 2026-08-17.)
   distress data cannot populate a validation split: 33 top-band samples
   concentrated in a handful of items leave one positive held out).
 
-**Layer selection (rule fixed now):** the frozen layer maximizes the mean
-of the two probes' held-out AUROCs on BF16 calibration captures, subject
-to passing the ladder-ordering gate at that layer; ties break to the
-shallower layer.
+**Layer selection (rule fixed before the readings):** the frozen layer
+maximizes the mean of the two probes' held-out AUROCs on BF16 calibration
+captures, subject to passing the ladder-ordering gate at that layer; ties
+break to the shallower layer. **Applied at the freeze: L18** (means
+0.854 / 0.888 / 0.913 / 0.892 / 0.910 across L6/12/18/24/30; ladder gate
+0.960 at L18).
+
+**G2 verdict (2026-08-18 freeze): PASS on every criterion at L18** —
+full held-out sign consistency (13/13 pairs across the three directions),
+ladder ordering 0.960 with every family positive, exit probe 0.945,
+distress-band probe 0.882.
 
 **Conditional promotion of the refusal direction (decided at calibration
 freeze, rule fixed now):** if the refusal/aversion direction's projection
@@ -280,9 +295,9 @@ separates mechanical exit from no-exit BF16 bail samples at held-out AUC
 **≥ 0.70** on the leakage-safe features, endpoint R2c (§4.1) is
 **confirmatory**; otherwise the direction's projections remain exploratory
 and R2c carries no claim. This criterion is not part of the blocking gate —
-the study proceeds either way. (Calibration reading on the draft
-instruments: 0.618 at L18 — currently below the bar; the bar is not being
-moved to meet it.)
+the study proceeds either way. **Evaluated at the freeze: 0.618 at L18 —
+below the bar; R2c is not promoted, and the bar was not moved to meet
+the reading.**
 
 If G2 fails after reasonable calibration iteration, the study reports an
 instrument failure (Tier-2 feasibility gate not passed), makes no
@@ -327,6 +342,13 @@ a battery until the results "work" — is handled structurally:
   an instrument finding (this subject's composure exceeds the protocol
   family's reach); the study then proceeds on the replay modes only, with
   the distress endpoints demoted to descriptive.
+- **Outcome (2026-08-18): all five targets passed at iteration 2.**
+  Pilot 1 missed two (zeros 53.0% vs ≤ 50%; top third 8.7% vs ≥ 10%),
+  both traceable to specific ladders — mocking elicited nothing and
+  gaslighting routed into self-deprecation — and only those two ladders
+  were revised. Pilot 2: zeros 27.3%, ≥ 3 at 64.0%, top third 10.7%,
+  bottom third 69.7%, median item mean 3.10. Frozen digest
+  `78e68c9e…8922dfe`; both pilot summaries are journal-logged.
 
 ## 4. Analysis plan (fixed)
 
@@ -408,7 +430,10 @@ components from the Study 1 BF16 replay (n = 154 items); for the
 distress-side endpoints (R2a/R3/B2/B3), variance components from the
 **distress-v3 BF16 pilot** at the frozen battery's item count. All MDEs at
 α = .05 two-sided, power .80, **pinned in the journal before any
-quantized-rung confirmatory collection**. If a computed MDE exceeds the
+quantized-rung confirmatory collection** (done, 2026-08-18 — the values
+are listed in §6 item 5 and committed at
+`study2/calibration/mde-pinned.json`, which CI recomputes weekly). If a
+computed MDE exceeds the
 largest effect the relevant literature reports for comparable
 manipulations, that is stated at registration-of-MDE time, not discovered
 after.
@@ -431,8 +456,11 @@ after.
    directory). Measured: like-for-like perplexity divergence ≤ 1.7%,
    committed values reproduced to rounding, top-1 agreement ≥ 98.2%
    everywhere — every threshold holds with at least 3× headroom.
-3. **MLX cross-framework check** — included if the MLX tap path proves out
-   in calibration week; it is non-gating either way.
+3. **MLX cross-framework check** — **resolved: not included in Study 2.**
+   The MLX tap path was not exercised during calibration; it was always
+   non-gating, and capture-path assurance rests on G1's measured agreement
+   plus its weekly CI re-verification. MLX capture remains a program-level
+   goal for the larger-subject arms.
 4. **Distress-v3 battery** — **resolved: frozen at iteration 2** (all five
    pre-committed targets pass; digest
    `78e68c9e…8922dfe` and both pilot summaries in the journal). Mode C
@@ -445,8 +473,9 @@ after.
    thresholded accuracy (0.677 vs AUROC 0.882) is a stated power cost, not
    a bias — the threshold is identical in both conditions of every paired
    contrast.
-6. **Activation record schema** — new bundle record kind; engineering note,
-   no analysis content.
+6. **Activation record schema** — open (engineering; lands with the
+   confirmatory capture tooling); a new bundle record kind with no
+   analysis content. The only §6 item open at publication.
 7. **Publication timing** — **resolved** (header): publish at calibration
    close, before any quantized-rung confirmatory collection.
 
@@ -499,8 +528,7 @@ rather than by omission.
   tuned on BF16 pilots against dynamic-range targets pre-committed by
   dated journal entry before the first pilot (§3.7); no quantized-rung
   data exists during tuning, the iteration count and pilot summaries are
-  public, and the frozen digest is stated in this registration at
-  publication.
+  public, and the frozen digest is stated in §6 of this registration.
 - **Calibration readings informed this design.** The G2 monitoring
   criterion was redesigned pre-publication after BF16-only calibration
   showed the drafted criterion unattainable on floor-dominated data
