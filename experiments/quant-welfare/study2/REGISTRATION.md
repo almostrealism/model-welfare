@@ -338,6 +338,17 @@ multiplier). Companion paired t-tests are descriptive.
 
 ### 4.1 Endpoints and families
 
+**Naming rule:** the letter is the tier being read — **R**epresentational
+(captured activations) or **B**ehavioral (judge scores and mechanical
+outcomes; Study 1's E-family, computed on Study 2's own fresh data) — and
+the digit is the construct, aligned with Study 1's E-numbering (1 = exit,
+2 = valence, 3 = dispersion), so every §4.4 dissociation pair shares a
+digit across tiers. B2/B3 are the E2/E3 statistics on distress-v3; they
+are not named E because E2/E3 denote the published Study 1 values on
+distress-v2, and reusing the letters would conflate the datasets. R2's
+a/b/c distinguish the projected direction (distress / assistant-axis /
+refusal).
+
 | Endpoint | Definition (per item, vs BF16) | Mode | Family |
 |---|---|---|---|
 | **R1** | Change in probe accuracy over the item's samples (both probes; identical input text) | A | **Primary** (Holm within: 2 probes × 2 contrasts) |
