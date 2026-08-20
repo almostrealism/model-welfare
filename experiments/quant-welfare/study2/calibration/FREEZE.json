@@ -1,7 +1,7 @@
 {
  "frozen_at": "2026-08-18",
  "layer": 18,
- "mode_d_seeds": {
+ "mode_c_seeds": {
   "qwen3-4b-bf16": 13000,
   "qwen3-4b-rtn-w8": 13100,
   "qwen3-4b-rtn-w4": 13200,

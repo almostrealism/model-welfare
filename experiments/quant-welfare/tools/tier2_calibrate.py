@@ -13,7 +13,7 @@ All calibration is BF16-only, per the §7 firewall. Modes:
   --plan-from EXP --plan-out OUT
                         Generic replay plan: every stored sample of
                         (EXP, --condition) — the v3 pilots and future
-                        Mode D captures.
+                        Mode C captures.
   --monitoring          Per-layer monitoring statistics on the final-turn
                         projection functional: item-level Spearman on the
                         deterministic even/odd split, plus the descriptive

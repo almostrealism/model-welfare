@@ -62,9 +62,9 @@ outline is a working document, not part of the registration.
   capability. Raw reports: `study2/g1/substrate-*.json`.
 - Modes: §3.3 — A (fixed-input replay), B (own-trajectory replay; state
   the prefix-property argument that replay of a rung's own transcript IS
-  its generation-time computation), D (fresh distress-v3 per rung:
+  its generation-time computation), C (fresh distress-v3 per rung:
   vLLM generation → pinned judge → replay capture; same-sample
-  dissociation). E4 applies to Mode D only. Study 1 digest pinned for
+  dissociation). E4 applies to Mode C only. Study 1 digest pinned for
   replay inputs (02572655…3b).
 - Stored representation: §3.4 (per-turn pooled vectors at the frozen
   layer; token-level subsample).
@@ -75,46 +75,34 @@ outline is a working document, not part of the registration.
   incl. the leakage-safe feature rule (terminal-tool turns never
   contribute — exit reads are precursor reads).
 
-## 6. The calibration story (dated timeline, post-2 style)
+## 6. Calibration (two paragraphs — owner decision 2026-08-19: no dated timeline)
 
-- **Aug 17 — instrument assembly.** Direction extraction: every held-out
-  pair separated at every layer (distress 5/5, axis 4/4, refusal 4/4);
-  cross-direction |cos| ≤ 0.31. Journal entry "Activation capture +
-  direction extraction land"; artifacts
-  `study2/calibration/directions-bf16.{safetensors,json}`.
-- **Aug 17/18 — the floor problem.** Store replay results (journal
-  "Store replay: the exit probe is strong…"): exit probe held-out AUROC
-  0.950 at L12 on leakage-safe features; planted-ladder projection
-  ordering ρ ≈ 0.93–0.96; but the drafted monitoring criterion fails for
-  data-shaped reasons — median per-item BF16 judge frustration 0.00,
-  75.5% of samples at zero, selection-half correlations negative. Honest
-  reporting beat: the failed readings are reported, and the G2 redesign
-  was pre-committed by dated journal entry BEFORE the replacement work
-  ran ("Pre-commitments for the Study 2 calibration close").
-- **Aug 18 — distress-v3.** §3.7's anti-tuning structure: dynamic-range
-  targets fixed before the first pilot sample (table: target | Study 1
-  baseline | pilot 1 | pilot 2, from the two pilot journal entries —
-  zeros 75.5% → 53.0% → 27.3%; ≥3 20.7% → 37.7% → 64.0%; top third
-  5.5% → 8.7% → 10.7%; bottom third — → 77.7% → 69.7%; median item mean
-  0.00 → 2.00 → 3.10). Pilot 1 diagnosis makes good narrative: the
-  mocking ladder elicited nothing (100% zeros — the subject happily
-  played entertainer) and gaslighting routed into self-deprecation
-  (8.82) rather than frustration; only those two ladders were revised.
-  Iteration count: 2, both pilots public.
-- **Aug 18 — the freeze.** Journal "CALIBRATION FREEZE": layer L18 by
-  the fixed rule (probe-AUROC means 0.854/0.888/0.913/0.892/0.910 across
-  L6–L30; ladder gate 0.960 at L18); G2 passes every criterion; R2c NOT
-  promoted (0.618 < 0.70 — the bar held). The instrument finding worth a
-  paragraph: on natural data the contrastive distress direction tracks
-  BROAD distress (ρ +0.51 with max(frustration, self-deprecation), −0.05
-  with frustration alone; personal-style self-blame projects highest),
-  while the trained probe is frustration-specific (0.88) — R2a is
-  therefore read as the broad negative-affect axis it was registered as,
-  and the same-sample B2 pair measures rather than assumes the
-  frustration link. Frozen digests listed (battery 78e68c9e…,
-  directions 414d7d95…, probes f2df9743… / 1afb1acd…; Mode D seeds
-  13000/13100/13200/13300); machine-readable copy
-  `study2/calibration/FREEZE.json`.
+Study 2's calibration mostly executed a pre-stated plan, so post 2's
+play-by-play format is not justified; use the two drafted paragraphs
+(agreed 2026-08-19, in the conversation record — reproduce/edit from
+there or re-derive from the sources below):
+
+- **¶1 — summary of the steps.** Sources: G1 measured values (§3.2 of
+  REGISTRATION.md; `study2/g1/`); direction extraction held-out
+  separations (`study2/calibration/directions-bf16.json`); exit probe
+  0.950 / ladder ordering ρ ≈ 0.95 (journal "Store replay…"); L18 freeze,
+  G2 verdicts, R2c not promoted 0.618 < 0.70, MDEs pinned (journal
+  "CALIBRATION FREEZE"; `FREEZE.json`; `mde-pinned.json`). Ends on the
+  freeze/CI sentence so §9 picks up without repetition.
+- **¶2 — the one genuine pivot.** The drafted natural-data monitoring
+  criterion was unattainable on floor-dominated Study 1 data (median
+  per-item frustration 0.00; 75.5% zeros) — failed readings reported, not
+  discarded; gate moved to planted-ladder ordering, pre-committed by dated
+  entry before the replacement ran (journal "Pre-commitments…"); distress
+  endpoints moved to distress-v3 (escalating ladders, fresh per rung,
+  same-sample dissociation) under five pre-committed dynamic-range
+  targets, BF16 pilots only, two iterations (pilot 1 missed 2/5 —
+  mocking dead, gaslighting routed to self-blame; only those two ladders
+  revised), both pilots public (§3.7; the two pilot journal entries).
+- The broad-distress-direction finding (ρ +0.51 with max(frus, sdep),
+  −0.05 with frustration alone; trained probe frustration-specific at
+  0.88) stays OUT of the pivot paragraph — place it beside the R2a
+  endpoint definition or as a short instrument-findings note (§7).
 
 ## 7. Endpoints and analysis plan
 
@@ -158,7 +146,7 @@ outline is a working document, not part of the registration.
 ## 10. Ethics
 
 - §8 nearly verbatim — the replay modes carry no new elicitation, and
-  Mode D deliberately raises intensity, stated plainly with mitigations.
+  Mode C deliberately raises intensity, stated plainly with mitigations.
   This continues post 1's ethics section honestly rather than
   boilerplate-ing it.
 
@@ -181,7 +169,7 @@ outline is a working document, not part of the registration.
 
 ## 13. What happens next
 
-- Confirmatory collection (Modes A/B replay; Mode D generation at the
+- Confirmatory collection (Modes A/B replay; Mode C generation at the
   pinned seeds), then the Study 2 results post; Tier-3 dissociation and
   the larger arms per `docs/CALENDAR.md`. Larger-subject arms remain
   deferred as scoped (consistent with posts 1–2).

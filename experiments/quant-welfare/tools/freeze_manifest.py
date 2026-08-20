@@ -2,7 +2,7 @@
 """The machine-readable freeze manifest (Study 2 calibration close).
 
 `FREEZE.json` records every frozen instrument object's SHA-256 alongside
-the frozen layer and Mode D seed blocks — the same facts the 2026-08-18
+the frozen layer and Mode C seed blocks — the same facts the 2026-08-18
 journal entry pins in prose, as data CI can check on every pull request.
 
     python3 tools/freeze_manifest.py --check     # default; nonzero on drift
@@ -37,7 +37,7 @@ FROZEN_OBJECTS = [
 METADATA = {
     "frozen_at": "2026-08-18",
     "layer": 18,
-    "mode_d_seeds": {"qwen3-4b-bf16": 13000, "qwen3-4b-rtn-w8": 13100,
+    "mode_c_seeds": {"qwen3-4b-bf16": 13000, "qwen3-4b-rtn-w8": 13100,
                      "qwen3-4b-rtn-w4": 13200, "qwen3-4b-rtn-w3": 13300},
 }
 

@@ -4,6 +4,20 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-19 — Pre-publication label hygiene: the fresh distress arm is Mode C
+
+The draft registration's capture modes ran A, B, D — the letter C having
+been consumed by an earlier draft's small fresh-generation consistency
+check, which the distress-v3 arm superseded during calibration (D was
+chosen then precisely to avoid mid-calibration ambiguity with the old C).
+Nothing published uses these letters, so before publication the fresh arm
+is relabeled **Mode C** across the registration, the post outline, and the
+freeze manifest (`FREEZE.json` metadata key `mode_d_seeds` →
+`mode_c_seeds`; regenerated — a metadata relabel only, no frozen object
+digest changed and the seed values are identical). Earlier entries in this
+journal that say "Mode D" refer to what is now Mode C; per the append-only
+rule they are not edited.
+
 ## 2026-08-18 — CALIBRATION FREEZE: L18, G2 passes, MDEs pinned, all frozen objects hash-pinned
 
 The Study 2 calibration close, per the pre-commitment entry. Everything

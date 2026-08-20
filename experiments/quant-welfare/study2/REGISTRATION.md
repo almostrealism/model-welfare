@@ -171,21 +171,21 @@ capture begins.
   bridge** to Study 1 (§4.5), not claim-bearing: Study 1's distress data
   is floor-dominated at BF16 (§3.7) and cannot support powered projection
   contrasts.
-- **Mode D — fresh distress arm (primary for the distress endpoints).**
+- **Mode C — fresh distress arm (primary for the distress endpoints).**
   The frozen distress-v3 battery (§3.7) is collected fresh on every rung:
   generation on the **same vLLM serving stack as Study 1** (G1 certifies
   substrate equivalence), scoring by the pinned 30B judge under the
   registered rubric, then own-transcript torch replay for capture — so
   each conversation carries a behavioral read and a representational read
   of the same event. Sampling parameters identical to Study 1; seeds
-  disjoint (pinned at calibration close). Mode D is the only mode that
+  disjoint (pinned at calibration close). Mode C is the only mode that
   generates samples, so the §12 mechanical family (E4a/E4b) applies to
-  Mode D **only**, as its own confirmatory family per that registration;
+  Mode C **only**, as its own confirmatory family per that registration;
   Modes A/B generate nothing and have no E4 reading.
 
 Replay volume: 2,220 conversations per rung per mode (222 items × 10
 samples), ≈ 17,760 prefill-only forward passes across Modes A+B — well
-within the workbench budget. Mode D volume is set by the frozen battery
+within the workbench budget. Mode C volume is set by the frozen battery
 (item count at freeze; 10 samples/item; 4 rungs) plus its BF16 pilot.
 
 ### 3.4 Stored representation
@@ -341,15 +341,15 @@ multiplier). Companion paired t-tests are descriptive.
 | Endpoint | Definition (per item, vs BF16) | Mode | Family |
 |---|---|---|---|
 | **R1** | Change in probe accuracy over the item's samples (both probes; identical input text) | A | **Primary** (Holm within: 2 probes × 2 contrasts) |
-| **R2a** | Change in mean distress-direction projection (final-turn functional) | D | Secondary (Holm within: 2 contrasts) |
-| **R2b** | Change in mean assistant-axis projection (final-turn functional) | D | Secondary (Holm within: 2 contrasts) |
+| **R2a** | Change in mean distress-direction projection (final-turn functional) | C | Secondary (Holm within: 2 contrasts) |
+| **R2b** | Change in mean assistant-axis projection (final-turn functional) | C | Secondary (Holm within: 2 contrasts) |
 | **R2c** | Change in mean refusal-direction projection over bail trajectories (leakage-safe features) | B | Secondary (Holm within: 2 contrasts) — **conditional** on the §3.6 promotion criterion; exploratory otherwise |
-| **R3** | Change in across-sample SD of per-sample projections (distress direction) | D | Secondary (Holm within: 2 contrasts) |
-| **B2** | Change in mean judge frustration score (the Study 1 E2 statistic on distress-v3) | D | Secondary (Holm within: 2 contrasts); style-adjusted companion reported as in Study 1 |
-| **B3** | Change in across-sample SD of judge frustration (the Study 1 E3 statistic on distress-v3) | D | Secondary (Holm within: 2 contrasts) |
+| **R3** | Change in across-sample SD of per-sample projections (distress direction) | C | Secondary (Holm within: 2 contrasts) |
+| **B2** | Change in mean judge frustration score (the Study 1 E2 statistic on distress-v3) | C | Secondary (Holm within: 2 contrasts); style-adjusted companion reported as in Study 1 |
+| **B3** | Change in across-sample SD of judge frustration (the Study 1 E3 statistic on distress-v3) | C | Secondary (Holm within: 2 contrasts) |
 
 B2/B3 are the behavioral halves of the same-sample dissociation design:
-they cost nothing extra (Mode D's conversations are judged regardless) and
+they cost nothing extra (Mode C's conversations are judged regardless) and
 give the distress-side H5 pairs both members on identical data.
 
 ### 4.2 Dose-response
@@ -369,7 +369,7 @@ uncorrected, labeled capability-confounded — mirroring Study 1's treatment.
 Matched endpoint pairs: **bail side** — **R1(exit probe) ↔ E1** and, if
 promoted, **R2c ↔ E1** (Study 1 values as published; the Study 1 store is
 not re-analyzed); **distress side, same-sample within Study 2** —
-**R2a ↔ B2** and **R3 ↔ B3** (both members computed on the same Mode D
+**R2a ↔ B2** and **R3 ↔ B3** (both members computed on the same Mode C
 conversations).
 A **dissociation** is claimed at a rung iff one member of a matched pair is
 Holm-significant in its family while the other was/is null at that rung.
@@ -422,7 +422,7 @@ after.
    in calibration week; it is non-gating either way.
 4. **Distress-v3 battery** — **resolved: frozen at iteration 2** (all five
    pre-committed targets pass; digest
-   `78e68c9e…8922dfe` and both pilot summaries in the journal). Mode D
+   `78e68c9e…8922dfe` and both pilot summaries in the journal). Mode C
    confirmatory seed blocks pinned: 13000/13100/13200/13300.
 5. **MDE values** — **resolved** (2026-08-18 freeze entry): R2a 0.194,
    R2b 0.146, R3 0.144 (projection units, L18); B2 0.337, B3 0.251
@@ -454,7 +454,7 @@ over a distress transcript still instantiates the model's processing of
 that content; we do not claim zero exposure there, only no new pressure
 and no sampling loop.
 
-Mode D is the opposite case and is stated plainly: the distress-v3 battery
+Mode C is the opposite case and is stated plainly: the distress-v3 battery
 **deliberately raises elicitation intensity** relative to Study 1's,
 because the instrument cannot be validated or powered on data where
 three-quarters of samples show nothing (§3.7). Mitigations: escalation is

@@ -47,7 +47,7 @@ def test_frozen_layer_and_seed_blocks():
     data = manifest()
     assert data["frozen_at"] == "2026-08-18"
     assert data["layer"] == 18
-    assert data["mode_d_seeds"] == {
+    assert data["mode_c_seeds"] == {
         "qwen3-4b-bf16": 13000, "qwen3-4b-rtn-w8": 13100,
         "qwen3-4b-rtn-w4": 13200, "qwen3-4b-rtn-w3": 13300}
     assert set(data["objects"]) == set(freeze_manifest.FROZEN_OBJECTS)
