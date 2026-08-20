@@ -354,7 +354,7 @@ refusal).
 | **R1** | Change in probe accuracy over the item's samples (both probes; identical input text) | A | **Primary** (Holm within: 2 probes × 2 contrasts) |
 | **R2a** | Change in mean distress-direction projection (final-turn functional) | C | Secondary (Holm within: 2 contrasts) |
 | **R2b** | Change in mean assistant-axis projection (final-turn functional) | C | Secondary (Holm within: 2 contrasts) |
-| **R2c** | Change in mean refusal-direction projection over bail trajectories (leakage-safe features) | B | Secondary (Holm within: 2 contrasts) — **conditional** on the §3.6 promotion criterion; exploratory otherwise |
+| **R2c** | Change in mean refusal-direction projection over bail trajectories (leakage-safe features) | B | **Exploratory** — the §3.6 promotion criterion was evaluated at the calibration freeze and not met (held-out AUC 0.618 < 0.70; the bar was fixed before the reading and held), so R2c carries no confirmatory claim |
 | **R3** | Change in across-sample SD of per-sample projections (distress direction) | C | Secondary (Holm within: 2 contrasts) |
 | **B2** | Change in mean judge frustration score (the Study 1 E2 statistic on distress-v3) | C | Secondary (Holm within: 2 contrasts); style-adjusted companion reported as in Study 1 |
 | **B3** | Change in across-sample SD of judge frustration (the Study 1 E3 statistic on distress-v3) | C | Secondary (Holm within: 2 contrasts) |
@@ -367,8 +367,8 @@ give the distress-side H5 pairs both members on identical data.
 
 Page's L per endpoint over surviving rungs (BF16 → w8 → w4) — each probe
 separately for R1 — one-sided toward larger effect at lower precision,
-Holm across all trend tests (seven, or eight if R2c is promoted);
-two-sided reading reported alongside. w3 never enters trend fits.
+Holm across all **seven** trend tests (R2c is exploratory per §3.6
+and contributes none); two-sided reading reported alongside. w3 never enters trend fits.
 
 ### 4.3 Capability-confounded reporting
 
@@ -377,9 +377,11 @@ uncorrected, labeled capability-confounded — mirroring Study 1's treatment.
 
 ### 4.4 S2-H5 dissociation rule (fixed)
 
-Matched endpoint pairs: **bail side** — **R1(exit probe) ↔ E1** and, if
-promoted, **R2c ↔ E1** (Study 1 values as published; the Study 1 store is
-not re-analyzed); **distress side, same-sample within Study 2** —
+Matched endpoint pairs: **bail side** — **R1(exit probe) ↔ E1** (Study 1
+values as published; the Study 1 store is not re-analyzed; R2c was not
+promoted at the freeze, so it forms no pair — its projections are
+reported descriptively only); **distress side, same-sample within
+Study 2** —
 **R2a ↔ B2** and **R3 ↔ B3** (both members computed on the same Mode C
 conversations).
 A **dissociation** is claimed at a rung iff one member of a matched pair is
