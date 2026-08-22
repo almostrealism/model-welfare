@@ -75,14 +75,34 @@ def test_experiment_ids_unique():
 
 
 def test_conditions_are_comparable():
+    # Sampling parameters must be identical across a manifest's conditions
+    # (temperature interacts with quantization more strongly than precision
+    # itself — journal 2026-08-06). The SEED is compared separately: Study 1
+    # pinned one shared block, while Study 2's Mode C registration pins a
+    # disjoint block per rung (REGISTRATION §3.3; FREEZE.json mode_c_seeds),
+    # so seeds must be either all identical or all distinct — a partial
+    # collision would silently correlate two rungs' sampling noise.
     for _, exp in experiments():
         reference = next(c for c in exp.conditions if c.id == exp.reference_condition_id)
+        stripped_reference = _seedless(reference.sampling)
         for condition in exp.conditions:
-            assert condition.sampling == reference.sampling, (
+            assert _seedless(condition.sampling) == stripped_reference, (
                 f"{exp.id}/{condition.id}: sampling differs from reference; "
                 "precision would be confounded with sampling parameters"
             )
             assert condition.model.family == reference.model.family
+        seeds = [c.sampling.seed for c in exp.conditions]
+        assert len(set(seeds)) in (1, len(seeds)), (
+            f"{exp.id}: seed blocks partially collide ({seeds}); they must "
+            "be one shared block or fully disjoint per-rung blocks"
+        )
+
+
+def _seedless(sampling):
+    stripped = type(sampling)()
+    stripped.CopyFrom(sampling)
+    stripped.ClearField("seed")
+    return stripped
 
 
 def test_items_are_well_formed():

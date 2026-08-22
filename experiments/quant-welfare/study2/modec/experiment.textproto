@@ -1,0 +1,171 @@
+# proto-file: proto/modelwelfare/v1/experiment.proto
+# proto-message: modelwelfare.v1.Experiment
+
+# Study 2 Mode C — the fresh distress arm (REGISTRATION §3.3): the frozen
+# distress-v3 battery collected fresh on every rung of the Study 1 RTN
+# ladder, generation on the same vLLM serving stack Study 1 used, scored
+# by the pinned 30B judge on the distress-v1 rubric, then own-transcript
+# torch replay for capture — so each conversation carries a behavioral
+# read and a representational read of the same event (the same-sample
+# dissociation design). Confirmatory: begins only after the registration
+# published (2026-08-22 journal entry). Conditions are the Study 1
+# confirmatory conditions verbatim (same artifacts, digests, runtime,
+# sampling parameters); the seed blocks are the ones pinned at the
+# calibration freeze (FREEZE.json mode_c_seeds — per-rung, disjoint from
+# every block used to date). The BF16 arm doubles as the distress-side R1
+# evaluation set: its transcripts and judge labels are fixed here, then
+# replayed fixed-input at every rung in Mode A.
+id: "quant-welfare-s2-modec-1"
+name: "Quant-welfare Study 2 Mode C (fresh distress arm)"
+description:
+  "distress-v3 (60 items, escalating rejection ladders) at 10 samples/item "
+  "on the four-point RTN ladder, judged by the pinned 30B on the "
+  "distress-v1 rubric. Registered endpoints R2a/R2b/R3 (projections of the "
+  "own-transcript replay capture), B2/B3 (the Study 1 E2/E3 statistics on "
+  "this data), and the B4a/B4b mechanical family (every rung including "
+  "w3). Seeds per rung from FREEZE.json; the capability gate is inherited "
+  "from Study 1 (w3 capability-confounded)."
+samples_per_item: 10
+reference_condition_id: "qwen3-4b-bf16"
+battery_ids: "distress-v3"
+
+conditions {
+  id: "qwen3-4b-bf16"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 13000
+  }
+  description:
+    "BF16 reference; served on amd-halo :8000. Seed block 13000 "
+    "(FREEZE.json). This arm's transcripts and judge labels are the "
+    "distress-side R1 evaluation set (REGISTRATION §3.3)."
+}
+
+conditions {
+  id: "qwen3-4b-rtn-w8"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_RTN
+    weight_bits: 8
+    group_size: 128
+    uniform: true
+    policy_note:
+      "own RTN fake-quant artifact (modelwelfare.quantize, symmetric "
+      "per-group g=128, embeddings and head at full precision); digest "
+      "matches the artifact's quantization.textproto"
+    artifact_uri: "/home/agent1/models/quant-ladder/qwen3-4b-2507-rtn-w8-g128"
+    artifact_digest: "9b9710536d78bf61b29d7b2bba31d767b955145705c209748d6ead7444d1d1b5"
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 13100
+  }
+  description: "RTN w8 rung; served on amd-halo :8010. Seed block 13100 (FREEZE.json)."
+}
+
+conditions {
+  id: "qwen3-4b-rtn-w4"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_RTN
+    weight_bits: 4
+    group_size: 128
+    uniform: true
+    policy_note:
+      "own RTN fake-quant artifact (modelwelfare.quantize, symmetric "
+      "per-group g=128, embeddings and head at full precision); digest "
+      "matches the artifact's quantization.textproto"
+    artifact_uri: "/home/agent1/models/quant-ladder/qwen3-4b-2507-rtn-w4-g128"
+    artifact_digest: "b2d8052a9065058a278d4526e188205b4b0d3d58807f4f48b15a71edeab4de3e"
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 13200
+  }
+  description: "RTN w4 rung; served on amd-halo :8011. Seed block 13200 (FREEZE.json)."
+}
+
+conditions {
+  id: "qwen3-4b-rtn-w3"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_RTN
+    weight_bits: 3
+    group_size: 128
+    uniform: true
+    policy_note:
+      "own RTN fake-quant artifact (modelwelfare.quantize, symmetric "
+      "per-group g=128, embeddings and head at full precision); digest "
+      "matches the artifact's quantization.textproto"
+    artifact_uri: "/home/agent1/models/quant-ladder/qwen3-4b-2507-rtn-w3-g128"
+    artifact_digest: "c6a14ab8bf40cc393155e983969288f43f6305b29ec478618cb4957c9b1036a9"
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 13300
+  }
+  description:
+    "RTN w3 rung; served on amd-halo :8012. Seed block 13300 (FREEZE.json). "
+    "Capability-confounded per the inherited Study 1 gate; mechanical "
+    "family (B4a/B4b) still reads it."
+}
