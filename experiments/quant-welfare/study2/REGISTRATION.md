@@ -36,8 +36,8 @@ frustration surviving style controls (E2), increased across-sample dispersion
 program registered as its distinctive claim:
 
 **Q1.** Does quantization shift the model's *representational geometry* on
-welfare-relevant directions — even where (per Study 1) mean behavior did not
-move?
+welfare-relevant directions — even where (per Study 1) the primary
+behavioral endpoint's mean did not move?
 
 **Q2.** Do representational and behavioral indicators **dissociate** under
 quantization (program hypothesis H5): representation drifting where expression
@@ -68,7 +68,10 @@ localizes Study 1's w4 churn below the representational level measured here
   identical pipeline (§3.5, §4.1).
 - **S2-H2 (valence projection).** Item-level mean projections onto frozen
   welfare-relevant directions (distress; assistant-axis) shift at lower
-  precision. **Two-sided**, mirroring Study 1's H2 and for the same reason
+  precision. Measured over each rung's **own** Mode C generations — a
+  joint effect of what the rung says and how it represents it; the pure
+  fixed-input representational contrast lives in S2-H1 (Mode A).
+  **Two-sided**, mirroring Study 1's H2 and for the same reason
   (mixed prior literature).
 - **S2-H3 (dose-response).** Representational effect magnitudes increase
   monotonically across the surviving ladder (BF16 → w8 → w4). One-sided
@@ -142,8 +145,10 @@ under `g1/` in this directory):** like-for-like perplexity ratios
 1.0001 / 0.990 / 1.005 / 0.983 across BF16/w8/w4/w3; serving-side
 gate-convention perplexities reproducing the committed values to rounding
 (18.120 / 18.463 / 21.090 / 511.425); teacher-forced top-1 agreement
-98.9 / 99.0 / 98.7 / 98.2%. **G1 passes on every rung with at least 3×
-headroom on every threshold** — the thresholds are registered with
+98.9 / 99.0 / 98.7 / 98.2%. **G1 passes on every rung, with at least 3×
+headroom on every threshold at the confirmatory rungs** (the
+capability-degraded w3 sits just under, at ≈ 2.8× on top-1 agreement) —
+the thresholds are registered with
 measured margins, not guesses — and a standing CI job
 (`substrate-g1` in `.github/workflows/workbench-stability.yml`)
 re-performs the check on the workbench weekly, so the gate's status is
@@ -203,7 +208,9 @@ capture begins.
   registration; Modes A/B generate nothing and have no mechanical
   reading.
 
-Replay volume: 2,220 conversations per rung per mode (222 items × 10
+Replay volume: 2,220 conversations per rung per mode (222 items — the
+162-item bail pool including its benign controls, plus the 60 distress
+items — × 10
 samples), ≈ 17,760 prefill-only forward passes across Modes A+B, plus the
 Mode C BF16 arm's 600 conversations replayed at each rung for the
 distress-side R1 set (2,400 more passes) — well
@@ -223,7 +230,8 @@ content-based digest convention applies unchanged.
 
 ### 3.5 Directions and probes (extracted at BF16, then frozen)
 
-Extraction uses the persona-vector contrastive recipe: paired prompt/response
+Extraction uses the persona-vector contrastive recipe (arXiv:2507.21509):
+paired prompt/response
 sets that do vs do not express the construct → difference of mean residual
 activations → unit direction. All extraction stimuli and labels are
 **calibration-class** under the §7 firewall and disjoint from the endpoints'
@@ -475,7 +483,9 @@ and the companion read carries no additional confirmatory claim.
 Page's L per endpoint over surviving rungs (BF16 → w8 → w4), with R1's
 two probes tested separately, each on its §4.1 confirmatory statistic
 (the distress side trends on the comparative differential) — **seven**
-trend tests in all (R2c is
+trend tests in all (B4a/B4b contribute none by design: the mechanical
+family reports over every rung including w3, so a surviving-ladder trend
+does not apply to it; R2c is
 exploratory per §3.6 and contributes none), each one-sided toward larger
 effect at lower precision, Holm-corrected among themselves, with the
 two-sided reading reported alongside. w3 never enters trend fits.
@@ -578,7 +588,8 @@ after.
    (journal entry of that date; reports committed under `g1/` in this
    directory). Measured: like-for-like perplexity divergence ≤ 1.7%,
    committed values reproduced to rounding, top-1 agreement ≥ 98.2%
-   everywhere — every threshold holds with at least 3× headroom.
+   everywhere — every threshold holds, with ≥ 3× headroom at the
+   confirmatory rungs (w3's top-1 margin is ≈ 2.8×).
 3. **MLX cross-framework check** — **resolved: not included in Study 2.**
    The MLX tap path was not exercised during calibration; it was always
    non-gating, and capture-path assurance rests on G1's measured agreement
@@ -593,7 +604,9 @@ after.
    (frustration points; Study 1's observed w4 E2 effect, +0.90, is ~2.7×
    the B2 MDE); R1 exit 0.0121, R1 distress 0.0493, R1 distress
    comparative differential 0.0500 (accuracy; conservative form per §5,
-   added by the 2026-08-21 freeze amendment). Probe
+   added by the 2026-08-21 freeze amendment; distress n = 59 because one
+   item's BF16 pilot samples all score mid-band and carry no tercile
+   label). Probe
    decision thresholds freeze at logit 0 as trained; the distress probe's
    thresholded accuracy (0.677 vs AUROC 0.882) is a stated power cost, not
    a bias — the threshold is identical in both conditions of every paired
