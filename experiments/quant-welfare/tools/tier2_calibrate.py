@@ -378,6 +378,10 @@ def mde(args):
     is asymptotic and labeled as such)."""
     from modelwelfare.stats import (mde_paired, null_delta_sd_dispersion,
                                     null_delta_sd_mean, null_delta_sd_rate)
+    if args.probes_control and args.control_group not in CONTROL_SPLITS:
+        raise SystemExit(
+            f"unknown --control-group {args.control_group!r}; valid: "
+            + ", ".join(sorted(CONTROL_SPLITS)))
     layer = args.layer
     k = 10  # confirmatory samples/item
 
@@ -463,8 +467,10 @@ def mde(args):
             control_by_item = defaultdict(list)
             for conversation_id, value in control_scores.items():
                 item, _sample = split_conversation_id(conversation_id)
-                control_by_item[item].append(
-                    int((value > 0) == bool(labels_by_item[item])))
+                label = labels_by_item.get(item)
+                if label is None:
+                    continue
+                control_by_item[item].append(int((value > 0) == bool(label)))
             # The R1 comparative differential (REGISTRATION §4.1): per-item
             # [delta welfare-probe accuracy - delta control-probe accuracy].
             # The null SD sums the two probes' rate-noise variances as if

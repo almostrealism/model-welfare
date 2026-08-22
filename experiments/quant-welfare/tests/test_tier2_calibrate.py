@@ -250,6 +250,9 @@ def control_world(tmp_path):
         for sample_index, value in enumerate(values):
             conversations[f"{item}|s{sample_index}"] = {
                 1: E_DISTRESS * (value - 5.0) + E_AXIS * (2.0 * label - 1.0)}
+    # A captured conversation whose item is NOT in the battery (a mixed
+    # capture): every control path must skip it, never crash on it.
+    conversations["off-battery-item|s0"] = {1: E_AXIS * 3.0}
     capture = write_capture(tmp_path / "control.safetensors", conversations)
     return tmp_path, capture, experiment
 
@@ -311,6 +314,13 @@ def test_mde_adds_the_differential_row_with_control_probes(
     assert by_name["R1 distress differential (conservative)"] == 0.0
     detail = {name: text for name, _, text in rows}
     assert "n=6" in detail["R1 distress differential (conservative)"]
+
+
+def test_mde_rejects_unknown_control_group(tmp_path):
+    args = make_args(tmp_path, probes_control="probes-control.safetensors",
+                     control_group="control_typo", layer=LAYER)
+    with pytest.raises(SystemExit, match="control_analytic"):
+        tc.mde(args)
 
 
 def test_mde_computes_every_registered_row(bail_world, v3_world, tmp_path):
