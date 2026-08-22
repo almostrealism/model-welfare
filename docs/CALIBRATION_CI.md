@@ -125,10 +125,15 @@ Tier 3 workflow (judge-stable on `studio`, substrate-g1 on `amd-halo`,
 schedule + dispatch, collision guard, sequential ladder start, thresholds
 inside measured headroom, teardown always). It merges inert until
 self-hosted runners with matching labels are enabled for this repo;
-Tier 3 is deliberately NOT in the All Checks needs list. Remaining: the
-calibration-data release and the jobs consuming it (`directions-stable`,
-`mde-stable`, `pilot-targets-stable`), `capture-stable` on the workbench,
-and runner registration/labels.
+Tier 3 is deliberately NOT in the All Checks needs list.
+
+Also built (2026-08-18, third pass): the `data-20260818` release and
+`calibration-data-stability.yml` consuming it — `directions-stable`,
+`mde-stable`, `pilot-targets-stable`, weekly + dispatch (PR #9). The
+`mde-stable` recompute was extended 2026-08-21 with the control probes
+(`--probes-control`/`--control-group`, the freeze-amendment instrument).
+Remaining: `capture-stable` on the workbench, and runner
+registration/labels.
 
 **Release policy (owner, 2026-08-18): releases are frozen snapshots.**
 Notes, tag, and assets stay mutually consistent with the repository state

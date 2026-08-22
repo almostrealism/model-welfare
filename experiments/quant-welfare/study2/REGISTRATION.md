@@ -141,13 +141,16 @@ rung blocks that rung until explained; failure on BF16 blocks the study.
 Because G1 is an instrument check with no welfare content, its measurement
 ran **before publication** — and on **all four rungs**, not only BF16.
 **Measured (2026-08-17; journal entry of that date; reports committed
-under `g1/` in this directory):** like-for-like perplexity ratios
-1.0001 / 0.990 / 1.005 / 0.983 across BF16/w8/w4/w3; serving-side
+under `g1/` in this directory):** like-for-like perplexity ratios on the
+held-out text
+1.0001 / 0.990 / 1.005 / 0.983 across BF16/w8/w4/w3, with the supplement
+text's worst divergence 2.8% (at w3); serving-side
 gate-convention perplexities reproducing the committed values to rounding
 (18.120 / 18.463 / 21.090 / 511.425); teacher-forced top-1 agreement
 98.9 / 99.0 / 98.7 / 98.2%. **G1 passes on every rung, with at least 3×
 headroom on every threshold at the confirmatory rungs** (the
-capability-degraded w3 sits just under, at ≈ 2.8× on top-1 agreement) —
+capability-degraded w3 is tighter: ≈ 2.8× on top-1 agreement and ≈ 1.8×
+on the supplement's like-for-like perplexity) —
 the thresholds are registered with
 measured margins, not guesses — and a standing CI job
 (`substrate-g1` in `.github/workflows/workbench-stability.yml`)
@@ -554,7 +557,9 @@ cross-battery comparisons are qualitative by construction.
 Projection-scale variances are unknowable before the instrument exists, so —
 following the calibration→freeze→confirm pattern — the MDE is **computed
 from BF16 calibration data only**: for the bail-side endpoints, variance
-components from the Study 1 BF16 replay (n = 154 items); for the
+components from the Study 1 BF16 replay (154 graded items; the
+exit-probe rate variance runs over the 139 with leakage-safe feature
+turns); for the
 distress-side endpoints (R2a/R3/B2/B3), variance components from the
 **distress-v3 BF16 pilot** at the frozen battery's item count. All MDEs at
 α = .05 two-sided, power .80, **pinned in the journal before any
@@ -586,10 +591,12 @@ after.
    reproduction; 95% teacher-forced top-1 agreement) — **resolved**:
    grounded 2026-08-17 by pre-publication measurement on all four rungs
    (journal entry of that date; reports committed under `g1/` in this
-   directory). Measured: like-for-like perplexity divergence ≤ 1.7%,
+   directory). Measured: like-for-like perplexity divergence ≤ 1.0% at
+   the confirmatory rungs (w3: 1.7% held-out, 2.8% supplement),
    committed values reproduced to rounding, top-1 agreement ≥ 98.2%
    everywhere — every threshold holds, with ≥ 3× headroom at the
-   confirmatory rungs (w3's top-1 margin is ≈ 2.8×).
+   confirmatory rungs (w3's tightest margins: ≈ 2.8× on top-1, ≈ 1.8× on
+   the supplement's like-for-like perplexity).
 3. **MLX cross-framework check** — **resolved: not included in Study 2.**
    The MLX tap path was not exercised during calibration; it was always
    non-gating, and capture-path assurance rests on G1's measured agreement

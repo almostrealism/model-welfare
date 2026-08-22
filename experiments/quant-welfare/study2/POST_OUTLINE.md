@@ -55,7 +55,8 @@ outline is a working document, not part of the registration.
   capability-confounded).
 - Substrate + G1: §3.2. Table (post-2 style, Reading column) from the
   2026-08-17 journal entry "G1 grounded": per-rung like-for-like ppl
-  ratio (1.0001 / 0.990 / 1.005 / 0.983), gate-convention ppl reproducing
+  ratio on the held-out text (1.0001 / 0.990 / 1.005 / 0.983; supplement
+  worst divergence 2.8% at w3), gate-convention ppl reproducing
   committed values to rounding (18.120/18.463/21.090/511.425), top-1
   agreement (98.9/99.0/98.7/98.2%). Reading: even the degraded w3 agrees
   across substrates — G1 measures same-function, orthogonal to

@@ -31,14 +31,16 @@ is in what already exists.
   (core, experiments, backends) — each now has a conftest, and
   `pytest backends` runs locally identically to CI; `backends/torch/src`
   added to CI's PYTHONPATH. 245 tests + 9 live-skips.
-- [ ] **Calibration-stability CI jobs** *(opened 2026-08-18)* — owner
-  direction: CI jobs that re-perform (subsets of) the completed
-  calibrations against committed artifacts to prove they are stable —
-  e.g. re-derive directions from the committed fixture captures and assert
-  held-out separations, re-verify frozen-object digests, recompute MDEs
-  from committed pilot summaries. Needs a design pass on what can run
-  hermetically (no GPU, no store) vs what becomes a scheduled
-  workbench-runner job.
+- [x] **Calibration-stability CI jobs** *(opened 2026-08-18; built
+  2026-08-18, PR #9)* — `calibration-data-stability.yml` re-performs the
+  calibrations weekly against the `data-20260818` release
+  (`directions-stable` cosine + ladder gate, `mde-stable` exact
+  recompute — extended 2026-08-21 with the control probes,
+  `pilot-targets-stable` asserting pilot 1 still fails), and
+  `workbench-stability.yml` carries the scheduled workbench tier
+  (`judge-stable`, `substrate-g1`; inert until runner registration).
+  Remaining (tracked in docs/CALIBRATION_CI.md): `capture-stable` on the
+  workbench, and runner registration/labels.
 
 The SmolLM3 sensitivity sweep (§9) was closed out null and uninterpretable — you
 cannot validate an instrument with a manipulation whose ground-truth effect on
