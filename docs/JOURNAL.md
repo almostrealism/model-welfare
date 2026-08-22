@@ -4,6 +4,32 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-22 — Study 2 registration PUBLISHED; confirmatory collection may begin
+
+Post #3 is live:
+[Study 2 Registration: Exploring representational counterparts of
+welfare-relevant indicators under post-training quantization](https://www.lesswrong.com/posts/q3RFhX57srWFZBc8T/study-2-registration-exploring-representational-counterparts).
+Per the REGISTRATION.md header, the published post is now the
+**registration of record** and the repository file its copy; it publishes
+at calibration close with every data-dependent quantity frozen and
+hash-pinned (FREEZE.json, 2026-08-18, amended 2026-08-21), and carries
+the corrected G1 accounting from the pre-publication consistency sweep.
+From this entry forward the §7 deviation policy governs: any design
+change is a dated amendment recorded here before further collection.
+
+Sequencing to first quantized-rung capture: the only §6 item open at
+publication is the activation record schema (item 6 — engineering, no
+analysis content), landing now alongside the Study 2 endpoint analysis
+driver, which follows the Study 1 discipline of registered statistics as
+tested code *before* any data exists. Collection order is fixed by the
+design: Mode C's BF16 arm (seed 13000) generates and is judge-scored
+first, because its transcripts and BF16 labels are the distress-side R1
+evaluation set that Mode A then replays at every rung. Owner direction
+(2026-08-22): exercise two-host concurrent per-condition collection
+during this study wherever it makes sense — build and prove the tooling
+early rather than deferring it to the 30B arm where it becomes
+mandatory.
+
 ## 2026-08-21 — FREEZE AMENDMENT: the R1 control family, an equivalence-based dissociation rule, and an AUROC companion read (independent-review fixes, pre-publication)
 
 An independent review of the draft registration — run without this

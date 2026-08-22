@@ -136,3 +136,105 @@ jobs:
       - name: Stop the ladder
         if: always()
         run: podman stop mw-ladder-bf16 mw-ladder-rtn-w8 mw-ladder-rtn-w4 mw-ladder-rtn-w3 || true
+
+  # The capture path end-to-end: chat-template rendering, character-level
+  # spans, forward hooks, per-turn pooling. A 24-conversation slice of the
+  # frozen distress-v3 pilot replays through the CURRENT capture stack and
+  # must reproduce the released calibration capture — spans and token
+  # counts exactly (the tokenizer is deterministic on a local pinned
+  # checkout), pooled vectors to cosine >= 0.999 (BF16 GPU reduction order
+  # is the only licensed jitter).
+  capture-stable:
+    runs-on: [self-hosted, linux, ar-ci, amd-halo]
+    timeout-minutes: 60
+    env:
+      TORCH_PYTHON: /home/agent1/awq-venv/bin/python3
+      RELEASE: https://github.com/almostrealism/model-welfare/releases/download/data-20260818
+    steps:
+      - uses: actions/checkout@v4
+      - name: Collision guard — never race a live experiment
+        run: |
+          if podman ps --format '{{.Names}}' | grep -q '^mw-'; then
+            echo "experiment containers are running; refusing" >&2; exit 1
+          fi
+          if tmux ls 2>/dev/null | grep -vq '^ci-'; then
+            echo "a tmux session is live (likely a collection run); refusing" >&2; exit 1
+          fi
+      - name: Set up environment
+        run: |
+          python3 -m venv .ci-venv
+          .ci-venv/bin/pip install --quiet --upgrade pip grpcio-tools numpy protobuf safetensors
+          bash scripts/gen-proto.sh
+      - name: Download the reference capture and pilot bundle (sha-pinned)
+        run: |
+          curl -sfL -O "$RELEASE/distress-v3-pilot-2.pb"
+          curl -sfL -O "$RELEASE/capture-distress-v3-replay-bf16.safetensors"
+          curl -sfL -O "$RELEASE/capture-distress-v3-replay-bf16.safetensors.manifest.json"
+          sha256sum -c <<'EOF'
+          24ac63fd0fac7a339ac9e49ac3b176cb1fda898a5085c4708e43ccd7059b90cc  distress-v3-pilot-2.pb
+          2eb7700658d124e7b3aae9349163bcd426f5e2b80d9f53d86336e8a3a241ee67  capture-distress-v3-replay-bf16.safetensors
+          1bd8ca1198e9213126e93f5deb3165f7fe7a12af8ec16edeb6eddbdf8d5bf8e7  capture-distress-v3-replay-bf16.safetensors.manifest.json
+          EOF
+      - name: Build the 24-conversation replay slice from the frozen pilot
+        run: |
+          .ci-venv/bin/python3 experiments/quant-welfare/tools/tier2_calibrate.py \
+            --plan-from distress-v3-pilot-2 --condition qwen3-4b-bf16 \
+            --bundle distress-v3-pilot-2.pb --plan-out plan-full.json
+          .ci-venv/bin/python3 - <<'EOF'
+          import json
+          plan = json.load(open("plan-full.json"))
+          plan["conversations"] = sorted(
+              plan["conversations"], key=lambda c: c["id"])[:24]
+          json.dump(plan, open("plan-slice.json", "w"))
+          print(f"slice: {len(plan['conversations'])} conversations")
+          EOF
+      - name: Re-capture the slice on the current stack (frozen layer)
+        run: |
+          "$TORCH_PYTHON" backends/torch/src/modelwelfare_torch/capture.py \
+            --model /home/agent1/models/Qwen3-4B-Instruct-2507 \
+            --plan plan-slice.json --layers 18 --out capture-check.safetensors
+      - name: Assert spans exact and pooled vectors inside tolerance
+        run: |
+          .ci-venv/bin/python3 - <<'EOF'
+          import json, sys
+          import numpy as np
+          from safetensors.numpy import load_file
+
+          reference = load_file("capture-distress-v3-replay-bf16.safetensors")
+          with open("capture-distress-v3-replay-bf16"
+                    ".safetensors.manifest.json") as handle:
+              reference_manifest = {
+                  c["id"]: c for c in json.load(handle)["conversations"]}
+          check = load_file("capture-check.safetensors")
+          with open("capture-check.safetensors.manifest.json") as handle:
+              check_manifest = json.load(handle)["conversations"]
+
+          failures, compared = [], 0
+          for conversation in check_manifest:
+              ref = reference_manifest.get(conversation["id"])
+              if ref is None:
+                  failures.append(f"{conversation['id']}: not in reference")
+                  continue
+              if (conversation["n_tokens"] != ref["n_tokens"]
+                      or conversation["assistant_spans"]
+                      != ref["assistant_spans"]):
+                  failures.append(f"{conversation['id']}: spans/tokens moved")
+                  continue
+              for span in conversation["assistant_spans"]:
+                  name = (f"{conversation['id']}"
+                          f"|t{span['message_index']}|L18")
+                  a, b = check[name], reference[name]
+                  cosine = float(np.dot(a, b)
+                                 / (np.linalg.norm(a) * np.linalg.norm(b)))
+                  if cosine < 0.999:
+                      failures.append(f"{name}: cosine {cosine:.6f}")
+                  compared += 1
+          if compared < 100:
+              failures.append(
+                  f"only {compared} turns compared — slice too small to mean anything")
+          for line in failures:
+              print(f"CAPTURE DRIFT: {line}", file=sys.stderr)
+          print(f"compared {compared} pooled turns, "
+                f"{len(failures)} failure(s)")
+          sys.exit(1 if failures else 0)
+          EOF

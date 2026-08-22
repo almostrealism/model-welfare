@@ -39,8 +39,10 @@ is in what already exists.
   `pilot-targets-stable` asserting pilot 1 still fails), and
   `workbench-stability.yml` carries the scheduled workbench tier
   (`judge-stable`, `substrate-g1`; inert until runner registration).
-  Remaining (tracked in docs/CALIBRATION_CI.md): `capture-stable` on the
-  workbench, and runner registration/labels.
+  `capture-stable` landed 2026-08-22 (a frozen-pilot slice re-captured on
+  the current stack must reproduce the released capture). Remaining
+  (tracked in docs/CALIBRATION_CI.md): runner registration/labels — an
+  owner task.
 
 The SmolLM3 sensitivity sweep (§9) was closed out null and uninterpretable — you
 cannot validate an instrument with a manipulation whose ground-truth effect on

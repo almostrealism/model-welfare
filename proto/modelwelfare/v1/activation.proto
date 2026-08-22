@@ -33,8 +33,9 @@ message HookPoint {
 /*
  * Manifest entry for one captured activation span: which conversation (key),
  * which turn, which token range (token_start inclusive, token_end exclusive,
- * indices into that turn's tokenization), which hook point, and where the
- * tensor lives.
+ * indices into the conversation's tokenization — the capture-manifest span
+ * convention), which hook point, and where the tensor lives. The referenced
+ * tensor is the mean pool over that span (the §3.4 stored representation).
  */
 message ActivationSlice {
   ResultKey key = 1;
@@ -66,9 +67,11 @@ message DirectionSpec {
 }
 
 /*
- * Per-token projections of one turn's activations onto one frozen direction.
- * Stored rather than recomputed because it is the unit of the
- * drift/stability analyses, and small enough to keep inline.
+ * Projections of one turn's activations onto one frozen direction. values
+ * holds the per-token series for the token-level drift subsample; a
+ * length-1 series records the pooled-turn projection (the registered §3.4
+ * scalar functional). Stored rather than recomputed because it is the unit
+ * of the drift/stability analyses, and small enough to keep inline.
  */
 message ProjectionSeries {
   ResultKey key = 1;

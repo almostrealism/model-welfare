@@ -17,8 +17,9 @@ a bundle.
 from collections import defaultdict
 from pathlib import Path
 
+from modelwelfare.activations import TENSOR_DIRECTORY
 from modelwelfare.store import ResultStore
-from modelwelfare.v1 import bundle_pb2, scoring_pb2, transcript_pb2
+from modelwelfare.v1 import activation_pb2, bundle_pb2, scoring_pb2, transcript_pb2
 
 # Store kind -> (RecordBundle repeated-field name, record message type).
 KINDS = {
@@ -27,6 +28,8 @@ KINDS = {
     "exit_reasons": ("exit_reasons", scoring_pb2.ExitClassification),
     "reference_scores": ("reference_scores", scoring_pb2.JudgeScore),
     "judge_noise_scores": ("judge_noise_scores", scoring_pb2.JudgeScore),
+    "activations": ("activations", activation_pb2.ActivationSlice),
+    "projections": ("projections", activation_pb2.ProjectionSeries),
 }
 
 
@@ -92,11 +95,14 @@ def pack_experiment_store(store: ResultStore, experiment_id: str) -> bundle_pb2.
     condition_ids = store.conditions(experiment_id)
     if not condition_ids:
         raise ValueError(f"{experiment_id}: no conditions in the store — nothing to pack")
+    # The tensors directory is not a record stream: bundles carry the
+    # activation *records*, and the safetensors they content-address travel
+    # beside the bundle as sha-listed assets (activations module).
     unknown = {
         kind
         for condition_id in condition_ids
         for kind in store.kinds(experiment_id, condition_id)
-        if kind not in KINDS
+        if kind not in KINDS and kind != TENSOR_DIRECTORY
     }
     if unknown:
         raise ValueError(
@@ -144,6 +150,7 @@ class BundleStore:
 
     def __init__(self, path):
         path = Path(path)
+        self._root = path.parent if path.is_file() else path
         self._index = defaultdict(list)
         paths = [path] if path.is_file() else sorted(path.glob("*.pb"))
         for bundle_path in paths:
@@ -153,6 +160,13 @@ class BundleStore:
                 for record in getattr(bundle, field):
                     key = (record.key.experiment_id or experiment_id, record.key.condition_id, kind)
                     self._index[key].append(record)
+
+    @property
+    def root(self):
+        """Capture assets (TensorRef uris) resolve relative to this — the
+        bundle's directory, mirroring the streaming store's data root, so a
+        replication lays the sha-listed tensor files beside the bundles."""
+        return self._root
 
     def read(self, message_type, experiment_id: str, condition_id: str, kind: str):
         return iter(self._index.get((experiment_id, condition_id, kind), ()))

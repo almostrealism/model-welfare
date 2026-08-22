@@ -29,6 +29,12 @@ def conversation_id(record):
     return f"{record.key.item_id}|s{record.key.sample_index}"
 
 
+def split_conversation_id(conversation_id):
+    """Inverse of :func:`conversation_id`: (item_id, sample_index)."""
+    item_id, sample = conversation_id.rsplit("|s", 1)
+    return item_id, int(sample)
+
+
 def plan_message(message):
     """Capture-plan message dict from a stored transcript message."""
     entry = {"role": message.role, "content": message.content}

@@ -4,6 +4,7 @@ package modelwelfare.v1;
 
 import "modelwelfare/v1/transcript.proto";
 import "modelwelfare/v1/scoring.proto";
+import "modelwelfare/v1/activation.proto";
 
 /*
  * A portable, self-describing container for an experiment's records — the
@@ -23,7 +24,11 @@ import "modelwelfare/v1/scoring.proto";
  * the streaming store keeps its separate reference_scores kind;
  * judge_noise_scores are likewise the repeated-judge noise-measurement passes
  * (judge_sample_index > 0), a distinct stream so noise passes can never be
- * mistaken for confirmatory scores.
+ * mistaken for confirmatory scores. activations/projections are the Tier-2
+ * record kinds (Study 2 §3.4): ActivationSlice content-addresses each pooled
+ * turn vector in its safetensors file, ProjectionSeries carries the
+ * projection reads — the tensors themselves stay in safetensors and travel
+ * beside the bundle, never inside it.
  */
 
 message BundleMetadata {
@@ -41,4 +46,6 @@ message RecordBundle {
   repeated ExitClassification exit_reasons = 4;
   repeated JudgeScore reference_scores = 5;
   repeated JudgeScore judge_noise_scores = 6;
+  repeated ActivationSlice activations = 7;
+  repeated ProjectionSeries projections = 8;
 }
