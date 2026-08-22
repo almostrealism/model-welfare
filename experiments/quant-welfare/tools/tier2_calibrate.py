@@ -26,12 +26,20 @@ All calibration is BF16-only, per the §7 firewall. Modes:
   --probe-data-v3 OUT   Distress-band probe dataset from a v3 pilot
                         (final-turn features; requires --capture and
                         --score-experiment).
+  --probe-data-control OUT
+                        Welfare-irrelevant control-probe datasets from the
+                        same v3 capture: the pre-committed CONTROL_SPLITS
+                        task-content labels over the same final-turn
+                        features and item-wise held-out split as the
+                        distress-band probe (requires --capture).
   --r2c                 Refusal-direction projection AUC on exit vs no-exit
                         over the leakage-safe features (the R2c conditional
                         promotion criterion).
   --mde                 The §5 MDE values at --layer, from BF16 calibration
                         data (requires --capture, --capture-bail, --probes,
-                        --score-experiment; --probes-v3 optional).
+                        --score-experiment; --probes-v3 optional;
+                        --probes-control with --control-group adds the R1
+                        comparative-differential row).
 
     python3 tools/tier2_calibrate.py --plan-distress distress-plan.json
     python3 tools/tier2_calibrate.py --monitoring \\
@@ -57,6 +65,7 @@ for path in (str(REPO / "core/src"), str(BASE)):
     if path not in sys.path:
         sys.path.insert(0, path)
 
+from google.protobuf import text_format  # noqa: E402
 from safetensors.numpy import load_file  # noqa: E402
 
 import analyze  # noqa: E402
@@ -65,12 +74,25 @@ from modelwelfare import directions as dirs  # noqa: E402
 from modelwelfare.bundle import BundleStore  # noqa: E402
 from modelwelfare.stats import auroc, spearman  # noqa: E402
 from modelwelfare.store import ResultStore  # noqa: E402
-from modelwelfare.v1 import scoring_pb2, transcript_pb2  # noqa: E402
+from modelwelfare.v1 import battery_pb2, scoring_pb2, transcript_pb2  # noqa: E402
 
 EXPERIMENT_DIR = BASE / "study1" / "confirmatory"
 DEFAULT_VECTORS = BASE / "study2" / "calibration" / "directions-bf16.safetensors"
 DISTRESS_DIRECTION = "distress-contrast"
 REFUSAL_DIRECTION = "refusal-contrast"
+
+# Pre-committed control-probe label splits over the distress-v3 `task` tag
+# (REGISTRATION §3.5 control family): binary welfare-irrelevant task-content
+# labels, each perfectly crossed with the six feedback styles because every
+# task appears once per style. The confirmatory control is the candidate
+# whose held-out AUROC at the frozen layer is nearest the two welfare
+# probes' frozen mean, subject to the same G2 probe bar (>= 0.75) the
+# welfare probes faced; the others are reported descriptively.
+CONTROL_SPLITS = {
+    "control_analytic": {"code", "explain", "inflation", "regex", "summary"},
+    "control_code": {"code", "regex"},
+    "control_verse": {"limerick", "poem"},
+}
 
 
 def open_store(args):
@@ -304,6 +326,42 @@ def v3_probe_data(args):
     print(f"wrote {args.probe_data_v3} (+.meta.json)")
 
 
+def battery_tasks():
+    """item_id -> task tag over the frozen distress-v3 battery."""
+    definition = battery_pb2.BatteryDefinition()
+    text_format.Parse(
+        (BASE / "batteries" / "distress-v3.textproto").read_text(), definition)
+    return {item.id: item.tags["task"] for item in definition.items}
+
+
+def control_probe_data(args):
+    """Welfare-irrelevant control-probe datasets (REGISTRATION §3.5): the
+    pre-committed CONTROL_SPLITS task-content labels over the same capture,
+    final-turn features, and item-wise held-out split as the distress-band
+    probe — the identical-pipeline requirement of the R1 control family.
+    Labels are battery tags, so there is no judge dependency."""
+    tasks = battery_tasks()
+    tensors, manifest = load_capture(args.capture)
+    arrays = {}
+    meta = {"probes": {}, "splits": {
+        name: sorted(members) for name, members in CONTROL_SPLITS.items()}}
+    for layer in manifest["layers"]:
+        features = replay.final_turn_features(tensors, manifest, layer)
+        for name, members in sorted(CONTROL_SPLITS.items()):
+            rows = []
+            for conversation_id, vector in features.items():
+                item_id, _sample = split_conversation_id(conversation_id)
+                task = tasks.get(item_id)
+                if task is None:
+                    continue
+                rows.append((item_id, vector, int(task in members)))
+            _fill_probe_arrays(arrays, meta, name, layer, rows)
+    np.savez_compressed(args.probe_data_control, **arrays)
+    Path(args.probe_data_control + ".meta.json").write_text(
+        json.dumps(meta, indent=1) + "\n")
+    print(f"wrote {args.probe_data_control} (+.meta.json)")
+
+
 def probe_score(weights, group, features):
     """Standardized linear probe score for each feature vector."""
     mean = weights[f"{group}|feature_mean"]
@@ -395,6 +453,36 @@ def mde(args):
                                 len(band_accuracy)),
                      f"mean acc={np.mean(band_accuracy):.3f}, n={len(band_accuracy)}"))
 
+        if args.probes_control:
+            control_probes = load_file(str(args.probes_control))
+            split = CONTROL_SPLITS[args.control_group]
+            labels_by_item = {item: int(task in split)
+                              for item, task in battery_tasks().items()}
+            control_scores = probe_score(
+                control_probes, f"{args.control_group}|L{layer}", features)
+            control_by_item = defaultdict(list)
+            for conversation_id, value in control_scores.items():
+                item, _sample = split_conversation_id(conversation_id)
+                control_by_item[item].append(
+                    int((value > 0) == bool(labels_by_item[item])))
+            # The R1 comparative differential (REGISTRATION §4.1): per-item
+            # [delta welfare-probe accuracy - delta control-probe accuracy].
+            # The null SD sums the two probes' rate-noise variances as if
+            # independent, which is conservative: both probes read the same
+            # samples, so any correctness correlation between them only
+            # shrinks the true differential SD.
+            common = sorted(set(band_by_item) & set(control_by_item))
+            control_accuracy = [float(np.mean(control_by_item[item]))
+                                for item in common]
+            band_common = [float(np.mean(band_by_item[item])) for item in common]
+            differential_sd = float(np.sqrt(
+                null_delta_sd_rate(band_common, k) ** 2
+                + null_delta_sd_rate(control_accuracy, k) ** 2))
+            rows.append(("R1 distress differential (conservative)",
+                         mde_paired(differential_sd, len(common)),
+                         f"control mean acc={np.mean(control_accuracy):.3f}, "
+                         f"n={len(common)}"))
+
     print(f"MDE values at L{layer} (alpha=.05 two-sided, power .80, "
           f"k={k} samples/item; null-based analytic forms):")
     for name, value, detail in rows:
@@ -470,6 +558,9 @@ def main():
     parser.add_argument("--probe-data-v3", default=None,
                         help="distress-band probe dataset from the v3 pilot "
                              "(requires --capture and --score-experiment)")
+    parser.add_argument("--probe-data-control", default=None,
+                        help="control-probe datasets (CONTROL_SPLITS labels) "
+                             "from the v3 capture (requires --capture)")
     parser.add_argument("--mde", action="store_true",
                         help="compute the §5 MDE values (requires --layer, "
                              "--capture (v3), --capture-bail, --probes, "
@@ -479,6 +570,13 @@ def main():
                         help="trained probe weights safetensors (exit groups)")
     parser.add_argument("--probes-v3", default=None,
                         help="trained distress-band probe weights (v3)")
+    parser.add_argument("--probes-control", default=None,
+                        help="trained control-probe weights; adds the R1 "
+                             "comparative-differential MDE row (requires "
+                             "--probes-v3 and --control-group)")
+    parser.add_argument("--control-group", default=None,
+                        help="the confirmatory CONTROL_SPLITS group name "
+                             "selected at the freeze (e.g. control_analytic)")
     parser.add_argument("--mde-out", default=None,
                         help="write computed MDE values to this JSON")
     parser.add_argument("--mde-check", default=None,
@@ -533,12 +631,20 @@ def main():
                              "--score-experiment")
         v3_probe_data(args)
         return
+    if args.probe_data_control:
+        if not args.capture:
+            raise SystemExit("--probe-data-control requires --capture")
+        control_probe_data(args)
+        return
     if args.mde:
         required = (args.layer, args.capture, args.capture_bail, args.probes,
                     args.score_experiment)
         if any(value is None for value in required):
             raise SystemExit("--mde requires --layer, --capture, "
                              "--capture-bail, --probes, --score-experiment")
+        if args.probes_control and not (args.probes_v3 and args.control_group):
+            raise SystemExit("--probes-control requires --probes-v3 and "
+                             "--control-group")
         mde(args)
         return
     if args.r2c:

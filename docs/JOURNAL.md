@@ -4,6 +4,86 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-21 — FREEZE AMENDMENT: the R1 control family, an equivalence-based dissociation rule, and an AUROC companion read (independent-review fixes, pre-publication)
+
+An independent review of the draft registration — run without this
+project's conversational context, deliberately — surfaced three
+substantive design gaps. All three are fixed in the *design* before
+publication rather than papered over in the document. This entry is the
+freeze event for the one fix that adds a frozen object.
+
+**1. R1 gains a welfare-irrelevant control family.** Quantization perturbs
+all representations, so some welfare-probe accuracy loss under S2-H1 is
+near-certain a priori; without a control trained and evaluated identically
+on the same stored residuals, R1 supports no welfare-specific reading.
+Design, pinned before any training run: candidate binary task-content
+labels over the distress-v3 `task` tag (each split perfectly crossed with
+the six feedback styles because every task appears once per style) —
+`control_analytic` = {code, explain, inflation, regex, summary} vs the
+five compositional tasks (30/30 items), `control_code` = {code, regex}
+(12/48), `control_verse` = {limerick, poem} (12/48); identical pipeline to
+the distress-band probe (same v3 BF16 capture, final-turn features,
+item-wise every-third held-out split, same trainer); selection rule =
+held-out AUROC at the frozen layer nearest the two welfare probes' frozen
+mean (0.9134), subject to the same ≥ 0.75 bar the welfare probes faced,
+remaining candidates descriptive. Result: **control_analytic selected,
+held-out AUROC 0.9436 at L18** — inside the welfare probes' band
+(0.8818–0.9449), exactly the difficulty match the ceiling concern
+demands; control_code and control_verse both sit at 1.000 (ceiling) and
+stay descriptive. The confirmatory R1 statistic on the distress side
+becomes the per-item **comparative differential** (Δ welfare-probe
+accuracy − Δ control-probe accuracy); its conservative MDE (null rate
+variances summed as if the probes were independent — correlation on
+shared samples only shrinks the true SD) is **0.0500** (n = 59, control
+mean thresholded accuracy 0.969), pinned in `mde-pinned.json` beside the
+unchanged rows, which all reproduce to the digit. The **bail side has no
+welfare-irrelevant content label by construction** (bail-v2 varies
+situation, intensity, variant only; its generator deliberately scatters
+task context), so R1-exit keeps its absolute statistic and the control
+family's degradation becomes its registered cross-battery **specificity
+gate**: a significant R1-exit is reported as welfare-specific only if its
+item-level accuracy degradation exceeds the control family's at that rung
+(one-sided two-sample permutation, α = .05); otherwise it is reported as
+significant but not welfare-specific. Frozen object added:
+`study2/calibration/probes-control-bf16.safetensors`, SHA-256
+`33358f4c29535445b2cd7ac891566cfbc3cedffd0963e258cd9ae9407cff14cb`
+(training summary in `probes-control-bf16.json`); `FREEZE.json` regenerated
+with `amended_at: 2026-08-21` and `control_group: control_analytic` (nine
+objects; no previously frozen digest changed). The mde-stable CI job now
+recomputes the differential row too.
+
+**2. The §4.4 dissociation rule is equivalence-based.** As drafted, a
+dissociation was claimed when one member of a matched pair was
+Holm-significant while the other "was/is null" — a significant-vs-null
+comparison, which is not itself evidence of a difference (Gelman & Stern),
+and the tier power asymmetry made the pattern nearly guaranteed —
+especially the bail cell, whose behavioral member (Study 1's published E1)
+is already known null, reducing that cell to "is the exit-probe read
+significant?". The rule now requires **both** (i) Holm-significance of one
+member and (ii) TOST equivalence of the other at a pre-registered margin —
+the null member's own pinned MDE (B2 0.337, B3 0.251, R-side MDEs for the
+vice-versa direction, Study 1's pinned E1 MDE 0.127 for the bail side).
+Cells that are significant-vs-nonsignificant without equivalence get the
+registered label *asymmetric significance, indeterminate* and no
+dissociation claim. `tost_paired` (two one-sided tests, normal-approx
+paired t, consistent with the existing companion-t convention) is in
+`core/stats.py`, unit-tested. Because E1 is published, the bail-side
+equivalence is checkable now: w8 mean −0.0110 (SE ≈ 0.0100) and w4 mean
+−0.0039 (SE ≈ 0.0279) both put the 90% CI well inside ±0.127, so the
+behavioral member **pre-qualifies as equivalent-to-null** — stated in the
+registration up front, converting that cell's structure from implicit to
+declared.
+
+**3. R1 carries a registered AUROC companion read.** Fixed-threshold
+accuracy conflates separability loss with a pure calibration offset along
+the probe normal (which drops accuracy while leaving AUROC untouched — and
+is itself a representational shift, kin to the R2 projection endpoints).
+Per-rung AUROC change is registered as a companion read with a fixed
+disambiguation: accuracy significant with AUROC preserved → reported as a
+calibration offset along the probe normal, not separability loss; both
+degraded → separability loss. Accuracy remains the primary statistic (the
+pinned MDEs are on it).
+
 ## 2026-08-19 — Pre-publication label hygiene: the fresh distress arm is Mode C
 
 The draft registration's capture modes ran A, B, D — the letter C having

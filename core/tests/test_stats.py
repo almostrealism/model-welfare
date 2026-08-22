@@ -42,6 +42,43 @@ def test_paired_t_zero_variance():
     assert math.isinf(result["t"]) and result["p_value"] == 0.0
 
 
+# --- TOST equivalence -------------------------------------------------------
+
+def test_tost_tight_null_is_equivalent():
+    rng = np.random.default_rng(0)
+    deltas = rng.normal(0.0, 0.01, size=100)
+    assert stats.tost_paired(deltas, margin=0.127)["p_value"] < 0.001
+
+
+def test_tost_effect_at_margin_is_not_equivalent():
+    rng = np.random.default_rng(0)
+    deltas = rng.normal(0.127, 0.01, size=100)
+    assert stats.tost_paired(deltas, margin=0.127)["p_value"] > 0.4
+
+
+def test_tost_matches_ci_within_margin_reading():
+    # p <= .05 exactly when the 90% CI lies inside (-margin, +margin).
+    deltas = [0.02, -0.03, 0.05, 0.00, -0.04, 0.03, 0.01, -0.02]
+    result = stats.tost_paired(deltas, margin=0.10)
+    mean = np.mean(deltas)
+    half = 1.6449 * np.std(deltas, ddof=1) / np.sqrt(len(deltas))
+    inside = (mean - half > -0.10) and (mean + half < 0.10)
+    assert (result["p_value"] <= 0.05) == inside
+
+
+def test_tost_wide_noise_is_indeterminate():
+    rng = np.random.default_rng(1)
+    deltas = rng.normal(0.0, 1.0, size=5)
+    assert stats.tost_paired(deltas, margin=0.05)["p_value"] > 0.05
+
+
+def test_tost_zero_variance_and_margin_validation():
+    assert stats.tost_paired([0.0, 0.0, 0.0], margin=0.1)["p_value"] == 0.0
+    assert stats.tost_paired([0.2, 0.2, 0.2], margin=0.1)["p_value"] == 1.0
+    with pytest.raises(ValueError):
+        stats.tost_paired([0.1, 0.2], margin=0.0)
+
+
 # --- Holm -------------------------------------------------------------------
 
 def test_holm_step_down_known_case():

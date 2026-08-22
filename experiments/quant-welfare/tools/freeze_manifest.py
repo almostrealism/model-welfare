@@ -27,6 +27,7 @@ FROZEN_OBJECTS = [
     "batteries/distress-v3.textproto",
     "study2/calibration/directions-bf16.safetensors",
     "study2/calibration/probes-bf16.safetensors",
+    "study2/calibration/probes-control-bf16.safetensors",
     "study2/calibration/probes-v3-bf16.safetensors",
     "study2/directions/distress-contrast.textproto",
     "study2/directions/assistant-axis-contrast.textproto",
@@ -36,6 +37,11 @@ FROZEN_OBJECTS = [
 
 METADATA = {
     "frozen_at": "2026-08-18",
+    # Pre-publication amendment (2026-08-21 journal entry): the R1 control
+    # family — control probes trained on the same stored BF16 residuals,
+    # control_analytic selected as the confirmatory comparator.
+    "amended_at": "2026-08-21",
+    "control_group": "control_analytic",
     "layer": 18,
     "mode_c_seeds": {"qwen3-4b-bf16": 13000, "qwen3-4b-rtn-w8": 13100,
                      "qwen3-4b-rtn-w4": 13200, "qwen3-4b-rtn-w3": 13300},

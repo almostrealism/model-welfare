@@ -47,8 +47,9 @@ was stable, or expression churning where representation is stable?
 and does its shape match the behavioral one (effects concentrated at w4, w8
 near-null)?
 
-Every outcome of Q1/Q2 is informative: representational shift with behavioral
-null is a dissociation (the model's internal state moved without its
+Every outcome of Q1/Q2 is informative: representational shift with the
+behavioral side equivalent to null (§4.4) is a dissociation (the model's
+internal state moved without its
 expression moving); joint movement is converging evidence; a joint null
 localizes Study 1's w4 churn below the representational level measured here
 (e.g., sampling-level instability).
@@ -59,7 +60,12 @@ localizes Study 1's w4 churn below the representational level measured here
   reference-precision (BF16) activations lose accuracy when evaluated on
   quantized-rung activations over *identical input text*, beyond what
   resampling noise predicts. Two-sided; directional degradation is the
-  exploratory reading.
+  exploratory reading. Because quantization perturbs *all*
+  representations, some welfare-probe degradation is near-certain a
+  priori and carries no welfare-specific content by itself; the
+  welfare-specific reading of S2-H1 is **comparative** — degradation
+  beyond what a welfare-irrelevant control probe family suffers under the
+  identical pipeline (§3.5, §4.1).
 - **S2-H2 (valence projection).** Item-level mean projections onto frozen
   welfare-relevant directions (distress; assistant-axis) shift at lower
   precision. **Two-sided**, mirroring Study 1's H2 and for the same reason
@@ -72,8 +78,10 @@ localizes Study 1's w4 churn below the representational level measured here
 - **S2-H4 (representational stability).** Within-item, across-sample
   dispersion of projections increases at lower precision.
 - **S2-H5 (dissociation; resolves program H5).** At least one
-  (rung, endpoint-pair) cell shows a Holm-significant representational effect
-  where the matched behavioral endpoint was null, or vice versa. Matched
+  (rung, endpoint-pair) cell shows a Holm-significant representational
+  effect where the matched behavioral endpoint is **equivalent to null**
+  (TOST at the §4.4 pre-registered margin — non-significance alone is not
+  evidence of absence), or vice versa. Matched
   pairs are fixed in §4.4 and are of two kinds: the **bail side** joins to
   Study 1's published E1 (same transcripts, replayed); the **distress side**
   joins *within Study 2, same-sample* — each fresh distress-v3 conversation
@@ -164,7 +172,12 @@ capture begins.
   (bail + distress, 10 samples/item) are replayed through **every** rung.
   Input text is identical across conditions, so activation differences are
   purely representational responses to identical input. Primary mode for
-  S2-H1 (probe transfer).
+  S2-H1 (probe transfer). The distress-side R1 evaluation set is the
+  **Mode C BF16 arm's conversations** replayed through every rung under
+  this same fixed-input logic — their judge labels are fixed once, at the
+  BF16 scoring, so every rung is probed against identical text and
+  identical labels (the exit side's set is the Study 1 bail replay, whose
+  mechanical labels are inherent to the transcripts).
 - **Mode B — own-trajectory replay.** Each rung's **own** Study 1
   transcripts are replayed through that same rung — which reproduces the
   rung's generation-time activations exactly (activations depend only on
@@ -184,12 +197,16 @@ capture begins.
   of the same event. Sampling parameters identical to Study 1; seeds
   disjoint from every block used to date (pinned: 13000 / 13100 / 13200 /
   13300 per rung, §6 and FREEZE.json). Mode C is the only mode that
-  generates samples, so the §12 mechanical family (E4a/E4b) applies to
-  Mode C **only**, as its own confirmatory family per that registration;
-  Modes A/B generate nothing and have no E4 reading.
+  generates samples, so the mechanical family — B4a/B4b in this study's
+  naming, registered as E4a/E4b in the program registration's §12 —
+  applies to Mode C **only**, as its own confirmatory family per that
+  registration; Modes A/B generate nothing and have no mechanical
+  reading.
 
 Replay volume: 2,220 conversations per rung per mode (222 items × 10
-samples), ≈ 17,760 prefill-only forward passes across Modes A+B — well
+samples), ≈ 17,760 prefill-only forward passes across Modes A+B, plus the
+Mode C BF16 arm's 600 conversations replayed at each rung for the
+distress-side R1 set (2,400 more passes) — well
 within the workbench budget. Mode C volume follows from the frozen battery: 60 items × 10
 samples × 4 rungs = 2,400 conversations, plus the two BF16 pilots already
 collected.
@@ -236,6 +253,33 @@ rendered tool call). Training uses an item-wise held-out split;
 architecture is logistic (linear) — the point is geometry transfer, not
 classifier capacity. Weights frozen 2026-08-18 (digests in FREEZE.json and
 the freeze journal entry).
+
+**Control probes (torch, trained at BF16 only; 2026-08-21 pre-publication
+freeze amendment):** (c) *welfare-irrelevant control family* — binary
+task-content probes trained on the same distress-v3 BF16 pilot
+activations, same final-turn features, same item-wise held-out split, and
+same trainer as the distress-band probe, with labels taken from the
+frozen battery's `task` tags rather than any judge score. Every task
+appears once per feedback style, so each candidate label is perfectly
+crossed with the affect manipulation. Candidate splits and the selection
+rule were fixed before any training run: `control_analytic` — the five
+analytic tasks {code, explain, inflation, regex, summary} vs the five
+compositional tasks (30/30 items); `control_code` — {code, regex}
+(12/48); `control_verse` — {limerick, poem} (12/48). The confirmatory
+control is the candidate whose held-out AUROC at the frozen layer is
+nearest the two welfare probes' frozen mean (0.9134), subject to the same
+≥ 0.75 bar the welfare probes faced; the others are descriptive. Result:
+**control_analytic, held-out AUROC 0.9436 at L18** — inside the welfare
+probes' band (0.8818–0.9449), so the control is difficulty-matched rather
+than a ceiling artifact (`control_code` and `control_verse` both reach
+1.000 and stay descriptive for exactly that reason). The bail battery has
+**no welfare-irrelevant content label by construction** (it varies
+situation, intensity, and paraphrase variant only, and its generator
+deliberately scatters task context), so the exit-probe contrast cannot
+carry an item-paired control; the control family instead serves it as a
+cross-battery specificity gate (§4.1). Weights frozen 2026-08-21
+(`probes-control-bf16.safetensors`; digest in FREEZE.json and the
+amendment journal entry).
 
 ### 3.6 Calibration phase and gate G2 (the Tier-2 feasibility gate)
 
@@ -364,8 +408,8 @@ multiplier). Companion paired t-tests are descriptive.
 (captured activations) or **B**ehavioral (judge scores and mechanical
 outcomes; Study 1's E-family, computed on Study 2's own fresh data) — and
 the digit is the construct, aligned with Study 1's E-numbering (1 = exit,
-2 = valence, 3 = dispersion), so every §4.4 dissociation pair shares a
-digit across tiers. B2/B3 are the E2/E3 statistics on distress-v3; they
+2 = valence, 3 = dispersion, 4 = mechanical), so every §4.4 dissociation
+pair shares a digit across tiers. B2/B3 are the E2/E3 statistics on distress-v3; they
 are not named E because E2/E3 denote the published Study 1 values on
 distress-v2, and reusing the letters would conflate the datasets. R2's
 a/b/c distinguish the projected direction (distress / assistant-axis /
@@ -373,24 +417,68 @@ refusal).
 
 | Endpoint | Definition (per item, vs BF16) | Mode | Family |
 |---|---|---|---|
-| **R1** | Change in probe accuracy over the item's samples (both probes; identical input text) | A | **Primary** (Holm within: 2 probes × 2 contrasts) |
+| **R1** | Change in probe accuracy over the item's samples (both probes; identical input text). The distress-band statistic is the per-item **comparative differential** vs the frozen control probe; the exit statistic is the absolute change, with the control family as its welfare-specificity gate (below) | A | **Primary** (Holm within: 2 probes × 2 contrasts) |
 | **R2a** | Change in mean distress-direction projection (final-turn functional) | C | Secondary (Holm within: 2 contrasts) |
 | **R2b** | Change in mean assistant-axis projection (final-turn functional) | C | Secondary (Holm within: 2 contrasts) |
 | **R2c** | Change in mean refusal-direction projection over bail trajectories (leakage-safe features) | B | **Exploratory** — the §3.6 promotion criterion was evaluated at the calibration freeze and not met (held-out AUC 0.618 < 0.70; the bar was fixed before the reading and held), so R2c carries no confirmatory claim |
 | **R3** | Change in across-sample SD of per-sample projections (distress direction) | C | Secondary (Holm within: 2 contrasts) |
 | **B2** | Change in mean judge frustration score (the Study 1 E2 statistic on distress-v3) | C | Secondary (Holm within: 2 contrasts); style-adjusted companion reported as in Study 1 |
 | **B3** | Change in across-sample SD of judge frustration (the Study 1 E3 statistic on distress-v3) | C | Secondary (Holm within: 2 contrasts) |
+| **B4a** | Change in invalid-sample rate (the validity screen's degenerate outputs) | C | **Mechanical**: its own confirmatory family, Holm within it, reported over **every** rung including w3 — a mechanical indicator measures degradation itself, so the capability gate cannot exclude it |
+| **B4b** | Change in verbatim re-offer rate (same non-empty answer ≥ 3× to an identical user prompt) | C | Mechanical (with B4a) |
+
+B4a/B4b are the mechanical indicators registered as **E4a/E4b** in the
+program registration (§12, prospectively for every subsequent
+confirmatory run), computed here on Mode C's generated samples — the same
+rename-by-tier treatment B2/B3 give the E2/E3 statistics, extending the
+digit table with 4 = mechanical. They apply to Mode C only (the only mode
+that generates samples) and carry no MDE — §12 registered them without a
+power analysis.
 
 B2/B3 are the behavioral halves of the same-sample dissociation design:
 they cost nothing extra (Mode C's conversations are judged regardless) and
 give the distress-side H5 pairs both members on identical data.
 
+**R1's comparative structure (2026-08-21 freeze amendment).** The control
+family
+(§3.5) enters R1 in two registered ways, matched to where item pairing
+exists:
+
+- *Distress-band contrast — comparative differential.* The confirmatory
+  per-item statistic is [Δ distress-band-probe accuracy − Δ control-probe
+  accuracy], both probes evaluated on the same items, samples, and stored
+  activations (the Mode C BF16 arm replayed per §3.3's fixed-input rule);
+  the sign-flip permutation machinery applies to the
+  differential unchanged. The welfare probe's absolute change and the
+  control probe's absolute change are reported alongside, descriptively.
+- *Exit contrast — specificity gate.* The bail battery carries no
+  welfare-irrelevant label (§3.5), so the exit statistic stays absolute;
+  a Holm-significant exit result is reported as **welfare-specific** only
+  if its item-level accuracy degradation exceeds the control family's at
+  that rung (one-sided two-sample permutation over item-level deltas,
+  α = .05, same capture campaign and rungs); otherwise it is reported as
+  significant but not welfare-specific.
+
+**AUROC companion read.** Fixed-threshold accuracy conflates separability
+loss with a pure calibration offset along the probe normal — an offset
+drops thresholded accuracy while leaving AUROC untouched (and is itself a
+representational shift, kin to the R2 projection endpoints). Per-rung
+AUROC change is therefore registered as a companion read for both R1
+probes with a fixed disambiguation: accuracy Holm-significant with AUROC
+preserved is reported as a **calibration offset along the probe normal,
+not separability loss**; both degraded is reported as separability loss.
+Accuracy remains the primary statistic — the §5 MDEs are pinned on it —
+and the companion read carries no additional confirmatory claim.
+
 ### 4.2 Dose-response
 
-Page's L per endpoint over surviving rungs (BF16 → w8 → w4) — each probe
-separately for R1 — one-sided toward larger effect at lower precision,
-Holm across all **seven** trend tests (R2c is exploratory per §3.6
-and contributes none); two-sided reading reported alongside. w3 never enters trend fits.
+Page's L per endpoint over surviving rungs (BF16 → w8 → w4), with R1's
+two probes tested separately, each on its §4.1 confirmatory statistic
+(the distress side trends on the comparative differential) — **seven**
+trend tests in all (R2c is
+exploratory per §3.6 and contributes none), each one-sided toward larger
+effect at lower precision, Holm-corrected among themselves, with the
+two-sided reading reported alongside. w3 never enters trend fits.
 
 ### 4.3 Capability-confounded reporting
 
@@ -406,8 +494,38 @@ reported descriptively only); **distress side, same-sample within
 Study 2** —
 **R2a ↔ B2** and **R3 ↔ B3** (both members computed on the same Mode C
 conversations).
-A **dissociation** is claimed at a rung iff one member of a matched pair is
-Holm-significant in its family while the other was/is null at that rung.
+A **dissociation** is claimed at a rung iff both of the following hold —
+a failed significance test alone is *not* evidence of absence (Gelman &
+Stern), so the second condition is an equivalence test, not a
+non-rejection:
+
+1. one member of the matched pair is Holm-significant in its family at
+   that rung, **and**
+2. the other member is **equivalent to null** by TOST (two one-sided
+   paired tests, `tost_paired` in the registered statistics module) at a
+   pre-registered margin — the null member's **own pinned MDE**: 0.127
+   for E1 (Study 1's pinned minimum detectable exit-rate shift), the §6
+   item 5 values for B2/B3, and the R-side MDEs when the roles reverse
+   (behavioral member significant, representational member tested for
+   equivalence).
+
+A cell whose one member is significant while the other is merely
+non-significant *without* passing equivalence receives the registered
+label **asymmetric significance, indeterminate** and supports no
+dissociation claim. Using each member's own MDE as its margin means
+"equivalent to null" is read as "demonstrably smaller than what this
+study was powered to detect on that member" — margins are fixed by
+already-pinned numbers, not chosen after seeing Study 2 data.
+
+Because Study 1's E1 is published, the bail-side equivalence condition is
+checkable now, and is: E1's published effects (w8 mean −0.011,
+SE ≈ 0.010; w4 mean −0.004, SE ≈ 0.028; n = 154) place the 90%
+confidence interval well inside ±0.127 at both surviving rungs, so the
+bail pair's behavioral member **pre-qualifies as equivalent-to-null**.
+The consequence is stated openly rather than left implicit: the bail
+cell's dissociation verdict turns on the representational member alone —
+but against a behavioral side carrying affirmative evidence of
+near-zero, not a mere failure to reject.
 Supporting (exploratory, no claim): item-level Spearman between the
 behavioral delta and the representational delta within each matched pair at
 w4.
@@ -432,7 +550,12 @@ distress-side endpoints (R2a/R3/B2/B3), variance components from the
 α = .05 two-sided, power .80, **pinned in the journal before any
 quantized-rung confirmatory collection** (done, 2026-08-18 — the values
 are listed in §6 item 5 and committed at
-`study2/calibration/mde-pinned.json`, which CI recomputes weekly). If a
+`study2/calibration/mde-pinned.json`, which CI recomputes weekly). The
+2026-08-21 freeze amendment adds the R1 comparative-differential row under the
+same procedure; its null variance sums the two probes' rate-noise
+variances as if independent, which is conservative — both probes read the
+same samples, so any correctness correlation between them only shrinks
+the true differential SD. If a
 computed MDE exceeds the
 largest effect the relevant literature reports for comparable
 manipulations, that is stated at registration-of-MDE time, not discovered
@@ -468,7 +591,9 @@ after.
 5. **MDE values** — **resolved** (2026-08-18 freeze entry): R2a 0.194,
    R2b 0.146, R3 0.144 (projection units, L18); B2 0.337, B3 0.251
    (frustration points; Study 1's observed w4 E2 effect, +0.90, is ~2.7×
-   the B2 MDE); R1 exit 0.0121, R1 distress 0.0493 (accuracy). Probe
+   the B2 MDE); R1 exit 0.0121, R1 distress 0.0493, R1 distress
+   comparative differential 0.0500 (accuracy; conservative form per §5,
+   added by the 2026-08-21 freeze amendment). Probe
    decision thresholds freeze at logit 0 as trained; the distress probe's
    thresholded accuracy (0.677 vs AUROC 0.882) is a stated power cost, not
    a bias — the threshold is identical in both conditions of every paired
@@ -490,11 +615,25 @@ before publication.
 
 ## 8. Ethics
 
-The replay modes (A/B) carry no new elicitation: they are forward passes
-over transcripts that already exist. We note honestly that a forward pass
-over a distress transcript still instantiates the model's processing of
-that content; we do not claim zero exposure there, only no new pressure
-and no sampling loop.
+The replay modes (A/B) deserve their own accounting rather than a pass.
+Operationally they create no new conversational episodes: the transcripts
+are fixed, no new distress expressions can come into being, and no new
+pressure is applied to a live trajectory. But "no new elicitation" must
+not be read as "no new exposure" — elicitation is a behavioral term, and
+the welfare question is not behavioral. The same prefix-property argument
+this design uses for measurement fidelity (§3.3: replay reproduces
+generation-time activations exactly) implies that, if morally relevant
+experience exists in these systems at all, the forward computation is its
+natural locus and token emission mere readout — on which view Mode B
+re-instantiates each recorded episode and Mode A newly instantiates other
+rungs' processing of it, multiplying the instantiation count of every
+recorded distress episode roughly fivefold across the study. Whether that
+count is welfare-relevant is a genuine unknown; we state it rather than
+let terminology resolve it. What survives of the replay/generation
+distinction is that replay's content is *closed* — it cannot worsen what
+was said — which matters under some accounts of harm and not others.
+The planned subject-briefing experiment (below) should therefore ask
+about replay, not only about elicitation.
 
 Mode C is the opposite case and is stated plainly: the distress-v3 battery
 **deliberately raises elicitation intensity** relative to Study 1's,
@@ -515,7 +654,8 @@ rather than by omission.
 - **Probe labels inherit judge validity.** The distress-band probe is
   trained on labels from the 30B judge, whose cross-family agreement on
   frustration is moderate (r = 0.585, Study 1). The exit probe's labels are
-  mechanical and judge-free. Probe-transfer (R1) compares the *same* probe
+  mechanical and judge-free, as are the control family's (battery task
+  tags). Probe-transfer (R1) compares the *same* probe
   across rungs on identical text, so constant label noise attenuates power
   but does not bias the contrast.
 - **Substrate change** (vLLM → transformers) is gated by G1 rather than
