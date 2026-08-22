@@ -111,6 +111,16 @@ def pinned_margins() -> dict:
             "B3": pinned["B3 (asymptotic)"], "E1": E1_MARGIN}
 
 
+def published_row(row: dict) -> dict:
+    """One published E1 row with its standard error recovered from the
+    stored t statistic. A zero t leaves the SE unidentifiable — NaN, so a
+    §4.4 equivalence read can never be claimed from an undefined SE (a NaN
+    p-value passes no threshold)."""
+    se = abs(row["mean"] / row["t"]) if row["t"] else float("nan")
+    return {"mean": row["mean"], "holm_p": row["holm_p"], "se": se,
+            "n": row["n"]}
+
+
 def published_e1() -> dict:
     """Study 1's published E1 rows (mean, holm_p, standard error) from the
     committed golden file — the §4.4 bail-side behavioral member, cited as
@@ -118,13 +128,7 @@ def published_e1() -> dict:
     golden = json.loads(
         (BASE / "study1" / "confirmatory" / "expected-results.json")
         .read_text())
-    rows = {}
-    for row in golden["e1"]:
-        se = row["mean"] / row["t"] if row["t"] else float("inf")
-        rows[row["contrast"]] = {"mean": row["mean"],
-                                 "holm_p": row["holm_p"], "se": abs(se),
-                                 "n": row["n"]}
-    return rows
+    return {row["contrast"]: published_row(row) for row in golden["e1"]}
 
 
 # --- assembly from the record kinds -----------------------------------------
@@ -328,15 +332,10 @@ def distress_band_labels(scores) -> dict:
 
 
 def control_labels(tasks: dict, group: str) -> dict:
-    """{conversation_id -> 0/1} is not derivable without sample indices, so
-    control labels are per item: returned as a function of conversation id."""
+    """{item_id -> 0/1} for one pre-committed control split — the
+    welfare-irrelevant task-content labels (§3.5)."""
     split = CONTROL_SPLITS[group]
-    by_item = {item: int(task in split) for item, task in tasks.items()}
-
-    def label(conversation_id):
-        item_id, _sample = replay.split_conversation_id(conversation_id)
-        return by_item.get(item_id)
-    return label
+    return {item: int(task in split) for item, task in tasks.items()}
 
 
 def analyze_study2(store, mode_a: str, mode_c: str,
@@ -374,9 +373,11 @@ def analyze_study2(store, mode_a: str, mode_c: str,
 
     # R1 — probe transfer on identical input text (Mode A captures).
     band_labels = distress_band_labels(mode_c_scores[REFERENCE])
-    tasks = battery_tasks()
-    control_label = control_labels(tasks, control_group)
+    control_by_item = control_labels(battery_tasks(), control_group)
     v3_cids = {cid for cid, label in band_labels.items() if label is not None}
+    control_by_cid = {
+        cid: control_by_item.get(replay.split_conversation_id(cid)[0])
+        for cid in v3_cids}
     exit_acc, exit_auroc = probe_reads(
         store, mode_a, LADDER + [DEGRADED], probes, "exit",
         exit_labels, allowed=allowed)
@@ -385,7 +386,7 @@ def analyze_study2(store, mode_a: str, mode_c: str,
         band_labels)
     control_acc, control_auroc = probe_reads(
         store, mode_a, LADDER + [DEGRADED], probes_control, control_group,
-        {cid: control_label(cid) for cid in v3_cids})
+        control_by_cid)
     diff_map = differential_map(band_acc, control_acc)
 
     # R2/R3 — projections of the Mode C own-replay captures.

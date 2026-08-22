@@ -62,20 +62,25 @@ def main():
                         help="frozen direction vectors for projections")
     parser.add_argument("--no-projections", action="store_true",
                         help="record activation slices only")
-    parser.add_argument("--producer", default=socket.gethostname().split(".")[0],
+    parser.add_argument("--host", default=socket.gethostname().split(".")[0],
+                        help="logical host name for provenance; defaults to "
+                             "the short host name")
+    parser.add_argument("--producer", default=None,
                         help="unique per concurrently-writing process; "
-                             "defaults to the short host name")
+                             "defaults to --host (qualify it when one host "
+                             "runs several writers)")
     args = parser.parse_args()
+    producer = args.producer or args.host
 
     store = ResultStore(args.store)
     slices, projections = ingest_capture(
         store, args.experiment, args.condition, args.capture, args.layer,
-        args.producer,
+        producer,
         vectors_path=None if args.no_projections else args.vectors,
-        provenance=provenance(args.producer))
+        provenance=provenance(args.host))
     print(f"ingested {args.capture}: {slices} activation slices, "
           f"{projections} projections -> {args.store} "
-          f"({args.experiment}/{args.condition}, producer {args.producer})")
+          f"({args.experiment}/{args.condition}, producer {producer})")
 
 
 if __name__ == "__main__":

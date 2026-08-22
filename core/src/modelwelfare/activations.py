@@ -126,22 +126,16 @@ def condition_capture(store, experiment_id: str, condition_id: str):
     calibration did. Each referenced file's digest is verified before its
     tensors are trusted."""
     from modelwelfare.v1 import activation_pb2
-    uris = []
+    recorded_by_uri = {}
     for record in store.read(activation_pb2.ActivationSlice,
                              experiment_id, condition_id, "activations"):
-        if record.tensor.uri not in uris:
-            uris.append(record.tensor.uri)
+        recorded_by_uri.setdefault(record.tensor.uri, set()).add(
+            record.tensor.file_digest)
     tensors = {}
     manifest = {"layers": [], "conversations": []}
-    for uri in uris:
+    for uri, recorded in recorded_by_uri.items():
         path = Path(store.root) / uri
         digest = file_sha256(path)
-        recorded = {
-            record.tensor.file_digest
-            for record in store.read(activation_pb2.ActivationSlice,
-                                     experiment_id, condition_id,
-                                     "activations")
-            if record.tensor.uri == uri}
         if recorded != {digest}:
             raise ValueError(
                 f"{uri}: file digest {digest} does not match the recorded "

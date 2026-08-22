@@ -290,6 +290,15 @@ def test_dissociation_cell_verdicts_cover_the_registered_labels():
     assert cell(ambiguous, ambiguous)["verdict"] == "joint null"
 
 
+def test_published_row_with_zero_t_never_claims_equivalence():
+    from modelwelfare import stats
+    row = tier2.published_row(
+        {"mean": 0.0, "t": 0.0, "holm_p": 1.0, "n": 154})
+    assert row["se"] != row["se"]  # NaN: the SE is unidentifiable
+    equivalence = stats.tost_summary(row["mean"], row["se"], 0.127)
+    assert not equivalence <= 0.05  # a NaN p-value passes no threshold
+
+
 def test_margins_and_published_e1_load_from_committed_artifacts():
     margins = tier2.pinned_margins()
     assert margins["E1"] == pytest.approx(0.127)
