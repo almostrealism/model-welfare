@@ -64,7 +64,7 @@ Same-data + same-code is deterministic, so these assert near-equality
 | Job | Runner | What it re-proves | Est. runtime / cadence |
 |---|---|---|---|
 | `substrate-g1` | halo (rocm) | G1 re-run on BF16 (optionally all rungs): like-for-like ppl within 3%, teacher-forced top-1 ≥ 97% — thresholds inside the measured headroom, so drift trips before the registered gate would | ~15 min incl. sequential container cycling; weekly |
-| `capture-stable` | halo (rocm) | Re-capture the fixture battery at BF16 and re-derive directions: cosine to frozen vectors above tolerance (bitwise stability is not expected across torch/ROCm updates — that is the point of measuring it) | ~10 min; weekly, chained after `substrate-g1` |
+| `capture-stable` | halo (rocm) | The capture path end-to-end: a 24-conversation slice of the frozen distress-v3 pilot replays through the CURRENT stack and must reproduce the released capture — spans and token counts exactly, pooled vectors to cosine ≥ 0.999 (BF16 reduction order is the only licensed jitter; direction re-derivation is `directions-stable`'s job) | ~10 min; weekly |
 | `judge-stable` | studio (metal) | Re-judge the planted ladder/pole set with the pinned 30B at temp 0: ordering ρ ≥ 0.95, pole separations within band | ~10 min; weekly |
 
 Notes:
@@ -132,8 +132,10 @@ Also built (2026-08-18, third pass): the `data-20260818` release and
 `mde-stable`, `pilot-targets-stable`, weekly + dispatch (PR #9). The
 `mde-stable` recompute was extended 2026-08-21 with the control probes
 (`--probes-control`/`--control-group`, the freeze-amendment instrument).
-Remaining: `capture-stable` on the workbench, and runner
-registration/labels.
+`capture-stable` landed 2026-08-22 in `workbench-stability.yml` (the
+Tier-3 table's design, inert with the rest of that workflow until
+runners exist). Remaining: runner registration/labels — an owner task
+(the halo runner must run as `agent1`; see the workflow header).
 
 **Release policy (owner, 2026-08-18): releases are frozen snapshots.**
 Notes, tag, and assets stay mutually consistent with the repository state

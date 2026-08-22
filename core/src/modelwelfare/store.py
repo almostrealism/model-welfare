@@ -107,6 +107,12 @@ class ResultStore:
     def __init__(self, root):
         self._root = Path(root)
 
+    @property
+    def root(self) -> Path:
+        """The data root — where non-record assets (capture tensors) are
+        placed relative to."""
+        return self._root
+
     def path(self, experiment_id: str, condition_id: str, kind: str, producer: str) -> Path:
         return self._root / experiment_id / condition_id / kind / f"{producer}.pb"
 

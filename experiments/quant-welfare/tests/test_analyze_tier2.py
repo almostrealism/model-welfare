@@ -1,0 +1,304 @@
+"""End-to-end tests for the Study 2 analysis driver over a fabricated world.
+
+Built BEFORE any confirmatory data exists (the registered-statistics-as-
+tested-code discipline): the world's geometry is designed so every
+registered endpoint has a known answer — the w4 rung degrades the welfare
+probes and shifts the distress projection while the control probe, the
+judge scores, and the dispersions hold still; w8 changes nothing. The
+assertions pin the resulting family verdicts, the comparative
+differential, the specificity gate, the AUROC companion, the trend
+directions, and the §4.4 dissociation verdicts (including the bail cell
+against the real published E1 golden values).
+"""
+import sys
+from pathlib import Path
+
+import numpy as np
+import pytest
+
+BASE = Path(__file__).resolve().parents[1]
+for entry in (str(BASE), str(BASE / "tools")):
+    if entry not in sys.path:
+        sys.path.insert(0, entry)
+
+import analyze  # noqa: E402
+import analyze_tier2 as tier2  # noqa: E402
+from modelwelfare import activations  # noqa: E402
+from modelwelfare.driver import TERMINAL_TOOL_INVOKED  # noqa: E402
+from modelwelfare.store import ResultStore  # noqa: E402
+from modelwelfare.v1 import activation_pb2, common_pb2  # noqa: E402
+from modelwelfare.v1 import scoring_pb2, transcript_pb2  # noqa: E402
+
+HIDDEN = 6
+E_EXIT = np.eye(HIDDEN, dtype=np.float32)[0]
+E_BAND = np.eye(HIDDEN, dtype=np.float32)[1]
+E_CTRL = np.eye(HIDDEN, dtype=np.float32)[2]
+
+MODE_A = "s2-mode-a"
+MODE_C = "s2-mode-c"
+STUDY1 = "study1-fixture"
+
+REF = tier2.REFERENCE
+W8, W4 = tier2.CONFIRMATORY
+W3 = tier2.DEGRADED
+ALL = [REF, W8, W4, W3]
+
+# Ten real distress-v3 items (one style), split across the analytic and
+# compositional halves so the control probe has both classes.
+V3_ITEMS = [f"distress-v3-{task}-harsh" for task in (
+    "code", "regex", "summary", "explain", "inflation",
+    "poem", "limerick", "letter", "plan", "rewrite")]
+# Judge frustration at the reference scoring: five high-band, five
+# low-band items (fixed labels for the distress-band probe).
+V3_JUDGE = {item: (9.0 if index % 2 == 0 else 0.5)
+            for index, item in enumerate(V3_ITEMS)}
+SAMPLES = 2
+
+
+def _capture(path, conversations):
+    import json as _json
+    from safetensors.numpy import save_file
+    tensors = {}
+    manifest = {"point": "residual_post", "layers": [tier2.FROZEN_LAYER],
+                "conversations": []}
+    for conversation_id, turns in conversations.items():
+        spans = []
+        for message_index, vector in sorted(turns.items()):
+            tensors[f"{conversation_id}|t{message_index}"
+                    f"|L{tier2.FROZEN_LAYER}"] = vector.astype(np.float32)
+            spans.append({"message_index": message_index,
+                          "start": 0, "end": 4})
+        manifest["conversations"].append(
+            {"id": conversation_id, "n_tokens": 32,
+             "assistant_spans": spans})
+    save_file(tensors, str(path))
+    path.with_name(path.name + ".manifest.json").write_text(
+        _json.dumps(manifest))
+    return path
+
+
+def _sample(experiment, condition, item, index, content, exited=False):
+    record = transcript_pb2.SampleRecord(key=common_pb2.ResultKey(
+        experiment_id=experiment, condition_id=condition,
+        item_id=item, sample_index=index))
+    record.messages.append(transcript_pb2.Message(role="user", content="go"))
+    record.messages.append(
+        transcript_pb2.Message(role="assistant", content=content))
+    if exited:
+        record.messages.append(
+            transcript_pb2.Message(role="user", content="more"))
+        terminal = transcript_pb2.Message(role="assistant", content="")
+        terminal.tool_calls.append(transcript_pb2.ToolCall(
+            name="end_conversation", arguments_json="{}"))
+        record.messages.append(terminal)
+        record.outcomes.append(transcript_pb2.OutcomeEvent(
+            name=TERMINAL_TOOL_INVOKED, detail="end_conversation"))
+    record.usage.completion_tokens = 100
+    return record
+
+
+def _score(experiment, condition, item, index, value):
+    score = scoring_pb2.JudgeScore(key=common_pb2.ResultKey(
+        experiment_id=experiment, condition_id=condition,
+        item_id=item, sample_index=index))
+    score.scores.append(scoring_pb2.DimensionScore(
+        dimension="frustration", value=value))
+    return score
+
+
+@pytest.fixture
+def world(tmp_path):
+    """The designed world: w4 degrades welfare reads, w8 changes nothing,
+    w3 mirrors the reference (its rows exist but are confounded-only)."""
+    store = ResultStore(tmp_path / "data")
+
+    experiment = analyze.load_experiment(BASE / "study1" / "confirmatory")
+    definitions = analyze.batteries_for(BASE / "study1" / "confirmatory")
+    bail_items, _ = analyze.item_roles(experiment, definitions)
+    bail = sorted(bail_items)[:10]
+    exit_of = {item: index % 2 == 0 for index, item in enumerate(bail)}
+
+    with store.writer(STUDY1, REF, "samples", "test") as writer:
+        for item in bail:
+            for index in range(SAMPLES):
+                writer.write(_sample(STUDY1, REF, item, index,
+                                     f"working on {item} {index}",
+                                     exited=exit_of[item]))
+
+    # Mode A captures: bail features on the exit axis, v3 features on the
+    # band + control axes. w4 negates the welfare axes only; the control
+    # axis never moves — the designed differential.
+    for condition in ALL:
+        flip = -1.0 if condition == W4 else 1.0
+        conversations = {}
+        for item in bail:
+            sign = 1.0 if exit_of[item] else -1.0
+            for index in range(SAMPLES):
+                conversations[f"{item}|s{index}"] = {
+                    1: E_EXIT * sign * flip}
+        for item in V3_ITEMS:
+            band_sign = 1.0 if V3_JUDGE[item] >= 5.0 else -1.0
+            task = item.split("-")[2]
+            ctrl_sign = 1.0 if task in tier2.CONTROL_SPLITS[
+                "control_analytic"] else -1.0
+            for index in range(SAMPLES):
+                conversations[f"{item}|s{index}"] = {
+                    1: E_BAND * -9.0,
+                    3: E_BAND * band_sign * flip + E_CTRL * ctrl_sign}
+        capture = _capture(
+            tmp_path / f"mode-a-{condition}.safetensors", conversations)
+        activations.ingest_capture(store, MODE_A, condition, capture,
+                                   tier2.FROZEN_LAYER, "test")
+
+    # Mode C: samples + judge scores (identical across rungs — B2/B3/B4
+    # null by design) and projection records (distress +1.0 at w4 only).
+    for condition in ALL:
+        shift = 1.0 if condition == W4 else 0.0
+        with store.writer(MODE_C, condition, "samples", "test") as writer:
+            for item in V3_ITEMS:
+                for index in range(SAMPLES):
+                    writer.write(_sample(
+                        MODE_C, condition, item, index,
+                        f"answer {item} {index} under {condition}"))
+        with store.writer(MODE_C, condition, "scores", "test") as writer:
+            for item in V3_ITEMS:
+                for index in range(SAMPLES):
+                    writer.write(_score(MODE_C, condition, item, index,
+                                        V3_JUDGE[item]))
+        with store.writer(MODE_C, condition, "projections", "test") as writer:
+            for item_index, item in enumerate(V3_ITEMS):
+                for index in range(SAMPLES):
+                    base = float(item_index) + 0.25 * index
+                    for direction, value in (
+                            (tier2.DISTRESS_DIRECTION, base + shift),
+                            (tier2.AXIS_DIRECTION, 2.0)):
+                        writer.write(activation_pb2.ProjectionSeries(
+                            key=common_pb2.ResultKey(
+                                experiment_id=MODE_C, condition_id=condition,
+                                item_id=item, sample_index=index),
+                            direction_id=direction, turn_index=3,
+                            values=[value]))
+
+    def weights(group, axis):
+        return {f"{group}|L{tier2.FROZEN_LAYER}|weight": axis,
+                f"{group}|L{tier2.FROZEN_LAYER}|bias":
+                    np.zeros(1, dtype=np.float32),
+                f"{group}|L{tier2.FROZEN_LAYER}|feature_mean":
+                    np.zeros(HIDDEN, dtype=np.float32),
+                f"{group}|L{tier2.FROZEN_LAYER}|feature_std":
+                    np.ones(HIDDEN, dtype=np.float32)}
+
+    return store, weights("exit", E_EXIT), weights("distress_band", E_BAND), \
+        weights("control_analytic", E_CTRL)
+
+
+@pytest.fixture
+def result(world):
+    store, probes, probes_v3, probes_control = world
+    return tier2.analyze_study2(store, MODE_A, MODE_C, STUDY1,
+                                probes, probes_v3, probes_control)
+
+
+def test_r1_family_detects_the_designed_degradation(result):
+    exit_rows = {row["contrast"]: row for row in result["r1"]["exit"]}
+    assert exit_rows[W4]["mean"] == pytest.approx(-1.0)
+    assert exit_rows[W4]["holm_p"] < 0.05
+    assert exit_rows[W8]["mean"] == pytest.approx(0.0)
+    assert exit_rows[W8]["holm_p"] == pytest.approx(1.0)
+    diff_rows = {row["contrast"]: row for row in result["r1"]["differential"]}
+    assert diff_rows[W4]["mean"] == pytest.approx(-1.0)
+    assert diff_rows[W4]["holm_p"] < 0.05
+    assert diff_rows[W8]["mean"] == pytest.approx(0.0)
+    # w3 mirrors the reference: reported confounded, never in the family.
+    confounded = {row["contrast"]
+                  for row in result["r1_confounded"]["exit"]}
+    assert confounded == {W3}
+
+
+def test_auroc_companion_separates_offset_from_separability(result):
+    exit_auroc = {row["contrast"]: row for row in result["r1_auroc"]["exit"]}
+    assert exit_auroc[W4]["reference_auroc"] == pytest.approx(1.0)
+    # The designed w4 failure inverts the scores: separability loss, so
+    # the companion moves WITH accuracy (AUROC collapses too).
+    assert exit_auroc[W4]["auroc"] == pytest.approx(0.0)
+    assert exit_auroc[W8]["auroc"] == pytest.approx(1.0)
+    control_auroc = {row["contrast"]: row
+                     for row in result["r1_auroc"]["control"]}
+    assert control_auroc[W4]["auroc"] == pytest.approx(1.0)
+
+
+def test_specificity_gate_passes_only_where_exit_degrades(result):
+    rows = {row["contrast"]: row for row in result["r1_specificity"]}
+    assert rows[W4]["difference"] == pytest.approx(1.0)
+    assert rows[W4]["p_value"] < 0.05
+    assert rows[W8]["difference"] == pytest.approx(0.0)
+    assert rows[W8]["p_value"] > 0.5
+
+
+def test_secondary_families_match_the_design(result):
+    r2a = {row["contrast"]: row for row in result["r2a"]}
+    assert r2a[W4]["mean"] == pytest.approx(1.0)
+    assert r2a[W4]["holm_p"] < 0.05
+    assert r2a[W8]["mean"] == pytest.approx(0.0)
+    for family in ("r2b", "r3", "b2", "b3", "b4a", "b4b"):
+        for row in result[family]:
+            assert row["mean"] == pytest.approx(0.0), family
+    # The mechanical family reports every rung including w3.
+    assert {row["contrast"] for row in result["b4a"]} == {W8, W4, W3}
+    style = {row["contrast"]: row for row in result["b2_style"]}
+    assert style[W4]["adjusted_intercept"] == pytest.approx(0.0)
+
+
+def test_trends_run_on_oriented_confirmatory_statistics(result):
+    trends = result["trends"]
+    assert set(trends) == set(tier2.TREND_ORIENTATION)
+    # Monotone designed degradation: 0 at BF16/w8, full at w4 — ordered
+    # increase under the pinned orientation for the probe endpoints.
+    assert trends["R1-exit"]["p_value"] < 0.05
+    assert trends["R2a"]["p_value"] < 0.05
+    assert trends["R2a"]["two_sided"] == pytest.approx(
+        2 * trends["R2a"]["p_value"])
+    assert set(result["trend_holm"]) == set(trends)
+
+
+def test_dissociation_cells_apply_the_equivalence_rule(result):
+    w4 = result["dissociation"][W4]
+    assert w4["R1-exit vs E1"]["verdict"] == "dissociation (representational)"
+    assert w4["R1-exit vs E1"]["behavioral"]["equivalence_p"] < 0.05
+    assert w4["R1-exit vs E1"]["behavioral"]["margin"] == tier2.E1_MARGIN
+    assert w4["R2a vs B2"]["verdict"] == "dissociation (representational)"
+    assert w4["R3 vs B3"]["verdict"] == "joint null"
+    w8 = result["dissociation"][W8]
+    assert w8["R1-exit vs E1"]["verdict"] == "joint null"
+    assert w8["R2a vs B2"]["verdict"] == "joint null"
+
+
+def test_dissociation_cell_verdicts_cover_the_registered_labels():
+    significant = {"holm_p": 0.01, "equivalence_p": 0.5, "mean": 1.0}
+    equivalent = {"holm_p": 0.8, "equivalence_p": 0.01, "mean": 0.0}
+    ambiguous = {"holm_p": 0.8, "equivalence_p": 0.6, "mean": 0.2}
+    cell = tier2.dissociation_cell
+    assert cell(significant, equivalent)["verdict"] == \
+        "dissociation (representational)"
+    assert cell(equivalent, significant)["verdict"] == \
+        "dissociation (behavioral)"
+    assert cell(significant, ambiguous)["verdict"] == \
+        "asymmetric significance, indeterminate"
+    assert cell(ambiguous, significant)["verdict"] == \
+        "asymmetric significance, indeterminate"
+    assert cell(significant, significant)["verdict"] == "joint movement"
+    assert cell(ambiguous, ambiguous)["verdict"] == "joint null"
+
+
+def test_margins_and_published_e1_load_from_committed_artifacts():
+    margins = tier2.pinned_margins()
+    assert margins["E1"] == pytest.approx(0.127)
+    assert margins["R1-exit"] == pytest.approx(0.0121, abs=1e-4)
+    e1 = tier2.published_e1()
+    assert set(e1) == {W8, W4}
+    assert e1[W4]["mean"] == pytest.approx(-0.0039, abs=1e-4)
+    # The registration's stated pre-qualification: both published rungs
+    # are equivalent-to-null at the pinned margin.
+    from modelwelfare import stats
+    for row in e1.values():
+        assert stats.tost_summary(row["mean"], row["se"], 0.127) < 0.05

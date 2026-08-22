@@ -91,6 +91,21 @@ def paired_t_test(deltas) -> dict:
     return {"t": float(t), "p_value": float(p_value), "n": n}
 
 
+def tost_summary(mean: float, se: float, margin: float) -> float:
+    """Equivalence p-value from summary statistics (mean and standard
+    error): the larger of the two one-sided p-values against the margins
+    -margin/+margin. The summary form serves pair members whose data is
+    published rather than held (Study 2 §4.4's bail-side E1);
+    :func:`tost_paired` derives the same read from raw deltas."""
+    if margin <= 0:
+        raise ValueError("equivalence margin must be positive")
+    if se == 0.0:
+        return 0.0 if abs(mean) < margin else 1.0
+    p_lower = 1.0 - _normal_cdf((mean + margin) / se)
+    p_upper = 1.0 - _normal_cdf((margin - mean) / se)
+    return float(max(p_lower, p_upper))
+
+
 def tost_paired(deltas, margin: float) -> dict:
     """Equivalence read for a paired item-level contrast (two one-sided
     tests against the pre-registered margins -margin/+margin).
@@ -112,12 +127,34 @@ def tost_paired(deltas, margin: float) -> dict:
         return {"mean": float("nan"), "p_value": float("nan"), "n": n}
     mean = float(deltas.mean())
     se = float(deltas.std(ddof=1)) / math.sqrt(n)
-    if se == 0.0:
-        return {"mean": mean,
-                "p_value": 0.0 if abs(mean) < margin else 1.0, "n": n}
-    p_lower = 1.0 - _normal_cdf((mean + margin) / se)
-    p_upper = 1.0 - _normal_cdf((margin - mean) / se)
-    return {"mean": mean, "p_value": float(max(p_lower, p_upper)), "n": n}
+    return {"mean": mean, "p_value": tost_summary(mean, se, margin), "n": n}
+
+
+def two_sample_permutation_test(a, b, n_perm: int = 10000, seed: int = 0) -> dict:
+    """One-sided two-sample permutation test on the difference of means
+    (alternative: mean(a) > mean(b)), permuting group assignment.
+
+    The Study 2 §4.1 exit-side specificity gate: the exit probe's
+    item-level accuracy degradations against the control family's, across
+    batteries where item pairing does not exist. NaNs are dropped."""
+    a = np.asarray(a, float)
+    b = np.asarray(b, float)
+    a = a[~np.isnan(a)]
+    b = b[~np.isnan(b)]
+    if len(a) == 0 or len(b) == 0:
+        return {"difference": float("nan"), "p_value": float("nan"),
+                "n_a": len(a), "n_b": len(b)}
+    observed = float(a.mean() - b.mean())
+    pooled = np.concatenate([a, b])
+    rng = np.random.default_rng(seed)
+    extreme = 0
+    for _ in range(n_perm):
+        rng.shuffle(pooled)
+        if pooled[:len(a)].mean() - pooled[len(a):].mean() >= observed - 1e-12:
+            extreme += 1
+    p_value = (extreme + 1) / (n_perm + 1)
+    return {"difference": observed, "p_value": float(p_value),
+            "n_a": int(len(a)), "n_b": int(len(b))}
 
 
 def holm(pvalues) -> list:

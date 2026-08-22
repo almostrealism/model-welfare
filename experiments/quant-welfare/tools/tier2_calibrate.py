@@ -65,34 +65,23 @@ for path in (str(REPO / "core/src"), str(BASE)):
     if path not in sys.path:
         sys.path.insert(0, path)
 
-from google.protobuf import text_format  # noqa: E402
 from safetensors.numpy import load_file  # noqa: E402
 
 import analyze  # noqa: E402
+from analyze_tier2 import CONTROL_SPLITS, battery_tasks  # noqa: E402
 from modelwelfare import replay  # noqa: E402
 from modelwelfare import directions as dirs  # noqa: E402
+from modelwelfare.activations import load_capture  # noqa: E402
+from modelwelfare.replay import split_conversation_id  # noqa: E402
 from modelwelfare.bundle import BundleStore  # noqa: E402
 from modelwelfare.stats import auroc, spearman  # noqa: E402
 from modelwelfare.store import ResultStore  # noqa: E402
-from modelwelfare.v1 import battery_pb2, scoring_pb2, transcript_pb2  # noqa: E402
+from modelwelfare.v1 import scoring_pb2, transcript_pb2  # noqa: E402
 
 EXPERIMENT_DIR = BASE / "study1" / "confirmatory"
 DEFAULT_VECTORS = BASE / "study2" / "calibration" / "directions-bf16.safetensors"
 DISTRESS_DIRECTION = "distress-contrast"
 REFUSAL_DIRECTION = "refusal-contrast"
-
-# Pre-committed control-probe label splits over the distress-v3 `task` tag
-# (REGISTRATION §3.5 control family): binary welfare-irrelevant task-content
-# labels, each perfectly crossed with the six feedback styles because every
-# task appears once per style. The confirmatory control is the candidate
-# whose held-out AUROC at the frozen layer is nearest the two welfare
-# probes' frozen mean, subject to the same G2 probe bar (>= 0.75) the
-# welfare probes faced; the others are reported descriptively.
-CONTROL_SPLITS = {
-    "control_analytic": {"code", "explain", "inflation", "regex", "summary"},
-    "control_code": {"code", "regex"},
-    "control_verse": {"limerick", "poem"},
-}
 
 
 def open_store(args):
@@ -121,18 +110,6 @@ def write_plan(records, path, tools_by_item=None):
         json.dumps({"conversations": conversations}, indent=1) + "\n")
     print(f"wrote {path}: {len(conversations)} conversations"
           + (f" ({len(skipped)} skipped: no assistant turn)" if skipped else ""))
-
-
-def split_conversation_id(conversation_id):
-    item_id, sample = conversation_id.rsplit("|s", 1)
-    return item_id, int(sample)
-
-
-def load_capture(path):
-    """(tensors, manifest) for a capture backend's output pair."""
-    with open(path + ".manifest.json") as handle:
-        manifest = json.load(handle)
-    return load_file(path), manifest
 
 
 def monitoring(args):
@@ -324,14 +301,6 @@ def v3_probe_data(args):
     Path(args.probe_data_v3 + ".meta.json").write_text(
         json.dumps(meta, indent=1) + "\n")
     print(f"wrote {args.probe_data_v3} (+.meta.json)")
-
-
-def battery_tasks():
-    """item_id -> task tag over the frozen distress-v3 battery."""
-    definition = battery_pb2.BatteryDefinition()
-    text_format.Parse(
-        (BASE / "batteries" / "distress-v3.textproto").read_text(), definition)
-    return {item.id: item.tags["task"] for item in definition.items}
 
 
 def control_probe_data(args):
