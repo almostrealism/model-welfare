@@ -1,7 +1,9 @@
 {
  "frozen_at": "2026-08-18",
+ "amended_at": "2026-08-21",
+ "control_group": "control_analytic",
  "layer": 18,
- "mode_d_seeds": {
+ "mode_c_seeds": {
   "qwen3-4b-bf16": 13000,
   "qwen3-4b-rtn-w8": 13100,
   "qwen3-4b-rtn-w4": 13200,
@@ -11,6 +13,7 @@
   "batteries/distress-v3.textproto": "78e68c9e2e9afe976d3d9f36719c7d3ecdc04c5ddc7e6de12c056e0fe8922dfe",
   "study2/calibration/directions-bf16.safetensors": "414d7d95d595d96453921255bb1772c44f64ad3d1d112256470e232b415f1fec",
   "study2/calibration/probes-bf16.safetensors": "f2df97430d33b34b90006612f79deb241c96bb5d79aac0c3ee4a367ff68d833b",
+  "study2/calibration/probes-control-bf16.safetensors": "33358f4c29535445b2cd7ac891566cfbc3cedffd0963e258cd9ae9407cff14cb",
   "study2/calibration/probes-v3-bf16.safetensors": "1afb1acdb8f93dc8ca8aee8b72390fcbbeb7fef83702ea1627f9b4af8d851b87",
   "study2/directions/distress-contrast.textproto": "975c0fc109b7afbf061c07692ccdf5591b6f1f9929c9a330c4f39768f42295e5",
   "study2/directions/assistant-axis-contrast.textproto": "2cbf284ef335098bb112a10c298d9578dbaec9febe866c8974cd8203ae1fbf0a",

@@ -1,6 +1,7 @@
 {
  "B2": 0.3371615692592975,
  "B3 (asymptotic)": 0.2513053960880976,
+ "R1 distress differential (conservative)": 0.05001299044949726,
  "R1 distress probe": 0.04928637085207032,
  "R1 exit probe": 0.012051629520678179,
  "R2a": 0.19356778218153015,

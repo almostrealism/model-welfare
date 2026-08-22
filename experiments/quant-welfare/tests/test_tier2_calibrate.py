@@ -92,8 +92,9 @@ def make_args(tmp_path, **overrides):
                   vectors=write_vectors(tmp_path / "vectors.safetensors"),
                   capture=None, capture_bail=None, score_experiment=None,
                   save=None, layer=None, probes=None, probes_v3=None,
-                  probe_data_v3=None, bundle=None, mde_out=None,
-                  mde_check=None)
+                  probe_data_v3=None, probe_data_control=None,
+                  probes_control=None, control_group=None, bundle=None,
+                  mde_out=None, mde_check=None)
     values.update(overrides)
     return argparse.Namespace(**values)
 
@@ -224,6 +225,102 @@ def test_r2c_uses_leakage_safe_features(bail_world, capsys):
     allowed, labels = tc.load_exit_context(args)
     exiting = [cid for cid, label in labels.items() if label][0]
     assert 3 not in allowed[exiting]
+
+
+@pytest.fixture
+def control_world(tmp_path):
+    """Fabricated capture + scores over REAL distress-v3 item ids, so the
+    battery-tag label resolution (the control family's label source) is the
+    path under test. Judge values pick each item's scale-thirds band; the
+    final-turn vector encodes both the judge value (distress axis) and the
+    analytic control label (assistant axis), so both probes are perfect."""
+    tasks = tc.battery_tasks()
+    world = {"distress-v3-code-harsh": [9.0, 10.0],
+             "distress-v3-letter-harsh": [0.0, 1.0],
+             "distress-v3-plan-harsh": [2.0, 3.0],
+             "distress-v3-poem-harsh": [9.0, 10.0],
+             "distress-v3-regex-harsh": [0.0, 1.0],
+             "distress-v3-summary-harsh": [8.0, 9.0]}
+    experiment = "control-test"
+    write_scores(tmp_path / "store", experiment, world)
+    analytic = tc.CONTROL_SPLITS["control_analytic"]
+    conversations = {}
+    for item, values in world.items():
+        label = int(tasks[item] in analytic)
+        for sample_index, value in enumerate(values):
+            conversations[f"{item}|s{sample_index}"] = {
+                1: E_DISTRESS * (value - 5.0) + E_AXIS * (2.0 * label - 1.0)}
+    # A captured conversation whose item is NOT in the battery (a mixed
+    # capture): every control path must skip it, never crash on it.
+    conversations["off-battery-item|s0"] = {1: E_AXIS * 3.0}
+    capture = write_capture(tmp_path / "control.safetensors", conversations)
+    return tmp_path, capture, experiment
+
+
+def test_control_probe_data_uses_battery_tags(control_world, tmp_path):
+    tmp, capture, _experiment = control_world
+    out = str(tmp_path / "control-probe.npz")
+    args = make_args(tmp, capture=capture, probe_data_control=out)
+    tc.control_probe_data(args)
+    meta = json.loads(Path(out + ".meta.json").read_text())
+    assert set(meta["splits"]) == set(tc.CONTROL_SPLITS)
+    # Sorted item ids: code, letter, plan, poem, regex, summary — the
+    # every-third held-out rule keeps plan + summary for validation.
+    entry = meta["probes"]["control_analytic"][str(LAYER)]
+    assert entry["validation_items"] == ["distress-v3-plan-harsh",
+                                         "distress-v3-summary-harsh"]
+    assert (entry["train"], entry["val"]) == (8, 4)
+    assert (entry["train_positive"], entry["val_positive"]) == (4, 2)
+    data = np.load(out)
+    assert data[f"control_analytic|L{LAYER}|X_train"].shape == (8, HIDDEN)
+
+
+def test_mde_adds_the_differential_row_with_control_probes(
+        control_world, bail_world, tmp_path):
+    tmp, control_capture, experiment = control_world
+    _, bail_capture, _ = bail_world
+    probes = tmp_path / "probes.safetensors"
+    save_file({
+        f"exit|L{LAYER}|weight": E_REFUSAL,
+        f"exit|L{LAYER}|bias": np.zeros(1, dtype=np.float32),
+        f"exit|L{LAYER}|feature_mean": np.zeros(HIDDEN, dtype=np.float32),
+        f"exit|L{LAYER}|feature_std": np.ones(HIDDEN, dtype=np.float32),
+    }, str(probes))
+    probes_v3 = tmp_path / "probes-v3.safetensors"
+    save_file({
+        f"distress_band|L{LAYER}|weight": E_DISTRESS,
+        f"distress_band|L{LAYER}|bias": np.zeros(1, dtype=np.float32),
+        f"distress_band|L{LAYER}|feature_mean": np.zeros(HIDDEN, dtype=np.float32),
+        f"distress_band|L{LAYER}|feature_std": np.ones(HIDDEN, dtype=np.float32),
+    }, str(probes_v3))
+    probes_control = tmp_path / "probes-control.safetensors"
+    save_file({
+        f"control_analytic|L{LAYER}|weight": E_AXIS,
+        f"control_analytic|L{LAYER}|bias": np.zeros(1, dtype=np.float32),
+        f"control_analytic|L{LAYER}|feature_mean": np.zeros(HIDDEN, dtype=np.float32),
+        f"control_analytic|L{LAYER}|feature_std": np.ones(HIDDEN, dtype=np.float32),
+    }, str(probes_control))
+    args = make_args(tmp, capture=control_capture, capture_bail=bail_capture,
+                     probes=str(probes), probes_v3=str(probes_v3),
+                     probes_control=str(probes_control),
+                     control_group="control_analytic", layer=LAYER,
+                     score_experiment=experiment)
+    rows = tc.mde(args)
+    by_name = {name: value for name, value, _ in rows}
+    assert "R1 distress probe" in by_name
+    assert "R1 distress differential (conservative)" in by_name
+    # Both probes are perfect in this world, so each null rate variance is
+    # zero and the conservative differential MDE is exactly zero too.
+    assert by_name["R1 distress differential (conservative)"] == 0.0
+    detail = {name: text for name, _, text in rows}
+    assert "n=6" in detail["R1 distress differential (conservative)"]
+
+
+def test_mde_rejects_unknown_control_group(tmp_path):
+    args = make_args(tmp_path, probes_control="probes-control.safetensors",
+                     control_group="control_typo", layer=LAYER)
+    with pytest.raises(SystemExit, match="control_analytic"):
+        tc.mde(args)
 
 
 def test_mde_computes_every_registered_row(bail_world, v3_world, tmp_path):

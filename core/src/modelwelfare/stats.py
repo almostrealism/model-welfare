@@ -91,6 +91,35 @@ def paired_t_test(deltas) -> dict:
     return {"t": float(t), "p_value": float(p_value), "n": n}
 
 
+def tost_paired(deltas, margin: float) -> dict:
+    """Equivalence read for a paired item-level contrast (two one-sided
+    tests against the pre-registered margins -margin/+margin).
+
+    The equivalence p-value is the larger of the two one-sided p-values;
+    equivalence at level alpha is ``p_value <= alpha``, the same claim as
+    the (1 - 2*alpha) CI lying inside (-margin, +margin). This is the
+    Study 2 §4.4 dissociation rule's second condition: the pair's other
+    member is *equivalent-to-null* only by this test, never by a failed
+    significance test alone — absence of significance is not evidence of
+    absence. Normal approximation to Student's t, consistent with
+    :func:`paired_t_test` and negligible at the study's item counts."""
+    if margin <= 0:
+        raise ValueError("equivalence margin must be positive")
+    deltas = np.asarray(deltas, float)
+    deltas = deltas[~np.isnan(deltas)]
+    n = len(deltas)
+    if n < 2:
+        return {"mean": float("nan"), "p_value": float("nan"), "n": n}
+    mean = float(deltas.mean())
+    se = float(deltas.std(ddof=1)) / math.sqrt(n)
+    if se == 0.0:
+        return {"mean": mean,
+                "p_value": 0.0 if abs(mean) < margin else 1.0, "n": n}
+    p_lower = 1.0 - _normal_cdf((mean + margin) / se)
+    p_upper = 1.0 - _normal_cdf((margin - mean) / se)
+    return {"mean": mean, "p_value": float(max(p_lower, p_upper)), "n": n}
+
+
 def holm(pvalues) -> list:
     """Holm–Bonferroni step-down adjusted p-values, returned in input order.
 

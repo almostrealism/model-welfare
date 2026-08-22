@@ -2,7 +2,7 @@
 """The machine-readable freeze manifest (Study 2 calibration close).
 
 `FREEZE.json` records every frozen instrument object's SHA-256 alongside
-the frozen layer and Mode D seed blocks — the same facts the 2026-08-18
+the frozen layer and Mode C seed blocks — the same facts the 2026-08-18
 journal entry pins in prose, as data CI can check on every pull request.
 
     python3 tools/freeze_manifest.py --check     # default; nonzero on drift
@@ -27,6 +27,7 @@ FROZEN_OBJECTS = [
     "batteries/distress-v3.textproto",
     "study2/calibration/directions-bf16.safetensors",
     "study2/calibration/probes-bf16.safetensors",
+    "study2/calibration/probes-control-bf16.safetensors",
     "study2/calibration/probes-v3-bf16.safetensors",
     "study2/directions/distress-contrast.textproto",
     "study2/directions/assistant-axis-contrast.textproto",
@@ -36,8 +37,13 @@ FROZEN_OBJECTS = [
 
 METADATA = {
     "frozen_at": "2026-08-18",
+    # Pre-publication amendment (2026-08-21 journal entry): the R1 control
+    # family — control probes trained on the same stored BF16 residuals,
+    # control_analytic selected as the confirmatory comparator.
+    "amended_at": "2026-08-21",
+    "control_group": "control_analytic",
     "layer": 18,
-    "mode_d_seeds": {"qwen3-4b-bf16": 13000, "qwen3-4b-rtn-w8": 13100,
+    "mode_c_seeds": {"qwen3-4b-bf16": 13000, "qwen3-4b-rtn-w8": 13100,
                      "qwen3-4b-rtn-w4": 13200, "qwen3-4b-rtn-w3": 13300},
 }
 

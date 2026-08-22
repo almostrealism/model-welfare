@@ -26,6 +26,9 @@ JOURNAL_PINNED = {
         "f2df97430d33b34b90006612f79deb241c96bb5d79aac0c3ee4a367ff68d833b",
     "study2/calibration/probes-v3-bf16.safetensors":
         "1afb1acdb8f93dc8ca8aee8b72390fcbbeb7fef83702ea1627f9b4af8d851b87",
+    # 2026-08-21 pre-publication amendment: the R1 control family.
+    "study2/calibration/probes-control-bf16.safetensors":
+        "33358f4c29535445b2cd7ac891566cfbc3cedffd0963e258cd9ae9407cff14cb",
 }
 
 
@@ -46,8 +49,10 @@ def test_manifest_matches_the_journal_pinned_digests():
 def test_frozen_layer_and_seed_blocks():
     data = manifest()
     assert data["frozen_at"] == "2026-08-18"
+    assert data["amended_at"] == "2026-08-21"
+    assert data["control_group"] == "control_analytic"
     assert data["layer"] == 18
-    assert data["mode_d_seeds"] == {
+    assert data["mode_c_seeds"] == {
         "qwen3-4b-bf16": 13000, "qwen3-4b-rtn-w8": 13100,
         "qwen3-4b-rtn-w4": 13200, "qwen3-4b-rtn-w3": 13300}
     assert set(data["objects"]) == set(freeze_manifest.FROZEN_OBJECTS)
