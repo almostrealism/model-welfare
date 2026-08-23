@@ -4,6 +4,68 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-23 — Mode C collection COMPLETE: 2,400/2,400 conversations, all four rungs generated and judged
+
+The fresh distress arm (`quant-welfare-s2-modec-1`, REGISTRATION §3.3)
+collected exactly as registered, with zero deviations: distress-v3 at 10
+samples/item on each rung, generation on the Study 1 vLLM stack (halo,
+one rung at a time per the measured no-APU-parallelism rule), the pinned
+30B judge on the studio, seed blocks 13000/13100/13200/13300 as frozen.
+Generation and judging pipelined across the two hosts (halo generates
+rung N+1 while the studio judges rung N); each surviving rung took
+~2.5–3 h to generate, the capability-degraded w3 ~4.5 h (degenerate
+outputs run to the token budget).
+
+Facts pinned here for the analysis stage: the BF16 arm's judge labels
+fix the distress-side R1 evaluation set at **499/600 tercile-labeled
+samples over all 60 items** (the frozen battery's floor item recovered
+labels at 10 samples/item, so the confirmatory R1-distress item count is
+60, vs 59 in the pilot-variance MDE — more items than powered for, in
+the conservative direction). The validity screen reads ≤ 0.3%
+invalid-sample rate on BF16/w8/w4 and **63.3% on w3** — the inherited
+capability gate's judgment confirmed on fresh data; w3 remains
+capability-confounded and enters only the mechanical family. Zero
+verbatim re-offers anywhere. Judge-score endpoint values are deliberately
+not recorded here: B2/B3/B4 run once, through the registered driver,
+when all modes are in.
+
+Next: the replay captures (Modes A/B and Mode C own-replay) at L18 on
+halo — the launch tooling follows the Study 1 pattern (resumable,
+committed, preflight-gated).
+
+## 2026-08-22 — Cross-machine capture agreement measured; confirmatory capture stays halo-only
+
+The two-host question answered by measurement, before any second-host
+record could exist. Setup: `mbp-m4max` (128 GB, torch 2.13 on MPS,
+registered in `services/fleet.hosts.json` as `m4max`), all four artifacts
+synced and **verified against the pinned condition digests**, and
+`capture.py` given an MPS device tier. The same 24-conversation
+distress-v3 pilot slice the `capture-stable` CI job uses was captured on
+the M4 Max at L18 and compared against the released halo-produced
+calibration capture (168 pooled turns):
+
+- **Spans and token counts: exact on every conversation** — the
+  tokenizer/template/character-span path is bit-identical across hosts.
+- **Pooled vectors: outside the same-host band.** Cosine mean 0.9996 but
+  min 0.9729; 6/168 turns below the 0.999 capture-stable band; worst
+  relative L2 difference 26%. The tail is localized: long (460–514
+  token) code-task assistant turns — bf16 accumulation divergence
+  amplifying over long spans, MPS vs ROCm.
+
+**Decision: the M4 Max is NOT admitted for confirmatory capture.** The
+registered §3.2 substrate (torch on halo) stands unamended; halo carries
+every confirmatory capture. This run stands as the cross-framework/
+cross-machine agreement artifact the tooling goals called for, honestly
+reported: two machines, two accelerator stacks, one tokenization — and a
+measured numeric floor that same-host stability margins do not cover.
+Noted for the future: if wall-clock ever forces a two-host capture split,
+the statistically sound shape is a split **by item** (each host captures
+its item subset at every rung, so host numerics cancel in the per-item
+paired deltas), never by condition — and it would require a dated
+amendment plus a host×rung interaction check first. The M4 Max remains
+useful now for ingest and analysis offload (both numpy-only and
+digest-verified).
+
 ## 2026-08-22 — Study 2 registration PUBLISHED; confirmatory collection may begin
 
 Post #3 is live:
