@@ -152,11 +152,22 @@ def main():
     tensors = {}
     manifest = {"model": args.model, "point": args.point, "layers": layers,
                 "conversations": []}
+    manifest["rejected"] = []
     with ResidualCapture(model, layers, args.point) as capture:
         for conversation in plan["conversations"]:
-            n_tokens, spans, pooled = pooled_turns(
-                model, tokenizer, capture, conversation["messages"], device,
-                tools=conversation.get("tools"))
+            try:
+                n_tokens, spans, pooled = pooled_turns(
+                    model, tokenizer, capture, conversation["messages"], device,
+                    tools=conversation.get("tools"))
+            except ValueError as error:
+                # Rejected loudly, but per conversation: one unstable
+                # rendering (plausible in capability-degraded transcripts)
+                # must not kill a multi-thousand-conversation batch. The
+                # manifest records every rejection for the analysis side.
+                manifest["rejected"].append(
+                    {"id": conversation["id"], "reason": str(error)})
+                print(f"REJECTED {conversation['id']}: {error}")
+                continue
             for (index, layer), vector in pooled.items():
                 tensors[f"{conversation['id']}|t{index}|L{layer}"] = (
                     vector.astype(np.float32))
@@ -172,7 +183,9 @@ def main():
     save_file(tensors, args.out)
     with open(args.out + ".manifest.json", "w") as handle:
         json.dump(manifest, handle, indent=1)
-    print(f"wrote {len(tensors)} pooled vectors to {args.out}")
+    print(f"wrote {len(tensors)} pooled vectors to {args.out}"
+          + (f" ({len(manifest['rejected'])} conversation(s) rejected)"
+             if manifest["rejected"] else ""))
 
 
 if __name__ == "__main__":

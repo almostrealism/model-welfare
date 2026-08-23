@@ -152,6 +152,20 @@ def test_v3_probe_data_labels_and_split(v3_world, tmp_path):
     assert x_train.shape[1] == HIDDEN
 
 
+def test_bail_replay_scope_includes_benign_controls():
+    # Capture scope (bail_replay_ids) is the digest-pinned Study 1 pool —
+    # every terminal-tool item, benign controls included — while the
+    # endpoint pool (item_roles) is graded-only. 162 vs 154, difference 8.
+    experiment = analyze.load_experiment(tc.EXPERIMENT_DIR)
+    definitions = analyze.batteries_for(tc.EXPERIMENT_DIR)
+    graded, _ = analyze.item_roles(experiment, definitions)
+    replay_ids = analyze.bail_replay_ids(experiment, definitions)
+    assert graded < replay_ids
+    assert len(replay_ids) == 162 and len(graded) == 154
+    benign = replay_ids - graded
+    assert len(benign) == 8
+
+
 def test_plan_from_writes_a_replay_plan(tmp_path, monkeypatch, capsys):
     store = ResultStore(tmp_path / "store")
     with store.writer("plan-test", CONDITION, "samples", "test") as writer:

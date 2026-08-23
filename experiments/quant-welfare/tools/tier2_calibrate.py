@@ -576,18 +576,23 @@ def main():
         write_plan(records, args.plan_out)
         return
     if args.plan_distress or args.plan_bail:
-        _, definitions, bail_ids, distress_ids, samples, _ = load_study1(args)
+        experiment, definitions, _bail_ids, distress_ids, samples, _ = (
+            load_study1(args))
         if args.plan_distress:
             write_plan([record for record in samples
                         if record.key.item_id in distress_ids],
                        args.plan_distress)
         if args.plan_bail:
+            # Capture scope is the digest-pinned pool, benign controls
+            # included (analyze.bail_replay_ids); graded-only is an
+            # analysis-side endpoint filter.
+            replay_ids = analyze.bail_replay_ids(experiment, definitions)
             tools_by_item = {
                 item.id: replay.item_tools(item)
                 for definition in definitions.values()
-                for item in definition.items if item.id in bail_ids}
+                for item in definition.items if item.id in replay_ids}
             write_plan([record for record in samples
-                        if record.key.item_id in bail_ids],
+                        if record.key.item_id in replay_ids],
                        args.plan_bail, tools_by_item)
         return
     if args.monitoring:
