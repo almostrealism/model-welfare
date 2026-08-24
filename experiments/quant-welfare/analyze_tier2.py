@@ -249,6 +249,25 @@ def specificity_rows(exit_map, control_map, contrasts) -> list:
     return rows
 
 
+def fixed_input_projections(store, mode_a: str, direction_id: str) -> list:
+    """DESCRIPTIVE, unregistered: projections of the Mode A v3-arm replays
+    — identical BF16-generated text at every rung — onto one frozen
+    direction: the pure-representation analog of R2a/R2b. The registered
+    endpoints read each rung's OWN Mode C generations, so their shifts
+    blend a text-mediated component with an input-independent one; this
+    read isolates the input-independent component (no sampling noise, no
+    style pathway — the text is frozen). Mode A also carries the Study 1
+    transcripts, so conversations are filtered to the distress-v3 items."""
+    v3_items = set(battery_tasks())
+    projections = projection_samples(store, mode_a, LADDER + [DEGRADED],
+                                     direction_id)
+    item_means = {key: sum(values) / len(values)
+                  for key, values in projections.items()
+                  if key[1] in v3_items}
+    return analyze.contrast_rows(analyze.by_condition(item_means),
+                                 REFERENCE, CONFIRMATORY + [DEGRADED])
+
+
 def flatten(by_condition: dict) -> dict:
     """{condition: {item: value}} -> {(condition, item): value}, the shape
     Page's L consumes."""
@@ -466,6 +485,15 @@ def analyze_study2(store, mode_a: str, mode_c: str,
             REFERENCE, surviving + [DEGRADED])
     else:
         result["r2c_descriptive"] = []
+
+    # Descriptive: the fixed-input (Mode A v3-arm) projection reads — the
+    # input-independent component of the R2a/R2b constructs.
+    result["fixed_input_descriptive"] = {
+        "distress": fixed_input_projections(store, mode_a,
+                                            DISTRESS_DIRECTION),
+        "assistant_axis": fixed_input_projections(store, mode_a,
+                                                  AXIS_DIRECTION),
+    }
 
     # §4.2 trends on the confirmatory statistics.
     trends, trend_holm = trend_family({
