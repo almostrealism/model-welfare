@@ -4,6 +4,36 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-24 — Post-analysis descriptive additions, and the §3.4 token retention executed
+
+Three additions after the registered analysis run, each leaving every
+registered value in the golden byte-identical (verified by diff at each
+regeneration):
+
+1. **Fixed-input decomposition (descriptive, owner-requested).** The
+   Mode A v3-arm replays — identical BF16 text at every rung — projected
+   onto the frozen distress and assistant-axis directions, isolating the
+   input-independent component of the w4 shift (`fixed_input_descriptive`
+   in the golden): distress +0.138 at w4 (reproduced at +0.139 by the
+   §4.5 distress-v2 bridge on a disjoint battery), assistant-axis −0.254,
+   and a hyper-consistent −0.0125 at w8 on frozen text.
+2. **R2c descriptive corrected to its registered definition.** The first
+   driver version read final-turn projections over all Mode B items; R2c
+   is registered over bail trajectories with leakage-safe features.
+   Corrected values: null at the surviving rungs (−0.001 / +0.008),
+   −3.42 at capability-confounded w3.
+3. **The §3.4 token-level retention, initially missed, executed before
+   release.** The capture stage stored pooled vectors only; §3.4
+   registers per-token series "retained for a fixed stratified subsample
+   (~5% of conversations)". The consistency sweep caught the gap and the
+   retention pass ran on the registered substrate
+   (`study2/launch_token_capture.sh`): subsample rule fixed as **sample 0
+   of every second item in sorted item order** — deterministic,
+   stratified across the item space, exactly 5% of every plan — with
+   `capture.py --token-series` saving the un-pooled span arrays. The
+   tensors ship as sha-listed release assets; the drift analyses that
+   read them remain exploratory and unstarted.
+
 ## 2026-08-24 — Study 2 registered analysis executed once; results committed
 
 Replay capture completed overnight (24 captures at L18, zero

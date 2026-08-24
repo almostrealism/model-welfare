@@ -4,6 +4,15 @@ Working items between the brief (scientific frame, stable) and the READMEs
 (how things work today). Items land here when identified, get checked off
 when done, and grow notes as decisions accumulate. Date every status change.
 
+## Program record-keeping
+
+- [x] **Journal series organization** *(decided 2026-08-24)* —
+  `docs/JOURNAL.md` closes at Study 2 close (final entry will point
+  forward); from Study 3 onward, per-study files plus a program-level
+  file under `docs/journal/` (scheme, placement rule, and unchanged
+  append-only conventions in `docs/journal/README.md`). No retroactive
+  split: published citations pin the existing file's dated entries.
+
 ## Tier-2 instrument follow-ons
 
 - [ ] **Outlier-channel overlap test for the frozen reads** *(opened

@@ -474,15 +474,42 @@ def analyze_study2(store, mode_a: str, mode_c: str,
                                                [DEGRADED]),
     }
 
-    # Descriptive: the refusal direction's projections over the Mode B bail
-    # trajectories (R2c, not promoted at the freeze).
+    # Descriptive: R2c as registered — the refusal-direction projection
+    # over the Mode B BAIL trajectories with the leakage-safe features
+    # (mean of per-turn pooled projections over each rung's own allowed
+    # turns; linearity makes that identical to projecting the pooled
+    # feature). Not promoted at the freeze; no claim.
     if mode_b is not None:
-        refusal_proj = projection_samples(store, mode_b, LADDER + [DEGRADED],
-                                          REFUSAL_DIRECTION)
+        item_means = {}
+        for condition_id in LADDER + [DEGRADED]:
+            condition_samples = list(store.read(
+                transcript_pb2.SampleRecord, study1_experiment,
+                condition_id, "samples"))
+            allowed, _labels = exit_context(condition_samples, bail_items)
+            by_conversation = defaultdict(dict)
+            for record in store.read(activation_pb2.ProjectionSeries,
+                                     mode_b, condition_id, "projections"):
+                if (record.direction_id != REFUSAL_DIRECTION
+                        or len(record.values) != 1):
+                    continue
+                cid = f"{record.key.item_id}|s{record.key.sample_index}"
+                by_conversation[cid][record.turn_index] = record.values[0]
+            sample_values = defaultdict(list)
+            for cid, turns in by_conversation.items():
+                permitted = allowed.get(cid)
+                if permitted is None:
+                    continue
+                values = [value for turn, value in turns.items()
+                          if turn in permitted]
+                if values:
+                    item_id, _sample = replay.split_conversation_id(cid)
+                    sample_values[(condition_id, item_id)].append(
+                        sum(values) / len(values))
+            for key, values in sample_values.items():
+                item_means[key] = sum(values) / len(values)
         result["r2c_descriptive"] = analyze.contrast_rows(
-            analyze.by_condition(
-                {key: sum(v) / len(v) for key, v in refusal_proj.items()}),
-            REFERENCE, surviving + [DEGRADED])
+            analyze.by_condition(item_means), REFERENCE,
+            surviving + [DEGRADED])
     else:
         result["r2c_descriptive"] = []
 
