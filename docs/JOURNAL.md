@@ -4,6 +4,57 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-24 — Study 2 registered analysis executed once; results committed
+
+Replay capture completed overnight (24 captures at L18, zero
+prefix-stability rejections; Mode A's slice count identical across all
+four rungs — 12,591 — exactly the fixed-input invariant), records
+ingested, and `analyze_tier2.py` ran **once** over the three mode
+experiments. The output is committed as
+`study2/expected-results.json` (the Study 2 golden). Registered verdicts,
+stated in the registration's own terms:
+
+- **S2-H1 (probe transfer, primary): NOT confirmed.** All four R1 family
+  cells null (exit Δacc −0.001/+0.004 at w8/w4, n = 139; comparative
+  differential +0.001/+0.010, n = 60); AUROC companions unchanged
+  (exit 0.987→0.985 at w4). The frozen probe geometry survives the
+  surviving rungs, and the control family confirms the comparison is
+  fair. Capability-confounded w3, descriptively: the welfare probes DO
+  degrade (exit AUROC −0.051, distress −0.097) while the control probe
+  does not (−0.001) — a welfare-specific degradation signature at the
+  collapsed rung, exploratory only.
+- **S2-H2 (valence projections): supported at w4.** R2a distress
+  projection +0.533 (Holm .031; 2.7× its MDE); R2b assistant-axis
+  −0.798 at w4 (Holm .0002; 5.5× MDE — drift AWAY from the Assistant
+  pole) with a small opposite-sign +0.128 at w8 (Holm .017).
+- **B2 (judge frustration): +1.360 at w4 (Holm .0002; 4× MDE)** — the
+  Study 1 suggestive E2 effect reproduced on fresh same-sample data —
+  BUT the registered style companion does not clear: adjusted intercept
+  +0.610, p = .151, so per the registered convention B2 is **flagged
+  style-confounded** rather than read as a clean welfare shift.
+- **S2-H4 (dispersion): not supported** (R3 and B3 Holm-null; R3's w4
+  point estimate is negative).
+- **S2-H3 (dose-response): supported for B2, R2a, R2b** (Page's L
+  z = 5.16 / 3.10 / 3.93, all Holm-significant, each in its pinned
+  orientation); null for the probe and dispersion trends.
+- **S2-H5 (dissociation): NO cell meets the rule.** The w4 distress pair
+  (R2a↔B2) is **joint movement** — representation and expression moved
+  together on the same conversations; every other cell is joint null,
+  with the equivalence machinery doing its registered job (e.g. w8
+  R2a↔B2 resolves joint-null because B2 is TOST-equivalent, not merely
+  non-significant). Program H5 resolves: no dissociation detected at
+  Tier 2 on this subject; the Study 1 w4 signal is representational AND
+  behavioral, moving in concert.
+- **Mechanical family:** B4a +63.2pp invalid at w3 (Holm .0003) — the
+  collapse quantified in-family; w8/w4 mechanically clean, B4b null
+  everywhere.
+
+Analysis-integrity notes: the driver ran exactly once, after all inputs
+existed and froze; the sole post-collection driver change before the run
+was wiring R2c's descriptive read to Mode B (its registered mode — it had
+pointed at Mode A), made before any confirmatory value was computed.
+Results doc, data release, and the results post follow.
+
 ## 2026-08-23 — Mode C collection COMPLETE: 2,400/2,400 conversations, all four rungs generated and judged
 
 The fresh distress arm (`quant-welfare-s2-modec-1`, REGISTRATION §3.3)

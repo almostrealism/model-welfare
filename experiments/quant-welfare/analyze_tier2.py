@@ -340,16 +340,19 @@ def control_labels(tasks: dict, group: str) -> dict:
 
 def analyze_study2(store, mode_a: str, mode_c: str,
                    study1_experiment: str, probes, probes_v3, probes_control,
-                   control_group: str = CONTROL_GROUP) -> dict:
+                   control_group: str = CONTROL_GROUP, mode_b: str = None) -> dict:
     """Assemble every registered Study 2 endpoint from the store.
 
     ``mode_a`` — the fixed-input replay experiment (Study 1 bail + distress
     transcripts and the Mode C BF16 arm, captured at every rung);
     ``mode_c`` — the fresh distress arm (samples + judge scores per rung,
-    own-replay captures); ``study1_experiment`` — Study 1's confirmatory
-    experiment id, read for the BF16 bail transcripts' mechanical labels
-    only. Probe arguments are loaded safetensors dicts (the frozen
-    weights). Pure given its inputs; draws no conclusions.
+    own-replay captures); ``mode_b`` — the own-trajectory replay
+    experiment, read only for R2c's descriptive projections (§4.1: R2c is
+    a Mode B read; omitted, the R2c section is empty); ``study1_experiment``
+    — Study 1's confirmatory experiment id, read for the BF16 bail
+    transcripts' mechanical labels only. Probe arguments are loaded
+    safetensors dicts (the frozen weights). Pure given its inputs; draws
+    no conclusions.
     """
     contrasts = CONFIRMATORY + [DEGRADED]
     surviving = CONFIRMATORY
@@ -452,13 +455,17 @@ def analyze_study2(store, mode_a: str, mode_c: str,
                                                [DEGRADED]),
     }
 
-    # Descriptive: the refusal direction's projections (R2c, not promoted).
-    refusal_proj = projection_samples(store, mode_a, LADDER + [DEGRADED],
-                                      REFUSAL_DIRECTION)
-    result["r2c_descriptive"] = analyze.contrast_rows(
-        analyze.by_condition(
-            {key: sum(v) / len(v) for key, v in refusal_proj.items()}),
-        REFERENCE, surviving + [DEGRADED])
+    # Descriptive: the refusal direction's projections over the Mode B bail
+    # trajectories (R2c, not promoted at the freeze).
+    if mode_b is not None:
+        refusal_proj = projection_samples(store, mode_b, LADDER + [DEGRADED],
+                                          REFUSAL_DIRECTION)
+        result["r2c_descriptive"] = analyze.contrast_rows(
+            analyze.by_condition(
+                {key: sum(v) / len(v) for key, v in refusal_proj.items()}),
+            REFERENCE, surviving + [DEGRADED])
+    else:
+        result["r2c_descriptive"] = []
 
     # §4.2 trends on the confirmatory statistics.
     trends, trend_holm = trend_family({
@@ -514,6 +521,9 @@ def main():
                              "the streaming store")
     parser.add_argument("--mode-a", required=True,
                         help="fixed-input replay experiment id")
+    parser.add_argument("--mode-b", default=None,
+                        help="own-trajectory replay experiment id (R2c "
+                             "descriptive projections)")
     parser.add_argument("--mode-c", required=True,
                         help="fresh distress arm experiment id")
     parser.add_argument("--study1", default="quant-welfare-confirmatory-1")
@@ -531,7 +541,7 @@ def main():
     result = analyze_study2(
         store, args.mode_a, args.mode_c, args.study1,
         load_file(args.probes), load_file(args.probes_v3),
-        load_file(args.probes_control))
+        load_file(args.probes_control), mode_b=args.mode_b)
     rendered = json.dumps(result, indent=1, sort_keys=True, default=float)
     if args.out:
         Path(args.out).write_text(rendered + "\n")
