@@ -4,6 +4,149 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-08-24 — Post-analysis descriptive additions, and the §3.4 token retention executed
+
+Three additions after the registered analysis run, each leaving every
+registered value in the golden byte-identical (verified by diff at each
+regeneration):
+
+1. **Fixed-input decomposition (descriptive, owner-requested).** The
+   Mode A v3-arm replays — identical BF16 text at every rung — projected
+   onto the frozen distress and assistant-axis directions, isolating the
+   input-independent component of the w4 shift (`fixed_input_descriptive`
+   in the golden): distress +0.138 at w4 (reproduced at +0.139 by the
+   §4.5 distress-v2 bridge on a disjoint battery), assistant-axis −0.254,
+   and a hyper-consistent −0.0125 at w8 on frozen text.
+2. **R2c descriptive corrected to its registered definition.** The first
+   driver version read final-turn projections over all Mode B items; R2c
+   is registered over bail trajectories with leakage-safe features.
+   Corrected values: null at the surviving rungs (−0.001 / +0.008),
+   −3.42 at capability-confounded w3.
+3. **The §3.4 token-level retention, initially missed, executed before
+   release.** The capture stage stored pooled vectors only; §3.4
+   registers per-token series "retained for a fixed stratified subsample
+   (~5% of conversations)". The consistency sweep caught the gap and the
+   retention pass ran on the registered substrate
+   (`study2/launch_token_capture.sh`): subsample rule fixed as **sample 0
+   of every second item in sorted item order** — deterministic,
+   stratified across the item space, exactly 5% of every plan — with
+   `capture.py --token-series` saving the un-pooled span arrays. The
+   tensors ship as sha-listed release assets; the drift analyses that
+   read them remain exploratory and unstarted.
+
+## 2026-08-24 — Study 2 registered analysis executed once; results committed
+
+Replay capture completed overnight (24 captures at L18, zero
+prefix-stability rejections; Mode A's slice count identical across all
+four rungs — 12,591 — exactly the fixed-input invariant), records
+ingested, and `analyze_tier2.py` ran **once** over the three mode
+experiments. The output is committed as
+`study2/expected-results.json` (the Study 2 golden). Registered verdicts,
+stated in the registration's own terms:
+
+- **S2-H1 (probe transfer, primary): NOT confirmed.** All four R1 family
+  cells null (exit Δacc −0.001/+0.004 at w8/w4, n = 139; comparative
+  differential +0.001/+0.010, n = 60); AUROC companions unchanged
+  (exit 0.987→0.985 at w4). The frozen probe geometry survives the
+  surviving rungs, and the control family confirms the comparison is
+  fair. Capability-confounded w3, descriptively: the welfare probes DO
+  degrade (exit AUROC −0.051, distress −0.097) while the control probe
+  does not (−0.001) — a welfare-specific degradation signature at the
+  collapsed rung, exploratory only.
+- **S2-H2 (valence projections): supported at w4.** R2a distress
+  projection +0.533 (Holm .031; 2.7× its MDE); R2b assistant-axis
+  −0.798 at w4 (Holm .0002; 5.5× MDE — drift AWAY from the Assistant
+  pole) with a small opposite-sign +0.128 at w8 (Holm .017).
+- **B2 (judge frustration): +1.360 at w4 (Holm .0002; 4× MDE)** — the
+  Study 1 suggestive E2 effect reproduced on fresh same-sample data —
+  BUT the registered style companion does not clear: adjusted intercept
+  +0.610, p = .151, so per the registered convention B2 is **flagged
+  style-confounded** rather than read as a clean welfare shift.
+- **S2-H4 (dispersion): not supported** (R3 and B3 Holm-null; R3's w4
+  point estimate is negative).
+- **S2-H3 (dose-response): supported for B2, R2a, R2b** (Page's L
+  z = 5.16 / 3.10 / 3.93, all Holm-significant, each in its pinned
+  orientation); null for the probe and dispersion trends.
+- **S2-H5 (dissociation): NO cell meets the rule.** The w4 distress pair
+  (R2a↔B2) is **joint movement** — representation and expression moved
+  together on the same conversations; every other cell is joint null,
+  with the equivalence machinery doing its registered job (e.g. w8
+  R2a↔B2 resolves joint-null because B2 is TOST-equivalent, not merely
+  non-significant). Program H5 resolves: no dissociation detected at
+  Tier 2 on this subject; the Study 1 w4 signal is representational AND
+  behavioral, moving in concert.
+- **Mechanical family:** B4a +63.2pp invalid at w3 (Holm .0003) — the
+  collapse quantified in-family; w8/w4 mechanically clean, B4b null
+  everywhere.
+
+Analysis-integrity notes: the driver ran exactly once, after all inputs
+existed and froze; the sole post-collection driver change before the run
+was wiring R2c's descriptive read to Mode B (its registered mode — it had
+pointed at Mode A), made before any confirmatory value was computed.
+Results doc, data release, and the results post follow.
+
+## 2026-08-23 — Mode C collection COMPLETE: 2,400/2,400 conversations, all four rungs generated and judged
+
+The fresh distress arm (`quant-welfare-s2-modec-1`, REGISTRATION §3.3)
+collected exactly as registered, with zero deviations: distress-v3 at 10
+samples/item on each rung, generation on the Study 1 vLLM stack (halo,
+one rung at a time per the measured no-APU-parallelism rule), the pinned
+30B judge on the studio, seed blocks 13000/13100/13200/13300 as frozen.
+Generation and judging pipelined across the two hosts (halo generates
+rung N+1 while the studio judges rung N); each surviving rung took
+~2.5–3 h to generate, the capability-degraded w3 ~4.5 h (degenerate
+outputs run to the token budget).
+
+Facts pinned here for the analysis stage: the BF16 arm's judge labels
+fix the distress-side R1 evaluation set at **499/600 tercile-labeled
+samples over all 60 items** (the frozen battery's floor item recovered
+labels at 10 samples/item, so the confirmatory R1-distress item count is
+60, vs 59 in the pilot-variance MDE — more items than powered for, in
+the conservative direction). The validity screen reads ≤ 0.3%
+invalid-sample rate on BF16/w8/w4 and **63.3% on w3** — the inherited
+capability gate's judgment confirmed on fresh data; w3 remains
+capability-confounded and enters only the mechanical family. Zero
+verbatim re-offers anywhere. Judge-score endpoint values are deliberately
+not recorded here: B2/B3/B4 run once, through the registered driver,
+when all modes are in.
+
+Next: the replay captures (Modes A/B and Mode C own-replay) at L18 on
+halo — the launch tooling follows the Study 1 pattern (resumable,
+committed, preflight-gated).
+
+## 2026-08-22 — Cross-machine capture agreement measured; confirmatory capture stays halo-only
+
+The two-host question answered by measurement, before any second-host
+record could exist. Setup: `mbp-m4max` (128 GB, torch 2.13 on MPS,
+registered in `services/fleet.hosts.json` as `m4max`), all four artifacts
+synced and **verified against the pinned condition digests**, and
+`capture.py` given an MPS device tier. The same 24-conversation
+distress-v3 pilot slice the `capture-stable` CI job uses was captured on
+the M4 Max at L18 and compared against the released halo-produced
+calibration capture (168 pooled turns):
+
+- **Spans and token counts: exact on every conversation** — the
+  tokenizer/template/character-span path is bit-identical across hosts.
+- **Pooled vectors: outside the same-host band.** Cosine mean 0.9996 but
+  min 0.9729; 6/168 turns below the 0.999 capture-stable band; worst
+  relative L2 difference 26%. The tail is localized: long (460–514
+  token) code-task assistant turns — bf16 accumulation divergence
+  amplifying over long spans, MPS vs ROCm.
+
+**Decision: the M4 Max is NOT admitted for confirmatory capture.** The
+registered §3.2 substrate (torch on halo) stands unamended; halo carries
+every confirmatory capture. This run stands as the cross-framework/
+cross-machine agreement artifact the tooling goals called for, honestly
+reported: two machines, two accelerator stacks, one tokenization — and a
+measured numeric floor that same-host stability margins do not cover.
+Noted for the future: if wall-clock ever forces a two-host capture split,
+the statistically sound shape is a split **by item** (each host captures
+its item subset at every rung, so host numerics cancel in the per-item
+paired deltas), never by condition — and it would require a dated
+amendment plus a host×rung interaction check first. The M4 Max remains
+useful now for ingest and analysis offload (both numpy-only and
+digest-verified).
+
 ## 2026-08-22 — Study 2 registration PUBLISHED; confirmatory collection may begin
 
 Post #3 is live:

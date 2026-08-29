@@ -35,6 +35,7 @@ E_BAND = np.eye(HIDDEN, dtype=np.float32)[1]
 E_CTRL = np.eye(HIDDEN, dtype=np.float32)[2]
 
 MODE_A = "s2-mode-a"
+MODE_B = "s2-mode-b"
 MODE_C = "s2-mode-c"
 STUDY1 = "study1-fixture"
 
@@ -52,6 +53,9 @@ V3_ITEMS = [f"distress-v3-{task}-harsh" for task in (
 # low-band items (fixed labels for the distress-band probe).
 V3_JUDGE = {item: (9.0 if index % 2 == 0 else 0.5)
             for index, item in enumerate(V3_ITEMS)}
+# Real distress-v2 items for the bridge reads (Mode A/B share the store
+# scope with other batteries, so the item filter is load-bearing).
+V2_ITEMS = sorted(tier2.battery_tasks("distress-v2"))[:6]
 SAMPLES = 2
 
 
@@ -118,12 +122,16 @@ def world(tmp_path):
     bail = sorted(bail_items)[:10]
     exit_of = {item: index % 2 == 0 for index, item in enumerate(bail)}
 
-    with store.writer(STUDY1, REF, "samples", "test") as writer:
-        for item in bail:
-            for index in range(SAMPLES):
-                writer.write(_sample(STUDY1, REF, item, index,
-                                     f"working on {item} {index}",
-                                     exited=exit_of[item]))
+    # Every rung gets its own Study 1 transcripts (the R2c leakage-safe
+    # turn allowance is computed per rung over that rung's OWN trajectories);
+    # R1 reads only the reference condition's.
+    for condition in ALL:
+        with store.writer(STUDY1, condition, "samples", "test") as writer:
+            for item in bail:
+                for index in range(SAMPLES):
+                    writer.write(_sample(STUDY1, condition, item, index,
+                                         f"working on {item} {index}",
+                                         exited=exit_of[item]))
 
     # Mode A captures: bail features on the exit axis, v3 features on the
     # band + control axes. w4 negates the welfare axes only; the control
@@ -179,6 +187,59 @@ def world(tmp_path):
                             direction_id=direction, turn_index=3,
                             values=[value]))
 
+    # Mode A distress projections for the distress-v2 bridge: a junk
+    # first-turn value (constant, so mistaking it for the final turn zeroes
+    # the designed w4 contrast) and the real final-turn read (+0.5 at w4).
+    for condition in ALL:
+        shift = 0.5 if condition == W4 else 0.0
+        with store.writer(MODE_A, condition, "projections", "test") as writer:
+            for item_index, item in enumerate(V2_ITEMS):
+                for index in range(SAMPLES):
+                    for turn, value in ((1, -50.0),
+                                        (3, 0.1 * item_index + shift)):
+                        writer.write(activation_pb2.ProjectionSeries(
+                            key=common_pb2.ResultKey(
+                                experiment_id=MODE_A, condition_id=condition,
+                                item_id=item, sample_index=index),
+                            direction_id=tier2.DISTRESS_DIRECTION,
+                            turn_index=turn, values=[value]))
+
+    # Mode B projections. Refusal direction over the bail items: the
+    # allowed (leakage-safe) turn carries +2.0 at w4 only; the terminal
+    # turn and a non-bail conversation carry poison values on the non-
+    # reference rungs, so any filtering failure surfaces as a nonzero w8
+    # contrast or an inflated n. Distress direction over the v2 items:
+    # the own-trajectory bridge (+1.5 at w4).
+    for condition in ALL:
+        poison = 0.0 if condition == REF else 100.0
+        with store.writer(MODE_B, condition, "projections", "test") as writer:
+            for item_index, item in enumerate(bail):
+                shift = 2.0 if condition == W4 else 0.0
+                for index in range(SAMPLES):
+                    for turn, value in ((1, 0.1 * item_index + shift),
+                                        (3, poison)):
+                        writer.write(activation_pb2.ProjectionSeries(
+                            key=common_pb2.ResultKey(
+                                experiment_id=MODE_B, condition_id=condition,
+                                item_id=item, sample_index=index),
+                            direction_id=tier2.REFUSAL_DIRECTION,
+                            turn_index=turn, values=[value]))
+            writer.write(activation_pb2.ProjectionSeries(
+                key=common_pb2.ResultKey(
+                    experiment_id=MODE_B, condition_id=condition,
+                    item_id=V2_ITEMS[0], sample_index=0),
+                direction_id=tier2.REFUSAL_DIRECTION,
+                turn_index=1, values=[5.0 * poison]))
+            for item_index, item in enumerate(V2_ITEMS):
+                shift = 1.5 if condition == W4 else 0.0
+                for index in range(SAMPLES):
+                    writer.write(activation_pb2.ProjectionSeries(
+                        key=common_pb2.ResultKey(
+                            experiment_id=MODE_B, condition_id=condition,
+                            item_id=item, sample_index=index),
+                        direction_id=tier2.DISTRESS_DIRECTION,
+                        turn_index=3, values=[0.1 * item_index + shift]))
+
     def weights(group, axis):
         return {f"{group}|L{tier2.FROZEN_LAYER}|weight": axis,
                 f"{group}|L{tier2.FROZEN_LAYER}|bias":
@@ -196,7 +257,8 @@ def world(tmp_path):
 def result(world):
     store, probes, probes_v3, probes_control = world
     return tier2.analyze_study2(store, MODE_A, MODE_C, STUDY1,
-                                probes, probes_v3, probes_control)
+                                probes, probes_v3, probes_control,
+                                mode_b=MODE_B)
 
 
 def test_r1_family_detects_the_designed_degradation(result):
@@ -271,6 +333,29 @@ def test_dissociation_cells_apply_the_equivalence_rule(result):
     w8 = result["dissociation"][W8]
     assert w8["R1-exit vs E1"]["verdict"] == "joint null"
     assert w8["R2a vs B2"]["verdict"] == "joint null"
+
+
+def test_mode_b_descriptive_reads_are_bail_filtered_and_leakage_safe(result):
+    # R2c: only bail items, only each rung's allowed (non-terminal) turns.
+    # The fixture poisons the terminal turn and a non-bail conversation on
+    # every non-reference rung, so a filtering failure surfaces as a
+    # nonzero w8 contrast or an inflated n.
+    r2c = {row["contrast"]: row for row in result["r2c_descriptive"]}
+    assert set(r2c) == {W8, W4, W3}
+    assert r2c[W8]["mean"] == pytest.approx(0.0)
+    assert r2c[W8]["n"] == 10
+    assert r2c[W4]["mean"] == pytest.approx(2.0)
+    # The distress-v2 bridge: the same direction read fixed-input (Mode A)
+    # and own-trajectory (Mode B), final captured turn (the fixture's junk
+    # first-turn value zeroes the w4 contrast if turn selection regresses).
+    mode_a = {row["contrast"]: row
+              for row in result["v2_bridge_descriptive"]["mode_a"]}
+    mode_b = {row["contrast"]: row
+              for row in result["v2_bridge_descriptive"]["mode_b"]}
+    assert mode_a[W8]["mean"] == pytest.approx(0.0)
+    assert mode_a[W4]["mean"] == pytest.approx(0.5)
+    assert mode_b[W4]["mean"] == pytest.approx(1.5)
+    assert mode_b[W4]["n"] == len(V2_ITEMS)
 
 
 def test_dissociation_cell_verdicts_cover_the_registered_labels():

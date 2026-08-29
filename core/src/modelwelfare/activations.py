@@ -163,6 +163,17 @@ def ingest_capture(store, experiment_id: str, condition_id: str,
     (slice_count, projection_count).
     """
     capture_path = Path(capture_path)
+    with open(str(capture_path) + ".manifest.json") as handle:
+        rejected = json.load(handle).get("rejected", [])
+    if rejected:
+        # The backend rejects per conversation so one unstable rendering
+        # cannot kill a batch, but an incomplete capture must never enter
+        # the record store looking complete: every registered conversation
+        # is accounted for, or the ingest fails loudly.
+        raise ValueError(
+            f"{capture_path.name}: manifest records {len(rejected)} rejected "
+            f"conversation(s) (first: {rejected[0]['id']}) — the capture is "
+            "incomplete for its plan; re-capture before ingesting")
     destination_dir = (Path(store.root) / experiment_id / condition_id
                        / TENSOR_DIRECTORY)
     destination = destination_dir / capture_path.name

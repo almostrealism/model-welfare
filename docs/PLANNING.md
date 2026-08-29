@@ -4,6 +4,34 @@ Working items between the brief (scientific frame, stable) and the READMEs
 (how things work today). Items land here when identified, get checked off
 when done, and grow notes as decisions accumulate. Date every status change.
 
+## Program record-keeping
+
+- [x] **Journal series organization** *(decided 2026-08-24)* —
+  `docs/JOURNAL.md` closes at Study 2 close (final entry will point
+  forward); from Study 3 onward, per-study files plus a program-level
+  file under `docs/journal/` (scheme, placement rule, and unchanged
+  append-only conventions in `docs/journal/README.md`). No retroactive
+  split: published citations pin the existing file's dated entries.
+
+## Tier-2 instrument follow-ons
+
+- [ ] **Outlier-channel overlap test for the frozen reads** *(opened
+  2026-08-22, from the cross-machine capture measurement — journal entry
+  of that date)* — the cross-host (MPS vs ROCm) capture disagreement
+  concentrates in a handful of high-magnitude outlier residual channels
+  (top-10 of 2,560 dims carried 43% of the worst turn's L1 error; worst
+  channel |ref| 24.1 vs median 0.109), the bf16-mantissa × cross-kernel
+  accumulation signature. Option: measure how much weight the frozen
+  directions and probe vectors place on those outlier dims. If the
+  registered reads live mostly in well-behaved channels, effective
+  cross-host noise on *projections* is far smaller than raw pooled-vector
+  cosine suggests — which would reopen multi-host capture (item-split
+  design, host constant within every paired delta) for the larger-subject
+  arms with a defensible bound. Cheap: the capture pair, frozen vectors,
+  and probe weights all exist; the test is a weight-mass-by-channel read
+  plus a projection-level cross-host agreement number. Does not change
+  the Study 2 decision (capture stays halo-only regardless).
+
 ## Software quality — test coverage audit (opened 2026-08-17)
 
 This project builds multi-study software, not just experiments, and the

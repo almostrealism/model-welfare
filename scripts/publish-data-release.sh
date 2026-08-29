@@ -47,8 +47,17 @@ BUNDLE_FILES=("$BUNDLES"/*.pb)
 CAPTURES="$ROOT/data-captures"
 CAPTURE_FILES=()
 if [ -d "$CAPTURES" ]; then
-  CAPTURE_FILES=("$CAPTURES"/*.safetensors "$CAPTURES"/*.manifest.json)
+  # Recursive: staged captures live in subdirectories per collection stage
+  # (e.g. s2/out, s2/tok-out). Plans and marker files are not assets.
+  while IFS= read -r f; do CAPTURE_FILES+=("$f"); done \
+    < <(find "$CAPTURES" -type f \( -name "*.safetensors" -o -name "*.manifest.json" \) | sort)
   echo "including ${#CAPTURE_FILES[@]} capture asset file(s) from $CAPTURES"
+  OVERSIZE=$(find "$CAPTURES" -type f -name "*.safetensors" -size +1900M | head -5)
+  if [ -n "$OVERSIZE" ]; then
+    echo "asset(s) exceed GitHub's ~2GB per-file release limit:" >&2
+    echo "$OVERSIZE" >&2
+    exit 1
+  fi
 fi
 ASSET_FILES=("${BUNDLE_FILES[@]}" "${CAPTURE_FILES[@]}")
 

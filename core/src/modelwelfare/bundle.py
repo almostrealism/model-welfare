@@ -46,6 +46,11 @@ def _stamp_digest(bundle) -> None:
         name: list(getattr(bundle, KINDS[name][0]))
         for name, _message_type in signature.DEFAULT_KINDS
     }
+    if not any(records_by_kind.values()):
+        # Capture-only bundles (activation record kinds without any
+        # report-determining stream) get no digest: stamping the constant
+        # empty-kinds hash would make unrelated bundles look identical.
+        return
     bundle.metadata.data_digest = signature.records_digest(records_by_kind)
 
 

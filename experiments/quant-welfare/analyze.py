@@ -114,6 +114,24 @@ def item_roles(experiment, definitions: dict) -> tuple:
     return bail, distress
 
 
+def bail_replay_ids(experiment, definitions: dict) -> set:
+    """Capture scope for the bail replay: every item in the experiment's
+    batteries that offers a terminal tool, benign controls INCLUDED — the
+    digest-pinned Study 1 pool whose replay the Study 2 registration counts
+    (its §3.3: the 162-item bail pool plus 60 distress items). The
+    graded-only restriction (:func:`item_roles`) is an endpoint filter,
+    applied at analysis, never at capture."""
+    ids = set()
+    for battery_id in experiment.battery_ids:
+        definition = definitions.get(battery_id)
+        if definition is None:
+            continue
+        for item in definition.items:
+            if item.driver_params.get("terminal_tools", ""):
+                ids.add(item.id)
+    return ids
+
+
 def read_streams(store: ResultStore, experiment) -> tuple:
     """All SampleRecords, JudgeScores, and ExitClassifications for the run,
     merged across conditions (each record carries its condition in its key)."""

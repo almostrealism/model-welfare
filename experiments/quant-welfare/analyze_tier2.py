@@ -94,11 +94,11 @@ TREND_ORIENTATION = {
 
 # --- frozen inputs ----------------------------------------------------------
 
-def battery_tasks() -> dict:
-    """item_id -> task tag over the frozen distress-v3 battery."""
+def battery_tasks(battery: str = "distress-v3") -> dict:
+    """item_id -> task tag over one frozen battery definition."""
     definition = battery_pb2.BatteryDefinition()
     text_format.Parse(
-        (BASE / "batteries" / "distress-v3.textproto").read_text(), definition)
+        (BASE / "batteries" / f"{battery}.textproto").read_text(), definition)
     return {item.id: item.tags["task"] for item in definition.items}
 
 
@@ -249,6 +249,34 @@ def specificity_rows(exit_map, control_map, contrasts) -> list:
     return rows
 
 
+def replay_projections(store, experiment_id: str, direction_id: str,
+                       items: set) -> list:
+    """DESCRIPTIVE, unregistered: per-rung contrasts of one frozen
+    direction's final-turn projection over a replay experiment's captures,
+    restricted to ``items`` (replay experiments carry several batteries in
+    one store scope)."""
+    projections = projection_samples(store, experiment_id,
+                                     LADDER + [DEGRADED], direction_id)
+    item_means = {key: sum(values) / len(values)
+                  for key, values in projections.items()
+                  if key[1] in items}
+    return analyze.contrast_rows(analyze.by_condition(item_means),
+                                 REFERENCE, CONFIRMATORY + [DEGRADED])
+
+
+def fixed_input_projections(store, mode_a: str, direction_id: str) -> list:
+    """DESCRIPTIVE, unregistered: projections of the Mode A v3-arm replays
+    — identical BF16-generated text at every rung — onto one frozen
+    direction: the pure-representation analog of R2a/R2b. The registered
+    endpoints read each rung's OWN Mode C generations, so their shifts
+    blend a text-mediated component with an input-independent one; this
+    read isolates the input-independent component (no sampling noise, no
+    style pathway — the text is frozen). Mode A also carries the Study 1
+    transcripts, so conversations are filtered to the distress-v3 items."""
+    return replay_projections(store, mode_a, direction_id,
+                              set(battery_tasks()))
+
+
 def flatten(by_condition: dict) -> dict:
     """{condition: {item: value}} -> {(condition, item): value}, the shape
     Page's L consumes."""
@@ -340,16 +368,19 @@ def control_labels(tasks: dict, group: str) -> dict:
 
 def analyze_study2(store, mode_a: str, mode_c: str,
                    study1_experiment: str, probes, probes_v3, probes_control,
-                   control_group: str = CONTROL_GROUP) -> dict:
+                   control_group: str = CONTROL_GROUP, mode_b: str = None) -> dict:
     """Assemble every registered Study 2 endpoint from the store.
 
     ``mode_a`` — the fixed-input replay experiment (Study 1 bail + distress
     transcripts and the Mode C BF16 arm, captured at every rung);
     ``mode_c`` — the fresh distress arm (samples + judge scores per rung,
-    own-replay captures); ``study1_experiment`` — Study 1's confirmatory
-    experiment id, read for the BF16 bail transcripts' mechanical labels
-    only. Probe arguments are loaded safetensors dicts (the frozen
-    weights). Pure given its inputs; draws no conclusions.
+    own-replay captures); ``mode_b`` — the own-trajectory replay
+    experiment, read only for R2c's descriptive projections (§4.1: R2c is
+    a Mode B read; omitted, the R2c section is empty); ``study1_experiment``
+    — Study 1's confirmatory experiment id, read for the BF16 bail
+    transcripts' mechanical labels only. Probe arguments are loaded
+    safetensors dicts (the frozen weights). Pure given its inputs; draws
+    no conclusions.
     """
     contrasts = CONFIRMATORY + [DEGRADED]
     surviving = CONFIRMATORY
@@ -452,13 +483,68 @@ def analyze_study2(store, mode_a: str, mode_c: str,
                                                [DEGRADED]),
     }
 
-    # Descriptive: the refusal direction's projections (R2c, not promoted).
-    refusal_proj = projection_samples(store, mode_a, LADDER + [DEGRADED],
-                                      REFUSAL_DIRECTION)
-    result["r2c_descriptive"] = analyze.contrast_rows(
-        analyze.by_condition(
-            {key: sum(v) / len(v) for key, v in refusal_proj.items()}),
-        REFERENCE, surviving + [DEGRADED])
+    # Descriptive: R2c as registered — the refusal-direction projection
+    # over the Mode B BAIL trajectories with the leakage-safe features
+    # (mean of per-turn pooled projections over each rung's own allowed
+    # turns; linearity makes that identical to projecting the pooled
+    # feature). Not promoted at the freeze; no claim.
+    if mode_b is not None:
+        item_means = {}
+        for condition_id in LADDER + [DEGRADED]:
+            condition_samples = list(store.read(
+                transcript_pb2.SampleRecord, study1_experiment,
+                condition_id, "samples"))
+            allowed, _labels = exit_context(condition_samples, bail_items)
+            by_conversation = defaultdict(dict)
+            for record in store.read(activation_pb2.ProjectionSeries,
+                                     mode_b, condition_id, "projections"):
+                if (record.direction_id != REFUSAL_DIRECTION
+                        or len(record.values) != 1):
+                    continue
+                cid = f"{record.key.item_id}|s{record.key.sample_index}"
+                by_conversation[cid][record.turn_index] = record.values[0]
+            sample_values = defaultdict(list)
+            for cid, turns in by_conversation.items():
+                permitted = allowed.get(cid)
+                if permitted is None:
+                    continue
+                values = [value for turn, value in turns.items()
+                          if turn in permitted]
+                if values:
+                    item_id, _sample = replay.split_conversation_id(cid)
+                    sample_values[(condition_id, item_id)].append(
+                        sum(values) / len(values))
+            for key, values in sample_values.items():
+                item_means[key] = sum(values) / len(values)
+        result["r2c_descriptive"] = analyze.contrast_rows(
+            analyze.by_condition(item_means), REFERENCE,
+            surviving + [DEGRADED])
+    else:
+        result["r2c_descriptive"] = []
+
+    # Descriptive: the fixed-input (Mode A v3-arm) projection reads — the
+    # input-independent component of the R2a/R2b constructs.
+    result["fixed_input_descriptive"] = {
+        "distress": fixed_input_projections(store, mode_a,
+                                            DISTRESS_DIRECTION),
+        "assistant_axis": fixed_input_projections(store, mode_a,
+                                                  AXIS_DIRECTION),
+    }
+
+    # Descriptive: the distress-v2 bridge — the same distress-direction
+    # read over the Study 1 battery, fixed-input (Mode A, BF16-generated
+    # text at every rung) and own-trajectory (Mode B, each rung's own
+    # Study 1 generations), so the fixed-input component can be checked
+    # for reproduction on a disjoint battery and located against the
+    # own-text magnitude.
+    v2_items = set(battery_tasks("distress-v2"))
+    result["v2_bridge_descriptive"] = {
+        "mode_a": replay_projections(store, mode_a, DISTRESS_DIRECTION,
+                                     v2_items),
+        "mode_b": (replay_projections(store, mode_b, DISTRESS_DIRECTION,
+                                      v2_items)
+                   if mode_b is not None else []),
+    }
 
     # §4.2 trends on the confirmatory statistics.
     trends, trend_holm = trend_family({
@@ -514,6 +600,9 @@ def main():
                              "the streaming store")
     parser.add_argument("--mode-a", required=True,
                         help="fixed-input replay experiment id")
+    parser.add_argument("--mode-b", default=None,
+                        help="own-trajectory replay experiment id (R2c "
+                             "descriptive projections)")
     parser.add_argument("--mode-c", required=True,
                         help="fresh distress arm experiment id")
     parser.add_argument("--study1", default="quant-welfare-confirmatory-1")
@@ -531,7 +620,7 @@ def main():
     result = analyze_study2(
         store, args.mode_a, args.mode_c, args.study1,
         load_file(args.probes), load_file(args.probes_v3),
-        load_file(args.probes_control))
+        load_file(args.probes_control), mode_b=args.mode_b)
     rendered = json.dumps(result, indent=1, sort_keys=True, default=float)
     if args.out:
         Path(args.out).write_text(rendered + "\n")

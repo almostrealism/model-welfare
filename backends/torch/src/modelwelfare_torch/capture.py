@@ -109,18 +109,23 @@ except ImportError:
     from spans import assistant_spans, template_messages
 
 
-def pooled_turns(model, tokenizer, capture, messages, device, tools=None):
-    """{(message_index, layer): pooled float32 vector} for one conversation."""
+def pooled_turns(model, tokenizer, capture, messages, device, tools=None,
+                 token_series=False):
+    """{(message_index, layer): pooled float32 vector} for one conversation;
+    with ``token_series``, also the un-pooled per-token span arrays
+    ([span, hidden]) — the drift-subsample retention (Study 2 §3.4)."""
     token_ids, spans = assistant_spans(tokenizer, template_messages(messages), tools)
     inputs = torch.tensor([token_ids], device=device)
     with torch.no_grad():
         model(inputs)
     activations = capture.taken()
-    pooled = {}
+    pooled, series = {}, {}
     for index, start, end in spans:
         for layer, hidden in activations.items():
             pooled[(index, layer)] = hidden[0, start:end].mean(axis=0)
-    return len(token_ids), spans, pooled
+            if token_series:
+                series[(index, layer)] = hidden[0, start:end]
+    return len(token_ids), spans, pooled, series
 
 
 def main():
@@ -132,13 +137,22 @@ def main():
     parser.add_argument("--point", default="residual_post", choices=POINTS)
     parser.add_argument("--out", required=True,
                         help="safetensors output; manifest lands beside it")
+    parser.add_argument("--token-series", action="store_true",
+                        help="additionally save each span's per-token array "
+                             "(...|tokens tensors) — the drift-subsample "
+                             "retention (Study 2 §3.4)")
     args = parser.parse_args()
 
     layers = [int(value) for value in args.layers.split(",")]
     with open(args.plan) as handle:
         plan = json.load(handle)
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    if torch.cuda.is_available():
+        device = "cuda"
+    elif torch.backends.mps.is_available():
+        device = "mps"
+    else:
+        device = "cpu"
     tokenizer = AutoTokenizer.from_pretrained(args.model)
     model = AutoModelForCausalLM.from_pretrained(
         args.model, dtype=torch.bfloat16, device_map=device)
@@ -147,14 +161,29 @@ def main():
     tensors = {}
     manifest = {"model": args.model, "point": args.point, "layers": layers,
                 "conversations": []}
+    manifest["rejected"] = []
     with ResidualCapture(model, layers, args.point) as capture:
         for conversation in plan["conversations"]:
-            n_tokens, spans, pooled = pooled_turns(
-                model, tokenizer, capture, conversation["messages"], device,
-                tools=conversation.get("tools"))
+            try:
+                n_tokens, spans, pooled, series = pooled_turns(
+                    model, tokenizer, capture, conversation["messages"], device,
+                    tools=conversation.get("tools"),
+                    token_series=args.token_series)
+            except ValueError as error:
+                # Rejected loudly, but per conversation: one unstable
+                # rendering (plausible in capability-degraded transcripts)
+                # must not kill a multi-thousand-conversation batch. The
+                # manifest records every rejection for the analysis side.
+                manifest["rejected"].append(
+                    {"id": conversation["id"], "reason": str(error)})
+                print(f"REJECTED {conversation['id']}: {error}")
+                continue
             for (index, layer), vector in pooled.items():
                 tensors[f"{conversation['id']}|t{index}|L{layer}"] = (
                     vector.astype(np.float32))
+            for (index, layer), span_array in series.items():
+                tensors[f"{conversation['id']}|t{index}|L{layer}|tokens"] = (
+                    span_array.astype(np.float32))
             manifest["conversations"].append({
                 "id": conversation["id"], "n_tokens": n_tokens,
                 "assistant_spans": [
@@ -167,7 +196,9 @@ def main():
     save_file(tensors, args.out)
     with open(args.out + ".manifest.json", "w") as handle:
         json.dump(manifest, handle, indent=1)
-    print(f"wrote {len(tensors)} pooled vectors to {args.out}")
+    print(f"wrote {len(tensors)} pooled vectors to {args.out}"
+          + (f" ({len(manifest['rejected'])} conversation(s) rejected)"
+             if manifest["rejected"] else ""))
 
 
 if __name__ == "__main__":

@@ -9,6 +9,11 @@
     "repo": "~/repo/model-welfare",
     "aliases": ["amd-halo", "10.0.0.127"]
   },
+  "m4max": {
+    "targets": ["agent1@macbook-pro"],
+    "repo": "~/repo/model-welfare",
+    "aliases": ["mbp-m4max", "macbook-pro"]
+  },
   "mini-1": {
     "targets": ["agent1@mini-1"],
     "repo": "~/repo/model-welfare",
