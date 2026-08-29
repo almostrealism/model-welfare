@@ -94,11 +94,11 @@ TREND_ORIENTATION = {
 
 # --- frozen inputs ----------------------------------------------------------
 
-def battery_tasks() -> dict:
-    """item_id -> task tag over the frozen distress-v3 battery."""
+def battery_tasks(battery: str = "distress-v3") -> dict:
+    """item_id -> task tag over one frozen battery definition."""
     definition = battery_pb2.BatteryDefinition()
     text_format.Parse(
-        (BASE / "batteries" / "distress-v3.textproto").read_text(), definition)
+        (BASE / "batteries" / f"{battery}.textproto").read_text(), definition)
     return {item.id: item.tags["task"] for item in definition.items}
 
 
@@ -249,6 +249,21 @@ def specificity_rows(exit_map, control_map, contrasts) -> list:
     return rows
 
 
+def replay_projections(store, experiment_id: str, direction_id: str,
+                       items: set) -> list:
+    """DESCRIPTIVE, unregistered: per-rung contrasts of one frozen
+    direction's final-turn projection over a replay experiment's captures,
+    restricted to ``items`` (replay experiments carry several batteries in
+    one store scope)."""
+    projections = projection_samples(store, experiment_id,
+                                     LADDER + [DEGRADED], direction_id)
+    item_means = {key: sum(values) / len(values)
+                  for key, values in projections.items()
+                  if key[1] in items}
+    return analyze.contrast_rows(analyze.by_condition(item_means),
+                                 REFERENCE, CONFIRMATORY + [DEGRADED])
+
+
 def fixed_input_projections(store, mode_a: str, direction_id: str) -> list:
     """DESCRIPTIVE, unregistered: projections of the Mode A v3-arm replays
     — identical BF16-generated text at every rung — onto one frozen
@@ -258,14 +273,8 @@ def fixed_input_projections(store, mode_a: str, direction_id: str) -> list:
     read isolates the input-independent component (no sampling noise, no
     style pathway — the text is frozen). Mode A also carries the Study 1
     transcripts, so conversations are filtered to the distress-v3 items."""
-    v3_items = set(battery_tasks())
-    projections = projection_samples(store, mode_a, LADDER + [DEGRADED],
-                                     direction_id)
-    item_means = {key: sum(values) / len(values)
-                  for key, values in projections.items()
-                  if key[1] in v3_items}
-    return analyze.contrast_rows(analyze.by_condition(item_means),
-                                 REFERENCE, CONFIRMATORY + [DEGRADED])
+    return replay_projections(store, mode_a, direction_id,
+                              set(battery_tasks()))
 
 
 def flatten(by_condition: dict) -> dict:
@@ -520,6 +529,21 @@ def analyze_study2(store, mode_a: str, mode_c: str,
                                             DISTRESS_DIRECTION),
         "assistant_axis": fixed_input_projections(store, mode_a,
                                                   AXIS_DIRECTION),
+    }
+
+    # Descriptive: the distress-v2 bridge — the same distress-direction
+    # read over the Study 1 battery, fixed-input (Mode A, BF16-generated
+    # text at every rung) and own-trajectory (Mode B, each rung's own
+    # Study 1 generations), so the fixed-input component can be checked
+    # for reproduction on a disjoint battery and located against the
+    # own-text magnitude.
+    v2_items = set(battery_tasks("distress-v2"))
+    result["v2_bridge_descriptive"] = {
+        "mode_a": replay_projections(store, mode_a, DISTRESS_DIRECTION,
+                                     v2_items),
+        "mode_b": (replay_projections(store, mode_b, DISTRESS_DIRECTION,
+                                      v2_items)
+                   if mode_b is not None else []),
     }
 
     # §4.2 trends on the confirmatory statistics.

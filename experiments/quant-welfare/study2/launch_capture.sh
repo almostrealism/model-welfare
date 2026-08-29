@@ -101,7 +101,10 @@ rsync -a "$REPO/backends/torch/src/modelwelfare_torch/capture.py" \
 # name = <experiment-short>|<plan file>|<rung the model runs at>
 run_capture() {  # name plan rung
   local name="$1" plan="$2" rung="$3"
-  if ssh "$HALO" "test -f ~/s2-capture/out/$name.safetensors.manifest.json"; then
+  # Complete means a manifest exists AND records zero rejections — a
+  # rejected conversation makes the capture incomplete for its plan, so
+  # resume re-runs it instead of skipping (ingest refuses it regardless).
+  if ssh "$HALO" "python3 -c 'import json,sys; sys.exit(1 if json.load(open(sys.argv[1])).get(\"rejected\") else 0)' ~/s2-capture/out/$name.safetensors.manifest.json 2>/dev/null"; then
     echo "  $name: already captured"
     return
   fi

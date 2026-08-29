@@ -114,6 +114,23 @@ def test_ingest_round_trips_through_store_and_bundle(capture, tmp_path):
                                 "exp", "cond", "projections"))) == 6
 
 
+def test_ingest_refuses_a_capture_with_rejections(capture, tmp_path):
+    # The backend rejects per conversation so one unstable rendering cannot
+    # kill a batch, but the resulting capture is incomplete for its plan:
+    # ingest must refuse it, or a rejection would silently survive every
+    # resume as a permanently accepted partial capture.
+    manifest_path = capture.with_name(capture.name + ".manifest.json")
+    manifest = json.loads(manifest_path.read_text())
+    manifest["rejected"] = [{"id": "item-z|s0", "reason": "unstable prefix"}]
+    manifest_path.write_text(json.dumps(manifest))
+    store = ResultStore(tmp_path / "data")
+    with pytest.raises(ValueError, match="rejected"):
+        activations.ingest_capture(store, "exp", "cond", capture, LAYER,
+                                   "host-a")
+    assert not list(store.read(activation_pb2.ActivationSlice,
+                               "exp", "cond", "activations"))
+
+
 def test_two_producers_merge_without_contention(capture, tmp_path):
     second = write_capture(tmp_path / "cap2.safetensors",
                            {"item-z|s0": {1: E0 * 7.0}})

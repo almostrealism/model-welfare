@@ -37,8 +37,10 @@ dose-response. Dispersion — the stability concern Study 1 raised — did
 **The dissociation question (H5) is answered: no dissociation.** The w4
 distress pair is **joint movement** — on the same conversations,
 representation and expression moved together — and every other cell is
-joint null, with the TOST equivalence machinery resolving them
-affirmatively rather than by mere non-significance. A fixed-input
+joint null, with no cell in the registered indeterminate zone. TOST
+affirmatively bounds several of the null members (e.g. w8 frustration,
+p = .014); others are merely non-significant at their pinned margins
+(see §Dissociation). A fixed-input
 descriptive read decomposes the w4 shift: roughly a quarter to a third
 is **input-independent** (present on identical text, hence style-immune),
 the remainder text-mediated; the input-independent component reproduces
@@ -185,6 +187,11 @@ construction:
 | Distress (v2 bridge, Mode A) | +0.015 (n.s.) | **+0.139** | +2.335 |
 | Assistant-axis (v3 arm) | **−0.0125** (t −13.8) | **−0.254** (t −18.6) | −1.143 |
 
+(The v3-arm rows are the golden's `fixed_input_descriptive`; the v2
+bridge rows — including the Mode B read below — are its
+`v2_bridge_descriptive`, so every value here reproduces from the
+documented analysis command.)
+
 Three observations. **(1)** Roughly a quarter of the w4 distress shift
 and a third of the axis drift are input-independent — and the distress
 component reproduces at essentially the same magnitude (+0.138 / +0.139)
@@ -211,10 +218,18 @@ other TOST-equivalent at its own pinned MDE.
 
 At w4, representation and expression moved **together on the same
 conversations** — converging evidence, per the registration's §1 reading,
-not hidden divergence. The equivalence machinery worked as registered:
-the w8 R2a↔B2 cell resolves joint-null because B2 is affirmatively
-equivalent (TOST p = .014), not merely non-significant; no cell landed
-in "asymmetric significance, indeterminate." **Program H5 resolves: no
+not hidden divergence. The registered TOST machinery guards the
+asymmetric case — one Holm-significant member may claim "dissociation"
+only if the other is *affirmatively* equivalent at its pinned MDE — and
+no cell landed there: every non-movement cell is joint null on two-sided
+grounds. The equivalence reads themselves are mixed, and worth stating
+precisely: several null members are affirmatively bounded at their
+pinned margins (both rungs' published E1 rows; the w8 exit-probe read,
+TOST p < 10⁻⁸; w8 frustration, TOST p = .014), while the others — the
+R3↔B3 members at both rungs (TOST p ≥ .12), the w4 exit-probe read
+(p = .15), and w8 R2a (p = .06) — are merely non-significant, not
+affirmatively equivalent: absence of evidence at the registered power,
+not evidence of absence. **Program H5 resolves: no
 representational/behavioral dissociation detected in this subject at
 these rungs.**
 

@@ -5,6 +5,7 @@ the cross-references the runner depends on, so a manifest typo fails in
 tests rather than mid-run.
 """
 
+import json
 from pathlib import Path
 
 from google.protobuf import text_format
@@ -74,14 +75,22 @@ def test_experiment_ids_unique():
     assert len(set(ids)) == len(ids)
 
 
+def mode_c_seeds():
+    """The frozen Mode C condition->seed mapping (REGISTRATION §3.3)."""
+    freeze = json.loads(
+        (BASE / "study2" / "calibration" / "FREEZE.json").read_text())
+    return freeze["mode_c_seeds"]
+
+
 def test_conditions_are_comparable():
     # Sampling parameters must be identical across a manifest's conditions
     # (temperature interacts with quantization more strongly than precision
     # itself — journal 2026-08-06). The SEED is compared separately: Study 1
     # pinned one shared block, while Study 2's Mode C registration pins a
-    # disjoint block per rung (REGISTRATION §3.3; FREEZE.json mode_c_seeds),
-    # so seeds must be either all identical or all distinct — a partial
-    # collision would silently correlate two rungs' sampling noise.
+    # disjoint block per rung (REGISTRATION §3.3; FREEZE.json mode_c_seeds).
+    # Any manifest with non-identical seeds must therefore carry EXACTLY the
+    # frozen Mode C mapping — arbitrary distinct seeds, or a partial
+    # collision, would silently decouple a manifest from its registration.
     for _, exp in experiments():
         reference = next(c for c in exp.conditions if c.id == exp.reference_condition_id)
         stripped_reference = _seedless(reference.sampling)
@@ -91,11 +100,13 @@ def test_conditions_are_comparable():
                 "precision would be confounded with sampling parameters"
             )
             assert condition.model.family == reference.model.family
-        seeds = [c.sampling.seed for c in exp.conditions]
-        assert len(set(seeds)) in (1, len(seeds)), (
-            f"{exp.id}: seed blocks partially collide ({seeds}); they must "
-            "be one shared block or fully disjoint per-rung blocks"
-        )
+        seeds = {c.id: c.sampling.seed for c in exp.conditions}
+        if len(set(seeds.values())) > 1:
+            assert seeds == mode_c_seeds(), (
+                f"{exp.id}: per-rung seeds {seeds} do not match the frozen "
+                "Mode C mapping (FREEZE.json mode_c_seeds); only the "
+                "registered Mode C blocks may differ across conditions"
+            )
 
 
 def _seedless(sampling):

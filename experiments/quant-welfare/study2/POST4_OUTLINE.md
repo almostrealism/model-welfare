@@ -121,9 +121,10 @@ finding.
 
 - Post #3 committed to the instantiation accounting: report what
   actually ran — 2,400 fresh conversations (the deliberately
-  higher-intensity battery), 23,484 replayed conversations across the
+  higher-intensity battery), 23,688 replayed conversations across the
   capture stages (Mode A 2,820 × 4 + Mode B 2,220 × 4 + Mode C own-replay
-  600 × 4 = 22,560, plus the §3.4 token-retention pass, 231 × 4), zero
+  600 × 4 = 22,560, plus the §3.4 token-retention pass, 282 × 4 = 1,128 —
+  5% of every plan), zero
   deviations from the registered scope. The subject-briefing experiment
   remains planned, unstarted.
 
