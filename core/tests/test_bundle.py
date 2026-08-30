@@ -152,3 +152,58 @@ def test_bundle_store_scopes_by_experiment(tmp_path):
     assert len(a) == 2 and len(b) == 3
     assert all(r.key.experiment_id == "A" for r in a)
     assert all(r.key.experiment_id == "B" for r in b)
+
+
+def test_combined_bundle_carries_per_experiment_digests(tmp_path):
+    # Several experiments in one file: records reachable by their own keys,
+    # each experiment's report-cited digest preserved in the metadata map.
+    from modelwelfare import signature
+    root = tmp_path / "streaming"
+    _write_streaming_store(root)
+    store = ResultStore(root)
+    with store.writer("exp2", "bf16", "samples", "p") as w:
+        for k in range(2):
+            w.write(_sample("bf16", f"j{k}", 0, exp="exp2"))
+
+    combined = bundle.pack_combined_store(store, ["exp", "exp2"])
+    assert combined.metadata.experiment_id == ""
+    assert combined.metadata.experiment_digests["exp"] == \
+        signature.store_digest(store, "exp", ["bf16", "w4"])["digest"]
+    assert combined.metadata.experiment_digests["exp2"] == \
+        signature.store_digest(store, "exp2", ["bf16"])["digest"]
+
+    path = tmp_path / "combined.pb"
+    bundle.write_bundle(combined, path)
+    reader = bundle.BundleStore(path)
+    assert len(list(reader.read(transcript_pb2.SampleRecord,
+                                "exp", "bf16", "samples"))) == 3
+    assert len(list(reader.read(transcript_pb2.SampleRecord,
+                                "exp2", "bf16", "samples"))) == 2
+
+
+def test_volume_split_round_trips_through_directory_merge(tmp_path):
+    # A byte cap far below the payload forces multiple volumes; merging the
+    # directory reproduces exactly the unsplit record set, and each volume's
+    # counts describe that volume alone.
+    store = _write_streaming_store(tmp_path / "streaming")
+    packed = bundle.pack_experiment_store(store, "exp")
+    out = tmp_path / "volumes"
+    out.mkdir()
+    paths = bundle.write_volumes(packed, out / "exp", max_bytes=200)
+    assert len(paths) > 1
+    assert all(path.name.startswith("exp.v") for path in paths)
+    total = 0
+    for path in paths:
+        volume = bundle.read_bundle(path)
+        counts = dict(volume.metadata.record_counts)
+        assert sum(counts.values()) == sum(
+            len(getattr(volume, field)) for field, _t in bundle.KINDS.values())
+        total += counts.get("samples", 0)
+    assert total == 6
+    reader = bundle.BundleStore(out)
+    for kind, (_field, mtype) in bundle.KINDS.items():
+        for cond in ("bf16", "w4"):
+            original = list(store.read(mtype, "exp", cond, kind))
+            merged = list(reader.read(mtype, "exp", cond, kind))
+            assert _serialized_multiset(original) == \
+                _serialized_multiset(merged), (kind, cond)
