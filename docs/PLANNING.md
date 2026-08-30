@@ -429,6 +429,15 @@ but judge *noise* eats power, which is what the bakeoff measures.
   halo's 4B rung for convenience; the plan of record is 7–8B judges on the
   Mac minis, which also removes judge load from subject hosts.
 
+- [ ] **Migrate stability workflows to bundle-form assets** *(documented
+  2026-08-29)* — the release format is now self-contained RecordBundles
+  (tensors inline, ≤10 assets enforced by `publish-data-release.sh`);
+  `calibration-data-stability.yml` and `workbench-stability.yml` still pin
+  loose `.safetensors` assets from the `data-20260818` release, which
+  remain downloadable, so nothing is broken. On the next calibration
+  release, repoint them at bundle assets and fetch pairs via
+  `python3 -m modelwelfare.bundle extract --uri <capture-name>`.
+
 ## Done
 
 - [x] Tier-1 pipeline end to end (schema, driver, store, judging, llama.cpp

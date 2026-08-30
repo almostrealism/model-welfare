@@ -17,18 +17,24 @@ import "modelwelfare/v1/activation.proto";
  * bundles, so splitting a large experiment across files is transparent.
  *
  * BundleMetadata makes a single file self-describing: condition_id is empty when
- * a bundle spans conditions; record_counts maps kind -> count; data_digest is
- * the canonical content hash (modelwelfare.signature) and is empty when the
- * bundle was written without that module available. reference_scores are the
- * cross-family reference-judge scores, kept distinct from the primary scores as
- * the streaming store keeps its separate reference_scores kind;
+ * a bundle spans conditions, and experiment_id is empty when it spans
+ * experiments (records carry their own keys; experiment_digests then maps
+ * each contained experiment to its canonical content hash, so a combined
+ * bundle still confirms every report it carries). record_counts maps
+ * kind -> count; data_digest is the canonical content hash
+ * (modelwelfare.signature) for a single-experiment bundle and is empty when
+ * the bundle was written without that module available. reference_scores are
+ * the cross-family reference-judge scores, kept distinct from the primary
+ * scores as the streaming store keeps its separate reference_scores kind;
  * judge_noise_scores are likewise the repeated-judge noise-measurement passes
  * (judge_sample_index > 0), a distinct stream so noise passes can never be
  * mistaken for confirmatory scores. activations/projections are the Tier-2
- * record kinds (Study 2 §3.4): ActivationSlice content-addresses each pooled
- * turn vector in its safetensors file, ProjectionSeries carries the
- * projection reads — the tensors themselves stay in safetensors and travel
- * beside the bundle, never inside it.
+ * record kinds (Study 2 §3.4): ActivationSlice describes each captured
+ * turn tensor, ProjectionSeries carries the projection reads. In the
+ * release form each ActivationSlice carries its tensor inline
+ * (TensorRef.data), so a bundle is genuinely one file; how records are
+ * split across volume files is a portability choice bounded by protobuf's
+ * ~2GB per message, and readers merge a directory of volumes.
  */
 
 message BundleMetadata {
@@ -37,6 +43,7 @@ message BundleMetadata {
   map<string, int32> record_counts = 3;
   string data_digest = 4;
   string framework_version = 5;
+  map<string, string> experiment_digests = 6;
 }
 
 message RecordBundle {

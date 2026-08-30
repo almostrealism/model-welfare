@@ -64,8 +64,9 @@ at nearly the same magnitude on two disjoint batteries.
 - **Token-level retention (§3.4):** per-token series for a fixed
   stratified 5% subsample (sample 0 of every second item in sorted
   order, exactly 5% of every plan), captured in a dedicated pass and
-  shipped as sha-listed release assets. The drift analyses that read
-  them are exploratory and not part of this report.
+  released as self-contained bundle volumes (per-token series stored as
+  lossless bfloat16). The drift analyses that read them are exploratory
+  and not part of this report.
 - **Instruments:** the frozen directions, probes, and control probe of
   the calibration freeze (2026-08-18, amended 2026-08-21), all digests
   re-verified at launch.
@@ -280,9 +281,10 @@ w3.
 
 - Mode C (`quant-welfare-s2-modec-1`) dataset digest:
   `55ee50608613bc3206b69b8ca05bbd5bddad5be5a0b3bf94a27a0a0f68090474`
-- Modes A/B carry activation-record streams whose tensors are
-  content-addressed per file (TensorRef sha256 in every record); the
-  capture pairs ship as sha-listed release assets.
+- Modes A/B carry activation-record streams; in the release each record's
+  tensor rides inside its experiment's bundle (TensorRef data, with the
+  write-time file sha256 kept as provenance), and the release notes
+  sha-list every bundle file.
 - Replay inputs were digest-verified against the Study 1 dataset
   signature (`02572655…a9d3b`) before any capture ran (launch preflight).
 
@@ -297,6 +299,14 @@ python3 analyze_tier2.py \
   --mode-a quant-welfare-s2-modea-1 --mode-b quant-welfare-s2-modeb-1 \
   --mode-c quant-welfare-s2-modec-1 --out study2/expected-results.json
 
-# from released bundles: pass --bundle <dir> with the release assets laid
-# out beside the capture tensors, per the BundleStore root convention
+# from released bundles: the release .pb files are self-contained (records
+# and tensors in one file); download them into a directory and pass it.
+# Verified: this reproduces the committed golden byte-identically.
+python3 analyze_tier2.py --bundle <download-dir> \
+  --mode-a quant-welfare-s2-modea-1 --mode-b quant-welfare-s2-modeb-1 \
+  --mode-c quant-welfare-s2-modec-1
+
+# see what any bundle holds / take a piece of it
+python3 -m modelwelfare.bundle inspect <file.pb>
+python3 -m modelwelfare.bundle extract <file.pb> --out dir --uri <capture-name>
 ```

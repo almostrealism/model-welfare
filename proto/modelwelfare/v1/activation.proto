@@ -5,10 +5,18 @@ package modelwelfare.v1;
 import "modelwelfare/v1/common.proto";
 
 /*
- * The bridge to safetensors: uri is a path relative to the data root,
- * tensor_name the entry within that file, shape/dtype allow validation
- * without opening the file, file_digest (SHA-256) content-addresses it.
- * Tensor data is never embedded in protobuf.
+ * A tensor, either referenced or carried. In the streaming (write-time)
+ * store the tensor lives in a safetensors file: uri is a path relative to
+ * the data root, tensor_name the entry within that file, shape/dtype allow
+ * validation without opening the file, file_digest (SHA-256)
+ * content-addresses it. In the at-rest release form the tensor rides
+ * inline: data holds the little-endian buffer for shape/dtype and is
+ * authoritative when non-empty (uri/tensor_name/file_digest remain as
+ * write-time provenance), so a release bundle decomposes with the bundle
+ * CLI instead of trailing a directory of side files. dtype is a numpy
+ * name, plus "bfloat16" for float32 payloads whose mantissa tail is zero
+ * (a bfloat16-computing model's activations round-trip losslessly at half
+ * the bytes).
  */
 message TensorRef {
   string uri = 1;
@@ -16,6 +24,7 @@ message TensorRef {
   repeated uint64 shape = 3;
   string dtype = 4;
   string file_digest = 5;
+  bytes data = 6;
 }
 
 /*
