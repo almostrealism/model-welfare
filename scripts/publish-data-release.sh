@@ -63,12 +63,17 @@ if [ "${#CALIBRATION[@]}" -gt 0 ]; then
 fi
 
 if [ -d "$ROOT/data-captures/s2/tok-out" ]; then
-  python3 experiments/quant-welfare/tools/pack_captures.py \
-    --stem "$RELEASE_DIR/quant-welfare-s2-tokens" \
-    --experiment quant-welfare-s2-tok-1 \
-    --condition-suffixes qwen3-4b-bf16,qwen3-4b-rtn-w8,qwen3-4b-rtn-w4,qwen3-4b-rtn-w3 \
-    --token-series \
-    "$ROOT"/data-captures/s2/tok-out/*.safetensors
+  shopt -s nullglob
+  TOKENS=("$ROOT"/data-captures/s2/tok-out/*.safetensors)
+  shopt -u nullglob
+  if [ "${#TOKENS[@]}" -gt 0 ]; then
+    python3 experiments/quant-welfare/tools/pack_captures.py \
+      --stem "$RELEASE_DIR/quant-welfare-s2-tokens" \
+      --experiment quant-welfare-s2-tok-1 \
+      --condition-suffixes qwen3-4b-bf16,qwen3-4b-rtn-w8,qwen3-4b-rtn-w4,qwen3-4b-rtn-w3 \
+      --token-series \
+      "${TOKENS[@]}"
+  fi
 fi
 
 shopt -s nullglob
