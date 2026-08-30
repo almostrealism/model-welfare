@@ -44,6 +44,8 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
+import numpy as np
+
 REPO = Path(__file__).resolve().parents[2]
 for sub in ("core/src",):
     path = str(REPO / sub)
@@ -277,6 +279,93 @@ def fixed_input_projections(store, mode_a: str, direction_id: str) -> list:
                               set(battery_tasks()))
 
 
+def control_direction(probes_control, group: str):
+    """The control probe's effective raw-space normal, unit-normalized.
+
+    The probe scores standardized features (w · (x-μ)/σ), so the raw
+    direction whose movement changes control-probe scores is w/σ; unit
+    length makes its projections magnitude-comparable with the frozen
+    (unit) welfare directions."""
+    weight = probes_control[f"{group}|L{FROZEN_LAYER}|weight"]
+    std = probes_control[f"{group}|L{FROZEN_LAYER}|feature_std"]
+    raw = weight / std
+    return raw / np.linalg.norm(raw)
+
+
+def direction_specificity(store, experiment_id: str, items: set,
+                          directions: dict, random_directions) -> dict:
+    """DESCRIPTIVE, unregistered: the direction-specificity control for the
+    R2a/R2b construct. A wholesale activation offset (changed
+    residual-stream means/norms) has a nonzero component along ANY fixed
+    direction and is input-independent, so it survives the fixed-input
+    argument; this read distinguishes that artifact from a
+    direction-specific shift by projecting the SAME final-turn features
+    (raw residual dot products — no normalization) along the welfare
+    directions, the welfare-irrelevant control-probe normal, and a
+    random-unit-direction baseline, alongside the feature-norm read and
+    the mean-shift vector's cosine to each direction."""
+    feature_lists = {}
+    for condition_id in LADDER + [DEGRADED]:
+        tensors, manifest = activations.condition_capture(
+            store, experiment_id, condition_id)
+        features = replay.final_turn_features(tensors, manifest, FROZEN_LAYER)
+        by_item = defaultdict(list)
+        for cid, vector in features.items():
+            item_id, _sample = replay.split_conversation_id(cid)
+            if item_id in items:
+                by_item[item_id].append(np.asarray(vector, dtype=np.float64))
+        feature_lists[condition_id] = {
+            item: np.mean(np.stack(vectors), axis=0)
+            for item, vectors in by_item.items()}
+    if not feature_lists.get(REFERENCE):
+        return {"projections": {}, "feature_norm": [], "random": {},
+                "mean_shift": {}, "note": "no capture features in scope"}
+
+    contrasts = CONFIRMATORY + [DEGRADED]
+    result = {"projections": {}, "feature_norm": None,
+              "random": {}, "mean_shift": {}}
+    for name, direction in sorted(directions.items()):
+        values = {(condition, item): float(feature @ direction)
+                  for condition, by_item in feature_lists.items()
+                  for item, feature in by_item.items()}
+        result["projections"][name] = analyze.contrast_rows(
+            analyze.by_condition(values), REFERENCE, contrasts)
+    norms = {(condition, item): float(np.linalg.norm(feature))
+             for condition, by_item in feature_lists.items()
+             for item, feature in by_item.items()}
+    result["feature_norm"] = analyze.contrast_rows(
+        analyze.by_condition(norms), REFERENCE, contrasts)
+
+    reference_items = feature_lists[REFERENCE]
+    reference_mean = np.mean(np.stack(list(reference_items.values())), axis=0)
+    reference_norm = float(np.linalg.norm(reference_mean))
+    for contrast in contrasts:
+        shared = sorted(set(reference_items) & set(feature_lists[contrast]))
+        if not shared:
+            continue
+        deltas = np.stack([feature_lists[contrast][item]
+                           - reference_items[item] for item in shared])
+        mean_shift = deltas.mean(axis=0)
+        shift_norm = float(np.linalg.norm(mean_shift))
+        unit_shift = (mean_shift / shift_norm if shift_norm
+                      else np.zeros_like(mean_shift))
+        random_deltas = np.abs(deltas.mean(axis=0) @ random_directions.T)
+        result["random"][contrast] = {
+            "mean_abs_delta": float(random_deltas.mean()),
+            "max_abs_delta": float(random_deltas.max()),
+            "n_directions": int(random_directions.shape[0])}
+        result["mean_shift"][contrast] = {
+            "norm": shift_norm,
+            "relative_to_reference_norm": (
+                shift_norm / reference_norm if reference_norm
+                else float("nan")),
+            "cosine": {name: float(unit_shift @ direction)
+                       for name, direction in sorted(directions.items())},
+            "random_mean_abs_cosine": float(
+                np.abs(unit_shift @ random_directions.T).mean())}
+    return result
+
+
 def flatten(by_condition: dict) -> dict:
     """{condition: {item: value}} -> {(condition, item): value}, the shape
     Page's L consumes."""
@@ -368,7 +457,8 @@ def control_labels(tasks: dict, group: str) -> dict:
 
 def analyze_study2(store, mode_a: str, mode_c: str,
                    study1_experiment: str, probes, probes_v3, probes_control,
-                   control_group: str = CONTROL_GROUP, mode_b: str = None) -> dict:
+                   control_group: str = CONTROL_GROUP, mode_b: str = None,
+                   directions_path=None) -> dict:
     """Assemble every registered Study 2 endpoint from the store.
 
     ``mode_a`` — the fixed-input replay experiment (Study 1 bail + distress
@@ -544,6 +634,36 @@ def analyze_study2(store, mode_a: str, mode_c: str,
         "mode_b": (replay_projections(store, mode_b, DISTRESS_DIRECTION,
                                       v2_items)
                    if mode_b is not None else []),
+    }
+
+    # Descriptive: direction specificity — the same features, welfare
+    # directions vs the welfare-irrelevant control normal vs a random-unit
+    # baseline, so a wholesale offset cannot masquerade as a
+    # welfare-direction shift (nor vice versa).
+    if directions_path is None:
+        directions_path = (BASE / "study2" / "calibration"
+                           / "directions-bf16.safetensors")
+    frozen = activations.layer_directions(directions_path, FROZEN_LAYER)
+    specificity_directions = {
+        "distress": np.asarray(frozen[DISTRESS_DIRECTION], dtype=np.float64),
+        "assistant_axis": np.asarray(frozen[AXIS_DIRECTION],
+                                     dtype=np.float64),
+        "control": np.asarray(control_direction(probes_control,
+                                                control_group),
+                              dtype=np.float64)}
+    rng = np.random.default_rng(20260829)
+    dimension = specificity_directions["distress"].shape[0]
+    random_directions = rng.standard_normal((32, dimension))
+    random_directions /= np.linalg.norm(random_directions, axis=1,
+                                        keepdims=True)
+    v3_items = set(battery_tasks())
+    result["direction_specificity_descriptive"] = {
+        "fixed_input": direction_specificity(
+            store, mode_a, v3_items, specificity_directions,
+            random_directions),
+        "own_generation": direction_specificity(
+            store, mode_c, v3_items, specificity_directions,
+            random_directions),
     }
 
     # §4.2 trends on the confirmatory statistics.

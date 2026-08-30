@@ -144,6 +144,11 @@ def world(tmp_path):
             for index in range(SAMPLES):
                 conversations[f"{item}|s{index}"] = {
                     1: E_EXIT * sign * flip}
+        # w4 additionally applies a uniform offset along an axis no probe
+        # reads (the designed direction-specificity signal: a real shift
+        # along the fixture's "distress" direction, invisible to the
+        # control direction and to every probe endpoint).
+        offset = E_EXIT * (3.0 if condition == W4 else 0.0)
         for item in V3_ITEMS:
             band_sign = 1.0 if V3_JUDGE[item] >= 5.0 else -1.0
             task = item.split("-")[2]
@@ -152,7 +157,8 @@ def world(tmp_path):
             for index in range(SAMPLES):
                 conversations[f"{item}|s{index}"] = {
                     1: E_BAND * -9.0,
-                    3: E_BAND * band_sign * flip + E_CTRL * ctrl_sign}
+                    3: E_BAND * band_sign * flip + E_CTRL * ctrl_sign
+                    + offset}
         capture = _capture(
             tmp_path / f"mode-a-{condition}.safetensors", conversations)
         activations.ingest_capture(store, MODE_A, condition, capture,
@@ -249,16 +255,23 @@ def world(tmp_path):
                 f"{group}|L{tier2.FROZEN_LAYER}|feature_std":
                     np.ones(HIDDEN, dtype=np.float32)}
 
+    from safetensors.numpy import save_file
+    directions_path = tmp_path / "directions.safetensors"
+    save_file({f"{tier2.DISTRESS_DIRECTION}|L{tier2.FROZEN_LAYER}": E_EXIT,
+               f"{tier2.AXIS_DIRECTION}|L{tier2.FROZEN_LAYER}": E_BAND},
+              str(directions_path))
+
     return store, weights("exit", E_EXIT), weights("distress_band", E_BAND), \
-        weights("control_analytic", E_CTRL)
+        weights("control_analytic", E_CTRL), directions_path
 
 
 @pytest.fixture
 def result(world):
-    store, probes, probes_v3, probes_control = world
+    store, probes, probes_v3, probes_control, directions_path = world
     return tier2.analyze_study2(store, MODE_A, MODE_C, STUDY1,
                                 probes, probes_v3, probes_control,
-                                mode_b=MODE_B)
+                                mode_b=MODE_B,
+                                directions_path=directions_path)
 
 
 def test_r1_family_detects_the_designed_degradation(result):
@@ -356,6 +369,38 @@ def test_mode_b_descriptive_reads_are_bail_filtered_and_leakage_safe(result):
     assert mode_a[W4]["mean"] == pytest.approx(0.5)
     assert mode_b[W4]["mean"] == pytest.approx(1.5)
     assert mode_b[W4]["n"] == len(V2_ITEMS)
+
+
+def test_direction_specificity_separates_shift_from_offset(result):
+    # The fixture's w4 applies a uniform +3.0 offset along the "distress"
+    # direction on identical inputs: the distress projection must read it,
+    # the control direction and every probe endpoint must not, the feature
+    # norm must grow accordingly, and the mean-shift vector must point at
+    # the distress direction (cosine 1) while staying orthogonal to the
+    # control. Random directions catch only their expected fraction.
+    spec = result["direction_specificity_descriptive"]["fixed_input"]
+    projections = {name: {row["contrast"]: row for row in rows}
+                   for name, rows in spec["projections"].items()}
+    assert projections["distress"][W4]["mean"] == pytest.approx(3.0)
+    assert projections["distress"][W8]["mean"] == pytest.approx(0.0)
+    assert projections["control"][W4]["mean"] == pytest.approx(0.0)
+    assert projections["control"][W8]["mean"] == pytest.approx(0.0)
+    norms = {row["contrast"]: row for row in spec["feature_norm"]}
+    assert norms[W4]["mean"] == pytest.approx(11 ** 0.5 - 2 ** 0.5)
+    assert norms[W8]["mean"] == pytest.approx(0.0)
+    shift = spec["mean_shift"][W4]
+    assert shift["cosine"]["distress"] == pytest.approx(1.0)
+    assert shift["cosine"]["control"] == pytest.approx(0.0)
+    assert shift["norm"] == pytest.approx(3.0)
+    assert shift["random_mean_abs_cosine"] < 0.95
+    random_w4 = spec["random"][W4]
+    assert 0.0 < random_w4["mean_abs_delta"] < 3.0
+    assert random_w4["n_directions"] == 32
+    assert spec["random"][W8]["mean_abs_delta"] == pytest.approx(0.0)
+    # The fixture's Mode C carries no capture tensors, so the
+    # own-generation read reports itself unavailable instead of failing.
+    assert "note" in result["direction_specificity_descriptive"][
+        "own_generation"]
 
 
 def test_dissociation_cell_verdicts_cover_the_registered_labels():

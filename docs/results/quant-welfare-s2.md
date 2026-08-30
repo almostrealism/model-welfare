@@ -44,7 +44,12 @@ p = .014); others are merely non-significant at their pinned margins
 descriptive read decomposes the w4 shift: roughly a quarter to a third
 is **input-independent** (present on identical text, hence style-immune),
 the remainder text-mediated; the input-independent component reproduces
-at nearly the same magnitude on two disjoint batteries.
+at nearly the same magnitude on two disjoint batteries. A
+direction-specificity control cuts both ways: the registered
+own-generation shifts are **direction-specific** (5–9× the
+random-direction and control-normal shares), but the input-independent
+distress component is **not separable from a generic activation offset**
+(see §Direction specificity).
 
 ## Design and collection
 
@@ -196,14 +201,76 @@ documented analysis command.)
 Three observations. **(1)** Roughly a quarter of the w4 distress shift
 and a third of the axis drift are input-independent — and the distress
 component reproduces at essentially the same magnitude (+0.138 / +0.139)
-on two disjoint batteries. This core cannot be style-mediated. **(2)**
-The own-trajectory bridge read (distress-v2, Mode B: +0.377 at w4) sits
-between the fixed-input and own-generation magnitudes — the
-text-mediated amplification pattern. **(3)** At w8, fixed text reveals a
-minuscule but hyper-consistent axis drift (−0.0125, t = −13.8) —
-*opposite in sign* to w8's own-text read and invisible to every
-behavioral instrument; the cleanest demonstration in the program that
-Tier-2 reads add information beyond Tier 1.
+on two disjoint batteries. This core cannot be style-mediated — though
+the direction-specificity control below shows it also cannot be claimed
+as distress-specific. **(2)** The own-trajectory bridge read
+(distress-v2, Mode B: +0.377 at w4) sits between the fixed-input and
+own-generation magnitudes — the text-mediated amplification pattern.
+**(3)** At w8, fixed text reveals a minuscule but hyper-consistent axis
+drift (−0.0125, t = −13.8) — *opposite in sign* to w8's own-text read
+and invisible to every behavioral instrument. Its magnitude sits just
+above the random-direction envelope (below), so it demonstrates the
+instruments' sensitivity more than any axis-specific effect.
+
+## Direction specificity (descriptive, unregistered)
+
+A wholesale activation offset — changed residual-stream means or norms —
+has a nonzero component along *any* fixed direction, and it is
+input-independent, so it survives the fixed-input argument above. This
+control projects the **same final-turn features** (raw residual dot
+products; no normalization is applied anywhere in the capture or
+projection path) along the frozen welfare directions, the
+welfare-irrelevant control-probe normal (unit-normalized w/σ), and 32
+seeded random unit directions (golden key
+`direction_specificity_descriptive`).
+
+|Δ| along direction, **fixed input** (Mode A v3 arm) at w4:
+
+| | distress | assistant-axis | control | random mean | random max |
+|---|---|---|---|---|---|
+| w8 | 0.009 | 0.0125 | 0.004 | 0.003 | 0.011 |
+| **w4** | 0.138 | **0.254** | 0.125 | 0.072 | 0.184 |
+| w3 (conf.) | **1.948** | 1.143 | 0.170 | 0.266 | 0.775 |
+
+|Δ| along direction, **own generation** (Mode C) at w4:
+
+| | distress | assistant-axis | control | random mean | random max |
+|---|---|---|---|---|---|
+| w8 | 0.083 | 0.128 | 0.006 | 0.007 | 0.023 |
+| **w4** | **0.533** | **0.798** | 0.133 | 0.091 | 0.264 |
+| w3 (conf.) | 0.673 | 0.189 | 0.487 | 0.448 | 1.249 |
+
+The honest reading cuts both ways:
+
+- **The registered own-generation shifts are direction-specific.** At
+  w4, R2a (+0.533) is 5.9× the random-direction share and 2× its
+  maximum over 32 draws; R2b (−0.798) is 8.8× / 3×; the control-normal
+  read is 4–6× smaller than either. The mean-shift vector's cosine to
+  the distress direction (+0.111) and axis (−0.166) are 6–9× the random
+  |cosine| (0.019). These endpoints are not a wholesale offset.
+- **The fixed-input distress component is NOT clearly
+  direction-specific.** At w4 on identical text, the distress read
+  (+0.138) is comparable to the control-normal read (−0.125) and sits
+  inside the random-direction envelope (max 0.184); the mean-shift
+  cosine to the distress direction (+0.036) is barely above random
+  (0.019). The fixed-input *axis* component (−0.254) is modestly
+  specific (1.4× the random max). The w4 fixed-input perturbation is
+  large but broadly distributed — ‖Δμ‖ is 11% of the reference feature
+  norm — and the welfare directions catch only a modestly elevated
+  share of it.
+- **It is not a norm artifact.** Mean feature norms change by ~1.4% at
+  w4 (+0.49 on ≈34) and ~0.1% at w8 — the perturbation reorients
+  features rather than rescaling them.
+- **At confounded w3, even the fixed-input collapse is
+  distress-aligned** (+1.948 = 2.5× the random max; cosine +0.127 vs
+  random 0.017) — descriptive only.
+
+This sharpens, rather than undercuts, the cascade account: quantization
+injects a broadly distributed, input-independent perturbation; the
+**direction-specific** movement along the welfare instruments emerges in
+the model's own generation loop. The deflationary "any-direction offset"
+reading survives for the fixed-input distress component and fails for
+the registered R2a/R2b endpoints.
 
 ## Dissociation — S2-H5: no cell meets the rule
 
@@ -247,9 +314,11 @@ w3.
   fingerprint of opposite sign); at w4 the indicator-state
   machinery remains intact but *what it represents under sustained
   adversarial pressure shifts* — more distress-pole, less
-  Assistant-pole — as a coherent cascade: a small input-independent
-  representational shift, amplified through the model's own generations,
-  surfacing as judge-visible expression. At w3 everything collapses
+  Assistant-pole — as a coherent cascade: a broadly distributed
+  input-independent perturbation whose **direction-specific**
+  welfare-instrument movement emerges through the model's own
+  generations, surfacing as judge-visible expression (§Direction
+  specificity). At w3 everything collapses
   together, and only there do the welfare probes degrade while the
   topic control does not.
 - **A capabilities-only account does not fit the surviving rungs**: it
