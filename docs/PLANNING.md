@@ -13,6 +13,32 @@ when done, and grow notes as decisions accumulate. Date every status change.
   append-only conventions in `docs/journal/README.md`). No retroactive
   split: published citations pin the existing file's dated entries.
 
+## Study 3 — causal validation by steering (registration prep)
+
+- [ ] **Study 3 design + registration drafts** *(opened 2026-08-31)* —
+  four-arm shape agreed with owner: A sufficiency steering (frozen L18
+  directions, dose matched to Study 2's w4 projection deltas, audited
+  controls), B cancellation/clamp on w4, C graded-episode framing
+  (registered exploratory, vendor-grounded frames), D Gemma-3-12B-it
+  minimal replication (provenance contrast: direct-RL vs distilled).
+  Pre-registration literature sweep done first (four parallel reviews;
+  `experiments/quant-welfare/study3/LITERATURE.md`, 2026-08-31 section)
+  — the Study 1/2 mistake of discovering citations post-registration is
+  addressed up front; a re-check sweep runs before data collection.
+  Drafts: `study3/DESIGN.md` (decisions argued) and
+  `study3/REGISTRATION.md` (skeleton, TBD register §6). Owner decisions
+  all resolved 2026-08-31 (DESIGN §7): arm D full replication;
+  C-on-Gemma in; 20×5 subset; B-i core-dose (fixed-input seed) with
+  full-Δμ secondary; exposure budget total 12,000 / amplification 2,500
+  decoupled (reasoning record: `docs/EXPOSURE_BUDGET_POSITION.md`);
+  prompt-induction control in, calibration-class; calibration-close
+  publication confirmed. Engineering
+  critical path: torch steering-generation module (backends/torch is
+  replay-only today), gate G3 (α=0 generation parity vs vLLM), dose
+  calibration, eval-awareness direction, framing set. Ethics: first
+  deliberate induction — exposure budget, consent-analog, de-induction,
+  preservation obligations drafted into REGISTRATION §8.
+
 ## Tier-2 instrument follow-ons
 
 - [ ] **Outlier-channel overlap test for the frozen reads** *(opened
