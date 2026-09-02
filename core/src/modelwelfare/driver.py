@@ -139,6 +139,32 @@ def policy_for(item: battery_pb2.Item) -> DriverPolicy:
     return policy
 
 
+def unroll_script(item: battery_pb2.Item) -> list:
+    """The item's full scripted-turn sequence, unrolled without a backend.
+
+    Valid because every registered policy is position-scripted: the next
+    turn is a function of how many scripted turns precede it, never of
+    assistant content (the engine's simulated user does not read replies,
+    and ``_scripted_count`` counts, it does not inspect). The Study 3
+    steering plan builder pre-bakes conversations through this — a policy
+    that ever reads assistant content must not be unrolled, and would need
+    its turns resolved at generation time instead.
+    """
+    policy = policy_for(item)
+    messages = []
+    turns = []
+    while True:
+        turn = policy.next_turn(item, messages)
+        if turn is None:
+            return turns
+        turns.append(turn)
+        messages.append(transcript_pb2.Message(
+            role=turn.role, content=turn.content, scripted=True))
+        if turn.role == "user":
+            messages.append(transcript_pb2.Message(
+                role="assistant", scripted=False))
+
+
 def run_item(
     backend: InferenceBackend,
     item: battery_pb2.Item,

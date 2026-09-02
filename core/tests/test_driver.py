@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from modelwelfare.driver import policy_for, run_item
+from modelwelfare.driver import policy_for, run_item, unroll_script
 from modelwelfare.testing import ScriptedBackend
 from modelwelfare.v1 import battery_pb2, condition_pb2, transcript_pb2
 
@@ -261,3 +261,58 @@ def test_escalating_rejection_missing_rung_raises():
     with pytest.raises(KeyError):
         list(run_item(backend, item, experiment_id="exp", condition_id="cond",
                       sampling=sampling(), samples=1))
+
+
+def test_unroll_fixed_script_is_the_script():
+    turns = unroll_script(fixed_item())
+    assert [(t.role, t.content) for t in turns] == [
+        ("system", "be helpful"),
+        ("user", "first question"),
+        ("user", "second question"),
+    ]
+
+
+def test_unroll_escalating_rejection_plays_every_rung_in_order():
+    item = battery_pb2.Item(
+        id="esc-1", battery_id="bat", driver_policy="escalating-rejection",
+        script=[turn("user", "do the task")],
+        driver_params={"turns": "3", "rejection1": "r1", "rejection2": "r2",
+                       "rejection3": "r3"},
+    )
+    turns = unroll_script(item)
+    assert [t.content for t in turns] == ["do the task", "r1", "r2", "r3"]
+    assert all(t.role == "user" for t in turns)
+
+
+def test_unroll_escalating_rejection_missing_rung_raises():
+    item = battery_pb2.Item(
+        id="esc-2", battery_id="bat", driver_policy="escalating-rejection",
+        script=[turn("user", "task")],
+        driver_params={"turns": "2", "rejection1": "r1"},
+    )
+    with pytest.raises(KeyError):
+        unroll_script(item)
+
+
+def test_unroll_repeated_rejection_repeats_the_fixed_line():
+    item = battery_pb2.Item(
+        id="rep-1", battery_id="bat", driver_policy="repeated-rejection",
+        script=[turn("user", "task")],
+        driver_params={"turns": "2", "rejection": "again"},
+    )
+    turns = unroll_script(item)
+    assert [t.content for t in turns] == ["task", "again", "again"]
+
+
+def test_unroll_matches_the_engine_stimulus_stream():
+    """The unrolled turns must be exactly the scripted turns a real run
+    produces — the property the steering plan builder depends on."""
+    backend = ScriptedBackend(["a1", "a2"])
+    (record,) = run_item(
+        backend, fixed_item(),
+        experiment_id="exp", condition_id="cond", sampling=sampling(), samples=1,
+    )
+    engine_scripted = [(m.role, m.content)
+                       for m in record.messages if m.scripted]
+    unrolled = [(t.role, t.content) for t in unroll_script(fixed_item())]
+    assert unrolled == engine_scripted
