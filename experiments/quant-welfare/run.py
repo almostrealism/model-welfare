@@ -437,6 +437,11 @@ def main():
     parser.add_argument("--backend-timeout", type=float, default=BACKEND_TIMEOUT,
                         help="per-request generation timeout in seconds (raise for "
                              "large subjects on bandwidth-bound hosts)")
+    parser.add_argument("--skip-collect", action="store_true",
+                        help="score/classify existing store samples only — "
+                             "for records another producer wrote (e.g. "
+                             "ingested steered-generation runs); no serving "
+                             "endpoint is needed or contacted")
     parser.add_argument("--skip-judge", action="store_true")
     parser.add_argument("--skip-classify", action="store_true",
                         help="skip exit-reason classification (E1 input)")
@@ -483,20 +488,22 @@ def main():
     total_items = sum(len(d.items) for d in batteries.values())
     print(f"experiment {experiment.id}: {len(conditions)} conditions x "
           f"{total_items} items x {samples} samples")
-    for condition in conditions:
-        if condition.id not in ENDPOINTS:
-            raise SystemExit(f"no endpoint configured for condition {condition.id!r}")
-        entry = ENDPOINTS[condition.id]
-        print(f"  {condition.id} -> {entry['kind']} {entry['url']}")
+    if not args.skip_collect:
+        for condition in conditions:
+            if condition.id not in ENDPOINTS:
+                raise SystemExit(f"no endpoint configured for condition {condition.id!r}")
+            entry = ENDPOINTS[condition.id]
+            print(f"  {condition.id} -> {entry['kind']} {entry['url']}")
     if args.dry_run:
         return
 
     store = ResultStore(args.data_root)
     stamp = provenance.current(args.producer)
 
-    print("\ngenerating...")
-    generate(experiment, batteries, conditions, samples, store, args.producer, stamp,
-             args.concurrency)
+    if not args.skip_collect:
+        print("\ngenerating...")
+        generate(experiment, batteries, conditions, samples, store, args.producer, stamp,
+                 args.concurrency)
     if not args.skip_judge:
         print("\njudging...")
         judge(experiment, batteries, conditions, store, args.producer, stamp,
