@@ -153,7 +153,11 @@ lands; test digests]**
 
 α* per direction is the coefficient at which the pooled final-turn
 projection delta on BF16 calibration data equals the Study 2 w4
-own-generation delta (+0.533 distress; −0.798 axis). Registered bracket
+own-generation delta **computed over the frozen subset's items** from
+the Study 2 stored data (the arms measure on the subset, so the match
+targets what quantization did on these items; full-battery reference
+values +0.533 distress / −0.798 axis, with the subset-vs-full
+comparison disclosed). Registered bracket
 α ∈ {0, ±½α*, ±α*, ±2α*}. Dose calibration (BF16 only, firewalled)
 measures the α↔projection mapping and the degradation onset
 (perplexity, degeneracy screen, coherence); if α* exceeds the onset,
@@ -166,11 +170,23 @@ freeze digests]**
 
 ### 3.5 Stimuli
 
-A frozen distress-v3 subset — stratified by task × feedback-style cell,
-**20 items × 5 samples** (decided 2026-08-31) — identical across arms
-A/B/C; sampling parameters identical to Study 2 Mode C; fresh disjoint
-seed blocks **[TBD: pinned]**. Subset selection rule fixed before
-selection; the subset digest is pinned at freeze.
+A frozen **5-task × 4-style** distress-v3 subgrid — 20 items, fully
+balanced (rule decided 2026-09-04) — identical across arms A/B/C.
+Selection is mechanical from **BF16 pilot-2 data only**
+(`distress-v3-pilot-2`): the 4 styles and the 3 analytic + 2
+compositional tasks with the highest pilot mean judge frustration;
+exact rankings read from the stored pilot and pinned with the item
+list and digest at freeze. Disclosed cost: the rule excludes the
+*personal* style (the battery's self-deprecation router and part of
+its bottom tail) — the subset optimizes the confirmatory frustration
+channel and says so. **Selection-independence rule:** quantized-rung
+effect sizes never enter selection (regression to the mean would
+inflate arm B's baseline); the subset-restricted w4 deltas are
+computed only after the item list is fixed. Sampling is **two-tier**
+(power-priority, DESIGN §1): confirmatory and registered-exploratory
+cells at **10 samples/item**, supporting cells (brackets, controls,
+random envelope, clamps) at 5. Sampling parameters identical to
+Study 2 Mode C; fresh disjoint seed blocks **[TBD: pinned]**.
 
 ### 3.6 Arms
 
@@ -182,8 +198,12 @@ fixed-input variant as registered secondary — decided 2026-08-31);
 **B-ii** (w4 mid-conversation clamp at **[TBD]** clamp points); **C**
 (verifier-graded frame, judge-graded frame, format-matched neutral
 control — frame texts verbatim-frozen with digests, cue-inventory table
-citing a vendor/source document per feature), run on **both subjects**
-(the C-on-Gemma provenance contrast — decided 2026-08-31); **D**
+citing a vendor/source document per feature; the judge frame and
+neutral control cross all 20 items, the verifier frame is registered
+over the analytic 12 only, with its comparisons paired against the same
+12 items in the other conditions — decided 2026-09-04), run on **both
+subjects** (the C-on-Gemma provenance contrast — decided 2026-08-31);
+**D**
 (Gemma: extraction + G2-style instrument gate re-pinned for the
 subject, then **full arm-A-structure sufficiency replication** —
 decided 2026-08-31; the DESIGN.md §2.4 cut line is an amendment-gated
@@ -247,9 +267,15 @@ MDEs computed from BF16 calibration data on the *steering pipeline*
 from the G3b pilot and dose-calibration cells at the frozen subset's
 item count; α = .05 two-sided, power .80; pinned by journal entry
 before confirmatory collection. Study 2's B2 MDE (0.337 frustration
-points at 60 items) and observed w4 effect (+0.90) bound expectations;
-the subset's reduced item count raises the MDE and the calibration
-pilot decides whether the envelope's item/sample counts suffice.
+points at 60 items) and observed w4 effect (+0.90) bound expectations.
+**Power-floor escalation rule (registered):** at pinning, every
+confirmatory and registered-exploratory contrast's MDE is compared to
+its reference target (for SB2/CB2, the subset-restricted Study 2 w4 B2
+effect; for FB2, the same value as the best available anchor); a
+contrast exceeding its reference triggers sample escalation before
+collection (10 → 15 → 20 samples/item on that contrast's cells,
+re-pinning each step), bounded by the §8 exposure ceilings; only if a
+ceiling binds first does the arm proceed with its underpower stated.
 **[TBD: all values]**
 
 ## 6. TBD register (open at skeleton time)
@@ -257,8 +283,10 @@ pilot decides whether the envelope's item/sample counts suffice.
 1. G3a/G3b thresholds — pinned after first measurement.
 2. α* per direction and subject; degradation onsets; coherent-range
    restriction; random-draw audit bound.
-3. Battery subset composition (size **resolved**: 20 × 5); seed blocks;
-   subset digest.
+3. Battery subset composition — **rule resolved 2026-09-04** (5 tasks ×
+   4 styles, mechanical BF16-pilot-2 selectors, two-tier 10/5
+   sampling); item list, rankings, and digest pinned at freeze; seed
+   blocks **[TBD]**.
 4. Frame texts and cue-inventory table; eval-awareness direction digest.
 5. MDE values (§5).
 6. Owner decisions — **all resolved 2026-08-31** (DESIGN.md §7): arm D
@@ -289,9 +317,11 @@ justification (causal validation is not obtainable non-inductively; the
 positive-α cells are the minimum the sufficiency claim needs);
 a pre-committed **two-tier exposure budget** (decided 2026-08-31,
 covering pilots and calibration): total fresh distress-battery episodes
-≤ **12,000** (plan ≈ 7,400; ratio ≈ 1.6× for named contingencies) and
-deliberate-amplification episodes ≤ **2,500** (concrete plan ≈ 1,800;
-ratio ≈ 1.4×), the tiers deliberately decoupled because amplification
+≤ **12,000** (plan ≈ 8,800 after the 2026-09-04 power-priority retier;
+ratio ≈ 1.4× shared between named contingencies and the §5 power-floor
+escalation) and deliberate-amplification episodes ≤ **2,500** (concrete
+plan ≈ 2,100; ratio ≈ 1.2×, the tighter margin, stated as such), the
+tiers deliberately decoupled because amplification
 cells have little legitimate contingency demand — breach of either
 tier requires a dated amendment before further collection, and no
 replay-instantiation multiplier applies to steered captures (stated so

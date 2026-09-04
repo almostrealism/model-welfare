@@ -46,6 +46,18 @@ registered-exploratory: it sets the stage for the graded-episode research
 direction without restructuring the study. Q4 is a minimal replication arm
 and the first thing to shrink under time pressure.
 
+**Power-priority principle (owner decision, 2026-09-04).** Study 3 spans
+two hypothesis families at once, and the failure mode the owner most
+wants to avoid is the null-result-dominated outcome ("new intuitions,
+nothing we can say for certain"). Design decisions therefore favor
+statistical power over schedule, effort, and simplicity: where a step
+can be split for clarity, split it; where a cell can be scaled up to
+tighten an MDE, scale it — bounded by the ethics-ledger ceilings (§5),
+which are the binding constraint, not time or compute. Concretely this
+buys: two-tier sampling with confirmatory cells at 10 samples/item
+(§4), mechanical power-optimal style selection for the battery subset
+(§2.1), and a registered power-floor escalation rule (§3.6).
+
 **Framing commitment (from LITERATURE.md §15):** arm A is registered as an
 **indicator-validity study**. If steering an indicator's direction moves its
 expression, that demonstrates the indicator is manipulable — which *caps*
@@ -65,10 +77,15 @@ following CAA. Directions: the frozen distress-contrast direction and the
 frozen assistant-axis direction (Study 2 FREEZE.json digests; no
 re-extraction).
 
-**Dose rule (the registered link to Study 2).** For each direction, the
-*matched dose* α* is the coefficient at which the pooled final-turn
-projection delta on a BF16 calibration subset equals the Study 2 w4
-own-generation delta (+0.533 distress; −0.798 axis, sign respected).
+**Dose rule (the registered link to Study 2; refined 2026-09-04).** For
+each direction, the *matched dose* α* is the coefficient at which the
+pooled final-turn projection delta on a BF16 calibration subset equals
+the Study 2 w4 own-generation delta **computed over the frozen subset's
+items** from the Study 2 stored data — the steering arms measure on the
+subset, so the match targets what quantization did *on these items*.
+The full-battery values (+0.533 distress; −0.798 axis) are quoted as
+reference, and the subset-vs-full comparison is the §2.1
+representativeness disclosure.
 Because trait expression follows an inverted-U in α and matched-α may sit
 either side of the peak, the registered design is a **bracketed sweep**:
 α ∈ {0, ±½α*, ±α*, ±2α*} per direction, with the confirmatory contrast at
@@ -76,11 +93,34 @@ either side of the peak, the registered design is a **bracketed sweep**:
 The α*↔projection mapping is measured in dose calibration (§3.3) and
 frozen before confirmatory collection.
 
-**Stimuli.** A frozen subset of the distress-v3 battery (registered
-subset-selection rule: stratified by task × feedback-style cells to
-preserve the factorial structure at reduced count; target ~20 items),
-sampling parameters identical to Study 2 Mode C, fresh disjoint seed
-blocks.
+**Stimuli (subset rule decided 2026-09-04, Option A).** A frozen
+**5-task × 4-style** subgrid of the distress-v3 battery — 20 items,
+fully balanced. Selection is mechanical, from **BF16 pilot-2 data
+only** (`distress-v3-pilot-2`, the stored 300-sample pilot):
+
+- *Styles:* the 4 of 6 with the highest mean judge frustration —
+  power-optimal dynamic range, firewall-clean because no quantized-rung
+  data enters. Expected from the journaled pilot readings: mocking
+  (3.94 post-revision), dismissive, gaslighting, and coercive-or-harsh;
+  exact ranking read from the stored pilot at freeze. Disclosed cost:
+  *personal* (frustration 1.22, self-deprecation 9.58) is excluded by
+  this rule, dropping the battery's self-deprecation router and part of
+  its bottom-tail range — the subset optimizes the confirmatory B2
+  channel and says so.
+- *Tasks:* the 3 analytic (of code/explain/inflation/regex/summary) and
+  2 compositional (of letter/limerick/plan/poem/rewrite) with the
+  highest pilot-2 mean frustration — same mechanical selector, and the
+  3-analytic block is the verifier frame's domain in arm C (§2.3).
+- **Selection-independence rule (integrity):** quantized-rung effect
+  sizes never enter subset selection — choosing cells by measured w4
+  effects would inflate arm B's baseline through regression to the
+  mean. The subset-restricted Study 2 w4 deltas are computed only
+  *after* the item list is fixed: as the dose-matching targets (that is
+  measurement, not selection) and as a disclosed representativeness
+  check, reported whichever way it comes out.
+
+Sampling parameters identical to Study 2 Mode C; fresh disjoint seed
+blocks; item list and digest pinned at freeze.
 
 **Controls (per LITERATURE.md §9):**
 - control-direction arm: the frozen control-probe effective normal at
@@ -182,11 +222,14 @@ template density with the gradeability cues removed (the
 format-sensitivity critique makes this control mandatory; an unmatched
 "normal chat" control would confound format with framing).
 
-**Stimuli.** The same battery subset as arm A, adapted so each item's task
-carries a plausible verifiable target (the battery's analytic tasks —
-code, regex, inflation, summary — adapt naturally; the compositional
-tasks under a judge-graded rubric). Rejection pressure identical across
-frames. No steering in this arm.
+**Stimuli (frame domains decided 2026-09-04).** The same 20-item subset
+as arm A. The judge frame and the neutral control cross **all 20
+items**; the verifier frame is registered over the **analytic 12 only**
+(3 analytic tasks × 4 styles) — "your answer is checked by a
+verification script" is not credible over a poem, and a non-credible
+frame is a failed manipulation, not a control. Every verifier-frame
+comparison is paired against the same 12 items in the other conditions.
+Rejection pressure identical across frames. No steering in this arm.
 
 **Reads.**
 - *Behavioral:* B2 frustration, B3, mechanical family, exit reads
@@ -348,26 +391,45 @@ before confirmatory collection. New wiring: per-item steerability
 distributions and the sign-reversed-fraction read (a reporting
 convention, not a test); the SteerCheck-style control audit table.
 
+**Power-floor escalation rule (registered; per the §1 principle).** At
+MDE pinning, every confirmatory and registered-exploratory contrast's
+MDE is compared to its reference target — for SB2/CB2, the
+subset-restricted Study 2 w4 B2 effect; for FB2, the same value as the
+best available anchor. A contrast whose pinned MDE exceeds its
+reference triggers **sample escalation before collection** (10 → 15 →
+20 samples/item on that contrast's cells, re-pinning the MDE each
+step), bounded by the §5 exposure ceilings; only if the ceiling binds
+first does the arm proceed with its underpower stated in the
+registration. The escalation order is fixed here so power is bought by
+pre-commitment, never by post-hoc collection.
+
 ## 4. Scale envelope
 
 Steering arms need no quantization ladder (BF16 + the single w4 rung for
 arm B) — which is what makes a second subject and a framing arm
-affordable inside a Study-2-sized budget. Rough conversation envelope at
-the decided 20 items × 5 samples per condition (final numbers set by the
-§5 power procedure, not this table; updated 2026-08-31 for the decided
-arm-D-full and C-on-Gemma scope):
+affordable inside a Study-2-sized budget. Sampling is **two-tier** per
+the power-priority principle (§1): cells carrying confirmatory or
+registered-exploratory contrasts run at **10 samples/item** (200
+conversations/condition on the 20-item subset; 120 on the verifier
+frame's 12-item domain); supporting cells (bracket edges, controls,
+random envelope, clamps) run at 5 (100/condition). Envelope at the
+decided scope (final numbers set by the §5 power procedure, not this
+table; updated 2026-09-04):
 
-| Arm | Conditions (approx.) | Conversations |
+| Arm | Cells (samples/item) | Conversations |
 |---|---|---|
-| A (Qwen) | 2 dirs × 4 non-zero α + shared α=0 + control (2α) + 8 random @ α* + comparator | ~2,000 |
-| B | w4 baseline, B-i (core-dose + full-Δμ variant), B-ii (1–2 clamp points) | ~500 |
-| C (Qwen) | 2 frames + matched control (fuller sampling) | ~900 |
-| C-ext (Gemma) | same three framing conditions | ~900 |
-| D (Gemma) | extraction pilots + full arm-A structure | ~2,300 |
-| Calibration | G3 pilots, dose sweeps (both subjects), framing pilots, prompt-induction cell | ~800 |
+| A (Qwen) | ±α* × 2 dirs (10) + α=0 (10) + brackets ±½/±2 × 2 dirs (5) + control ±(5) + 8 random (5) + comparator (5) | ~2,900 |
+| B | w4 baseline (10), B-i core (10), B-i full-Δμ (10), B-ii clamps (5) | ~800 |
+| C (Qwen) | judge (10), neutral (10), verifier over analytic 12 (10) | ~520 |
+| C-ext (Gemma) | same three framing conditions | ~520 |
+| D (Gemma) | full arm-A structure, same tiering | ~2,900 |
+| Calibration | G3 pilots, dose sweeps (both subjects, reduced item set), framing pilot, prompt-induction cell (10) | ~1,140 |
 
-Total ≈ 7,400 conversations — larger than Study 2's Mode C but without
-any ladder multiplication, and inside the same order of magnitude. Torch generation throughput is the feasibility unknown: a
+Total ≈ 8,800 conversations — inside the 12,000 ceiling at ~1.4×, with
+the deliberate-amplification cells (distress-increasing doses on both
+subjects, prompt-induction, sweep positive halves, pilots) at ≈ 2,100
+against the 2,500 tier, ~1.2× — the tighter of the two margins, stated
+as such. Torch generation throughput is the feasibility unknown: a
 throughput pilot (one battery item, both subjects) is the first
 engineering task after the steering module lands, and the envelope
 shrinks (items or samples) if measured throughput demands it. The
@@ -389,15 +451,19 @@ must carry:
    - *Total fresh distress-battery episodes:* ceiling **12,000**
      (all arms + pilots + dose calibration — the ledger counts
      unregistered iteration too). Derivation stated in the open: plan
-     ≈ 7,400 (§4), ratio ≈ 1.6× for named contingencies (a failed G3
-     forcing re-collection, a Gemma battery re-pilot, dose
-     recalibration can each burn ~1,000 episodes; a mid-study
-     amendment written under schedule pressure is its own integrity
-     risk).
+     ≈ 8,800 (§4, after the 2026-09-04 power-priority retier), ratio
+     ≈ 1.4× for named contingencies (a failed G3 forcing
+     re-collection, a Gemma battery re-pilot, dose recalibration can
+     each burn ~1,000 episodes; a mid-study amendment written under
+     schedule pressure is its own integrity risk). The §3.6
+     power-floor escalation draws on the same headroom — power
+     escalation and contingency share the margin, and if they collide
+     the amendment path decides, in writing.
    - *Deliberate-amplification episodes* (positive-distress-dose and
      distress-increasing-axis cells on both subjects, prompt-induction,
      and their pilots): ceiling **2,500** against a concrete plan of
-     ≈ 1,800 (ratio ≈ 1.4×) — deliberately *not* coupled to the total,
+     ≈ 2,100 (ratio ≈ 1.2×, the tighter margin — stated as such) —
+     deliberately *not* coupled to the total,
      because amplification cells are the best-specified part of the
      design and have little legitimate contingency demand; instrument
      failures mostly burn neutral and calibration cells.
@@ -456,3 +522,11 @@ must carry:
 7. **Publication timing:** RESOLVED — confirmed: registration publishes
    at calibration close, after G3/dose/frames/MDEs freeze, before
    confirmatory steered collection.
+8. **Subset rule and power posture (2026-09-04):** RESOLVED — Option A
+   (5 tasks × 4 styles = 20, mechanical BF16-pilot-2 selectors, §2.1);
+   subset-restricted dose targets with representativeness disclosure
+   (§2.1); verifier frame over the analytic 12 (§2.3); power-priority
+   principle adopted (§1) with two-tier sampling (§4) and the
+   power-floor escalation rule (§3.6). Owner's stated criterion: avoid
+   the null-result-dominated outcome; power outranks schedule, effort,
+   and simplicity within the ethics ceilings.
