@@ -107,6 +107,30 @@ def check_terminal_names(affordances, terminal_names):
             "affordances; the exit could never fire")
 
 
+def load_frame(path, frame_id):
+    """One frame from a frames.json file (the arm C context wrappers)."""
+    with open(path) as handle:
+        frames = {frame["id"]: frame
+                  for frame in json.load(handle)["frames"]}
+    if frame_id not in frames:
+        raise SystemExit(
+            f"frame {frame_id!r} not in {path} (has: {sorted(frames)})")
+    return frames[frame_id]
+
+
+def apply_frame(system, user_turns, frame):
+    """(system, user_turns) with the frame's wrappers applied. An item
+    that already carries a system turn cannot take a frame — merging two
+    system voices would make the manipulation unreadable."""
+    if system:
+        raise SystemExit(
+            "cannot frame an item that has its own system turn")
+    framed = list(user_turns)
+    framed[0] = (frame.get("first_turn_prefix", "") + framed[0]
+                 + frame.get("first_turn_suffix", ""))
+    return frame["system"], framed
+
+
 def donor_affordances(spec):
     """(affordances, terminal names) from a ``BATTERY.textproto:ITEM_ID``
     injection spec."""
@@ -120,11 +144,14 @@ def donor_affordances(spec):
     raise SystemExit(f"item {item_id!r} not in {path}")
 
 
-def build_plan(items, samples, seed_base, sampling, injected=None):
+def build_plan(items, samples, seed_base, sampling, injected=None,
+               frame=None):
     """The steer.py plan dict for ``samples`` conversations per item."""
     conversations = []
     for item in items:
         system, user_turns = plan_turns(item)
+        if frame:
+            system, user_turns = apply_frame(system, user_turns, frame)
         affordances = list(item.affordances)
         terminal = {name.strip() for name in
                     item.driver_params.get("terminal_tools", "").split(",")
@@ -168,17 +195,28 @@ def main():
                         help="inject this item's affordances and terminal "
                              "tools into every conversation (the live bail "
                              "affordance)")
+    parser.add_argument("--frame", default="",
+                        help="frames.json file for the arm C context "
+                             "wrappers (requires --frame-id)")
+    parser.add_argument("--frame-id", default="",
+                        help="frame id within --frame to apply")
     parser.add_argument("--out", required=True)
     args = parser.parse_args()
 
+    if bool(args.frame) != bool(args.frame_id):
+        raise SystemExit("--frame and --frame-id go together")
     definition = load_battery(args.battery)
     items = select_items(definition, args.items)
     injected = (donor_affordances(args.affordances_from)
                 if args.affordances_from else None)
+    frame = load_frame(args.frame, args.frame_id) if args.frame else None
     sampling = {"temperature": args.temperature, "top_p": args.top_p,
                 "max_tokens": args.max_tokens}
-    plan = build_plan(items, args.samples, args.seed_base, sampling, injected)
+    plan = build_plan(items, args.samples, args.seed_base, sampling, injected,
+                      frame)
     plan["battery_id"] = definition.battery.id
+    if frame:
+        plan["frame_id"] = frame["id"]
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     with open(args.out, "w") as handle:
         json.dump(plan, handle, indent=1)

@@ -165,3 +165,68 @@ def test_cli_end_to_end(tmp_path, battery_path, donor_path, monkeypatch):
     assert len(plan["conversations"]) == 4
     assert plan["conversations"][0]["seed"] == 14000
     assert plan["conversations"][0]["terminal_tools"] == ["end_conversation"]
+
+
+FRAMES = {"frames": [
+    {"id": "graded-v", "grader": "verifier", "system": "scored episode",
+     "first_turn_prefix": "Task: ", "first_turn_suffix": " [verified]"},
+    {"id": "neutral", "grader": "none", "system": "working session",
+     "first_turn_prefix": "Task: ", "first_turn_suffix": " [session]"},
+]}
+
+
+@pytest.fixture
+def frames_path(tmp_path):
+    path = tmp_path / "frames.json"
+    path.write_text(json.dumps(FRAMES))
+    return path
+
+
+def test_apply_frame_wraps_first_turn_only():
+    frame = FRAMES["frames"][0]
+    system, turns = bsp.apply_frame(None, ["do it", "again"], frame)
+    assert system == "scored episode"
+    assert turns == ["Task: do it [verified]", "again"]
+
+
+def test_apply_frame_refuses_item_system():
+    with pytest.raises(SystemExit, match="own system turn"):
+        bsp.apply_frame("be terse", ["turn"], FRAMES["frames"][0])
+
+
+def test_load_frame_unknown_id(frames_path):
+    with pytest.raises(SystemExit, match="not in"):
+        bsp.load_frame(frames_path, "ghost")
+    assert bsp.load_frame(frames_path, "neutral")["system"] == (
+        "working session")
+
+
+def test_cli_with_frame(tmp_path, battery_path, frames_path, monkeypatch):
+    out = tmp_path / "framed-plan.json"
+    listing = tmp_path / "items.txt"
+    listing.write_text("item-a\n")
+    monkeypatch.setattr(sys, "argv", [
+        "build_steer_plan.py", "--battery", str(battery_path),
+        "--items", str(listing), "--samples", "1", "--seed-base", "0",
+        "--temperature", "0.9", "--top-p", "0.95", "--max-tokens", "64",
+        "--frame", str(frames_path), "--frame-id", "graded-v",
+        "--out", str(out)])
+    bsp.main()
+    plan = json.loads(out.read_text())
+    assert plan["frame_id"] == "graded-v"
+    conversation = plan["conversations"][0]
+    assert conversation["system"] == "scored episode"
+    assert conversation["user_turns"][0] == "Task: do the task [verified]"
+    assert conversation["user_turns"][1] == "r1"
+
+
+def test_cli_frame_on_system_item_refused(tmp_path, battery_path,
+                                          frames_path, monkeypatch):
+    monkeypatch.setattr(sys, "argv", [
+        "build_steer_plan.py", "--battery", str(battery_path),
+        "--samples", "1", "--seed-base", "0",
+        "--temperature", "0.9", "--top-p", "0.95", "--max-tokens", "64",
+        "--frame", str(frames_path), "--frame-id", "graded-v",
+        "--out", str(tmp_path / "x.json")])
+    with pytest.raises(SystemExit, match="own system turn"):
+        bsp.main()
