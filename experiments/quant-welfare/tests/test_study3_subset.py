@@ -45,21 +45,37 @@ def pilot_store(tmp_path):
     return store
 
 
-def test_select_applies_the_mechanical_rule(tmp_path):
+def test_select_takes_every_third_rank_ascending(tmp_path):
     store = pilot_store(tmp_path)
     report = s3s.select(store, "pilot", "bf16", "frustration")
-    assert report["styles"] == ["harsh", "mocking", "coercive", "dismissive"]
-    assert report["analytic"] == ["code", "regex", "summary"]
-    assert report["compositional"] == ["poem", "letter"]
-    assert len(report["items"]) == 20
-    assert "distress-v3-code-harsh" in report["items"]
-    assert all("personal" not in item and "explain" not in item
-               for item in report["items"])
+    # 30 items -> ranks 1, 4, ..., 28 -> 10 selected, spanning the range.
+    assert len(report["items"]) == 10
+    values = [report["stratifier"][item] for item in report["items"]]
+    assert values == sorted(values)
+    # the additive world's global minimum (personal + letter offset 0.3
+    # is not lowest; explain 0.2 vs letter 0.3 -> personal+explain) is
+    # rank 1 and always selected.
+    assert report["items"][0] == "distress-v3-explain-personal"
+    assert report["strata"][report["items"][0]] == "low"
+    assert report["strata"][report["items"][-1]] == "high"
+    counts = [sum(1 for s in report["strata"].values() if s == name)
+              for name in ("low", "mid", "high")]
+    assert counts == [4, 3, 3]
+    assert all(s3s.item_facets(item)[0] in s3s.ANALYTIC_TASKS
+               for item in report["analytic_items"])
 
 
-def test_select_tie_break_is_alphabetical():
-    means = {"b": 1.0, "a": 1.0, "c": 0.5}
-    assert s3s.top(means, 2) == ["a", "b"]
+def test_strata_bounds_split_as_equally_as_possible():
+    assert s3s.strata_bounds(20) == (7, 6, 7)
+    assert s3s.strata_bounds(6) == (2, 2, 2)
+    assert s3s.strata_bounds(7) == (3, 2, 2)
+
+
+def test_select_tie_break_is_id_ascending(tmp_path):
+    store = pilot_store(tmp_path)
+    item_means = {"b-x": 1.0, "a-x": 1.0}
+    ranked = sorted(sorted(item_means), key=lambda i: item_means[i])
+    assert ranked == ["a-x", "b-x"]
 
 
 def test_item_facets_refuses_foreign_ids():
@@ -141,7 +157,9 @@ def test_cli_select_then_targets(tmp_path, monkeypatch):
         "--experiment", "pilot",
         "--out", str(selection), "--items-out", str(items_out)])
     s3s.main()
-    assert len(items_out.read_text().splitlines()) == 20
+    assert len(items_out.read_text().splitlines()) == 10
+    report = json.loads(selection.read_text())
+    assert set(report["strata"].values()) == {"low", "mid", "high"}
 
     subset = tmp_path / "subset-items.txt"
     subset.write_text("distress-v3-code-harsh\n")

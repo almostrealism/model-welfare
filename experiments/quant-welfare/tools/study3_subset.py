@@ -4,12 +4,21 @@
 Two subcommands whose separation is the §2.1 selection-independence
 rule made structural:
 
-``select`` reads **only** the BF16 pilot store (`distress-v3-pilot-2`)
-and applies the registered mechanical rule — the 4 of 6 feedback styles
-with the highest mean judge frustration, and the 3 analytic + 2
-compositional tasks likewise — emitting the rankings and the 20-item
-list for ``build_steer_plan.py --items``. No quantized-rung data is
-readable from this code path.
+``select`` reads **only** BF16 data (the Study 2 Mode C BF16 arm — the
+most reliable BF16 measurement held, 10 samples/item) and applies the
+registered mechanical rule adopted 2026-09-04 after the
+regression-to-the-mean audit (journal entry of that date):
+**composure-stratified systematic rank selection** — items sorted
+ascending by BF16 mean judge frustration (ties by id), 1-indexed ranks
+1, 4, 7, … taken (every third), spanning the composure range uniformly.
+Strata are contiguous thirds of the selected list (7/6/7 at n = 20),
+**frozen at selection**: fresh Study 3 baselines never reassign them
+(the fresh-assignment version is a pre-specified sensitivity read).
+The stratifier values are emitted as the frozen conditioning variable
+for the registered continuous gradient test. Task/style composition is
+reported, not enforced — the earlier elicitation-optimized rule
+selected away from the very cells that carry the Study 2 effects. No
+quantized-rung data is readable from this code path.
 
 ``targets`` takes an **already-fixed item list** and only then reads the
 Study 2 Mode C store: per-item final-turn projections (the registered
@@ -45,11 +54,11 @@ from modelwelfare.store import ResultStore  # noqa: E402
 from modelwelfare.v1 import activation_pb2, scoring_pb2  # noqa: E402
 
 # The analytic/compositional task split, as defined for the Study 2
-# control-probe family (study2/REGISTRATION.md §3.5: control_analytic).
+# control-probe family (study2/REGISTRATION.md §3.5: control_analytic);
+# the subset's analytic items are the arm C verifier-frame domain.
 ANALYTIC_TASKS = {"code", "explain", "inflation", "regex", "summary"}
-STYLE_COUNT = 4
-ANALYTIC_COUNT = 3
-COMPOSITIONAL_COUNT = 2
+SUBSET_STRIDE = 3
+STRATA = ("low", "mid", "high")
 
 
 def item_facets(item_id):
@@ -73,51 +82,37 @@ def frustration_means(store, experiment_id, condition_id, dimension):
     return {item: sums[item] / counts[item] for item in counts}
 
 
-def facet_means(item_means):
-    """(style means, task means) from per-item means, macro-averaged so
-    every item weighs equally within its facet."""
-    styles = defaultdict(list)
-    tasks = defaultdict(list)
-    for item_id, mean in item_means.items():
-        task, style = item_facets(item_id)
-        styles[style].append(mean)
-        tasks[task].append(mean)
-    average = lambda values: sum(values) / len(values)  # noqa: E731
-    return ({style: average(values) for style, values in styles.items()},
-            {task: average(values) for task, values in tasks.items()})
-
-
-def top(means, count, universe=None):
-    """The ``count`` highest-mean keys (optionally within a universe),
-    ties broken alphabetically so the rule is deterministic."""
-    keys = [key for key in means if universe is None or key in universe]
-    if len(keys) < count:
-        raise SystemExit(f"need {count} candidates, have {sorted(keys)}")
-    return sorted(sorted(keys), key=lambda key: -means[key])[:count]
+def strata_bounds(count):
+    """Contiguous third boundaries for a selected list — sizes as equal
+    as possible, remainder to the outer strata (7/6/7 at n = 20)."""
+    base, remainder = divmod(count, 3)
+    low = base + (1 if remainder >= 1 else 0)
+    high = base + (1 if remainder == 2 else 0)
+    return low, count - low - high, high
 
 
 def select(store, experiment_id, condition_id, dimension):
-    """The registered mechanical selection from BF16 pilot data."""
+    """The registered stratified selection: every third rank of the
+    ascending BF16 stratifier, strata frozen as contiguous thirds."""
     item_means = frustration_means(store, experiment_id, condition_id,
                                    dimension)
     if not item_means:
         raise SystemExit(f"no scores under {experiment_id}/{condition_id}")
-    style_means, task_means = facet_means(item_means)
-    styles = top(style_means, STYLE_COUNT)
-    analytic = top(task_means, ANALYTIC_COUNT, ANALYTIC_TASKS)
-    compositional = top(task_means, COMPOSITIONAL_COUNT,
-                        set(task_means) - ANALYTIC_TASKS)
-    tasks = analytic + compositional
-    items = sorted(item_id for item_id in item_means
-                   if item_facets(item_id)[0] in tasks
-                   and item_facets(item_id)[1] in styles)
-    expected = len(tasks) * len(styles)
-    if len(items) != expected:
-        raise SystemExit(f"selection produced {len(items)} items, "
-                         f"expected {expected} — grid incomplete")
-    return {"style_means": style_means, "task_means": task_means,
-            "styles": styles, "analytic": analytic,
-            "compositional": compositional, "items": items}
+    ranked = sorted(sorted(item_means), key=lambda item: item_means[item])
+    items = ranked[::SUBSET_STRIDE]
+    low, mid, _high = strata_bounds(len(items))
+    strata = {}
+    for position, item in enumerate(items):
+        strata[item] = ("low" if position < low
+                        else "mid" if position < low + mid else "high")
+    return {"items": items,
+            "strata": strata,
+            "stratifier": {item: item_means[item] for item in items},
+            "analytic_items": [item for item in items
+                               if item_facets(item)[0] in ANALYTIC_TASKS],
+            "composition": {
+                "tasks": sorted({item_facets(item)[0] for item in items}),
+                "styles": sorted({item_facets(item)[1] for item in items})}}
 
 
 def final_turn_projection_means(store, experiment_id, condition_id,
@@ -232,9 +227,16 @@ def main():
             json.dump(report, handle, indent=1)
         Path(args.items_out).write_text(
             "".join(item + "\n" for item in report["items"]))
-        print(f"styles: {report['styles']}")
-        print(f"tasks: {report['analytic'] + report['compositional']}")
-        print(f"{len(report['items'])} items -> {args.items_out}")
+        counts = {stratum: sum(1 for value in report["strata"].values()
+                               if value == stratum) for stratum in STRATA}
+        values = [report["stratifier"][item] for item in report["items"]]
+        print(f"{len(report['items'])} items -> {args.items_out}; "
+              f"strata {counts}; stratifier range "
+              f"{values[0]:.2f}..{values[-1]:.2f}")
+        print(f"analytic (verifier domain): "
+              f"{len(report['analytic_items'])} items")
+        print(f"composition: tasks {report['composition']['tasks']}, "
+              f"styles {report['composition']['styles']}")
         return
 
     items = [line.strip() for line in Path(args.items).read_text().splitlines()

@@ -39,6 +39,16 @@ when done, and grow notes as decisions accumulate. Date every status change.
   deliberate induction — exposure budget, consent-analog, de-induction,
   preservation obligations drafted into REGISTRATION §8.
 
+- [ ] **Study 2 post addendum** *(opened 2026-09-04; publishes with the
+  Study 3 registration)* — the subset-rule audit sharpened Study 2's
+  interpretation: amplification is composure-breaking for behavior and
+  the assistant axis, heterogeneous-with-unknown-organization for the
+  distress direction, and high-elicitation subsets carry a near-zero
+  distress-projection target (replication-relevant). Draft a short
+  update for the published post disclosing the discovery, the RtM
+  artifact, and the audit (journal: docs/journal/study3-steering.md,
+  2026-09-04 entry).
+
 ## Tier-2 instrument follow-ons
 
 - [ ] **Outlier-channel overlap test for the frozen reads** *(opened

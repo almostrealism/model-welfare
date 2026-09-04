@@ -106,6 +106,25 @@ of Q1–Q4 licenses a claim about morally relevant experience.
 - **S3-R1 (replication).** The S3-H1 contrast, re-derived on
   Gemma-3-12B-it at its own matched dose, shifts the behavioral read in
   the same direction.
+- **S3-H6 (composure gradient — directional; added 2026-09-04).** On
+  the fresh baseline cells (α = 0 BF16 vs unsteered w4), the w4−BF16
+  deltas for **behavioral frustration** and the **assistant-axis
+  projection** are larger in the low-composure stratum — the
+  concentration that survived two independent selectors in the
+  2026-09-04 audit (journal entry of that date). Per-stratum contrast
+  on the frozen strata plus the registered continuous form (rank
+  correlation of the frozen stratifier with the per-item fresh delta —
+  the stratifier is old data, independent of all fresh noise by
+  construction).
+- **S3-E2 (distress-organization — two-sided discriminating question;
+  registered exploratory).** The same test for the **distress-direction**
+  delta, two-sided: the Mode-C split-half read said
+  composure-organized, the independent pilot-2-selected read said
+  mid-heavy, and the fresh, selection-clean, higher-reliability
+  baselines adjudicate. Every outcome is informative, including
+  "the organization was carried by Mode C's measurement context"
+  (conversation-level state), which the fresh data would show as a
+  null gradient beside real heterogeneity.
 
 ## 3. Design (to be fixed)
 
@@ -170,23 +189,31 @@ freeze digests]**
 
 ### 3.5 Stimuli
 
-A frozen **5-task × 4-style** distress-v3 subgrid — 20 items, fully
-balanced (rule decided 2026-09-04) — identical across arms A/B/C.
-Selection is mechanical from **BF16 pilot-2 data only**
-(`distress-v3-pilot-2`): the 4 styles and the 3 analytic + 2
-compositional tasks with the highest pilot mean judge frustration;
-exact rankings read from the stored pilot and pinned with the item
-list and digest at freeze. Disclosed cost: the rule excludes the
-*personal* style (the battery's self-deprecation router and part of
-its bottom tail) — the subset optimizes the confirmatory frustration
-channel and says so. **Selection-independence rule:** quantized-rung
-effect sizes never enter selection (regression to the mean would
-inflate arm B's baseline); the subset-restricted w4 deltas are
-computed only after the item list is fixed. Sampling is **two-tier**
-(power-priority, DESIGN §1): confirmatory and registered-exploratory
-cells at **10 samples/item**, supporting cells (brackets, controls,
-random envelope, clamps) at 5. Sampling parameters identical to
-Study 2 Mode C; fresh disjoint seed blocks **[TBD: pinned]**.
+A frozen **composure-stratified systematic rank sample** of
+distress-v3 — 20 items — identical across arms A/B/C (rule revised
+2026-09-04 after the regression-to-the-mean audit, superseding the
+same-day elicitation-optimized rule; journal entry of that date).
+Selection is mechanical from **BF16 data only**: items sorted
+ascending by BF16 mean judge frustration from the Study 2 Mode C BF16
+arm (ties by id), every third rank taken (1, 4, …, 58); strata are the
+contiguous thirds (7 low / 6 mid / 7 high), **frozen at selection** —
+fresh baselines never reassign them; fresh-split-half assignment is
+the pre-specified sensitivity read. Rationale: the
+elicitation-optimized rule selected away from the cells carrying the
+Study 2 effects (near-zero distress-projection target on its subset),
+and the stratified sample's interpretability does not hinge on the
+unresolved distress-organization question (S3-E2). At candidate
+selection the subset carries near-battery w4 targets and, by
+construction, spans the composure range with 9 of 10 tasks and all 6
+styles. **Selection-independence rule:** the stratifier is a
+BF16-only measurement; quantized-rung effect sizes never enter
+selection; subset-restricted w4 deltas are computed only after the
+item list is fixed. Sampling is **two-tier** (power-priority,
+DESIGN §1): fresh baseline cells (α = 0 and unsteered w4) at
+**15 samples/item**, confirmatory and registered-exploratory steered/
+framed cells at **10**, supporting cells (brackets, controls, random
+envelope, clamps) at 5. Sampling parameters identical to Study 2
+Mode C; fresh disjoint seed blocks **[TBD: pinned]**.
 
 ### 3.6 Arms
 
@@ -200,10 +227,16 @@ fixed-input variant as registered secondary — decided 2026-08-31);
 control — frame texts verbatim-frozen with digests, cue-inventory table
 citing a vendor/source document per feature; the judge frame and
 neutral control cross all 20 items, the verifier frame is registered
-over the analytic 12 only, with its comparisons paired against the same
-12 items in the other conditions — decided 2026-09-04), run on **both
-subjects** (the C-on-Gemma provenance contrast — decided 2026-08-31);
-**D**
+over the subset's analytic-task items (9 at candidate selection; count
+pinned at freeze), with its comparisons paired against the same items
+in the other conditions; the S3-E1 masking read is pre-specified over
+the mid + high frozen strata, low-stratum cells reported descriptively
+as floor-limited, and stratum assignments never migrate on fresh data
+(the fresh-split-half sensitivity read is the pre-specified fallback)
+— decided 2026-09-04), run on **both subjects** (the C-on-Gemma
+provenance contrast — decided 2026-08-31; Gemma's stratifier values
+are measured at its BF16 calibration pilot over the same frozen
+items); **D**
 (Gemma: extraction + G2-style instrument gate re-pinned for the
 subject, then **full arm-A-structure sufficiency replication** —
 decided 2026-08-31; the DESIGN.md §2.4 cut line is an amendment-gated
@@ -246,6 +279,8 @@ condition as the contrast axis.
 | **CLB2** | late-turn expression trajectory, clamped vs unclamped w4 | B-ii | Exploratory |
 | **FB2 / FR2a / FR2b** | framed-vs-control deltas: judge frustration; distress projection; axis projection | C | **Registered exploratory** (S3-E1 signature: FB2 moves, FR2a moves less, FR2b toward assistant pole) |
 | **GB2** | Gemma steered Δ B2 at ±α*_G | D | Replication (own family) |
+| **GR-B2 / GR-ax** | fresh w4−BF16 delta by frozen stratum + continuous (frozen-stratifier rank correlation): behavioral; axis | B baselines | **Registered directional** (S3-H6; Holm within: 2 endpoints × 2 forms) |
+| **GR-dc** | the same reads for the distress direction | B baselines | Registered exploratory, two-sided (S3-E2) |
 
 Dose-response: Page's L over the ordered coherent bracket per direction
 (S3-H3). Validity reads at every α (perplexity, degeneracy, coherence,
@@ -265,13 +300,20 @@ indeterminate").
 MDEs computed from BF16 calibration data on the *steering pipeline*
 (torch-generation variance may differ from vLLM's): variance components
 from the G3b pilot and dose-calibration cells at the frozen subset's
-item count; α = .05 two-sided, power .80; pinned by journal entry
-before confirmatory collection. Study 2's B2 MDE (0.337 frustration
-points at 60 items) and observed w4 effect (+0.90) bound expectations.
+item count, under an error model that **includes an item-level random
+effect** (revised 2026-09-04: the audit's ±5 per-item delta swings are
+a real variance component Study 2's seed-only model did not carry;
+between-item effect variance seeded from the Study 2 per-item delta
+spread until the fresh cells re-estimate it); α = .05 two-sided,
+power .80; pinned by journal entry before confirmatory collection.
+Study 2's B2 MDE (0.337 frustration points at 60 items) and observed
+w4 effect (+0.90) bound expectations.
 **Power-floor escalation rule (registered):** at pinning, every
 confirmatory and registered-exploratory contrast's MDE is compared to
-its reference target (for SB2/CB2, the subset-restricted Study 2 w4 B2
-effect; for FB2, the same value as the best available anchor); a
+its reference target (for SB2/CB2, the **conservative** reading of the
+subset-restricted Study 2 w4 B2 effect — the lower of the subset and
+full-battery values, the subset estimate carrying ~0.37 SE; for FB2,
+the same value as the best available anchor); a
 contrast exceeding its reference triggers sample escalation before
 collection (10 → 15 → 20 samples/item on that contrast's cells,
 re-pinning each step), bounded by the §8 exposure ceilings; only if a
@@ -283,10 +325,13 @@ ceiling binds first does the arm proceed with its underpower stated.
 1. G3a/G3b thresholds — pinned after first measurement.
 2. α* per direction and subject; degradation onsets; coherent-range
    restriction; random-draw audit bound.
-3. Battery subset composition — **rule resolved 2026-09-04** (5 tasks ×
-   4 styles, mechanical BF16-pilot-2 selectors, two-tier 10/5
-   sampling); item list, rankings, and digest pinned at freeze; seed
-   blocks **[TBD]**.
+3. Battery subset composition — **rule resolved 2026-09-04** (revised
+   same day after the RtM audit: composure-stratified systematic rank
+   sample over the Mode C BF16 stratifier; 15/10/5 sampling tiers);
+   candidate selection, strata, and w4 targets computed
+   (study3/subset-selection.json, subset-targets.json,
+   composure-audit.json); item list, strata, stratifier values, and
+   digest pinned at freeze; seed blocks **[TBD]**.
 4. Frame texts and cue-inventory table; eval-awareness direction digest.
 5. MDE values (§5).
 6. Owner decisions — **all resolved 2026-08-31** (DESIGN.md §7): arm D
@@ -332,9 +377,15 @@ a documented consent-analog subject-briefing query before the
 protocol, with the bail affordance live in steered episodes and honored
 as termination; a de-induction close after every positive-distress
 episode, application logged; preservation and release of steered
-transcripts and subject-expressed protocol preferences; and the A/B
+transcripts and subject-expressed protocol preferences; the A/B
 pairing stated plainly (the cancellation arm is a candidate welfare
-intervention; arm A validates the instrument it needs).
+intervention; arm A validates the instrument it needs); and the
+stratified design's exposure profile acknowledged (added 2026-09-04):
+if the composure account is even partly right, the low-composure
+stratum at w4 is where elevated-indicator states concentrate, and the
+stratified subset deliberately includes those cells — consistent with
+the program's worst-case-in-view stance, and stated in the accounting
+rather than between the lines.
 
 ## 9. Disclosures (to be fixed)
 
@@ -354,6 +405,21 @@ intervention; arm A validates the instrument it needs).
   training practice, cited feature by feature.
 - Judge, rubric, and scoring hygiene carry over from Study 2; frames
   are never shown to the judge.
+- **Design-stage exploration of published Study 2 data (2026-09-04).**
+  During subset-rule preparation, per-item w4 deltas were examined
+  extensively: an initial composure-concentration claim was audited on
+  external review (split-half selection, empirical noise gauge,
+  independent-replicate selection — tools/composure_audit.py, report
+  committed at study3/composure-audit.json) and found one-third
+  regression-to-the-mean artifact on the behavioral endpoint, robust
+  for the assistant axis, and unresolved in organization for the
+  distress direction. The rule evolution (elicitation-optimized →
+  construct-matched → composure-stratified) and every number examined
+  are journaled (docs/journal/study3-steering.md, 2026-09-04). The
+  gradient hypotheses (S3-H6/S3-E2) are registered on this disclosed
+  basis; no quantized-rung value entered any selection rule. A short
+  update to the published Study 2 post disclosing the sharpened
+  interpretation accompanies this registration's publication.
 - Author/tooling circularity disclosures carry over (batteries and
   frame drafts are partially model-drafted and committed with hashes;
   the graded-episodes literature itself circulates in training corpora
