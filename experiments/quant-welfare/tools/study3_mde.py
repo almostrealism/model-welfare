@@ -112,11 +112,18 @@ def exit_components(ref_exits, treat_exits, k):
     ref_rate = {i: float(np.mean(_samples(ref_exits, i))) for i in items}
     treat_rate = {i: float(np.mean(_samples(treat_exits, i))) for i in items}
     deltas = [treat_rate[i] - ref_rate[i] for i in items]
-    # sigma such that null_delta_sd_mean(sigma, k) reproduces the pooled
-    # both-sides binomial delta variance mean_i[p(1-p)+q(1-q)]/k.
-    binomial_sigma = float(np.sqrt(np.mean(
-        [ref_rate[i] * (1 - ref_rate[i]) for i in items]
-        + [treat_rate[i] * (1 - treat_rate[i]) for i in items])))
+    # The paired rate-delta's binomial sampling variance, averaged over
+    # items, is mean_i[p(1-p) + q(1-q)] / k. `delta_sd_mixed` applies the
+    # sqrt(2/k) factor of `null_delta_sd_mean`, so we pass the sigma whose
+    # square, times 2/k, equals that variance — i.e. sigma^2 =
+    # mean_i[p(1-p) + q(1-q)] / 2. The /2 is explicit here so the term is
+    # not misread as sqrt(mean(...)) (it is not: dividing by 2 makes
+    # null_delta_sd_mean(sigma, k) reproduce the analytic binomial delta
+    # SD exactly — pinned in test_exit_binomial_sigma_matches_analytic).
+    per_item_binomial_var = [ref_rate[i] * (1 - ref_rate[i])
+                             + treat_rate[i] * (1 - treat_rate[i])
+                             for i in items]
+    binomial_sigma = float(np.sqrt(np.mean(per_item_binomial_var) / 2.0))
     observed_sd = float(np.std(deltas, ddof=1))
     sigma_item = stats.sigma_item_estimate(observed_sd, binomial_sigma, k)
     return {"n_items": len(items), "mean_delta": float(np.mean(deltas)),

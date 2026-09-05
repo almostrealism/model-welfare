@@ -107,3 +107,22 @@ def test_cli_end_to_end_with_override(world, tmp_path, monkeypatch):
     assert scored["mde"]["10"] == pytest.approx(stats.mde_paired(
         stats.delta_sd_mixed(scored["sigma_sample"], 10, 1.67), 20))
     assert "exit_rate" in report["endpoints"]
+
+
+def test_exit_binomial_sigma_matches_analytic():
+    # The exit-rate binomial sampling model must reproduce the analytic
+    # paired rate-delta SD sqrt(p(1-p)/k + q(1-q)/k) through the MDE
+    # machinery — guards the factor-of-sqrt(2) the concatenation form
+    # obscured. Deterministic rates: ref exits half its k samples
+    # (p=0.5), treat exits none (q=0.0), so item-effect variance is 0.
+    from modelwelfare import stats
+    K = 10
+    ref = {f"i{n}": {s: (1.0 if s % 2 == 0 else 0.0) for s in range(K)}
+           for n in range(30)}
+    treat = {f"i{n}": {s: 0.0 for s in range(K)} for n in range(30)}
+    comp = s3m.exit_components(ref, treat, K)
+    # p(1-p)+q(1-q) = 0.25 + 0 = 0.25 per item; analytic delta SD:
+    analytic = (0.5 * 0.5 / K + 0.0) ** 0.5
+    assert stats.null_delta_sd_mean(
+        comp["binomial_sigma_sample"], K) == pytest.approx(analytic)
+    assert comp["sigma_item"] == 0.0  # no item heterogeneity planted
