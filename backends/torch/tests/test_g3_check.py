@@ -48,3 +48,15 @@ def test_first_turn_messages():
         {"role": "user", "content": "u1"}]
     assert first_turn_messages({"user_turns": ["only"]}) == [
         {"role": "user", "content": "only"}]
+
+
+def test_median_averages_two_central_for_even_count():
+    _rows, summary = continuation_stats([
+        ("c1", "aa", "aa"),        # lcp 2
+        ("c2", "bbbb", "bxxx"),    # lcp 1
+        ("c3", "cccccc", "cccxxx"),  # lcp 3
+        ("c4", "dddddddd", "dxxxxxxx"),  # lcp 1
+    ])
+    # sorted lcp_chars [1,1,2,3] -> median (1+2)/2 = 1.5, not the upper
+    # middle (2)
+    assert summary["median_lcp_chars"] == 1.5

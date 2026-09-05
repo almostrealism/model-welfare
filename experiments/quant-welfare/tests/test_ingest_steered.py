@@ -156,3 +156,10 @@ def test_parse_tool_calls_strips_parsed_and_keeps_garbage():
                        "<tool_call>not json</tool_call>")
     calls, content = ing.parse_tool_calls("plain text")
     assert calls == [] and content == "plain text"
+
+
+def test_seed_mismatch_refused(tmp_path, monkeypatch):
+    mutated = [dict(TRANSCRIPTS[0], seed=99999), TRANSCRIPTS[1]]
+    plan_path, transcripts_path = write_world(tmp_path, transcripts=mutated)
+    with pytest.raises(SystemExit, match="seed"):
+        run_main(tmp_path, plan_path, transcripts_path, monkeypatch)

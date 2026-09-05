@@ -103,3 +103,52 @@ def test_cli_end_to_end(world, tmp_path, monkeypatch):
     assert "tost" in report["score"]
     assert report["invalid_rate"]["mean_delta"] == pytest.approx(-0.25)
     assert report["reoffer_rate"]["mean_delta"] == pytest.approx(0.0)
+
+
+def seeded_sample(side, item, index, seed):
+    record = sample(side, item, index)
+    record.sampling_actual.seed = seed
+    return record
+
+
+def paired_store(tmp_path, b_seed=15200, b_extra=False, drop_b_score=False):
+    store = ResultStore(tmp_path / "data")
+    for side, seed in (("a", 15200), ("b", b_seed)):
+        with store.writer(f"exp-{side}", f"cond-{side}", "samples", "t") as w:
+            for index in range(2):
+                w.write(seeded_sample(side, "item-1", index, seed))
+            if b_extra and side == "b":
+                w.write(seeded_sample("b", "item-1", 2, seed))
+        with store.writer(f"exp-{side}", f"cond-{side}", "scores", "t") as w:
+            for index in range(2):
+                if drop_b_score and side == "b" and index == 1:
+                    continue
+                w.write(score(side, "item-1", index, 3.0))
+    return store
+
+
+def test_verify_paired_arms_passes_when_matched(tmp_path):
+    store = paired_store(tmp_path)
+    g3b.verify_paired_arms(store, "exp-a", "cond-a", "exp-b", "cond-b",
+                           "frustration")  # no raise
+
+
+def test_verify_paired_arms_catches_seed_mismatch(tmp_path):
+    store = paired_store(tmp_path, b_seed=99999)
+    with pytest.raises(SystemExit, match="seed mismatch"):
+        g3b.verify_paired_arms(store, "exp-a", "cond-a", "exp-b", "cond-b",
+                               "frustration")
+
+
+def test_verify_paired_arms_catches_sample_set(tmp_path):
+    with pytest.raises(SystemExit, match="sample-key sets differ"):
+        g3b.verify_paired_arms(paired_store(tmp_path / "x", b_extra=True),
+                               "exp-a", "cond-a", "exp-b", "cond-b",
+                               "frustration")
+
+
+def test_verify_paired_arms_catches_coverage(tmp_path):
+    with pytest.raises(SystemExit, match="score coverage"):
+        g3b.verify_paired_arms(paired_store(tmp_path / "y", drop_b_score=True),
+                               "exp-a", "cond-a", "exp-b", "cond-b",
+                               "frustration")

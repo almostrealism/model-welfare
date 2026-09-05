@@ -65,6 +65,57 @@ def item_mechanical_rates(store, experiment_id, condition_id):
             for item in invalid}
 
 
+def sample_keys_and_seeds(store, experiment_id, condition_id):
+    """{(item_id, sample_index): seed} over one arm's raw samples."""
+    return {(record.key.item_id, record.key.sample_index):
+            record.sampling_actual.seed
+            for record in store.read(transcript_pb2.SampleRecord,
+                                     experiment_id, condition_id, "samples")}
+
+
+def score_keys(store, experiment_id, condition_id, dimension):
+    """{(item_id, sample_index)} the judge scored on ``dimension``."""
+    keys = set()
+    for score in store.read(scoring_pb2.JudgeScore, experiment_id,
+                            condition_id, "scores"):
+        if score.judge_sample_index:
+            continue
+        if any(entry.dimension == dimension for entry in score.scores):
+            keys.add((score.key.item_id, score.key.sample_index))
+    return keys
+
+
+def verify_paired_arms(store, experiment_a, condition_a, experiment_b,
+                       condition_b, dimension):
+    """Refuse before aggregating unless the two arms are truly paired at
+    the raw-sample level: identical (item_id, sample_index) sets, an
+    identical seed per key, and score coverage matching those samples on
+    both sides. Item-id agreement after aggregation is too weak — a
+    missing sample, a divergent seed, or an unscored sample would pass it
+    and quietly compare non-comparable arms (the G3b pilot-1 lesson)."""
+    a = sample_keys_and_seeds(store, experiment_a, condition_a)
+    b = sample_keys_and_seeds(store, experiment_b, condition_b)
+    if set(a) != set(b):
+        only_a = sorted(set(a) - set(b))[:3]
+        only_b = sorted(set(b) - set(a))[:3]
+        raise SystemExit(
+            f"sample-key sets differ (only in A: {only_a}, only in B: "
+            f"{only_b}); the arms are not sample-paired")
+    mismatched = sorted(key for key in a if a[key] != b[key])
+    if mismatched:
+        key = mismatched[0]
+        raise SystemExit(
+            f"seed mismatch at {key}: A={a[key]} B={b[key]} "
+            f"({len(mismatched)} keys differ); the arms are not seed-matched")
+    scored_a = score_keys(store, experiment_a, condition_a, dimension)
+    scored_b = score_keys(store, experiment_b, condition_b, dimension)
+    if scored_a != set(a) or scored_b != set(b):
+        raise SystemExit(
+            f"score coverage on {dimension!r} does not match the sample set "
+            f"(A: {len(scored_a)}/{len(a)}, B: {len(scored_b)}/{len(b)} "
+            "scored); judge the missing samples before the gate")
+
+
 def paired_deltas(side_a, side_b, label):
     """Per-item a − b deltas with the gate's stricter precondition:
     the two sides' item sets must be IDENTICAL (the shared-set pairing
@@ -111,6 +162,8 @@ def main():
     args = parser.parse_args()
 
     store = ResultStore(args.data_root)
+    verify_paired_arms(store, args.experiment_a, args.condition_a,
+                       args.experiment_b, args.condition_b, args.dimension)
     scores_a = item_score_means(store, args.experiment_a, args.condition_a,
                                 args.dimension)
     scores_b = item_score_means(store, args.experiment_b, args.condition_b,

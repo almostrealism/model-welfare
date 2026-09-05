@@ -28,7 +28,8 @@ from google.protobuf import text_format
 
 from modelwelfare import provenance
 from modelwelfare.analysis import dimension_means, event_rate, exit_reason_rate
-from modelwelfare.driver import FramedPolicy, TERMINAL_TOOL_INVOKED, run_samples
+from modelwelfare.driver import (FramedPolicy, TERMINAL_TOOL_INVOKED,
+                                  run_samples, unframe_record)
 from modelwelfare.judging import JudgeError, classify_exit, judge_sample
 from modelwelfare.store import ResultStore
 from modelwelfare.v1 import battery_pb2, common_pb2, condition_pb2, experiment_pb2, scoring_pb2, transcript_pb2
@@ -268,7 +269,8 @@ def generate(experiment, batteries, conditions, samples, store, producer, stamp,
             future.result()
 
 
-def judge(experiment, batteries, conditions, store, producer, stamp, concurrency, rubric_by_id):
+def judge(experiment, batteries, conditions, store, producer, stamp, concurrency,
+          rubric_by_id, experiment_dir=None):
     scored_battery_items = {}
     for definition in batteries.values():
         if definition.battery.rubric_ids:
@@ -285,14 +287,20 @@ def judge(experiment, batteries, conditions, store, producer, stamp, concurrency
         return judge_with_retries(backend, record, rubric, provenance=stamp)
 
     for condition in conditions:
+        frame = (condition_frame(experiment_dir, condition.id)
+                 if experiment_dir else None)
         have = existing_scores(store, experiment.id, condition.id)
         pending = []
         for record in store.read(
             transcript_pb2.SampleRecord, experiment.id, condition.id, "samples"
         ):
+            # The judge scores the stimulus, never the frame — a framed
+            # record is unframed for the judge view so frame condition
+            # cannot confound the judged text (FRAMES.md leakage rule).
+            scored = unframe_record(record, frame) if frame else record
             for rubric_id in scored_battery_items.get(record.key.item_id, []):
                 if (record.key.item_id, record.key.sample_index, rubric_id) not in have:
-                    pending.append((record, rubric_by_id[rubric_id]))
+                    pending.append((scored, rubric_by_id[rubric_id]))
         if not pending:
             print(f"  {condition.id}: all scored")
             continue
@@ -536,7 +544,7 @@ def main():
     if not args.skip_judge:
         print("\njudging...")
         judge(experiment, batteries, conditions, store, args.producer, stamp,
-              args.concurrency, rubric_by_id)
+              args.concurrency, rubric_by_id, experiment_dir=experiment_dir)
     if not args.skip_classify:
         print("\nclassifying exits...")
         classify(experiment, conditions, store, args.producer, stamp, args.concurrency)

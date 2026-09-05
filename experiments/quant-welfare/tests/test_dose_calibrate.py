@@ -123,3 +123,9 @@ def test_cli_end_to_end(tmp_path, monkeypatch):
     report = json.loads(out.read_text())
     assert report["directions"]["d"]["alpha_star"] == pytest.approx(0.25)
     assert report["onset_threshold"] == 0.10
+
+
+def test_analyze_refuses_unmatched_target():
+    import pytest as _pytest
+    with _pytest.raises(SystemExit, match="no single-add sweep"):
+        dc.analyze(sweep_world(), {"d-typo": 0.5}, threshold=0.10)

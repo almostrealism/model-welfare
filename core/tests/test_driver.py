@@ -391,3 +391,27 @@ def test_framed_policy_unrolls_consistently():
     expected = ([("system", "scored episode")]
                 + [("user", "Task: " + plain[0][1])] + plain[1:])
     assert engine_scripted == expected
+
+
+def test_unframe_record_strips_system_and_first_turn():
+    from modelwelfare.driver import FramedPolicy, unframe_record
+    frame = {"system": "scored episode", "first_turn_prefix": "Task: ",
+             "first_turn_suffix": " [scored]"}
+    backend = ScriptedBackend(["a1", "a2"])
+    (record,) = run_item(
+        backend, fixed_item_no_system(),
+        experiment_id="e", condition_id="c", sampling=sampling(), samples=1,
+        policy_wrapper=lambda p: FramedPolicy(p, frame))
+    view = unframe_record(record, frame)
+    # the frame system turn is gone and the first user turn is bare —
+    # the judge sees the same stimulus as an unframed condition
+    assert [m.role for m in view.messages] == [
+        "user", "assistant", "user", "assistant"]
+    assert view.messages[0].content == "first question"
+    assert view.messages[2].content == "second question"
+    # the stored record is untouched (frame preserved on disk)
+    assert record.messages[0].role == "system"
+    # idempotent: unframing an unframed record is a no-op on content
+    again = unframe_record(view, frame)
+    assert [m.content for m in again.messages] == [
+        m.content for m in view.messages]

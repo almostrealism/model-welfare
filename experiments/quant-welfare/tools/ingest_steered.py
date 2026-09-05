@@ -171,7 +171,16 @@ def main():
     with open(args.plan) as handle:
         plan = json.load(handle)
     plan_ids = [c["id"] for c in plan["conversations"]]
+    plan_seeds = {c["id"]: int(c["seed"]) for c in plan["conversations"]}
     entries = load_transcripts(args.transcripts, set(plan_ids))
+    # The seed stored with seed_honored=True must be the plan's seed —
+    # a transcript carrying a different seed would silently invalidate
+    # every matched-seed comparison (the plan-integrity guarantee).
+    for conversation_id, entry in entries.items():
+        if int(entry["seed"]) != plan_seeds[conversation_id]:
+            raise SystemExit(
+                f"{conversation_id}: transcript seed {entry['seed']} != "
+                f"plan seed {plan_seeds[conversation_id]}; refusing")
     missing = [cid for cid in plan_ids if cid not in entries]
     if missing and not args.allow_partial:
         raise SystemExit(

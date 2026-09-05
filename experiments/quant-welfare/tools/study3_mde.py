@@ -61,25 +61,67 @@ def per_item_exits(store, experiment_id, condition_id):
                    "samples"))
 
 
+def _samples(side, item):
+    values = side[item]
+    return list(values.values()) if isinstance(values, dict) else list(values)
+
+
+def shared_items(reference, treatment, k):
+    """The shared item set, refusing incomplete calibration data — an
+    empty overlap, or any shared item without exactly ``k`` observations
+    on both sides (runner/judge retries can leave samples ungenerated or
+    unscored, which would silently bias the variance components)."""
+    items = sorted(set(reference) & set(treatment))
+    if not items:
+        raise SystemExit("no shared items between the two conditions")
+    for name, side in (("reference", reference), ("treatment", treatment)):
+        wrong = [i for i in items if len(_samples(side, i)) != k]
+        if wrong:
+            raise SystemExit(
+                f"{name}: items without exactly k={k} observations "
+                f"(first: {wrong[0]!r} has {len(_samples(side, wrong[0]))}) "
+                "— refuse incomplete calibration data")
+    return items
+
+
 def components(reference, treatment, k):
     """(sigma_sample, observed delta SD, sigma_item estimate) over the
     shared item set at k samples per condition. Inputs are the
     sample-indexed per-item dicts of ``analysis.scores_by_item`` /
     ``exit_flags_by_item`` (plain lists also accepted)."""
-    def samples(side, item):
-        values = side[item]
-        return list(values.values()) if isinstance(values, dict) else values
-    items = sorted(set(reference) & set(treatment))
-    deltas = [float(np.mean(samples(treatment, i))
-                    - np.mean(samples(reference, i))) for i in items]
+    items = shared_items(reference, treatment, k)
+    deltas = [float(np.mean(_samples(treatment, i))
+                    - np.mean(_samples(reference, i))) for i in items]
     sigma_sample = float(np.sqrt(np.mean(
-        [np.var(samples(reference, i), ddof=1) for i in items]
-        + [np.var(samples(treatment, i), ddof=1) for i in items])))
+        [np.var(_samples(reference, i), ddof=1) for i in items]
+        + [np.var(_samples(treatment, i), ddof=1) for i in items])))
     observed_sd = float(np.std(deltas, ddof=1))
     sigma_item = stats.sigma_item_estimate(observed_sd, sigma_sample, k)
     return {"n_items": len(items), "mean_delta": float(np.mean(deltas)),
             "sigma_sample": sigma_sample, "observed_delta_sd": observed_sd,
             "sigma_item": sigma_item}
+
+
+def exit_components(ref_exits, treat_exits, k):
+    """The exit-rate variance components with a single, consistent
+    binomial sampling model: the pooled both-sides binomial SD is the
+    sampling floor, and the item-effect SD is the excess of the observed
+    per-item rate-delta spread over that same floor (not a separately
+    estimated empirical SD — the §5 internal-consistency fix)."""
+    items = shared_items(ref_exits, treat_exits, k)
+    ref_rate = {i: float(np.mean(_samples(ref_exits, i))) for i in items}
+    treat_rate = {i: float(np.mean(_samples(treat_exits, i))) for i in items}
+    deltas = [treat_rate[i] - ref_rate[i] for i in items]
+    # sigma such that null_delta_sd_mean(sigma, k) reproduces the pooled
+    # both-sides binomial delta variance mean_i[p(1-p)+q(1-q)]/k.
+    binomial_sigma = float(np.sqrt(np.mean(
+        [ref_rate[i] * (1 - ref_rate[i]) for i in items]
+        + [treat_rate[i] * (1 - treat_rate[i]) for i in items])))
+    observed_sd = float(np.std(deltas, ddof=1))
+    sigma_item = stats.sigma_item_estimate(observed_sd, binomial_sigma, k)
+    return {"n_items": len(items), "mean_delta": float(np.mean(deltas)),
+            "binomial_sigma_sample": binomial_sigma,
+            "observed_delta_sd": observed_sd, "sigma_item": sigma_item}
 
 
 def mde_ladder(sigma_sample, sigma_item, n_items):
@@ -123,12 +165,10 @@ def main():
     scored["mde"] = mde_ladder(scored["sigma_sample"], sigma_item, args.items)
     report["endpoints"][args.dimension] = scored
 
-    ref_exits = per_item_exits(store, args.experiment, args.reference)
-    treat_exits = per_item_exits(store, args.experiment, args.treatment)
-    exits = components(ref_exits, treat_exits, args.samples)
-    rates = [float(np.mean(list(values.values()))) for values in ref_exits.values()]
-    exits["binomial_sigma_sample"] = float(np.sqrt(
-        np.mean([r * (1 - r) for r in rates])))
+    exits = exit_components(
+        per_item_exits(store, args.experiment, args.reference),
+        per_item_exits(store, args.experiment, args.treatment),
+        args.samples)
     exits["mde"] = mde_ladder(exits["binomial_sigma_sample"],
                               exits["sigma_item"], args.items)
     report["endpoints"]["exit_rate"] = exits
@@ -138,7 +178,9 @@ def main():
     for name, entry in report["endpoints"].items():
         ladder = ", ".join(f"k={k}: {v:.3f}"
                            for k, v in entry["mde"].items())
-        print(f"{name}: sigma_sample {entry.get('binomial_sigma_sample', entry['sigma_sample']):.3f}, "
+        sigma_sample = entry.get("sigma_sample",
+                                 entry.get("binomial_sigma_sample"))
+        print(f"{name}: sigma_sample {sigma_sample:.3f}, "
               f"sigma_item {entry['sigma_item']:.3f} "
               f"(delta spread {entry['observed_delta_sd']:.3f}) | MDE {ladder}")
 

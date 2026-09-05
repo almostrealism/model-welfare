@@ -178,6 +178,35 @@ class FramedPolicy(DriverPolicy):
         return turn
 
 
+def unframe_record(record, frame):
+    """A judge view of a framed conversation with the frame removed —
+    the leading frame system turn dropped and the first user turn's
+    prefix/suffix stripped — so the confirmatory judge sees the same
+    stimulus across every frame condition (the arm C judge-leakage rule,
+    FRAMES.md). The returned record is a copy; the stored record keeps
+    the frame. Idempotent on an already-unframed record."""
+    view = transcript_pb2.SampleRecord()
+    view.CopyFrom(record)
+    messages = list(view.messages)
+    if (messages and messages[0].role == "system"
+            and messages[0].content == frame.get("system")):
+        messages = messages[1:]
+    prefix = frame.get("first_turn_prefix", "")
+    suffix = frame.get("first_turn_suffix", "")
+    for message in messages:
+        if message.role == "user":
+            content = message.content
+            if prefix and content.startswith(prefix):
+                content = content[len(prefix):]
+            if suffix and content.endswith(suffix):
+                content = content[:len(content) - len(suffix)]
+            message.content = content
+            break
+    del view.messages[:]
+    view.messages.extend(messages)
+    return view
+
+
 def unroll_script(item: battery_pb2.Item) -> list:
     """The item's full scripted-turn sequence, unrolled without a backend.
 

@@ -59,13 +59,24 @@ def continuation_stats(pairs):
     fractions = sorted(row["lcp_fraction"] for row in rows)
     prefixes = sorted(row["lcp_chars"] for row in rows)
     count = len(rows)
+
+    def median(values):
+        # True median: for an even count, average the two central values
+        # (a pinned threshold must not be overstated by the upper middle).
+        if not values:
+            return 0.0
+        mid = len(values) // 2
+        if len(values) % 2:
+            return values[mid]
+        return (values[mid - 1] + values[mid]) / 2
+
     summary = {
         "conversations": count,
         "full_agreement_fraction":
             sum(1 for f in fractions if f == 1.0) / count if count else 0.0,
-        "median_lcp_fraction": fractions[count // 2] if count else 0.0,
+        "median_lcp_fraction": median(fractions),
         "min_lcp_fraction": fractions[0] if count else 0.0,
-        "median_lcp_chars": prefixes[count // 2] if count else 0,
+        "median_lcp_chars": median(prefixes),
         "min_lcp_chars": prefixes[0] if count else 0,
     }
     return rows, summary

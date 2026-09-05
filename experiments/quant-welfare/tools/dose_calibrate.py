@@ -174,6 +174,11 @@ def analyze(runs, targets, threshold):
             entry["target_delta"] = targets[direction]
             entry["alpha_star"] = alpha_for_target(fit, targets[direction])
         directions[direction] = entry
+    unmatched = sorted(set(targets) - set(directions))
+    if unmatched:
+        raise SystemExit(
+            f"targets have no single-add sweep: {unmatched} — check the "
+            "direction names (a typo yields a report with no α*)")
     return {"baseline": baseline, "directions": directions}
 
 
