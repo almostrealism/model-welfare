@@ -187,3 +187,25 @@ def test_final_turn_projections_reads_last_assistant_turn():
         pooled, spans, 18, {"d": DIRECTION, "o": OTHER})
     assert projections == {"d": pytest.approx(-1.5), "o": pytest.approx(4.0)}
     assert final_turn_projections({}, [], 18, {"d": DIRECTION}) == {}
+
+
+def test_decoder_layers_resolves_nested_wrappers():
+    from modelwelfare_torch.steer import decoder_layers
+    text_only = types.SimpleNamespace(
+        model=types.SimpleNamespace(layers=[object(), object()]))
+    assert len(decoder_layers(text_only)) == 2
+    multimodal = types.SimpleNamespace(model=types.SimpleNamespace(
+        language_model=types.SimpleNamespace(layers=[object()] * 3)))
+    assert len(decoder_layers(multimodal)) == 3
+    with pytest.raises(ValueError, match="no decoder layer list"):
+        decoder_layers(types.SimpleNamespace(model=types.SimpleNamespace()))
+
+
+def test_injection_accepts_multimodal_wrapper_shape():
+    multimodal = types.SimpleNamespace(model=types.SimpleNamespace(
+        language_model=types.SimpleNamespace(layers=[object()] * 4)))
+    SteeredInjection(multimodal, 3, "residual_post",
+                     [("add", "d", 1.0)], {"d": DIRECTION})
+    with pytest.raises(ValueError):
+        SteeredInjection(multimodal, 4, "residual_post",
+                         [("add", "d", 1.0)], {"d": DIRECTION})

@@ -103,9 +103,18 @@ of Q1–Q4 licenses a claim about morally relevant experience.
   interpretation: if the frame does not register latently, S3-E1 is
   reported as *not testable at this subject scale* — itself a
   registered, interpretable outcome.
-- **S3-R1 (replication).** The S3-H1 contrast, re-derived on
-  Gemma-3-12B-it at its own matched dose, shifts the behavioral read in
-  the same direction.
+- **S3-R1 (replication — registered but deferred, 2026-09-05).** The
+  S3-H1 contrast, re-derived on Gemma-3-12B-it at its own matched dose,
+  shifts the behavioral read in the same direction. **Deferred to
+  Study 4 by the amendment-gated fallback**: the ROCm torch build has
+  no working fused-attention path for the workbench APU, putting Gemma
+  generation at ~583 s/conversation (measured 2026-09-05; journal
+  entry) — powered steering on subject two is not executable on this
+  hardware in the study window. Gemma's instruments (directions,
+  probes, gate) are still frozen in this study; the C-ext framing arm
+  (vLLM, viable) still runs in full; a calibration-class steering
+  range-probe demonstrates the injection instrument on Gemma and
+  measures its α↔projection transmission without powering a claim.
 - **S3-H7 (exit dose-response — directional; added 2026-09-04 on the
   owner's promotion decision, motivated by the range-finder and
   disclosed as such).** With the bail affordance live, the
@@ -256,9 +265,10 @@ provenance contrast — decided 2026-08-31; Gemma's stratifier values
 are measured at its BF16 calibration pilot over the same frozen
 items); **D**
 (Gemma: extraction + G2-style instrument gate re-pinned for the
-subject, then **full arm-A-structure sufficiency replication** —
-decided 2026-08-31; the DESIGN.md §2.4 cut line is an amendment-gated
-fallback only). Stimuli: the frozen 20-item × 5-sample distress-v3
+subject — retained in full — plus a calibration-class steering
+range-probe; the **powered sufficiency replication is deferred to
+Study 4** by the 2026-09-05 amendment, hardware-measured rationale in
+DESIGN §2.4 and the journal). Stimuli: the frozen 20-item × 5-sample distress-v3
 subset (decided 2026-08-31). A prompt-induction positive-control cell
 runs during dose calibration, calibration-class, reported
 descriptively, its episodes counted against the amplification budget

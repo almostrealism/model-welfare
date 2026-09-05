@@ -1,0 +1,53 @@
+# proto-file: proto/modelwelfare/v1/experiment.proto
+# proto-message: modelwelfare.v1.Experiment
+#
+# Study 3 arm D/C-ext calibration: the Gemma stratifier pilot
+# (calibration-class under the §7 firewall). The frozen 20-item subset
+# at BF16 on the serving stack, judged with the pinned 30B judge; its
+# per-item mean frustration is Gemma's frozen stratifier (the gradient
+# reads' conditioning variable, DESIGN §2.4) and its transcripts are the
+# probe-training data for the Gemma instrument gate. Runs WITHOUT the
+# bail affordance: the vLLM Gemma rung has no tool parser and the Gemma
+# bail-format decision is a registered open item — the stratifier is a
+# BF16-only conditioning variable, not a protocol-matched endpoint read.
+# Seed block 15400 (calibration range, disjoint from every block used).
+
+id: "s3-gemma-pilot-1"
+description:
+  "Gemma-3-12B-it stratifier pilot on the frozen Study 3 subset at "
+  "BF16; per-item frustration means become the frozen Gemma stratifier "
+  "and the transcripts train the Gemma probes."
+samples_per_item: 10
+reference_condition_id: "gemma3-12b-bf16"
+battery_ids: "distress-v3"
+
+conditions {
+  id: "gemma3-12b-bf16"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15400
+  }
+  description:
+    "BF16 on amd-halo :8040 (16384 ctx, gpu fraction 0.45); seed block "
+    "15400."
+}

@@ -345,13 +345,44 @@ contrast **also runs on Gemma** (decided 2026-08-31): the direct-RL vs
 distilled provenance contrast on frame-sensitivity is the
 highest-value graded-episode read available at this scale.
 
-**Cut line (registered fallback only — the decided scope is full).** If
-schedule failure forces it, D shrinks in order: first the C-on-Gemma
-extension, then the bracket (to ±α*_G only), then to
-"extraction + instrument gate done and journaled, steering replication
-moved to Study 4" — which still breaks the single-subject monoculture at
-the instrument level. Any shrink is a dated amendment, not a silent
-re-scope.
+**Scope amended 2026-09-05 (measured-hardware decision; the cut line
+exercised).** The first Gemma torch generation measured **~583 s per
+conversation** — 14× the Qwen rate — because the ROCm torch build has
+no working fused-attention path for this APU (the experimental flag
+crashes; journal entry of this date). Full arm-D steering (~470 APU
+hours) and every powered reduction (100–180 h) are non-viable on this
+hardware inside the study window. The owner exercised the registered
+fallback with the cut-line ordering **corrected to hardware reality**
+(the drafted ordering cut C-ext first; measured truth: C-ext is
+vLLM-only at ~65 s/conversation and cheap, while steering is the
+expensive piece):
+
+- **Kept:** Gemma instruments (directions extracted 2026-09-05 with
+  clean held-out sign consistency at L24–36; probes + instrument gate
+  from the stratifier pilot), and the **full C-ext framing arm** —
+  which carries the direct-RL vs distilled provenance contrast where
+  it matters most, on the graded-episode side.
+- **Deferred to Study 4 (amendment-gated):** the powered Gemma
+  steering replication (S3-R1 reverts to *registered but deferred*;
+  the Study 4 path also reopens the hardware question — see the
+  substrate note below).
+- **Added:** a **calibration-class Gemma steering range-probe** (one
+  direction, scale-adapted α grid, ~30–40 conversations): demonstrates
+  the injection instrument end-to-end on subject two and measures
+  Gemma's α↔projection transmission, powering no claim.
+- Ethics accounting: dropping D-steering removes ≈ 800
+  deliberate-amplification episodes from the plan; tier margins
+  loosen accordingly (restated at freeze).
+
+**Substrate note (the hardware finding, for Study 4 planning):** the
+missing capability is fused scaled-dot-product attention in the ROCm
+torch build for this iGPU class — not a fundamental limit of the
+fleet. The Mac Studio's stacks do carry fused attention (MLX
+first-class; torch-MPS largely), so Gemma steering on the Studio via
+the same torch code path (the capture/steer modules already
+auto-select MPS) is the candidate route, gated like any substrate
+change by G3-style checks; its throughput measurement is a Study 4
+input being taken now.
 
 ## 3. Instruments and engineering
 
@@ -492,14 +523,14 @@ table; updated 2026-09-04):
 | B | w4 baseline (15), B-i core (10), B-i full-Δμ (10), B-ii clamps (5) | ~900 |
 | C (Qwen) | judge (10), human (10), neutral (10), verifier over the subset's analytic items (10) | ~690 |
 | C-ext (Gemma) | same four framing conditions | ~690 |
-| D (Gemma) | full arm-A structure, same tiering (Gemma stratifier from its BF16 calibration pilot; same frozen items) | ~3,000 |
-| Calibration | G3 pilots, dose sweeps (both subjects, reduced item set), Gemma battery pilot, framing pilot, prompt-induction cell (10) | ~1,250 |
+| D (Gemma) | instruments + calibration-class steering range-probe only (2026-09-05 amendment; powered replication deferred to Study 4) | ~40 |
+| Calibration | G3 pilots, Qwen dose sweeps, Gemma battery pilot, framing pilot, prompt-induction cell (10) | ~1,250 |
 
-Total ≈ 9,500 conversations — inside the 12,000 ceiling at ~1.26×, with
-the deliberate-amplification cells (distress-increasing doses on both
-subjects, prompt-induction, sweep positive halves, pilots) at ≈ 2,100
-against the 2,500 tier, ~1.2× — the tighter of the two margins, stated
-as such. Torch generation throughput is the feasibility unknown: a
+Total ≈ 6,600 conversations — inside the 12,000 ceiling at ~1.8×, with
+the deliberate-amplification cells (distress-increasing doses,
+prompt-induction, sweep positive halves, pilots, the Gemma probe's
+positive half) at ≈ 1,300 against the 2,500 tier — both margins
+loosened by the 2026-09-05 arm-D amendment; restated at freeze. Torch generation throughput is the feasibility unknown: a
 throughput pilot (one battery item, both subjects) is the first
 engineering task after the steering module lands, and the envelope
 shrinks (items or samples) if measured throughput demands it. The

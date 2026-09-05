@@ -1,0 +1,35 @@
+{
+ "experiment": "s3-g3b-pilot-2",
+ "reference": "qwen3-4b-bf16",
+ "treatment": "qwen3-4b-bf16-torch",
+ "calibration_samples": 10,
+ "pinned_items": 20,
+ "endpoints": {
+  "frustration": {
+   "n_items": 20,
+   "mean_delta": -0.030000000000000044,
+   "sigma_sample": 1.6275407487644937,
+   "observed_delta_sd": 0.7320483159205443,
+   "sigma_item": 0.0782109906875453,
+   "sigma_item_used": 0.0782109906875453,
+   "mde": {
+    "10": 0.45859419342238017,
+    "15": 0.3755075817740812,
+    "20": 0.3261205280787545
+   }
+  },
+  "exit_rate": {
+   "n_items": 20,
+   "mean_delta": -0.010000000000000005,
+   "sigma_sample": 0.21858128414340006,
+   "observed_delta_sd": 0.10208355710680808,
+   "sigma_item": 0.029419331671936205,
+   "binomial_sigma_sample": 0.23874672772626648,
+   "mde": {
+    "10": 0.06937953460558761,
+    "15": 0.05763881422067231,
+    "20": 0.05076011668725559
+   }
+  }
+ }
+}

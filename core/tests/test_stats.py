@@ -269,3 +269,24 @@ def test_spearman_constant_is_nan():
 def test_rankdata_average_ties():
     ranks = stats.rankdata_average(np.array([10.0, 20.0, 20.0, 40.0]))
     assert list(ranks) == pytest.approx([1.0, 2.5, 2.5, 4.0])
+
+
+def test_delta_sd_mixed_and_sigma_item_are_inverses():
+    from modelwelfare.stats import (delta_sd_mixed, null_delta_sd_mean,
+                                    sigma_item_estimate)
+    # closed form: sigma_sample 2, k 8 -> sampling term 2*sqrt(2/8) = 1.0;
+    # with sigma_item 0.75 the mixed SD is sqrt(1 + 0.5625) = 1.25.
+    assert delta_sd_mixed(2.0, 8, 0.75) == pytest.approx(1.25)
+    assert delta_sd_mixed(2.0, 8, 0.0) == pytest.approx(
+        null_delta_sd_mean(2.0, 8))
+    # the estimator recovers the component from the observed spread...
+    assert sigma_item_estimate(1.25, 2.0, 8) == pytest.approx(0.75)
+    # ...and floors at zero when the spread is below the sampling
+    # prediction rather than inventing negative variance.
+    assert sigma_item_estimate(0.9, 2.0, 8) == 0.0
+
+
+def test_mde_paired_mixed_composition():
+    from modelwelfare.stats import MDE_MULTIPLIER, delta_sd_mixed, mde_paired
+    mde = mde_paired(delta_sd_mixed(2.0, 8, 0.75), 20)
+    assert mde == pytest.approx(MDE_MULTIPLIER * 1.25 / 20 ** 0.5)

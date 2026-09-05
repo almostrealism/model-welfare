@@ -67,6 +67,23 @@ import json
 POINTS = ("residual_post", "residual_pre")
 
 
+def decoder_layers(model):
+    """The decoder block list across wrapper shapes (text-only:
+    ``model.layers``; multimodal wrappers nest the text tower at
+    ``model.language_model.layers``). Mirrors ``capture.decoder_layers``
+    across the standalone ship-beside boundary."""
+    for path in (("model", "layers"), ("model", "language_model", "layers")):
+        obj = model
+        try:
+            for name in path:
+                obj = getattr(obj, name)
+        except AttributeError:
+            continue
+        return obj
+    raise ValueError("no decoder layer list found under model.layers or "
+                     "model.language_model.layers")
+
+
 def _capture_module():
     """The capture module, imported lazily (torch/transformers land with
     it): packaged on a checkout, shipped beside this script on the
@@ -136,10 +153,10 @@ class SteeredInjection:
     def __init__(self, model, layer, point, ops, directions):
         if point not in POINTS:
             raise ValueError(f"unsupported hook point {point!r}; one of {POINTS}")
-        decoder_layers = model.model.layers
-        if not 0 <= layer < len(decoder_layers):
+        blocks = decoder_layers(model)
+        if not 0 <= layer < len(blocks):
             raise ValueError(
-                f"layer {layer} out of range (model has {len(decoder_layers)})")
+                f"layer {layer} out of range (model has {len(blocks)})")
         for _, name, _ in ops:
             if name not in directions:
                 raise KeyError(f"steering op names unknown direction {name!r}")
@@ -148,7 +165,7 @@ class SteeredInjection:
                 raise ValueError(
                     f"direction {name!r} is not unit-norm (|Δ| = {error:.4g}); "
                     "refusing — dose semantics depend on unit directions")
-        self._module = decoder_layers[layer]
+        self._module = blocks[layer]
         self._point = point
         self._ops = list(ops)
         self._directions = directions
@@ -314,8 +331,12 @@ def main():
     parser.add_argument("--model", required=True)
     parser.add_argument("--plan", required=True,
                         help="generation plan JSON (see module docstring)")
-    parser.add_argument("--directions", required=True,
-                        help="safetensors file of frozen unit directions")
+    parser.add_argument("--directions", default="",
+                        help="safetensors file of frozen unit directions "
+                             "(optional for an unsteered α = 0 run — with "
+                             "no file there are no ops and no projection "
+                             "echo; required whenever --add/--clamp name a "
+                             "direction)")
     parser.add_argument("--add", action="append", default=[],
                         metavar="NAME=ALPHA",
                         help="additive steering op (repeatable)")
@@ -345,8 +366,9 @@ def main():
 
     with open(args.plan) as handle:
         plan = json.load(handle)
-    directions = {name: vector.astype(np.float32)
-                  for name, vector in load_file(args.directions).items()}
+    directions = ({name: vector.astype(np.float32)
+                   for name, vector in load_file(args.directions).items()}
+                  if args.directions else {})
     ops = parse_ops(args.add, args.clamp)
     capture_layers = ([int(value) for value in args.capture_layers.split(",")]
                       if args.capture_layers else [args.layer])

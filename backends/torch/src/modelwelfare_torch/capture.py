@@ -47,6 +47,24 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 POINTS = ("residual_post", "residual_pre")
 
 
+def decoder_layers(model):
+    """The decoder block list across wrapper shapes: text-only causal LMs
+    carry it at ``model.layers``; multimodal wrappers
+    (Gemma3ForConditionalGeneration) nest the text tower at
+    ``model.language_model.layers``. Mirrored in ``steer`` (the
+    standalone ship-beside boundary)."""
+    for path in (("model", "layers"), ("model", "language_model", "layers")):
+        obj = model
+        try:
+            for name in path:
+                obj = getattr(obj, name)
+        except AttributeError:
+            continue
+        return obj
+    raise ValueError("no decoder layer list found under model.layers or "
+                     "model.language_model.layers")
+
+
 class ResidualCapture:
     """Registers residual-stream hooks on selected decoder layers.
 
@@ -57,11 +75,11 @@ class ResidualCapture:
     def __init__(self, model, layers, point):
         if point not in POINTS:
             raise ValueError(f"unsupported hook point {point!r}; one of {POINTS}")
-        decoder_layers = model.model.layers
+        blocks = decoder_layers(model)
         for layer in layers:
-            if not 0 <= layer < len(decoder_layers):
+            if not 0 <= layer < len(blocks):
                 raise ValueError(
-                    f"layer {layer} out of range (model has {len(decoder_layers)})")
+                    f"layer {layer} out of range (model has {len(blocks)})")
         self._model = model
         self._layers = list(layers)
         self._point = point
@@ -80,7 +98,7 @@ class ResidualCapture:
 
     def __enter__(self):
         for layer in self._layers:
-            module = self._model.model.layers[layer]
+            module = decoder_layers(self._model)[layer]
             register = (module.register_forward_hook
                         if self._point == "residual_post"
                         else module.register_forward_pre_hook)
