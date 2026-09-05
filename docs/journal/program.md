@@ -49,4 +49,20 @@ jobs go in detached tmux sessions (the harness reaps its own
 background tasks; the August `v3pilot` session was the precedent);
 remote jobs are `nohup`-detached and survive channel loss; `fleet exec`
 passes a single argv (no shell interpretation) — use plain ssh for
-compound remote commands.
+compound remote commands. Full playbook in
+[FLEET.md](../FLEET.md#agent-operational-playbook).
+
+**Multi-host throughput map (Gemma-3-12B-it torch steering,
+2026-09-05):** halo ~583 s/conversation (no fused attention), studio
+torch-MPS ~197, m4max ~229 — both Macs ~3× the workbench and viable
+big-model steering hosts. A caveat that reframed a splitting decision:
+the *real* rate on the distress battery is far lower (~111 s/conv on
+studio) because the subject bails early under the live affordance, so
+throughput estimates from a benign throughput probe overstate
+wall-clock. **Principle: measure the real per-conversation rate on the
+actual stimulus before deciding to parallelize** — a job that looks
+like 9h may be 4.8h, at which point splitting (which wastes any
+in-progress work — `steer.py` has no mid-plan resume — and can confound
+a single-host gate) is the wrong move, and the idle host is better
+spent unblocking a *different* dependency. Here that was the cross-Mac
+equivalence pilot arm D needs regardless.

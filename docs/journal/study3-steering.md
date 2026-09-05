@@ -7,6 +7,51 @@ history of that file (arms and owner decisions 2026-08-31; power
 posture 2026-09-04); entries here begin at the first discovery-grade
 event. Append-only, newest first.
 
+## 2026-09-05 (late) — PR #15 review round, an impact audit, and G4's cross-Mac leg
+
+Recorded same evening (the discipline correction from the 2026-09-04
+backfill is being kept: decision clusters journaled the day they land).
+
+**PR #15 automated review (Copilot): seven findings, all legitimate,
+all fixed at root with tests** (memory: bugs namespace, this date). The
+load-bearing one: the confirmatory judge was seeing the arm C frame —
+`FramedPolicy` stores the frame system turn and wrapped first user turn
+in each record, and `judge()` rendered every role, confounding frame
+condition with judged text (the FRAMES.md leakage rule). Fixed with
+`driver.unframe_record` (the inverse of the framing wrapper), applied
+in the judge path for framed conditions; the stored record keeps the
+frame, only the judge view is stripped. The other six: exit-rate MDE
+made internally consistent (one pooled both-sides binomial model,
+`exit_components`); a count/empty-data refusal (`shared_items`); a raw
+sample/seed/coverage check in the G3b gate (`verify_paired_arms` — the
+exact apparatus-asymmetry class the G3b pilot 1 hit); ingest seed
+validation; a dose-calibrate unmatched-target refusal; and a true
+median in `g3_check` (`median_lcp_chars` was overstated).
+
+**Impact audit (owner-requested): no prior finding invalidated.** The
+G3b pilot-2 PASS re-ran byte-identical (−0.0300, TOST p 0.0304) through
+the stricter gate — the fix confirms the arms were genuinely paired.
+Dose reports unchanged (correct direction names). All judged data to
+date is unframed, so the judge-leakage fix is retroactively a no-op.
+Two provisional artifacts corrected, neither pinned into the
+registration: `g3a-report.json` median 256→221 (verdict unchanged), and
+the exit-rate row of `mde-components-provisional.json` (0.069/0.058/0.051
+→ 0.064/0.054/0.049; frustration MDE untouched). Both moved *tighter*,
+so nothing that looked powered now looks worse.
+
+**Gate G4 gained a fourth leg (d), cross-Mac equivalence.** Arm D
+splits conditions across studio and m4max, so the gate must certify the
+two Macs are behaviorally interchangeable, else an arm-D
+condition-vs-condition difference could be a host artifact. m4max
+measured at ~229 s/conversation (vs studio's 197) — a viable second
+arm-D host. The cross-Mac pilot (20 items × 3 samples at the seeds
+studio's G4b uses) runs on m4max concurrently; G4b itself was *not*
+split (measurement showed studio finishes it in ~4.8h at 111 s/conv —
+Gemma bails early, so the conversations are short — and splitting would
+waste in-progress work and confound the clean MPS-vs-vLLM comparison).
+The gate family is now G4a (teacher-forced, done: top-1 0.946–0.993),
+G4b (behavioral MPS-vs-vLLM), G4d (cross-Mac).
+
 ## 2026-09-05 (evening) — Gemma day: the hardware wall, the fleet answer, and arm D deferred-then-restored behind gate G4
 
 The registration post's timeline will need this day's doubling-back

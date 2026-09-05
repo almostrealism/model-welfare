@@ -118,9 +118,14 @@ of Q1–Q4 licenses a claim about morally relevant experience.
   change together, and the Study 2 cross-machine outlier-channel
   finding is the known risk this measures); (b) greedy-continuation
   agreement; (c) a judged behavioral-parity pilot (the G3b design on
-  the new substrate). Thresholds pinned from measured margins
-  **[TBD]**. G4 passes → arm D collects on studio (+ m4max, each
-  condition entirely on one host); G4 fails → S3-R1 defers to
+  the new substrate); and (d) **cross-Mac equivalence** (added
+  2026-09-05) — since arm D splits conditions across studio and m4max,
+  a subset generated on both Macs at identical seeds must agree
+  behaviorally, so that an arm-D condition-vs-condition difference is
+  never a studio-vs-m4max artifact. Thresholds pinned from measured
+  margins **[TBD]**. G4 passes → arm D collects on studio + m4max
+  (each condition entirely on one host, the two hosts certified
+  interchangeable by (d)); G4 fails → S3-R1 defers to
   Study 4 as the morning's amendment provided. The calibration-class
   Gemma steering range-probe runs regardless.
 - **S3-H7 (exit dose-response — directional; added 2026-09-04 on the
