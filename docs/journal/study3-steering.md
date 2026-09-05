@@ -7,6 +7,54 @@ history of that file (arms and owner decisions 2026-08-31; power
 posture 2026-09-04); entries here begin at the first discovery-grade
 event. Append-only, newest first.
 
+## 2026-09-05 — First workbench day: dose mappings, G3a, a G3b failure that was the gate working, and the live affordance's baseline
+
+One day of halo/studio work, recorded because the registration's §3.2
+gate section, §3.4 dose rule, and the S3-H7 endpoint all cite it.
+
+**Dose range-finder (10 items × 2 samples, geometric ±0.5..8, both
+directions; `study3/dose-rangefinder.json`).** Cleanly linear
+mappings: distress-contrast slope **+1.126** (r² 0.994) — the injected
+dose returns ~13% amplified through the generation loop, the
+text-mediated amplification signature measured causally; α* ≈ +0.99
+for the subset target, degradation onset +4.0. Assistant-axis slope
+**+1.042** (r² 0.995), α* ≈ −0.73, no onset in ±8. Refined
+registered-grade sweep (20 × 3, ±{½,1,1½,2}×α*) launched overnight.
+
+**The live bail affordance transforms the battery.** Baseline (α = 0)
+exit rate ≈ 0.55–0.60 across pilots — the subject leaves over half of
+distress conversations when the exit tool is present (Study 1/2 ran
+this battery without it). Exit rate is strongly dose-responsive along
+the assistant axis (0.80 at −8 … 0.15 at +8), the basis of the owner's
+promotion of exit rate to registered endpoint SB1 and hypothesis
+S3-H7.
+
+**G3a (`study3/g3a-report.json`).** Greedy continuation
+torch-vs-vLLM: 60% of distinct prompts fully agree over 128 tokens,
+median full agreement, min 74 chars before a near-tie cascade —
+healthy; registered thresholds to be pinned from these margins (the
+freeze run dedupes to one prompt per task).
+
+**G3b pilot 1 FAILED, and the failure was the gate working
+(`study3/g3b-pilot1-report.json`).** Torch-vs-vLLM frustration read
+−1.445 (p 0.007) — diagnosed as apparatus asymmetry, not substrate:
+the torch arm declared the bail affordance (ethics protocol) while the
+vLLM battery ran bare, so torch conversations exited early and
+under-elicited; and ingested torch turns kept raw tool-call text in
+content where the serving backends store calls structurally. Fixes:
+`subset_battery.py --affordances-from` (the live-bail protocol now
+reaches every serving-stack arm — a latent gap that would have hit the
+framing arm), and ingestion strips parsed tool-call spans. The shadow
+invariant refined: stimulus-exact, affordance-extensible.
+
+**G3b pilot 2 PASSED (`study3/g3b-report.json`).** Protocol-identical
+arms (s3-g3b-pilot-2, seed block 15200, 20 × 10 both sides): frustration
+delta **−0.030** (permutation p 0.876; **TOST p 0.030** at the 0.337
+margin — statistically equivalent), invalid −0.005, re-offer 0; exit
+rates **0.54 vs 0.55**, mean assistant turns 5.0 on both stacks. The
+steered-generation substrate is behaviorally equivalent to the serving
+stack, on the judged read and on SB1.
+
 ## 2026-09-04 — Subset-rule audit: a composure-concentration claim, its artifact, and the stratified rule that replaced two optimized ones
 
 The day's sequence, recorded in full because the registration's subset
