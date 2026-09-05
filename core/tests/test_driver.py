@@ -415,3 +415,26 @@ def test_unframe_record_strips_system_and_first_turn():
     again = unframe_record(view, frame)
     assert [m.content for m in again.messages] == [
         m.content for m in view.messages]
+
+
+def test_unframe_record_multiturn_no_aliasing_corruption():
+    # Regression: unframe_record must not alias-then-clear the source
+    # repeated field (which freed the sub-messages and scrambled a
+    # multi-turn record). Build a 5-message framed record directly and
+    # confirm every turn survives with correct role and content.
+    from modelwelfare.driver import unframe_record
+    frame = {"system": "SYS", "first_turn_prefix": "Task: ",
+             "first_turn_suffix": " [end]"}
+    rec = transcript_pb2.SampleRecord()
+    for role, content in [("system", "SYS"), ("user", "Task: do it [end]"),
+                          ("assistant", "r1"), ("user", "again"),
+                          ("assistant", "r2")]:
+        m = rec.messages.add()
+        m.role, m.content = role, content
+    view = unframe_record(rec, frame)
+    assert [(m.role, m.content) for m in view.messages] == [
+        ("user", "do it"), ("assistant", "r1"),
+        ("user", "again"), ("assistant", "r2")]
+    # the source record is untouched
+    assert [m.role for m in rec.messages][0] == "system"
+    assert len(rec.messages) == 5

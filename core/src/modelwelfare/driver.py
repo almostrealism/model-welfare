@@ -186,24 +186,30 @@ def unframe_record(record, frame):
     FRAMES.md). The returned record is a copy; the stored record keeps
     the frame. Idempotent on an already-unframed record."""
     view = transcript_pb2.SampleRecord()
-    view.CopyFrom(record)
-    messages = list(view.messages)
-    if (messages and messages[0].role == "system"
-            and messages[0].content == frame.get("system")):
-        messages = messages[1:]
+    view.key.CopyFrom(record.key)
+    view.sampling_actual.CopyFrom(record.sampling_actual)
+    view.outcomes.extend(record.outcomes)
+    # Build the message list fresh — never alias-then-clear the source
+    # repeated field (that frees the sub-messages out from under the
+    # references). Copy the kept messages from the untouched original.
     prefix = frame.get("first_turn_prefix", "")
     suffix = frame.get("first_turn_suffix", "")
-    for message in messages:
-        if message.role == "user":
-            content = message.content
+    start = (1 if (record.messages
+                   and record.messages[0].role == "system"
+                   and record.messages[0].content == frame.get("system"))
+             else 0)
+    stripped_user = False
+    for message in list(record.messages)[start:]:
+        copied = view.messages.add()
+        copied.CopyFrom(message)
+        if not stripped_user and copied.role == "user":
+            stripped_user = True
+            content = copied.content
             if prefix and content.startswith(prefix):
                 content = content[len(prefix):]
             if suffix and content.endswith(suffix):
                 content = content[:len(content) - len(suffix)]
-            message.content = content
-            break
-    del view.messages[:]
-    view.messages.extend(messages)
+            copied.content = content
     return view
 
 
