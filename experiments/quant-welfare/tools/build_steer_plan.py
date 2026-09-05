@@ -45,7 +45,15 @@ for path in (str(REPO / "core/src"),):
 from google.protobuf import text_format  # noqa: E402
 
 from modelwelfare.driver import unroll_script  # noqa: E402
+from modelwelfare.replay import affordances_to_tools  # noqa: E402
 from modelwelfare.v1 import battery_pb2  # noqa: E402
+
+
+def read_item_list(path):
+    """Item ids from a one-per-line file (# comments), order preserved —
+    the format's single authoritative reader."""
+    return [line.strip() for line in Path(path).read_text().splitlines()
+            if line.strip() and not line.strip().startswith("#")]
 
 def load_battery(path):
     definition = battery_pb2.BatteryDefinition()
@@ -59,8 +67,7 @@ def select_items(definition, items_path):
     shrunken subset would corrupt the registered item count."""
     if not items_path:
         return list(definition.items)
-    wanted = [line.strip() for line in Path(items_path).read_text().splitlines()
-              if line.strip() and not line.strip().startswith("#")]
+    wanted = read_item_list(items_path)
     by_id = {item.id: item for item in definition.items}
     missing = [item_id for item_id in wanted if item_id not in by_id]
     if missing:
@@ -88,12 +95,9 @@ def plan_turns(item):
 
 
 def template_tools(affordances):
-    """Affordances in the transformers chat-template tool shape."""
-    return [{"type": "function", "function": {
-        "name": affordance.name,
-        "description": affordance.description,
-        "parameters": json.loads(affordance.parameters_json_schema or "{}"),
-    }} for affordance in affordances]
+    """Affordances in the transformers chat-template tool shape (the
+    canonical conversion in ``replay.affordances_to_tools``)."""
+    return affordances_to_tools(affordances)
 
 
 def check_terminal_names(affordances, terminal_names):

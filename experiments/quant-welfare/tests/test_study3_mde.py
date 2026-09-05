@@ -18,6 +18,7 @@ if str(BASE / "tools") not in sys.path:
 
 import study3_mde as s3m  # noqa: E402
 from modelwelfare import stats  # noqa: E402
+from study3_fixtures import GOOD_REPLY, make_result_key  # noqa: E402
 from modelwelfare.store import ResultStore  # noqa: E402
 from modelwelfare.v1 import common_pb2, scoring_pb2, transcript_pb2  # noqa: E402
 
@@ -29,8 +30,7 @@ SIGMA_ITEM = 0.8
 
 
 def key(cond, item, index):
-    return common_pb2.ResultKey(experiment_id="cal", condition_id=cond,
-                                item_id=item, sample_index=index)
+    return make_result_key("cal", cond, item, index)
 
 
 @pytest.fixture

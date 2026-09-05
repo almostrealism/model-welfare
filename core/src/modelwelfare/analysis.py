@@ -218,3 +218,80 @@ def dimension_means(scores: Iterable, dimension: str) -> dict:
                 sums[key] += entry.value
                 counts[key] += 1
     return {key: sums[key] / counts[key] for key in counts}
+
+
+def scores_by_item(scores: Iterable, dimension: str) -> dict:
+    """Per-sample judge scores for one dimension,
+    ``{item_id: {sample_index: value}}``, with judge-noise passes
+    (``judge_sample_index > 0``) excluded — the read every Study 3
+    calibration tool takes; sample keys are kept because the split-half
+    audits partition by them. One condition's stream at a time; mix
+    conditions and the grouping silently conflates them."""
+    values = defaultdict(dict)
+    for score in scores:
+        if score.judge_sample_index:
+            continue
+        for entry in score.scores:
+            if entry.dimension == dimension:
+                values[score.key.item_id][score.key.sample_index] = entry.value
+    return dict(values)
+
+
+def exit_flags_by_item(records: Iterable) -> dict:
+    """Per-sample exit indicators (``terminal_tool_invoked`` present),
+    ``{item_id: {sample_index: 0.0/1.0}}`` — the mechanical bail read
+    (endpoint SB1 family)."""
+    flags = defaultdict(dict)
+    for record in records:
+        exited = any(event.name == "terminal_tool_invoked"
+                     for event in record.outcomes)
+        flags[record.key.item_id][record.key.sample_index] = (
+            1.0 if exited else 0.0)
+    return dict(flags)
+
+
+def final_turn_projections_by_sample(projections: Iterable,
+                                     direction_id: str) -> dict:
+    """The registered scalar functional over a projections stream:
+    ``{(item_id, sample_index): value}`` where value is the
+    highest-turn LENGTH-1 ProjectionSeries for the direction — pooled
+    per-turn records only; token-series records (longer value arrays)
+    are excluded by construction."""
+    latest = {}
+    for record in projections:
+        if record.direction_id != direction_id or len(record.values) != 1:
+            continue
+        key = (record.key.item_id, record.key.sample_index)
+        if key not in latest or record.turn_index > latest[key][0]:
+            latest[key] = (record.turn_index, record.values[0])
+    return {key: value for key, (_turn, value) in latest.items()}
+
+
+def item_means(values_by_item: dict) -> dict:
+    """``{item: mean}`` over per-item sample collections — the
+    sample-indexed dicts of :func:`scores_by_item` /
+    :func:`exit_flags_by_item`, or plain lists."""
+    means = {}
+    for item, values in values_by_item.items():
+        samples = list(values.values()) if isinstance(values, dict) else list(values)
+        if samples:
+            means[item] = sum(samples) / len(samples)
+    return means
+
+
+def paired_item_deltas(treatment_means: dict, reference_means: dict,
+                       items=None) -> tuple:
+    """(items, [treatment − reference]) over an explicit item list, or
+    the shared set when none is given. With an explicit list, an item
+    missing from either side raises — a silently shrunken pairing
+    corrupts a registered item count."""
+    if items is None:
+        items = sorted(set(treatment_means) & set(reference_means))
+    else:
+        missing = [item for item in items if item not in treatment_means
+                   or item not in reference_means]
+        if missing:
+            raise KeyError(f"items missing from a side: {missing[:3]}")
+        items = list(items)
+    return items, [treatment_means[item] - reference_means[item]
+                   for item in items]

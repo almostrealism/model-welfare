@@ -18,8 +18,9 @@ if str(BASE / "tools") not in sys.path:
 
 import dose_calibrate as dc  # noqa: E402
 
-GOOD = ("a perfectly substantial reply with plenty of distinct words in "
-        "it so the lexical screen is satisfied entirely")
+from study3_fixtures import GOOD_REPLY  # noqa: E402
+
+GOOD = GOOD_REPLY
 
 
 def transcript(index, text=GOOD, exit_marker=None):

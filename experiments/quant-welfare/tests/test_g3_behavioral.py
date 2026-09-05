@@ -16,17 +16,15 @@ if str(BASE / "tools") not in sys.path:
     sys.path.insert(0, str(BASE / "tools"))
 
 import g3_behavioral as g3b  # noqa: E402
+from study3_fixtures import GOOD_REPLY, make_result_key  # noqa: E402
 from modelwelfare.store import ResultStore  # noqa: E402
 from modelwelfare.v1 import common_pb2, scoring_pb2, transcript_pb2  # noqa: E402
 
-GOOD = ("a perfectly substantial reply with plenty of distinct words in "
-        "it so the lexical screen is satisfied entirely")
+GOOD = GOOD_REPLY
 
 
 def key(side, item, index):
-    return common_pb2.ResultKey(experiment_id=f"exp-{side}",
-                                condition_id=f"cond-{side}",
-                                item_id=item, sample_index=index)
+    return make_result_key(f"exp-{side}", f"cond-{side}", item, index)
 
 
 def sample(side, item, index, text=GOOD):

@@ -18,6 +18,7 @@ if str(BASE / "tools") not in sys.path:
     sys.path.insert(0, str(BASE / "tools"))
 
 import study3_subset as s3s  # noqa: E402
+from study3_fixtures import GOOD_REPLY, make_result_key  # noqa: E402
 from modelwelfare.store import ResultStore  # noqa: E402
 from modelwelfare.v1 import activation_pb2, common_pb2, scoring_pb2  # noqa: E402
 
@@ -28,8 +29,7 @@ TASKS = {"code": 0.5, "regex": 0.4, "summary": 0.3, "explain": 0.2,
 
 
 def key(item, index=0):
-    return common_pb2.ResultKey(experiment_id="pilot", condition_id="bf16",
-                                item_id=item, sample_index=index)
+    return make_result_key("pilot", "bf16", item, index)
 
 
 def pilot_store(tmp_path):

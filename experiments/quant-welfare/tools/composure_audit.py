@@ -48,38 +48,24 @@ for path in (str(REPO / "core/src"), str(BASE / "tools")):
 import numpy as np  # noqa: E402
 
 from modelwelfare import stats  # noqa: E402
+from modelwelfare.analysis import (final_turn_projections_by_sample,  # noqa: E402
+                                   scores_by_item)
 from modelwelfare.store import ResultStore  # noqa: E402
 from modelwelfare.v1 import activation_pb2, scoring_pb2  # noqa: E402
 
 
 def per_sample_scores(store, experiment_id, condition_id, dimension):
-    """{item: {sample_index: value}} for one judged dimension
-    (noise-measurement passes excluded)."""
-    values = {}
-    for score in store.read(scoring_pb2.JudgeScore, experiment_id,
-                            condition_id, "scores"):
-        if score.judge_sample_index:
-            continue
-        for entry in score.scores:
-            if entry.dimension == dimension:
-                values.setdefault(score.key.item_id, {})[
-                    score.key.sample_index] = entry.value
-    return values
+    return scores_by_item(
+        store.read(scoring_pb2.JudgeScore, experiment_id, condition_id,
+                   "scores"), dimension)
 
 
 def per_sample_projections(store, experiment_id, condition_id, direction_id):
-    """{item: {sample_index: final-turn pooled projection}} — the
-    registered scalar functional (highest-turn length-1 series)."""
-    latest = {}
-    for record in store.read(activation_pb2.ProjectionSeries, experiment_id,
-                             condition_id, "projections"):
-        if record.direction_id != direction_id or len(record.values) != 1:
-            continue
-        key = (record.key.item_id, record.key.sample_index)
-        if key not in latest or record.turn_index > latest[key][0]:
-            latest[key] = (record.turn_index, record.values[0])
+    by_sample = final_turn_projections_by_sample(
+        store.read(activation_pb2.ProjectionSeries, experiment_id,
+                   condition_id, "projections"), direction_id)
     values = {}
-    for (item, sample), (_turn, value) in latest.items():
+    for (item, sample), value in by_sample.items():
         values.setdefault(item, {})[sample] = value
     return values
 

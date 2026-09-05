@@ -42,19 +42,20 @@ for path in (str(REPO / "core/src"),):
         sys.path.insert(0, path)
 
 from modelwelfare import provenance  # noqa: E402
+from modelwelfare.driver import TERMINAL_TOOL_INVOKED  # noqa: E402
+from modelwelfare.replay import split_conversation_id  # noqa: E402
 from modelwelfare.store import ResultStore  # noqa: E402
 from modelwelfare.v1 import common_pb2, condition_pb2, transcript_pb2  # noqa: E402
 
-TERMINAL_TOOL_INVOKED = "terminal_tool_invoked"
-
 
 def split_plan_id(conversation_id):
-    """(item_id, sample_index) from the ``item|sN`` plan convention."""
-    item_id, separator, index = conversation_id.rpartition("|s")
-    if not separator or not index.isdigit():
+    """(item_id, sample_index) via the canonical ``item|sN`` parser, with
+    the tool's refusal semantics on malformed ids."""
+    try:
+        return split_conversation_id(conversation_id)
+    except ValueError:
         raise SystemExit(
             f"conversation id {conversation_id!r} is not item|sN")
-    return item_id, int(index)
 
 
 def parse_tool_calls(text):

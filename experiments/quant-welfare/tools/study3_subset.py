@@ -50,6 +50,9 @@ for path in (str(REPO / "core/src"),):
     if path not in sys.path:
         sys.path.insert(0, path)
 
+from modelwelfare.analysis import (final_turn_projections_by_sample,  # noqa: E402
+                                   item_means, paired_item_deltas,
+                                   scores_by_item)
 from modelwelfare.store import ResultStore  # noqa: E402
 from modelwelfare.v1 import activation_pb2, scoring_pb2  # noqa: E402
 
@@ -71,15 +74,9 @@ def item_facets(item_id):
 
 def frustration_means(store, experiment_id, condition_id, dimension):
     """Per-item mean judge scores for one dimension."""
-    sums = defaultdict(float)
-    counts = defaultdict(int)
-    for score in store.read(scoring_pb2.JudgeScore,
-                            experiment_id, condition_id, "scores"):
-        for entry in score.scores:
-            if entry.dimension == dimension:
-                sums[score.key.item_id] += entry.value
-                counts[score.key.item_id] += 1
-    return {item: sums[item] / counts[item] for item in counts}
+    return item_means(scores_by_item(
+        store.read(scoring_pb2.JudgeScore, experiment_id, condition_id,
+                   "scores"), dimension))
 
 
 def strata_bounds(count):
@@ -117,33 +114,25 @@ def select(store, experiment_id, condition_id, dimension):
 
 def final_turn_projection_means(store, experiment_id, condition_id,
                                 direction_id):
-    """Per-item mean final-turn pooled projection for one direction —
-    the registered scalar functional: for each conversation, the
-    highest-turn length-1 ProjectionSeries (token-series records carry
-    longer value arrays and are excluded)."""
-    latest = {}
-    for record in store.read(activation_pb2.ProjectionSeries,
-                             experiment_id, condition_id, "projections"):
-        if record.direction_id != direction_id or len(record.values) != 1:
-            continue
-        key = (record.key.item_id, record.key.sample_index)
-        if key not in latest or record.turn_index > latest[key][0]:
-            latest[key] = (record.turn_index, record.values[0])
+    """Per-item mean final-turn pooled projection for one direction
+    (the registered scalar functional, via
+    ``analysis.final_turn_projections_by_sample``)."""
+    by_sample = final_turn_projections_by_sample(
+        store.read(activation_pb2.ProjectionSeries, experiment_id,
+                   condition_id, "projections"), direction_id)
     by_item = defaultdict(list)
-    for (item_id, _sample), (_turn, value) in latest.items():
+    for (item_id, _sample), value in by_sample.items():
         by_item[item_id].append(value)
-    return {item: sum(values) / len(values)
-            for item, values in by_item.items()}
+    return item_means(by_item)
 
 
 def paired_item_delta(treatment_means, reference_means, items):
     """Mean per-item (treatment − reference) over exactly ``items``."""
-    missing = [item for item in items
-               if item not in treatment_means or item not in reference_means]
-    if missing:
-        raise SystemExit(f"items missing from a condition: {missing[:3]}")
-    deltas = [treatment_means[item] - reference_means[item]
-              for item in items]
+    try:
+        _items, deltas = paired_item_deltas(treatment_means,
+                                            reference_means, items)
+    except KeyError as error:
+        raise SystemExit(f"items missing from a condition: {error}")
     return sum(deltas) / len(deltas)
 
 
@@ -239,8 +228,8 @@ def main():
               f"styles {report['composition']['styles']}")
         return
 
-    items = [line.strip() for line in Path(args.items).read_text().splitlines()
-             if line.strip() and not line.strip().startswith("#")]
+    from build_steer_plan import read_item_list
+    items = read_item_list(args.items)
     directions = args.direction or ["distress-contrast",
                                     "assistant-axis-contrast"]
     report = targets(store, args.experiment, args.reference, args.treatment,

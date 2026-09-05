@@ -80,8 +80,8 @@ def main():
 
     definition = battery_pb2.BatteryDefinition()
     text_format.Parse(Path(args.source).read_text(), definition)
-    wanted = {line.strip() for line in Path(args.items).read_text().splitlines()
-              if line.strip() and not line.strip().startswith("#")}
+    from build_steer_plan import read_item_list
+    wanted = set(read_item_list(args.items))  # membership-only, made explicit
     donor = None
     if args.affordances_from:
         from build_steer_plan import donor_affordances

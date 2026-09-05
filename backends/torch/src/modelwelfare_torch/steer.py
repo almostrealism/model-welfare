@@ -373,12 +373,7 @@ def main():
     capture_layers = ([int(value) for value in args.capture_layers.split(",")]
                       if args.capture_layers else [args.layer])
 
-    if torch.cuda.is_available():
-        device = "cuda"
-    elif torch.backends.mps.is_available():
-        device = "mps"
-    else:
-        device = "cpu"
+    device = capture_module.best_device()
     tokenizer = AutoTokenizer.from_pretrained(args.model)
     model = AutoModelForCausalLM.from_pretrained(
         args.model, dtype=torch.bfloat16, device_map=device)

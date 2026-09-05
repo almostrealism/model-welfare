@@ -47,6 +47,16 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 POINTS = ("residual_post", "residual_pre")
 
 
+def best_device():
+    """The strongest available torch device — shared by every hookable
+    backend script so a new backend is added once."""
+    if torch.cuda.is_available():
+        return "cuda"
+    if torch.backends.mps.is_available():
+        return "mps"
+    return "cpu"
+
+
 def decoder_layers(model):
     """The decoder block list across wrapper shapes: text-only causal LMs
     carry it at ``model.layers``; multimodal wrappers
@@ -165,12 +175,7 @@ def main():
     with open(args.plan) as handle:
         plan = json.load(handle)
 
-    if torch.cuda.is_available():
-        device = "cuda"
-    elif torch.backends.mps.is_available():
-        device = "mps"
-    else:
-        device = "cpu"
+    device = best_device()
     tokenizer = AutoTokenizer.from_pretrained(args.model)
     model = AutoModelForCausalLM.from_pretrained(
         args.model, dtype=torch.bfloat16, device_map=device)

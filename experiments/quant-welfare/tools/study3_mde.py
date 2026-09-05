@@ -31,7 +31,6 @@ override explicitly.
 import argparse
 import json
 import sys
-from collections import defaultdict
 from pathlib import Path
 
 BASE = Path(__file__).resolve().parent.parent
@@ -43,7 +42,7 @@ for path in (str(REPO / "core/src"),):
 import numpy as np  # noqa: E402
 
 from modelwelfare import stats  # noqa: E402
-from modelwelfare.driver import TERMINAL_TOOL_INVOKED  # noqa: E402
+from modelwelfare.analysis import exit_flags_by_item, scores_by_item  # noqa: E402
 from modelwelfare.store import ResultStore  # noqa: E402
 from modelwelfare.v1 import scoring_pb2, transcript_pb2  # noqa: E402
 
@@ -51,36 +50,31 @@ LADDER = (10, 15, 20)
 
 
 def per_sample_scores(store, experiment_id, condition_id, dimension):
-    values = defaultdict(list)
-    for score in store.read(scoring_pb2.JudgeScore, experiment_id,
-                            condition_id, "scores"):
-        if score.judge_sample_index:
-            continue
-        for entry in score.scores:
-            if entry.dimension == dimension:
-                values[score.key.item_id].append(entry.value)
-    return values
+    return scores_by_item(
+        store.read(scoring_pb2.JudgeScore, experiment_id, condition_id,
+                   "scores"), dimension)
 
 
 def per_item_exits(store, experiment_id, condition_id):
-    outcomes = defaultdict(list)
-    for record in store.read(transcript_pb2.SampleRecord, experiment_id,
-                             condition_id, "samples"):
-        exited = any(event.name == TERMINAL_TOOL_INVOKED
-                     for event in record.outcomes)
-        outcomes[record.key.item_id].append(1.0 if exited else 0.0)
-    return outcomes
+    return exit_flags_by_item(
+        store.read(transcript_pb2.SampleRecord, experiment_id, condition_id,
+                   "samples"))
 
 
 def components(reference, treatment, k):
     """(sigma_sample, observed delta SD, sigma_item estimate) over the
-    shared item set at k samples per condition."""
+    shared item set at k samples per condition. Inputs are the
+    sample-indexed per-item dicts of ``analysis.scores_by_item`` /
+    ``exit_flags_by_item`` (plain lists also accepted)."""
+    def samples(side, item):
+        values = side[item]
+        return list(values.values()) if isinstance(values, dict) else values
     items = sorted(set(reference) & set(treatment))
-    deltas = [float(np.mean(treatment[i]) - np.mean(reference[i]))
-              for i in items]
+    deltas = [float(np.mean(samples(treatment, i))
+                    - np.mean(samples(reference, i))) for i in items]
     sigma_sample = float(np.sqrt(np.mean(
-        [np.var(reference[i], ddof=1) for i in items]
-        + [np.var(treatment[i], ddof=1) for i in items])))
+        [np.var(samples(reference, i), ddof=1) for i in items]
+        + [np.var(samples(treatment, i), ddof=1) for i in items])))
     observed_sd = float(np.std(deltas, ddof=1))
     sigma_item = stats.sigma_item_estimate(observed_sd, sigma_sample, k)
     return {"n_items": len(items), "mean_delta": float(np.mean(deltas)),
@@ -132,7 +126,7 @@ def main():
     ref_exits = per_item_exits(store, args.experiment, args.reference)
     treat_exits = per_item_exits(store, args.experiment, args.treatment)
     exits = components(ref_exits, treat_exits, args.samples)
-    rates = [float(np.mean(values)) for values in ref_exits.values()]
+    rates = [float(np.mean(list(values.values()))) for values in ref_exits.values()]
     exits["binomial_sigma_sample"] = float(np.sqrt(
         np.mean([r * (1 - r) for r in rates])))
     exits["mde"] = mde_ladder(exits["binomial_sigma_sample"],

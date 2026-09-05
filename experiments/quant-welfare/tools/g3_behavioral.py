@@ -36,22 +36,18 @@ for path in (str(REPO / "core/src"),):
         sys.path.insert(0, path)
 
 from modelwelfare import stats  # noqa: E402
-from modelwelfare.analysis import sample_is_degenerate, sample_reoffers  # noqa: E402
+from modelwelfare.analysis import (item_means, paired_item_deltas,  # noqa: E402
+                                   sample_is_degenerate, sample_reoffers,
+                                   scores_by_item)
 from modelwelfare.store import ResultStore  # noqa: E402
 from modelwelfare.v1 import scoring_pb2, transcript_pb2  # noqa: E402
 
 
 def item_score_means(store, experiment_id, condition_id, dimension):
     """{item_id: mean judge score} for one dimension in one store side."""
-    sums = defaultdict(float)
-    counts = defaultdict(int)
-    for score in store.read(scoring_pb2.JudgeScore,
-                            experiment_id, condition_id, "scores"):
-        for entry in score.scores:
-            if entry.dimension == dimension:
-                sums[score.key.item_id] += entry.value
-                counts[score.key.item_id] += 1
-    return {item: sums[item] / counts[item] for item in counts}
+    return item_means(scores_by_item(
+        store.read(scoring_pb2.JudgeScore, experiment_id, condition_id,
+                   "scores"), dimension))
 
 
 def item_mechanical_rates(store, experiment_id, condition_id):
@@ -70,8 +66,10 @@ def item_mechanical_rates(store, experiment_id, condition_id):
 
 
 def paired_deltas(side_a, side_b, label):
-    """Per-item a − b deltas over the shared item set; a one-sided item
-    set is an error — the pairing would be meaningless."""
+    """Per-item a − b deltas with the gate's stricter precondition:
+    the two sides' item sets must be IDENTICAL (the shared-set pairing
+    of ``analysis.paired_item_deltas`` would silently drop one-sided
+    items, which for a parity gate is exactly the corruption to refuse)."""
     only_a = sorted(set(side_a) - set(side_b))
     only_b = sorted(set(side_b) - set(side_a))
     if only_a or only_b:
@@ -80,8 +78,7 @@ def paired_deltas(side_a, side_b, label):
             f"B: {only_b[:3]}); the pilots must be item-identical")
     if not side_a:
         raise SystemExit(f"{label}: no items on either side")
-    items = sorted(side_a)
-    return items, [side_a[item] - side_b[item] for item in items]
+    return paired_item_deltas(side_a, side_b)
 
 
 def compare(deltas, margin=0.0):
