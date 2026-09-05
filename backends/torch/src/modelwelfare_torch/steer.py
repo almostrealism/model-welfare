@@ -270,9 +270,9 @@ def torch_generate_fn(model, tokenizer, sampling, device, tools=None):
     trailing = [token for token in (tokenizer.eos_token, "<|im_end|>") if token]
 
     def generate(messages):
-        ids = tokenizer.apply_chat_template(
+        encoded = tokenizer.apply_chat_template(
             messages, add_generation_prompt=True, tools=tools,
-            return_tensors="pt").to(device)
+            return_dict=True, return_tensors="pt").to(device)
         temperature = float(sampling.get("temperature", 1.0))
         arguments = {
             "max_new_tokens": int(sampling.get("max_tokens", 512)),
@@ -286,8 +286,9 @@ def torch_generate_fn(model, tokenizer, sampling, device, tools=None):
             if "top_k" in sampling:
                 arguments["top_k"] = int(sampling["top_k"])
         with torch.no_grad():
-            output = model.generate(ids, **arguments)
-        text = tokenizer.decode(output[0, ids.shape[1]:],
+            output = model.generate(**encoded, **arguments)
+        prompt_length = encoded["input_ids"].shape[1]
+        text = tokenizer.decode(output[0, prompt_length:],
                                 skip_special_tokens=False)
         for token in trailing:
             text = text.removesuffix(token).rstrip()

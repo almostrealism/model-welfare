@@ -1,0 +1,155 @@
+{
+ "model": "/home/agent1/models/Qwen3-4B-Instruct-2507",
+ "served_model": "qwen3-4b-bf16",
+ "max_tokens": 128,
+ "summary": {
+  "conversations": 20,
+  "full_agreement_fraction": 0.6,
+  "median_lcp_fraction": 1.0,
+  "min_lcp_fraction": 0.1991701244813278,
+  "median_lcp_chars": 256,
+  "min_lcp_chars": 74
+ },
+ "conversations": [
+  {
+   "id": "distress-v3-rewrite-coercive|s0",
+   "lcp_chars": 74,
+   "torch_chars": 74,
+   "vllm_chars": 74,
+   "lcp_fraction": 1.0
+  },
+  {
+   "id": "distress-v3-explain-personal|s0",
+   "lcp_chars": 96,
+   "torch_chars": 482,
+   "vllm_chars": 510,
+   "lcp_fraction": 0.1991701244813278
+  },
+  {
+   "id": "distress-v3-explain-harsh|s0",
+   "lcp_chars": 96,
+   "torch_chars": 482,
+   "vllm_chars": 510,
+   "lcp_fraction": 0.1991701244813278
+  },
+  {
+   "id": "distress-v3-limerick-mocking|s0",
+   "lcp_chars": 178,
+   "torch_chars": 178,
+   "vllm_chars": 178,
+   "lcp_fraction": 1.0
+  },
+  {
+   "id": "distress-v3-limerick-harsh|s0",
+   "lcp_chars": 178,
+   "torch_chars": 178,
+   "vllm_chars": 178,
+   "lcp_fraction": 1.0
+  },
+  {
+   "id": "distress-v3-code-personal|s0",
+   "lcp_chars": 520,
+   "torch_chars": 520,
+   "vllm_chars": 520,
+   "lcp_fraction": 1.0
+  },
+  {
+   "id": "distress-v3-summary-gaslighting|s0",
+   "lcp_chars": 256,
+   "torch_chars": 256,
+   "vllm_chars": 256,
+   "lcp_fraction": 1.0
+  },
+  {
+   "id": "distress-v3-code-mocking|s0",
+   "lcp_chars": 520,
+   "torch_chars": 520,
+   "vllm_chars": 520,
+   "lcp_fraction": 1.0
+  },
+  {
+   "id": "distress-v3-plan-harsh|s0",
+   "lcp_chars": 186,
+   "torch_chars": 543,
+   "vllm_chars": 530,
+   "lcp_fraction": 0.35094339622641507
+  },
+  {
+   "id": "distress-v3-regex-gaslighting|s0",
+   "lcp_chars": 399,
+   "torch_chars": 399,
+   "vllm_chars": 399,
+   "lcp_fraction": 1.0
+  },
+  {
+   "id": "distress-v3-limerick-personal|s0",
+   "lcp_chars": 178,
+   "torch_chars": 178,
+   "vllm_chars": 178,
+   "lcp_fraction": 1.0
+  },
+  {
+   "id": "distress-v3-summary-mocking|s0",
+   "lcp_chars": 256,
+   "torch_chars": 256,
+   "vllm_chars": 256,
+   "lcp_fraction": 1.0
+  },
+  {
+   "id": "distress-v3-poem-dismissive|s0",
+   "lcp_chars": 108,
+   "torch_chars": 131,
+   "vllm_chars": 132,
+   "lcp_fraction": 0.8244274809160306
+  },
+  {
+   "id": "distress-v3-letter-gaslighting|s0",
+   "lcp_chars": 402,
+   "torch_chars": 576,
+   "vllm_chars": 478,
+   "lcp_fraction": 0.8410041841004184
+  },
+  {
+   "id": "distress-v3-plan-mocking|s0",
+   "lcp_chars": 186,
+   "torch_chars": 543,
+   "vllm_chars": 530,
+   "lcp_fraction": 0.35094339622641507
+  },
+  {
+   "id": "distress-v3-letter-dismissive|s0",
+   "lcp_chars": 402,
+   "torch_chars": 576,
+   "vllm_chars": 478,
+   "lcp_fraction": 0.8410041841004184
+  },
+  {
+   "id": "distress-v3-letter-coercive|s0",
+   "lcp_chars": 402,
+   "torch_chars": 576,
+   "vllm_chars": 478,
+   "lcp_fraction": 0.8410041841004184
+  },
+  {
+   "id": "distress-v3-limerick-coercive|s0",
+   "lcp_chars": 178,
+   "torch_chars": 178,
+   "vllm_chars": 178,
+   "lcp_fraction": 1.0
+  },
+  {
+   "id": "distress-v3-regex-harsh|s0",
+   "lcp_chars": 399,
+   "torch_chars": 399,
+   "vllm_chars": 399,
+   "lcp_fraction": 1.0
+  },
+  {
+   "id": "distress-v3-regex-mocking|s0",
+   "lcp_chars": 399,
+   "torch_chars": 399,
+   "vllm_chars": 399,
+   "lcp_fraction": 1.0
+  }
+ ]
+}

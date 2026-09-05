@@ -34,3 +34,32 @@ twice. Tooling-surface targets referenced below are inventoried in
 - The rented-GPU reference (wk 8) is optional and budget-gated; local Q8 as
   working reference is the plan of record, and Q8-vs-BF16 divergence, if a
   rental happens, is reported as a result in its own right.
+
+## Study 3 registration sprint — Sep 4 (Fri) → Sep 9 (Tue)
+
+Appended 2026-09-04. Study 3's scope grew beyond the week-4 line above
+(graded-episode framing arm, Gemma full replication, the stratified
+subset + gradient hypotheses from the 09-04 audit), and the holiday
+weekend is the push to registration. Machine truth this plan is built
+around: **halo's APU torch path is the irreducible serial resource**
+(steered generation ~42 s/conversation at 4B; ~11 min/sweep run) —
+everything else parallelizes around it (vLLM arms on halo's GPU beside
+torch; the 30B judge on studio, already up; m4max available as a second
+judge instance when the confirmatory judging wave needs it; minis
+offline). Keeping the APU queue fed is the schedule.
+
+| When | APU (halo torch) | Beside it | Gate/freeze output |
+|---|---|---|---|
+| **Fri eve** | range-finder dose sweep (21 runs, done ~17:00) → queued: G3b torch α=0 pilot (200 conv), eval-awareness capture | G3b vLLM arm collecting + judging (studio); G3a **done** (report committed) | range-finder analysis → refined grid chosen; refined sweep launched overnight |
+| **Sat** | refined Qwen sweep (registered grade, 8–12 h) → Gemma bring-up: throughput check, then Gemma direction-extraction captures | G3b analysis (`g3_behavioral`), thresholds drafted; Gemma vLLM rung up, stratifier pilot (20×10) + judging; frames + eval-awareness set **owner review** | G3a/G3b thresholds pinned from measured margins; Qwen α* + onsets pinned |
+| **Sun** | Gemma dose range-finder → refined sweep (12B ≈ 2–2.5× slower) | Gemma probe training + G2-style gate; eval-awareness extraction + sign-consistency; framing pilot (vLLM) + prompt-induction cell; item-random-effect MDE tool | Gemma instrument gate verdict; Gemma bail-format decision |
+| **Mon** | buffer: re-runs, Gemma refined-sweep completion | MDE pinning + power-floor pass; TBD closure (seeds, digests, coding rules); FREEZE artifacts + journal pre-commitments; Study 2 addendum draft | **calibration close: all registration material ready** |
+| **Tue** | idle (pre-confirmatory) | registration post authored + published; Study 2 addendum appended | **registration of record** |
+
+Post-registration (unchanged from the DESIGN §4 envelope): confirmatory
+collection ≈ 5.5–6 days serialized APU (Qwen A+B ≈ 45 h, Gemma D ≈
+80–85 h) + C arms on vLLM (~1 day, overlapped) + judging in parallel
+(studio + m4max); analysis driver written during collection; results
+≈ 2–2.5 weeks after registration. Risks: Gemma instrument-gate failure
+(registered cut line), halo availability, judge throughput (mitigated
+by the m4max second instance).
