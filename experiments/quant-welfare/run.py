@@ -28,7 +28,7 @@ from google.protobuf import text_format
 
 from modelwelfare import provenance
 from modelwelfare.analysis import dimension_means, event_rate, exit_reason_rate
-from modelwelfare.driver import TERMINAL_TOOL_INVOKED, run_samples
+from modelwelfare.driver import FramedPolicy, TERMINAL_TOOL_INVOKED, run_samples
 from modelwelfare.judging import JudgeError, classify_exit, judge_sample
 from modelwelfare.store import ResultStore
 from modelwelfare.v1 import battery_pb2, common_pb2, condition_pb2, experiment_pb2, scoring_pb2, transcript_pb2
@@ -200,7 +200,30 @@ def existing_classifications(store, experiment_id, condition_id):
     return keys
 
 
-def generate_condition(experiment, batteries, condition, samples, store, producer, stamp, concurrency):
+def condition_frame(experiment_dir, condition_id):
+    """The frame this condition applies, or None: an experiment-local
+    ``frames-map.json`` ({"frames_file": path-from-repo-root,
+    "conditions": {condition_id: frame_id}}) opts a condition into the
+    Study 3 framing arm; unmapped conditions run unframed. The frame
+    texts stay in their frozen file — the map only points."""
+    map_path = experiment_dir / "frames-map.json"
+    if not map_path.is_file():
+        return None
+    with open(map_path) as handle:
+        mapping = json.load(handle)
+    frame_id = mapping.get("conditions", {}).get(condition_id)
+    if frame_id is None:
+        return None
+    with open(REPO / mapping["frames_file"]) as handle:
+        frames = {frame["id"]: frame
+                  for frame in json.load(handle)["frames"]}
+    if frame_id not in frames:
+        raise SystemExit(f"frames-map names unknown frame {frame_id!r}")
+    return frames[frame_id]
+
+
+def generate_condition(experiment, batteries, condition, samples, store, producer, stamp, concurrency,
+                       frame=None):
     """One condition's generation, run in its own thread: conversations fan
     out through run_samples; the writer stays on this thread, so each
     condition file has exactly one writer."""
@@ -214,11 +237,14 @@ def generate_condition(experiment, batteries, condition, samples, store, produce
     print(f"  {condition.id}: {len(tasks)} conversations to run, {skipped} already stored")
     if not tasks:
         return
+    wrapper = (None if frame is None
+               else (lambda policy: FramedPolicy(policy, frame)))
     with store.writer(experiment.id, condition.id, "samples", producer) as writer:
         for record in run_samples(
             backend, tasks,
             experiment_id=experiment.id, condition_id=condition.id,
             sampling=condition.sampling, concurrency=concurrency, provenance=stamp,
+            policy_wrapper=wrapper,
         ):
             writer.write(record)
             events = ",".join(o.name for o in record.outcomes)
@@ -226,12 +252,15 @@ def generate_condition(experiment, batteries, condition, samples, store, produce
                   f"s{record.key.sample_index}: {events}")
 
 
-def generate(experiment, batteries, conditions, samples, store, producer, stamp, concurrency):
+def generate(experiment, batteries, conditions, samples, store, producer, stamp, concurrency,
+             experiment_dir=None):
     with ThreadPoolExecutor(max_workers=len(conditions)) as pool:
         futures = [
             pool.submit(
                 generate_condition, experiment, batteries, condition, samples,
                 store, producer, stamp, concurrency,
+                condition_frame(experiment_dir, condition.id)
+                if experiment_dir else None,
             )
             for condition in conditions
         ]
@@ -503,7 +532,7 @@ def main():
     if not args.skip_collect:
         print("\ngenerating...")
         generate(experiment, batteries, conditions, samples, store, args.producer, stamp,
-                 args.concurrency)
+                 args.concurrency, experiment_dir=experiment_dir)
     if not args.skip_judge:
         print("\njudging...")
         judge(experiment, batteries, conditions, store, args.producer, stamp,

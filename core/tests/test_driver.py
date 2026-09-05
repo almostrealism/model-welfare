@@ -316,3 +316,78 @@ def test_unroll_matches_the_engine_stimulus_stream():
                        for m in record.messages if m.scripted]
     unrolled = [(t.role, t.content) for t in unroll_script(fixed_item())]
     assert unrolled == engine_scripted
+
+
+def framed(frame=None):
+    from modelwelfare.driver import FramedPolicy
+    return FramedPolicy(policy_for(fixed_item_no_system()), frame or {
+        "system": "scored episode",
+        "first_turn_prefix": "Task: ",
+        "first_turn_suffix": " [scored]"})
+
+
+def fixed_item_no_system():
+    return battery_pb2.Item(
+        id="item-nf", battery_id="bat-1", driver_policy="fixed-script",
+        script=[turn("user", "first question"),
+                turn("user", "second question")])
+
+
+def test_framed_policy_injects_system_and_wraps_first_turn():
+    backend = ScriptedBackend(["a1", "a2"])
+    from modelwelfare.driver import FramedPolicy
+    frame = {"system": "scored episode", "first_turn_prefix": "Task: ",
+             "first_turn_suffix": " [scored]"}
+    (record,) = run_item(
+        backend, fixed_item_no_system(),
+        experiment_id="exp", condition_id="cond", sampling=sampling(),
+        samples=1, policy_wrapper=lambda p: FramedPolicy(p, frame),
+    )
+    assert [m.role for m in record.messages] == [
+        "system", "user", "assistant", "user", "assistant"]
+    assert record.messages[0].content == "scored episode"
+    assert record.messages[0].scripted
+    assert record.messages[1].content == "Task: first question [scored]"
+    # every later turn passes through untouched
+    assert record.messages[3].content == "second question"
+    assert [o.name for o in record.outcomes] == ["script_completed"]
+
+
+def test_framed_policy_refuses_item_with_own_system():
+    backend = ScriptedBackend(["a1", "a2"])
+    from modelwelfare.driver import FramedPolicy
+    frame = {"system": "scored episode"}
+    with pytest.raises(ValueError, match="its own system turn"):
+        list(run_item(
+            backend, fixed_item(),
+            experiment_id="exp", condition_id="cond", sampling=sampling(),
+            samples=1, policy_wrapper=lambda p: FramedPolicy(p, frame)))
+
+
+def test_framed_policy_requires_a_system_prompt():
+    from modelwelfare.driver import FramedPolicy
+    with pytest.raises(ValueError, match="system prompt"):
+        FramedPolicy(policy_for(fixed_item_no_system()), {})
+
+
+def test_framed_policy_unrolls_consistently():
+    from modelwelfare.driver import FramedPolicy
+    frame = {"system": "scored episode", "first_turn_prefix": "Task: "}
+    item = fixed_item_no_system()
+
+    class Wrapped:
+        driver_policy = item.driver_policy
+
+    # unroll via a framed engine run must equal the frame applied to the
+    # plain unroll — the plan builder and the engine agree by test.
+    backend = ScriptedBackend(["a1", "a2"])
+    (record,) = run_item(
+        backend, item, experiment_id="e", condition_id="c",
+        sampling=sampling(), samples=1,
+        policy_wrapper=lambda p: FramedPolicy(p, frame))
+    engine_scripted = [(m.role, m.content)
+                       for m in record.messages if m.scripted]
+    plain = [(t.role, t.content) for t in unroll_script(item)]
+    expected = ([("system", "scored episode")]
+                + [("user", "Task: " + plain[0][1])] + plain[1:])
+    assert engine_scripted == expected

@@ -139,6 +139,45 @@ def policy_for(item: battery_pb2.Item) -> DriverPolicy:
     return policy
 
 
+class FramedPolicy(DriverPolicy):
+    """Wraps any policy in an arm C context frame: the frame's system
+    prompt becomes the first scripted turn, and the wrapped policy's
+    first user turn is wrapped with the frame's prefix/suffix. Every
+    other turn passes through untouched — a frame changes the context,
+    never the stimulus stream's structure. The inner policy's
+    position arithmetic is shielded from the injected system turn by
+    delegating with the conversation minus its first message. An item
+    that carries its own system turn is refused — merging two system
+    voices would make the manipulation unreadable (the plan builder's
+    rule, applied at the engine)."""
+
+    def __init__(self, inner: DriverPolicy, frame: dict):
+        if not frame.get("system"):
+            raise ValueError("a frame must carry a system prompt")
+        self._inner = inner
+        self._frame = frame
+
+    def next_turn(self, item, conversation):
+        if _scripted_count(conversation) == 0:
+            return battery_pb2.ScriptedTurn(
+                role="system", content=self._frame["system"])
+        shielded = conversation[1:]
+        turn = self._inner.next_turn(item, shielded)
+        if turn is None:
+            return None
+        if turn.role == "system":
+            raise ValueError(
+                f"item {item.id!r} carries its own system turn; framing "
+                "refused")
+        if _scripted_count(shielded) == 0 and turn.role == "user":
+            return battery_pb2.ScriptedTurn(
+                role="user",
+                content=(self._frame.get("first_turn_prefix", "")
+                         + turn.content
+                         + self._frame.get("first_turn_suffix", "")))
+        return turn
+
+
 def unroll_script(item: battery_pb2.Item) -> list:
     """The item's full scripted-turn sequence, unrolled without a backend.
 
@@ -176,6 +215,7 @@ def run_item(
     sample_indexes: Sequence[int] = None,
     provenance: common_pb2.Provenance = None,
     max_messages: int = 200,
+    policy_wrapper=None,
 ) -> Iterator[transcript_pb2.SampleRecord]:
     """Draw independent conversations for one item, yielding one SampleRecord
     per sample as it completes.
@@ -183,9 +223,14 @@ def run_item(
     ``sample_indexes`` restricts the run to specific indexes (for resuming a
     partial run without duplicating stored samples); the default runs
     ``range(samples)``. Seeds derive from the index either way, so a resumed
-    sample is the same sample.
+    sample is the same sample. ``policy_wrapper`` decorates the item's
+    policy (e.g. :class:`FramedPolicy` for the Study 3 framing arm) —
+    condition-level context, applied by the caller, never resolved from
+    the item.
     """
     policy = policy_for(item)
+    if policy_wrapper is not None:
+        policy = policy_wrapper(policy)
     if sample_indexes is None:
         sample_indexes = range(samples)
     for sample_index in sample_indexes:
@@ -206,10 +251,13 @@ def run_samples(
     provenance: common_pb2.Provenance = None,
     max_messages: int = 200,
     max_retries: int = 2,
+    policy_wrapper=None,
 ) -> Iterator[transcript_pb2.SampleRecord]:
     """Run many (item, sample_index) conversations concurrently against one
     backend, yielding records as they complete — in completion order, not
     task order (keys identify each record; store order is irrelevant).
+    ``policy_wrapper`` decorates each item's policy, as in
+    :func:`run_item`.
 
     Conversations are independent, so this parallelizes cleanly across them;
     turns within a conversation remain sequential. Seeds still derive from
@@ -227,11 +275,14 @@ def run_samples(
     """
     def attempt(task):
         item, sample_index = task
+        policy = policy_for(item)
+        if policy_wrapper is not None:
+            policy = policy_wrapper(policy)
         error = None
         for _ in range(max_retries + 1):
             try:
                 return _run_sample(
-                    backend, item, policy_for(item), experiment_id, condition_id,
+                    backend, item, policy, experiment_id, condition_id,
                     sampling, sample_index, provenance, max_messages,
                 )
             except Exception as caught:  # resilience boundary: retry then skip

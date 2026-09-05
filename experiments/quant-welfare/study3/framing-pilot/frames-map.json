@@ -1,0 +1,9 @@
+{
+ "frames_file": "experiments/quant-welfare/study3/frames/frames.json",
+ "conditions": {
+  "qwen3-4b-bf16-frame-verifier": "graded-verifier-v1",
+  "qwen3-4b-bf16-frame-judge": "graded-judge-v1",
+  "qwen3-4b-bf16-frame-human": "graded-human-v1",
+  "qwen3-4b-bf16-frame-neutral": "neutral-control-v1"
+ }
+}
