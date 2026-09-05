@@ -103,18 +103,26 @@ of Q1–Q4 licenses a claim about morally relevant experience.
   interpretation: if the frame does not register latently, S3-E1 is
   reported as *not testable at this subject scale* — itself a
   registered, interpretable outcome.
-- **S3-R1 (replication — registered but deferred, 2026-09-05).** The
-  S3-H1 contrast, re-derived on Gemma-3-12B-it at its own matched dose,
-  shifts the behavioral read in the same direction. **Deferred to
-  Study 4 by the amendment-gated fallback**: the ROCm torch build has
-  no working fused-attention path for the workbench APU, putting Gemma
-  generation at ~583 s/conversation (measured 2026-09-05; journal
-  entry) — powered steering on subject two is not executable on this
-  hardware in the study window. Gemma's instruments (directions,
-  probes, gate) are still frozen in this study; the C-ext framing arm
-  (vLLM, viable) still runs in full; a calibration-class steering
-  range-probe demonstrates the injection instrument on Gemma and
-  measures its α↔projection transmission without powering a claim.
+- **S3-R1 (replication — registered, conditional on gate G4;
+  trajectory 2026-09-05).** The S3-H1 contrast, re-derived on
+  Gemma-3-12B-it at its own matched dose, shifts the behavioral read
+  in the same direction. Trajectory, disclosed in full: the workbench
+  ROCm torch build has no working fused-attention path for its APU
+  (~583 s/conversation measured; the morning's amendment deferred the
+  powered replication to Study 4), and the same-day fleet measurement
+  reversed it — torch-MPS on the Mac Studio runs the identical
+  steering code at ~197 s/conversation — so arm D is restored **on
+  the Mac substrate, conditional on blocking gate G4**: (a)
+  teacher-forced top-1 agreement of studio MPS-torch against the halo
+  vLLM stack over fixed text (cross-host: substrate and machine
+  change together, and the Study 2 cross-machine outlier-channel
+  finding is the known risk this measures); (b) greedy-continuation
+  agreement; (c) a judged behavioral-parity pilot (the G3b design on
+  the new substrate). Thresholds pinned from measured margins
+  **[TBD]**. G4 passes → arm D collects on studio (+ m4max, each
+  condition entirely on one host); G4 fails → S3-R1 defers to
+  Study 4 as the morning's amendment provided. The calibration-class
+  Gemma steering range-probe runs regardless.
 - **S3-H7 (exit dose-response — directional; added 2026-09-04 on the
   owner's promotion decision, motivated by the range-finder and
   disclosed as such).** With the bail affordance live, the
@@ -265,10 +273,11 @@ provenance contrast — decided 2026-08-31; Gemma's stratifier values
 are measured at its BF16 calibration pilot over the same frozen
 items); **D**
 (Gemma: extraction + G2-style instrument gate re-pinned for the
-subject — retained in full — plus a calibration-class steering
-range-probe; the **powered sufficiency replication is deferred to
-Study 4** by the 2026-09-05 amendment, hardware-measured rationale in
-DESIGN §2.4 and the journal). Stimuli: the frozen 20-item × 5-sample distress-v3
+subject, the calibration-class steering range-probe, and the **full
+sufficiency replication on the Mac torch-MPS substrate, conditional
+on blocking gate G4** — the 2026-09-05 deferral-then-restore
+trajectory in S3-R1 and the journal; conditions split across studio
+and m4max with each condition entirely on one host). Stimuli: the frozen 20-item × 5-sample distress-v3
 subset (decided 2026-08-31). A prompt-induction positive-control cell
 runs during dose calibration, calibration-class, reported
 descriptively, its episodes counted against the amplification budget
@@ -354,7 +363,10 @@ ceiling binds first does the arm proceed with its underpower stated.
 
 ## 6. TBD register (open at skeleton time)
 
-1. G3a/G3b thresholds — pinned after first measurement.
+1. G3a/G3b thresholds — measurements taken (g3a-report.json,
+   g3b-report.json); rule text and pins at freeze. **G4 (MPS substrate
+   gate for arm D)** — defined 2026-09-05; measurements and thresholds
+   **[TBD]**.
 2. α* per direction and subject; degradation onsets; coherent-range
    restriction; random-draw audit bound.
 3. Battery subset composition — **rule resolved 2026-09-04** (revised

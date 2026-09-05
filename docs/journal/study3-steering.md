@@ -7,6 +7,98 @@ history of that file (arms and owner decisions 2026-08-31; power
 posture 2026-09-04); entries here begin at the first discovery-grade
 event. Append-only, newest first.
 
+## 2026-09-05 (evening) — Gemma day: the hardware wall, the fleet answer, and arm D deferred-then-restored behind gate G4
+
+The registration post's timeline will need this day's doubling-back
+reconstructed exactly, so the sequence is recorded in order. (This and
+the next entry were recorded together this evening — a backfill lag of
+about a day, called out per the append-only convention rather than
+hidden.)
+
+1. **Morning — refined sweep lands** (`study3/dose-refined.json`, 17
+   runs, 20 items × 3 samples): registered-grade mappings distress
+   slope +1.042 (r² 0.987), **α\* = +1.039**; axis +1.051 (r² 0.998),
+   **α\* = −0.604**; no degradation onset in the operating bracket
+   (the range-finder's ~13% amplification is a large-dose
+   phenomenon). Baseline exit rate 0.60 — third independent
+   replication. Power flag: the exit dose-response inside the bracket
+   is gentle (axis 0.65→0.53 over ±1.4) — SB1's confirmatory weight
+   rides the bracket trend, stated for the MDE pinning.
+2. **Mediators extracted** (`directions/mediators-bf16.*`):
+   eval-awareness magnitude 4.44, 6/6 held-out sign-consistent;
+   grader-type 1.54, 5/5; both near-orthogonal to every frozen
+   Study 2 direction (|cos| ≤ 0.13); cos between them 0.288.
+3. **Gemma bring-up.** Stratifier pilot launched on the vLLM rung
+   (tool-free, calibration-class — the Gemma bail format is a
+   registered open decision). Multimodal wrapper support added to both
+   hook modules (`decoder_layers` resolver;
+   Gemma3ForConditionalGeneration nests the decoder at
+   `model.language_model.layers`, 48 layers). All four directions
+   extract on Gemma with clean held-out sign consistency at L24–36.
+4. **The hardware wall.** First Gemma torch generation: **~583
+   s/conversation** — the ROCm torch build carries no working
+   fused-attention kernels for the workbench iGPU (the experimental
+   flag crashes with a HIP error; the gap is specific to the hookable
+   torch path — vLLM's own kernels serve Gemma at ~65 s/conversation
+   on the same silicon). Full arm D ≈ 470 APU-hours: non-viable.
+5. **Midday amendment (owner): arm-D powered steering deferred to
+   Study 4** by the registered fallback, with the cut-line ordering
+   corrected to hardware reality (C-ext framing is vLLM-cheap and was
+   KEPT in full; Gemma instruments kept; a calibration-class steering
+   range-probe added, α grid scale-adapted to Gemma's ~80k residual
+   norms). The deferral was written as explicitly **contingent** on
+   the fleet alternative being measured.
+6. **MDE machinery built** (`stats.delta_sd_mixed`,
+   `sigma_item_estimate`, `tools/study3_mde.py`) and provisionally run
+   on the G3b baselines: frustration MDE 0.33–0.46 and exit rate
+   0.05–0.07 over the 10/15/20 ladder. Stated tension: a
+   Study-2-seeded item-effect SD would put SB2 near its reference
+   (~1.1 vs 1.36) and sample escalation barely helps; judged steered
+   pilot cells re-estimate the component before pinning.
+7. **Evening — the fleet answer.** The identical `steer.py` on the Mac
+   Studio's torch-MPS path: **197 s/conversation, 3× the workbench**
+   (Apple silicon carries fused attention in both its stacks; the
+   capability gap is workbench-specific). m4max setup started as a
+   third host.
+8. **Owner decision: arm D restored** — on the Mac substrate,
+   conditional on new blocking gate **G4** (teacher-forced MPS-torch
+   vs halo-vLLM agreement over fixed text — the cross-host
+   comparison the Study 2 outlier-channel finding warns about, now
+   tested at stakes; greedy continuation; judged behavioral-parity
+   pilot). Conditions split across studio and m4max, each condition
+   entirely on one host. G4 fails → the morning's deferral stands as
+   written. Envelope back to ≈ 9,700 (1.24× under the ceiling;
+   amplification ≈ 2,150 / 2,500).
+
+## 2026-09-05 (recorded same evening; decisions stamped 2026-09-04 in the design documents) — The concurrent external result: exit-rate promotion and the graded-frame response
+
+Two decision clusters from Friday evening, between the dose sweeps and
+G3b:
+
+- **Exit rate promoted to a registered endpoint** (owner decision):
+  the range-finder showed the live bail affordance yields a ~0.60
+  unsteered exit rate and strong assistant-axis dose-response (0.80
+  at −8 … 0.15 at +8). Registered as SB1/CB1/FB1 with directional
+  hypothesis S3-H7 (motivated by the range-finder and disclosed as
+  such); the protocol consequence of the live affordance (short
+  exited conversations; earlier final turns) stated in the design.
+- **Betley/Treutlein/Dumas landed pre-registration** ("Steering
+  towards 'automated grading' degrades alignment" + "RL creates split
+  personas"): their steering result shows alignment degradation rides
+  the automated-grader association specifically, and neither post
+  measures exit, refusal, or emotional expression. Responses, all
+  dated in the design docs: the **human-graded fourth frame** (the
+  judge frame's minimal pair, 413 characters each — without it,
+  "graded" and "automatedly graded" were confounded); the
+  **grader-type mediator direction** (16 cue-varied fixed-response
+  pairs; cue variation because their own follow-up showed
+  single-pattern contrasts carry lexical associations); registered
+  contrasts verifier-vs-judge and automated-vs-human-judge; S3-E1
+  kept two-sided (their evidence: one model, one steering position,
+  no direction controls — by their own disclosure). Also that
+  evening: **G3b pilot 1's failure and fix** (the apparatus-asymmetry
+  story in the entry below) and pilot 2's pass.
+
 ## 2026-09-05 — First workbench day: dose mappings, G3a, a G3b failure that was the gate working, and the live affordance's baseline
 
 One day of halo/studio work, recorded because the registration's §3.2

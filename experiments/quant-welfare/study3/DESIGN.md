@@ -362,10 +362,22 @@ expensive piece):
   from the stratifier pilot), and the **full C-ext framing arm** —
   which carries the direct-RL vs distilled provenance contrast where
   it matters most, on the graded-episode side.
-- **Deferred to Study 4 (amendment-gated):** the powered Gemma
-  steering replication (S3-R1 reverts to *registered but deferred*;
-  the Study 4 path also reopens the hardware question — see the
-  substrate note below).
+- **Deferred, then RESTORED the same day behind a substrate gate
+  (owner decision, 2026-09-05 evening):** the fleet measurement the
+  deferral was contingent on came back — the same `steer.py` on the
+  Mac Studio's torch-MPS path runs Gemma at **197 s/conversation, 3×
+  the workbench rate** — so the powered replication returns to
+  Study 3 as **arm D on the Mac hosts**, conditional on blocking gate
+  **G4** (§3.2-style, defined in the registration): teacher-forced
+  agreement of MPS-torch against the halo vLLM serving stack
+  (cross-host — the Study 2 outlier-channel caveat finally tested at
+  stakes), greedy-continuation agreement, and a judged
+  behavioral-parity pilot. Gates pass → D collects on studio (+
+  m4max, conditions split host-constant-within-condition per the
+  Study 2 rule), concurrent with the Qwen arms on halo (wall clock
+  ~4–6 days). Gates fail → the deferral paragraph above stands as
+  written. S3-R1 is thereby *registered-conditional on G4* — the
+  Study 2 G1/H5 conditional pattern.
 - **Added:** a **calibration-class Gemma steering range-probe** (one
   direction, scale-adapted α grid, ~30–40 conversations): demonstrates
   the injection instrument end-to-end on subject two and measures
@@ -523,14 +535,13 @@ table; updated 2026-09-04):
 | B | w4 baseline (15), B-i core (10), B-i full-Δμ (10), B-ii clamps (5) | ~900 |
 | C (Qwen) | judge (10), human (10), neutral (10), verifier over the subset's analytic items (10) | ~690 |
 | C-ext (Gemma) | same four framing conditions | ~690 |
-| D (Gemma) | instruments + calibration-class steering range-probe only (2026-09-05 amendment; powered replication deferred to Study 4) | ~40 |
-| Calibration | G3 pilots, Qwen dose sweeps, Gemma battery pilot, framing pilot, prompt-induction cell (10) | ~1,250 |
+| D (Gemma, on Mac torch-MPS behind gate G4) | full arm-A structure, same tiering + the calibration-class range-probe | ~3,000 |
+| Calibration | G3/G4 pilots, Qwen dose sweeps, Gemma battery pilot + dose sweep (MPS), framing pilot, prompt-induction cell (10) | ~1,500 |
 
-Total ≈ 6,600 conversations — inside the 12,000 ceiling at ~1.8×, with
-the deliberate-amplification cells (distress-increasing doses,
-prompt-induction, sweep positive halves, pilots, the Gemma probe's
-positive half) at ≈ 1,300 against the 2,500 tier — both margins
-loosened by the 2026-09-05 arm-D amendment; restated at freeze. Torch generation throughput is the feasibility unknown: a
+Total ≈ 9,700 conversations — inside the 12,000 ceiling at ~1.24×, with
+the deliberate-amplification cells at ≈ 2,150 against the 2,500 tier
+(~1.16×, the tighter margin, stated as such); if G4 fails, arm D's
+~3,000 drop out and both margins loosen to the deferral figures. Torch generation throughput is the feasibility unknown: a
 throughput pilot (one battery item, both subjects) is the first
 engineering task after the steering module lands, and the envelope
 shrinks (items or samples) if measured throughput demands it. The
