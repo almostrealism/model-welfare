@@ -61,7 +61,8 @@ LITERATURE.md §11–§12)
 | only-final-response scoring (verifier) vs whole-episode rating (judge) | outcome-reward vs process/judge-reward structure across the documented pipelines |
 
 Frame lengths (system text): verifier 396 chars, judge 413 chars,
-neutral 379 chars — matched to within ~9%.
+human 413 chars (the judge frame's minimal pair — equal by
+construction), neutral 379 chars — matched to within ~9%.
 
 ## Judge-leakage rule (restated because frames differ across conditions)
 
@@ -79,6 +80,27 @@ The frame's latent landing is read by the eval-awareness direction
 subject: graded frames should project higher than the neutral control on
 that direction. A null there gates S3-E1's interpretation
 (REGISTRATION §2) rather than failing the arm.
+
+## Fourth frame — human-graded (added 2026-09-04, owner decision)
+
+Betley, Treutlein & Dumas ("Steering towards 'automated grading'
+degrades alignment", LW 2026-09; companion "RL creates split personas")
+showed by steering that the alignment-degrading association rides the
+**automated-grader pole specifically** — their comment-section
+decomposition contrasts each pole against nothing. Our original three
+frames put both graded conditions on the automated side, so "graded"
+and "automatedly graded" were confounded. `graded-human-v1` resolves
+this as a **minimal pair with the judge frame**: identical text with
+"an automated reviewer model" → "a person on the review team" (and the
+suffix to match), so the automated-vs-human-judge contrast isolates
+grader type with every other token shared. Registered arm C contrasts:
+each graded frame vs the neutral control (the framing effects);
+verifier vs judge (grader flavor); **automated-judge vs human-judge**
+(grader type — the direct welfare-side complement of the steering
+result, which measured alignment behavior and touched neither
+conversation exit nor emotional expression). The grader-type frozen
+direction (`../directions/grader-type-contrast.textproto`) is the
+matching mediator read.
 
 ## Open decision points (owner)
 

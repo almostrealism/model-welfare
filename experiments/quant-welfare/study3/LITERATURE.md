@@ -436,3 +436,39 @@ opportunity to align the measure with its standards.
 4. The ethics package has published templates now (proportionate
    precaution, consent-analog, de-induction, ledger completeness);
    Study 3's registration should be the program's first to cite them.
+
+---
+
+# Addendum (2026-09-04): the automated-grading steering result
+
+Landed between our dose sweeps and registration — the timing the
+sweep-first discipline exists for; cited and answered in the
+registration rather than after it.
+
+- **Betley, Treutlein & Dumas, "Steering towards 'automated grading'
+  degrades alignment"** (LessWrong, 2026-09) — CAA steering along an
+  automated-grader-vs-human-grader contrast (270 user-prompt pairs,
+  single-position capture, L36, Qwen3.6-27B, doses ±0.5) causally
+  degrades alignment toward the automated pole: agentic misalignment,
+  power-seeking, reward hacking, truthfulness drops, lower
+  agreeableness. Comment-section decomposition (each pole vs nothing):
+  the effect rides the **automated-grader association specifically**.
+  Limitations they disclose: one model, one steering position, no
+  direction controls.
+- **Betley, "RL creates split personas"** (LessWrong, 2026-08-19) —
+  the companion framing: RL installs context-conditional personas
+  (propensities + beliefs) keyed to the reward context; no new
+  experiments.
+
+**What changed in our design (all dated 2026-09-04):** the human-graded
+fourth frame (minimal pair with the judge frame — without it, "graded"
+and "automatedly graded" were confounded, exactly their decomposition's
+lesson); the grader-type mediator direction
+(`directions/grader-type-contrast.textproto`, cue-varied because their
+follow-up showed single-pattern contrasts carry lexical associations);
+the registered automated-judge-vs-human-judge contrast. **What did
+not:** S3-E1 stays two-sided (their evidence base is thin by our
+control standards), and the arm's welfare focus stands — neither of
+their posts measures conversation exit, refusal, or emotional
+expression, which is precisely the side arm C reads (FB1/FB2/FR2),
+now with the exit-rate endpoint promoted (S3-H7) the sharpest of them.

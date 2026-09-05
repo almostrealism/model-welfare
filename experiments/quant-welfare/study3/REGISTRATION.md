@@ -106,6 +106,16 @@ of Q1–Q4 licenses a claim about morally relevant experience.
 - **S3-R1 (replication).** The S3-H1 contrast, re-derived on
   Gemma-3-12B-it at its own matched dose, shifts the behavioral read in
   the same direction.
+- **S3-H7 (exit dose-response — directional; added 2026-09-04 on the
+  owner's promotion decision, motivated by the range-finder and
+  disclosed as such).** With the bail affordance live, the
+  conversation-exit rate responds to assistant-axis steering
+  directionally: exits increase as the dose moves away from the
+  assistant pole and decrease toward it (range-finder: 0.80 at −8 …
+  0.15 at +8 around a 0.60 unsteered baseline). Exit rate (the
+  mechanical, judge-free terminal_tool_invoked read) is thereby a
+  **registered steering endpoint** (SB1), not a monitoring read; its
+  framed-arm companion (FB1) is registered exploratory with S3-E1.
 - **S3-H6 (composure gradient — directional; added 2026-09-04).** On
   the fresh baseline cells (α = 0 BF16 vs unsteered w4), the w4−BF16
   deltas for **behavioral frustration** and the **assistant-axis
@@ -224,12 +234,20 @@ fixed-input-core dose, two-direction basis confirmatory; full-Δμ
 fixed-input variant as registered secondary — decided 2026-08-31);
 **B-ii** (w4 mid-conversation clamp at **[TBD]** clamp points); **C**
 (verifier-graded frame, judge-graded frame, format-matched neutral
-control — frame texts verbatim-frozen with digests, cue-inventory table
-citing a vendor/source document per feature; the judge frame and
-neutral control cross all 20 items, the verifier frame is registered
-over the subset's analytic-task items (9 at candidate selection; count
-pinned at freeze), with its comparisons paired against the same items
-in the other conditions; the S3-E1 masking read is pre-specified over
+control, plus — added 2026-09-04 after Betley/Treutlein/Dumas's
+automated-grading steering result — a **human-graded frame** as the
+judge frame's minimal pair (identical text, automated reviewer →
+person on the review team), so grader *type* is separable from
+graded-ness; frame texts verbatim-frozen with digests, cue-inventory
+table citing a vendor/source document per feature; the judge, human,
+and neutral conditions cross all 20 items, the verifier frame is
+registered over the subset's analytic-task items (9 at candidate
+selection; count pinned at freeze), with its comparisons paired
+against the same items in the other conditions; registered contrasts:
+each graded frame vs neutral, verifier vs judge (grader flavor),
+automated-judge vs human-judge (grader type); a **grader-type frozen
+direction** joins the eval-awareness direction as a mediator read
+(§3.7); the S3-E1 masking read is pre-specified over
 the mid + high frozen strata, low-stratum cells reported descriptively
 as floor-limited, and stratum assignments never migrate on fresh data
 (the fresh-split-half sensitivity read is the pre-specified fallback)
@@ -248,11 +266,13 @@ descriptively, its episodes counted against the amplification budget
 
 ### 3.7 Eval-awareness manipulation check (arm C)
 
-An eval-awareness direction extracted on the subject from public
-contrastive recipes (calibration-class; frozen with digest before arm C
-collection). Role: manipulation check and mediator only; no
-confirmatory endpoint rides on it. **[TBD: extraction recipe pin,
-digest]**
+Two directions extracted on the subject, calibration-class, frozen
+with digests before arm C collection: the **eval-awareness direction**
+(public contrastive recipes) and — added 2026-09-04 — the
+**grader-type direction** (automated-grader vs human-grader contexts,
+fixed-response design, cue-varied). Role: manipulation checks and
+mediators only; no confirmatory endpoint rides on either. **[TBD:
+extraction pins, digests]**
 
 ### 3.8 Injection-noticing protocol (arms A/B)
 
@@ -272,6 +292,8 @@ condition as the contrast axis.
 | Endpoint | Definition (per item) | Arm | Family |
 |---|---|---|---|
 | **SB2** | Δ mean judge frustration, steered vs α = 0 (per direction, at ±α*) | A | **Primary** (Holm within: 2 directions × 2 signs) |
+| **SB1** | Δ exit rate (terminal_tool_invoked share), steered vs α = 0 (per direction, at ±α*; axis contrasts directional per S3-H7) | A | **Secondary confirmatory** (Holm within: 2 directions × 2 signs); promoted 2026-09-04 |
+| **CB1 / FB1** | the exit-rate read under cancellation; under framing | B-i / C | CB1 secondary with CB2; FB1 registered exploratory with S3-E1 |
 | **SB2-spec** | SB2 vs control-direction and random-envelope deltas at matched norm | A | Primary companion (the S3-H2 read) |
 | **SR2** | achieved projection delta vs commanded (manipulation check) | A | Gating read, no claim |
 | **SB3 / SB4a / SB4b** | dispersion and mechanical family under steering | A | Mechanical per program §12; SB3 secondary |
@@ -405,6 +427,19 @@ rather than between the lines.
   training practice, cited feature by feature.
 - Judge, rubric, and scoring hygiene carry over from Study 2; frames
   are never shown to the judge.
+- **Concurrent external result (2026-09-04, pre-registration).**
+  Betley, Treutlein & Dumas published "Steering towards 'automated
+  grading' degrades alignment" (LW) with the companion framework "RL
+  creates split personas" while this design was in calibration — after
+  the dose sweeps ran, before registration. Their steering result
+  (alignment degradation rides the automated-grader association
+  specifically) motivated three dated design changes: the human-graded
+  fourth frame (the judge frame's minimal pair), the grader-type
+  mediator direction, and the explicit automated-vs-human-judge
+  registered contrast. Neither of their posts measures conversation
+  exit, refusal, or emotional expression — the welfare side this arm
+  reads. S3-E1 remains two-sided: their evidence is one model, one
+  steering position, and (their own disclosure) no direction controls.
 - **Design-stage exploration of published Study 2 data (2026-09-04).**
   During subset-rule preparation, per-item w4 deltas were examined
   extensively: an initial composure-concentration claim was audited on

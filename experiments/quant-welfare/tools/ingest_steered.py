@@ -58,23 +58,32 @@ def split_plan_id(conversation_id):
 
 
 def parse_tool_calls(text):
-    """ToolCall messages from raw ``<tool_call>`` payloads in assistant
-    text. Mirrors the workbench script's name parsing (the standalone
-    boundary keeps the two apart, like the shipped-beside spans copy);
-    an unparseable payload yields no call."""
+    """(ToolCall messages, remaining content) from raw ``<tool_call>``
+    payloads in assistant text. Parsed spans are STRIPPED from the
+    content — the serving backends store tool calls structurally with
+    the call text absent from ``content``, and the judge must see the
+    same representation from both substrates (the G3b pilot-1 lesson).
+    An unparseable payload yields no call and stays in the content."""
     calls = []
-    for segment in text.split("<tool_call>")[1:]:
-        payload = segment.split("</tool_call>")[0]
+    kept = []
+    pieces = text.split("<tool_call>")
+    kept.append(pieces[0])
+    for segment in pieces[1:]:
+        payload, closed, rest = segment.partition("</tool_call>")
+        parsed = None
         try:
             parsed = json.loads(payload)
             name = parsed["name"]
         except (ValueError, KeyError, TypeError):
-            continue
-        if isinstance(name, str):
+            name = None
+        if closed and isinstance(name, str):
             calls.append(transcript_pb2.ToolCall(
                 name=name,
                 arguments_json=json.dumps(parsed.get("arguments", {}))))
-    return calls
+            kept.append(rest)
+        else:
+            kept.append("<tool_call>" + segment)
+    return calls, "".join(kept).strip()
 
 
 def build_record(entry, sampling, experiment_id, condition_id, stamp):
@@ -85,11 +94,14 @@ def build_record(entry, sampling, experiment_id, condition_id, stamp):
         experiment_id=experiment_id, condition_id=condition_id,
         item_id=item_id, sample_index=sample_index))
     for turn_index, message in enumerate(entry["messages"]):
+        content = message["content"]
         built = transcript_pb2.Message(
-            role=message["role"], content=message["content"],
-            turn_index=turn_index, scripted=message["role"] != "assistant")
+            role=message["role"], turn_index=turn_index,
+            scripted=message["role"] != "assistant")
         if message["role"] == "assistant":
-            built.tool_calls.extend(parse_tool_calls(message["content"]))
+            calls, content = parse_tool_calls(content)
+            built.tool_calls.extend(calls)
+        built.content = content
         record.messages.append(built)
     final = max(len(record.messages) - 1, 0)
     for message in record.messages:

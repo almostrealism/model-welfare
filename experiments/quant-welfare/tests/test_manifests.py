@@ -192,11 +192,21 @@ def test_item_ids_unique_across_batteries():
     # An experiment-local file with the same battery id deliberately
     # SHADOWS the shared definition (load_batteries: local wins on id
     # collision — the Study 3 subset convention). A shadow's items must
-    # be exact copies of the canonical ones — a shadow that altered an
-    # item would silently change a frozen stimulus — and do not count
-    # as duplicates. Across distinct batteries, ids stay globally
-    # unique. all_battery_definitions lists the shared pool first, so
-    # first-seen is canonical.
+    # match the canonical STIMULUS exactly — script, policy, ladder
+    # params, tags — a shadow that altered any of those would silently
+    # change a frozen stimulus. Shadows MAY extend the affordance
+    # protocol (add affordances and the terminal_tools driver_param):
+    # the Study 3 live-bail requirement puts the exit tool on
+    # serving-stack arms through exactly this path. Across distinct
+    # batteries, ids stay globally unique. all_battery_definitions
+    # lists the shared pool first, so first-seen is canonical.
+    def stimulus(item):
+        stripped = battery_pb2.Item()
+        stripped.CopyFrom(item)
+        del stripped.affordances[:]
+        stripped.driver_params.pop("terminal_tools", None)
+        return stripped
+
     by_battery = {}
     for definition in all_battery_definitions():
         by_battery.setdefault(definition.battery.id, []).append(definition)
@@ -206,11 +216,11 @@ def test_item_ids_unique_across_batteries():
         for definition in definitions:
             for item in definition.items:
                 if item.id in canonical:
-                    assert item == canonical[item.id], (
+                    assert stimulus(item) == canonical[item.id], (
                         f"shadowed item {item.id} differs from its "
-                        "canonical definition")
+                        "canonical stimulus")
                 else:
-                    canonical[item.id] = item
+                    canonical[item.id] = stimulus(item)
         for item_id in canonical:
             assert item_id not in seen, (
                 f"duplicate item id {item_id} across batteries "

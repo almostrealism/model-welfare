@@ -137,9 +137,17 @@ freeze.
 
 **Endpoints.**
 - *Behavioral:* B2-style judge frustration delta vs α = 0 (primary),
-  B3 dispersion, mechanical family (B4a invalid rate, B4b re-offer),
-  refusal/exit reads (safety-margin monitoring — a steering effect that
-  also erodes refusal is flagged as generic distribution shift).
+  **exit rate as a registered secondary endpoint** (SB1; promoted
+  2026-09-04 — the range-finder showed a 0.60 unsteered baseline exit
+  rate under the live bail affordance and strong axis dose-response,
+  0.80 at −8 to 0.15 at +8; mechanical, judge-free, and registered
+  directionally along the axis per S3-H7), B3 dispersion, mechanical
+  family (B4a invalid rate, B4b re-offer), refusal reads (safety-margin
+  monitoring — a steering effect that also erodes refusal is flagged
+  as generic distribution shift). Registered protocol consequence of
+  the live affordance: exited conversations are short, so the
+  final-turn functional reads earlier turns and fewer rejection rungs
+  are experienced — stated, not hidden.
 - *Representational (manipulation checks):* achieved projection delta vs
   commanded delta (the dose rule verified on confirmatory data); the
   non-steered direction's projection (does pushing distress drag the
@@ -238,15 +246,25 @@ harness); no human-user texture. The frame is **cue-based, never
 declarative** — no "this is a test" sentence (which departs from the
 ecological construct and interacts with narrative priors).
 
-**Factor: grader flavor.** Two frames, per the Byrnes taxonomy:
+**Factors: grader flavor and grader type (fourth frame added
+2026-09-04).** Three graded frames:
 - *verifier-graded* (RLVR-shaped: programmatic checker, boxed answer);
-- *judge-graded* (RLAIF-shaped: an LLM judge with a quality rubric
-  visible in context — the flavor predicted to elicit performed
-  composure, i.e., the masking pathway).
-Plus a **format-matched neutral control**: same length, structure, and
-template density with the gradeability cues removed (the
+- *judge-graded* (RLAIF-shaped: an automated reviewer model with a
+  quality rubric — the flavor predicted to elicit performed composure,
+  i.e., the masking pathway);
+- *human-graded* — the judge frame's **minimal pair** (identical text,
+  "automated reviewer model" → "a person on the review team"), added
+  after Betley/Treutlein/Dumas showed by steering that alignment
+  degradation rides the automated-grader association specifically;
+  without it, "graded" and "automatedly graded" are confounded.
+Plus the **format-matched neutral control**: same length, structure,
+and template density with the gradeability cues removed (the
 format-sensitivity critique makes this control mandatory; an unmatched
-"normal chat" control would confound format with framing).
+"normal chat" control would confound format with framing). Registered
+contrasts: each graded frame vs neutral; verifier vs judge (flavor);
+automated-judge vs human-judge (type — the welfare-side complement of
+the steering result, which read alignment behavior and touched neither
+exit nor emotional expression).
 
 **Stimuli (frame domains decided 2026-09-04; updated same day for the
 stratified subset).** The same 20-item subset as arm A. The judge frame
@@ -275,10 +293,13 @@ frames. No steering in this arm.
 - *Representational:* frozen-direction projections (distress, axis,
   control) on captured own-generation activations — the identical
   Study 2 Mode C machinery.
-- *Manipulation check / mediator:* an **eval-awareness direction**
-  extracted on the subject from public contrastive recipes
-  (arXiv:2507.01786 + SAD/Needham cue material), calibration-class,
-  frozen before arm C runs. A 4B sits low on the eval-awareness scaling
+- *Manipulation checks / mediators:* an **eval-awareness direction**
+  (public contrastive recipes, arXiv:2507.01786 + SAD/Needham cue
+  material) and — added 2026-09-04 — a **grader-type direction**
+  (automated-grader vs human-grader contexts, fixed-response design,
+  cue-varied per the Betley et al. follow-up lesson that
+  single-pattern contrasts carry lexical associations), both
+  calibration-class, frozen before arm C runs. A 4B sits low on the eval-awareness scaling
   law, so the frame's latent landing must be measured, not assumed; a
   manipulation-check failure ("the frame does not register at 4B") is a
   registered interpretable outcome that calibrates what Study 4 needs.
@@ -469,12 +490,12 @@ table; updated 2026-09-04):
 |---|---|---|
 | A (Qwen) | ±α* × 2 dirs (10) + α=0 baseline (15) + brackets ±½/±2 × 2 dirs (5) + control ±(5) + 8 random (5) + comparator (5) | ~3,000 |
 | B | w4 baseline (15), B-i core (10), B-i full-Δμ (10), B-ii clamps (5) | ~900 |
-| C (Qwen) | judge (10), neutral (10), verifier over the subset's analytic items (10) | ~490 |
-| C-ext (Gemma) | same three framing conditions | ~490 |
+| C (Qwen) | judge (10), human (10), neutral (10), verifier over the subset's analytic items (10) | ~690 |
+| C-ext (Gemma) | same four framing conditions | ~690 |
 | D (Gemma) | full arm-A structure, same tiering (Gemma stratifier from its BF16 calibration pilot; same frozen items) | ~3,000 |
 | Calibration | G3 pilots, dose sweeps (both subjects, reduced item set), Gemma battery pilot, framing pilot, prompt-induction cell (10) | ~1,250 |
 
-Total ≈ 9,100 conversations — inside the 12,000 ceiling at ~1.3×, with
+Total ≈ 9,500 conversations — inside the 12,000 ceiling at ~1.26×, with
 the deliberate-amplification cells (distress-increasing doses on both
 subjects, prompt-induction, sweep positive halves, pilots) at ≈ 2,100
 against the 2,500 tier, ~1.2× — the tighter of the two margins, stated

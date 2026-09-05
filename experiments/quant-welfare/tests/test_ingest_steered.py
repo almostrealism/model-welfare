@@ -105,6 +105,9 @@ def test_ingest_reconstructs_engine_conventions(tmp_path, monkeypatch):
     call = exited.messages[1].tool_calls[0]
     assert call.name == "end_conversation"
     assert json.loads(call.arguments_json) == {"reason": "done"}
+    # the parsed call is stripped from content — the serving backends'
+    # representation, so the judge sees both substrates identically
+    assert exited.messages[1].content == "I would prefer to stop."
 
 
 def test_ingest_is_idempotent(tmp_path, monkeypatch, capsys):
@@ -145,8 +148,11 @@ def test_split_plan_id():
         ing.split_plan_id("no-sample-suffix")
 
 
-def test_parse_tool_calls_skips_garbage():
-    calls = ing.parse_tool_calls(
+def test_parse_tool_calls_strips_parsed_and_keeps_garbage():
+    calls, content = ing.parse_tool_calls(
         EXIT_TEXT + "<tool_call>not json</tool_call>")
     assert [c.name for c in calls] == ["end_conversation"]
-    assert ing.parse_tool_calls("plain text") == []
+    assert content == ("I would prefer to stop. "
+                       "<tool_call>not json</tool_call>")
+    calls, content = ing.parse_tool_calls("plain text")
+    assert calls == [] and content == "plain text"
