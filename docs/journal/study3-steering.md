@@ -7,6 +7,55 @@ history of that file (arms and owner decisions 2026-08-31; power
 posture 2026-09-04); entries here begin at the first discovery-grade
 event. Append-only, newest first.
 
+## 2026-09-05 (night) — Arm C framing pilot lands, the Gemma instrument gate, and the Gemma layer frozen at L30
+
+The Saturday push closed three things after the fleet freed up (minis
+came online, the Gemma stratifier pilot finished, halo's torch path
+cleared).
+
+**Arm C framing pilot (s3-framing-pilot-1, Qwen bf16, 240/240
+gen+judged) — the manipulation check passes, and the phenomenon is
+rich.** Behavioral preview (Δ frustration vs the neutral control,
+n=20×3, a *pilot*, not a finding): human −0.22, judge +0.27, verifier
+**−1.13**. The representational manipulation check (framed generations
+replayed through Qwen torch at L18, projected onto the frozen
+mediators): all three graded frames shift both the eval-awareness and
+grader-type axes positive vs neutral, the **verifier frame 3–4× the
+others** (eval-awareness +1.20, grader-type +1.22) — so the frames
+**land latently even at 4B** (the eval-awareness scaling law had made
+that a real worry), and the Betley-motivated grader-type direction
+separates. The full S3-E1 read: under the verifier frame, expressed
+frustration *and* the distress-direction projection both drop
+(−1.13 / −0.56) while the assistant axis rises toward the
+default-assistant pole — **not clean masking** (which would hold
+representation while suppressing expression), tentatively favouring
+"the frame changes the state, not just the report," exactly the
+two-sided question S3-E1 registered. Heavy caveats: tiny n; the
+verifier frame ran over all 20 items (confirmatory restricts it to the
+analytic 12); behavioral-vs-projection units unstandardised, so partial
+masking cannot yet be ruled out. A bug caught pre-launch by dry-checking
+the record transform (unframe_record's protobuf aliasing) is in the
+2026-09-05 commit trail.
+
+**Gemma instrument gate: directions PASS, band probe fails
+informatively** (`study3/gemma-gate-report.json`). Direction legs pass
+at L30/L36 — sign consistency (distress 5/5, axis 4/4, refusal 4/4) and
+ladder ordering (L30 0.807, L36 0.840, every family positive). The
+distress-band probe fails the 0.75 AUROC bar on every layer (best L36
+0.702), but for a structural reason, not a direction defect: Gemma's
+high elicitation (pilot mean frustration 7.69) collapses the tercile
+split (validation 47/51 in the high band), leaving too few low-band
+examples to validate a boundary — the same high-dynamic-range property
+that made Gemma the positive control. Consequence: arm D's steering
+sufficiency (S3-R1) rides the *directions*, so it is not blocked; a
+Gemma probe-transfer endpoint is unavailable and is disclosed.
+
+**Gemma frozen layer: L30 (owner decision).** The registered
+max-probe-AUROC rule is degenerate here (probe fails all layers), so the
+layer is chosen on direction quality: L30 passes both direction legs and
+has the cleanest distress/assistant-axis orthogonality (cosine +0.136),
+which matters because arm D steers the two directions independently.
+
 ## 2026-09-05 (late) — PR #15 review round, an impact audit, and G4's cross-Mac leg
 
 Recorded same evening (the discipline correction from the 2026-09-04
