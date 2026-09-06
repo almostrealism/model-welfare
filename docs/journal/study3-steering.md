@@ -7,6 +7,45 @@ history of that file (arms and owner decisions 2026-08-31; power
 posture 2026-09-04); entries here begin at the first discovery-grade
 event. Append-only, newest first.
 
+## 2026-09-06 (afternoon) — The two remaining calibration runs, and a convergent sufficiency concern
+
+Ran the last two before-collection calibration items in parallel (Gemma
+α*_G on m4max, the random-envelope on halo; studio kept for judging).
+
+**Gemma α*_G — pinned ≈ 70, scale-adapted.** The Qwen α scale does not
+transfer: Gemma-3's L30 residual stream is huge (distress projection
+baseline ~−29,855, SD ~570, vs Qwen −3.44/3.02), so the first grid
+(α 0.5–4) moved the projection by a few units — invisible (fit r² 0.03).
+Matching the Qwen shift-to-SD ratio (0.211 SD → target +120.5 projection
+units) and re-running at α ∈ {40,80,120,200,320} gave a responsive,
+strongly **superlinear** curve (Δ +36/+150/+273/+809, dropping to +713 at
+320 → degradation onset ~200–320). α*_G ≈ 70 by local interpolation to the
+target; coherent (no degeneracy) through 320. `gemma-dose-report.json`.
+(Also: the first Gemma grid hit our own zsh `$VAR`-no-split gotcha — third
+recurrence this session; fixed with inline `--add`.)
+
+**Random-envelope (arm-A direction specificity) — unfavorable.** 32 seeded
+random unit directions (geometric audit: |cos| < 0.057 to both real
+directions, bound 0.10, none rejected, digest e70a63aa) injected at matched
+norm (α=1.039) on 8 items, direct-judged on the 30B. Envelope of
+per-direction frustration effects: mean **+0.364**, SD 0.585, |effect|₉₅
+1.20. The distress-direction effect (+0.138) sits at the **34th percentile**;
+**28/32** random directions produce a larger effect. Not a sampling artifact
+(null directions average ~0). `randenv-verdict.json`.
+
+**The convergent concern.** For *both* subjects, at the quantization-matched
+dose the steering moves the **representation** but not the **behavior** —
+Gemma's clearest tell is byte-identical assistant text at α=120 vs α=320
+despite a 2.6× projection change. The directions read as
+correlational-but-not-behaviorally-sufficient at these doses — the
+null/negative-result risk flagged at the study's outset, surfacing in
+calibration where it should. All n=8 previews (random cells 1 sample/item),
+so a strong early signal, not a verdict; the confirmatory run measures the
+effect at whatever size, and the dose-response arm could still show
+specificity at a larger α. Flagged to the owner (Slack) with three options —
+proceed and report Q1 honestly at whatever size; add a larger-α dose arm; or
+reconsider the behavioral endpoint. Paused for the owner's direction.
+
 ## 2026-09-06 (late morning) — Calibration-close freeze and the preregistration-post draft
 
 With the gate program closed, ran the freeze and started the public post.

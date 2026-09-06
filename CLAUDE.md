@@ -48,6 +48,24 @@ throughput map and the measure-before-splitting principle are in the
 *(This playbook is being grown toward a reusable ar-manager fleet
 capability — keep adding tips as they are learned.)*
 
+## Slack / `send_message` conventions
+
+Every `send_message` to the owner ends with a uniform status footer so the
+owner can tell at a glance whether they need to return to the console. The
+footer is a set of always-uniform labels, one per line, at the very bottom
+of the message. Adopted labels:
+
+- **Work Status:** `Continuing` — you are still working and the message is
+  a progress update that needs no reply; or `Halted` — you have stopped and
+  are waiting, either for the owner's input/decision or because the task is
+  complete with no work left. `Halted` is the signal to come back to the
+  console; `Continuing` means "keep doing what you're doing, I've got it."
+
+Keep the label wording and casing identical every time — the value is
+consumed by eye at a glance, so consistency is the whole point. Add new
+labels to this list as they are agreed, and always render the full adopted
+set on every message.
+
 ## Standing conventions
 
 - **Never `git commit`.** Stage with `git add`; describe the staged set

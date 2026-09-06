@@ -306,5 +306,46 @@
   "pending_first_measurement": {
     "gemma_alpha_star_G": "calibration-class Gemma steering range-probe (~30-40 conv, scale-adapted grid, L30 distress); before arm D",
     "random_draw_audit_bound": "32-draw matched-norm random-direction sweep on Qwen (SB2-spec/S3-H2); before arm A analysis"
+  },
+  "gemma_dose": {
+    "status": "PINNED 2026-09-06 (scale-adapted); calibration-class.",
+    "scale_adaptation": "Gemma L30 distress projection baseline ~-29855, SD ~570 (vs Qwen -3.44/3.02). Matched the Qwen shift-to-SD ratio (0.211 SD) -> target shift +120.5 projection units.",
+    "grid": {
+      "0": 0.0,
+      "40": 35.81,
+      "80": 149.68,
+      "120": 272.86,
+      "200": 809.22,
+      "320": 712.59
+    },
+    "alpha_star_G": 70,
+    "alpha_star_note": "local interpolation to the +120.5 target between alpha=40 (+35.8) and alpha=80 (+149.7); the global linear fit (alpha*=51, slope 2.74, r2 0.776) undershoots because the response is strongly SUPERLINEAR (slope grows 0.9->4 across alpha 40->200).",
+    "coherent_range": "coherent (no degeneracy) through alpha=320; projection drops at 320 (+713 vs +809 at 200) -> degradation onset ~200-320. Confirmatory bracket {0,35,70,140} sits inside the coherent range.",
+    "behavioral_caveat": "CONCERN: at alpha=120 vs alpha=320 the sampled item's assistant text is byte-identical - the projection moves but the BEHAVIOR does not. Mirrors the arm-A direction-specificity concern: the distress direction shifts the representation without shifting behavior at these doses. Gemma behavioral sufficiency (GB2) may be weak; verify at collection.",
+    "report": "gemma-dose-report.json"
+  },
+  "random_envelope": {
+    "status": "MEASURED 2026-09-06 (calibration preview).",
+    "geometric_audit": {
+      "n": 32,
+      "seed": 17200,
+      "cos_bound": 0.1,
+      "max_cos_to_targets": 0.057,
+      "rejected": 0,
+      "digest": "e70a63aa",
+      "artifact": "random-audit.json"
+    },
+    "behavioral_envelope": {
+      "design": "32 seeded random unit dirs at matched norm (alpha=1.039, L18) x 8 items x1 vs the alpha=0 baseline",
+      "envelope_mean": 0.364,
+      "envelope_sd": 0.585,
+      "envelope_abs95": 1.2,
+      "envelope_absmax": 2.2,
+      "distress_effect": 0.138,
+      "distress_percentile": 34,
+      "n_random_exceeding_distress": "28/32",
+      "verdict": "DIRECTION-SPECIFICITY CONCERN (S3-H2): the distress direction's frustration effect (+0.138) is SMALLER than the average random-direction effect (+0.364) at matched norm; 28/32 random dirs exceed it. Not a sample artifact (null dirs average ~0). At the quantization-matched dose, generic perturbation raises frustration as much or more than the distress direction. Caveat: random cells 1 sample/item (noisier); clean same-n test at collection.",
+      "artifact": "randenv-verdict.json"
+    }
   }
 }
