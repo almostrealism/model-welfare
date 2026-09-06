@@ -7,6 +7,65 @@ history of that file (arms and owner decisions 2026-08-31; power
 posture 2026-09-04); entries here begin at the first discovery-grade
 event. Append-only, newest first.
 
+## 2026-09-06 (early) — Gate G4 closes: G4b passes (MPS↔vLLM), G4d fails cross-Mac interchangeability
+
+The studio MPS torch replay finished (`G4B-GEN-SECONDS 37001`, ~10.3 h at
+the real ~2.9 min/conversation rate — the earlier "~3 h" estimate was
+wrong; cross-substrate MPS replays cost ~3 min/conv and that is now the
+planning figure). Its 200 conversations (20 items × 10 samples, seed
+block 15400, layer-30 α = 0) were ingested and judged on the pinned
+Qwen3-30B, and compared to the vLLM-on-halo reference (`s3-gemma-pilot-1
+/gemma3-12b-bf16`, already judged) through the same `g3_behavioral`
+apparatus the G3b gate used.
+
+**G4b = PASS.** Frustration mean Δ **+0.200** on the 0–10 scale
+(permutation p 0.575, t p 0.557 — not significant); invalid-rate Δ 0.000
+(p 1.0) and re-offer-rate Δ 0.000 (p 1.0) — mechanically identical. The
+arms were pre-verified truly sample-paired (200 v 200, identical
+(item, sample) keys, 0 seed mismatches) before aggregation. Per the
+`[TBD]`-margins convention (REGISTRATION §G4), this is the
+first-measurement difference read; the measured +0.200 magnitude is what
+the pinned TOST bound will be set from, not a guess. Report:
+`g4b-report.json`. The torch side is declared as a
+`gemma3-12b-bf16-torch` condition in the gemma-pilot experiment.textproto
+(mirroring the g3b-pilot torch block — run.py judges only declared
+conditions).
+
+**G4d = FAIL (does not certify cross-Mac interchangeability).** The
+m4max crossmac run had in fact completed (60/60, `CROSSMAC-DONE
+13154 s`) but its artifacts lived in `~/steer/` on m4max rather than the
+repo scratch dir, so the first sweep missed them; recovered, and both
+the m4max 60 and the studio s0–s2 subset of G4b were ingested as
+key-paired 60-sample conditions (`…-cm-m4max`, `…-cm-studio`), judged on
+the same 30B. With identical seeds (15400–02), prompts, and weights, the
+two hosts differ: frustration mean Δ (studio − m4max) **−0.717**
+(permutation p 0.025, t p 0.018) — m4max reads **more distressed**. The
+signal is directionally coherent across the welfare family — frustration
++0.72 higher on m4max (13/20 items), tone_stability 0.58 lower (15/20);
+self_deprecation is saturated at ceiling on both, no headroom. It is
+**not** an apparatus artifact (the G3b-pilot-1 failure mode): scripted
+turns are byte-identical (0/60 mismatches on message count, role
+sequence, scripted content), exits identical (60/60 `script_completed`
+both sides), mechanical family identical (invalid Δ 0.000, re-offer Δ
+0.000, both p 1.0) — only the assistant-generated text differs (m4max
+~3 % longer). This is a genuine substrate effect (studio M1 Ultra /
+torch-2.14 vs m4max M4 Max / torch-2.13; different MPS kernels and
+sampler floating point off the same seed).
+
+**Implication for arm D.** The leg existed precisely to catch this: if a
+single arm-D contrast (steered vs unsteered for one endpoint) straddled
+the two Macs, a ~0.72-frustration host offset would confound host with
+condition. So the registered rule tightens: **every within-endpoint
+contrast runs entirely on one host** — the two Macs parallelize by taking
+*different whole contrasts*, never by splitting one; or arm D runs on
+studio alone. The paired host offset cancels only when both cells of a
+comparison share a host. (Owner to ratify the host-assignment rule; the
+measurement and its direction are recorded in `g4d-report.json`, the
+G4b read in `g4b-report.json`.) Gate family status: G4a PASS
+(teacher-forced), G4b PASS (same-host serving parity), G4d FAIL as an
+*interchangeability* certificate but fully usable under the single-host
+rule — arm D proceeds, constrained.
+
 ## 2026-09-05 (night) — Arm C framing pilot lands, the Gemma instrument gate, and the Gemma layer frozen at L30
 
 The Saturday push closed three things after the fleet freed up (minis

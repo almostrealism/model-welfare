@@ -51,3 +51,102 @@ conditions {
     "BF16 on amd-halo :8040 (16384 ctx, gpu fraction 0.45); seed block "
     "15400."
 }
+
+conditions {
+  id: "gemma3-12b-bf16-torch"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "studio"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15400
+  }
+  description:
+    "The same artifact generated in torch-MPS on studio by the steering "
+    "script at alpha = 0 (layer 30, ingested via ingest_steered); the "
+    "G4b behavioral-parity leg's MPS side, seed block 15400 matched to "
+    "the vLLM reference."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch-cm-studio"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "studio"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15400
+  }
+  description:
+    "Cross-Mac equivalence leg (G4d), studio side: the 20-item x 3-sample "
+    "(s0-s2, seeds 15400-15402) subset of the studio G4b MPS transcripts, "
+    "ingested as its own condition so it pairs key-for-key with the m4max "
+    "crossmac run."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch-cm-m4max"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.13"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15400
+  }
+  description:
+    "Cross-Mac equivalence leg (G4d), m4max side: 20 items x 3 samples "
+    "(s0-s2, seeds 15400-15402) generated in torch-MPS on the M4 Max at "
+    "alpha = 0 (layer 30); pairs key-for-key with the studio crossmac "
+    "subset to certify the two arm-D hosts are behaviorally interchangeable."
+}
