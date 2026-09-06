@@ -136,7 +136,7 @@ conditions {
     device: "mps"
     host: "m4max"
     compute_dtype: "bf16"
-    backend_version: "torch-2.13"
+    backend_version: "torch-2.8.0"
   }
   sampling {
     temperature: 0.7
@@ -148,5 +148,45 @@ conditions {
     "Cross-Mac equivalence leg (G4d), m4max side: 20 items x 3 samples "
     "(s0-s2, seeds 15400-15402) generated in torch-MPS on the M4 Max at "
     "alpha = 0 (layer 30); pairs key-for-key with the studio crossmac "
-    "subset to certify the two arm-D hosts are behaviorally interchangeable."
+    "subset. As-run software stack (steer-venv): torch 2.8.0, transformers "
+    "4.57.6, the 447-line ~/steer/steer.py — i.e. this side differed from "
+    "the studio subset on steer.py, transformers, AND torch, not only host; "
+    "the -t214 condition re-runs it on the studio-aligned stack to isolate "
+    "the residual OS/silicon effect."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch-cm-m4max-t214"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15400
+  }
+  description:
+    "Cross-Mac divergence probe: the 8 highest-divergence items x 3 "
+    "samples regenerated on m4max under a software stack aligned to studio "
+    "(mw-venv-t214: torch 2.14.0, transformers 5.16.1, safetensors 0.8.0, "
+    "numpy 2.4.6, accelerate 1.14.0; the repo steer.py/capture.py/spans.py). "
+    "With steer.py, transformers, and torch now identical to the studio "
+    "subset, a residual studio-vs-m4max difference isolates the OS (macOS "
+    "15.7 vs 26.3) plus silicon (M1 Ultra vs M4 Max) effect."
 }

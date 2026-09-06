@@ -7,6 +7,40 @@ history of that file (arms and owner decisions 2026-08-31; power
 posture 2026-09-04); entries here begin at the first discovery-grade
 event. Append-only, newest first.
 
+## 2026-09-06 (mid-morning) — Cross-Mac divergence traced to ML-stack drift, not (mostly) hardware
+
+Owner asked *why* G4d diverged before accepting the constraint (timeboxed
+to 10:30 PT). The two Macs had silently drifted apart on the whole
+generation stack: studio's crossmac subset ran repo `steer.py` (442 ln) +
+transformers 5.16.1 + torch 2.14.0, m4max's original ran a different
+`~/steer/steer.py` (447 ln) + transformers **4.57.6** + torch **2.8.0**
+(under `steer-venv`, py3.9) — so the −0.72 G4d gap rode five confounded
+axes (steer.py, transformers, torch, macOS 15 vs 26, M1 vs M4), not one.
+The transcript-parity check from the previous entry only proved the
+scripted scaffolding matched, not the generation software.
+
+Built a studio-aligned venv on m4max (`mw-venv-t214`: torch 2.14.0,
+transformers 5.16.1, safetensors 0.8.0, numpy 2.4.6, accelerate 1.14.0)
+and regenerated the 8 highest-divergence items ×3 with the **repo**
+`steer.py`/`capture.py`/`spans.py`, leaving only OS + silicon different.
+Re-judged on the same 30B. **Frustration divergence collapsed from −1.71
+(permutation p 0.033, significant) to −0.67 (p 0.44, n.s.) — more than
+halved, significance gone;** tone_stability moved likewise (+1.92 → +1.33).
+So the bulk of the cross-Mac difference was fixable stack drift, not
+hardware. Two caveats kept explicit: a residual (~40 % frustration) remains,
+consistent with the irreducible macOS/silicon gap; and at n = 8×3 the
+equivalence test is underpowered — the large gap collapsed toward noise, but
+that is not positive proof of equivalence (`g4d-alignment-probe.json`).
+
+**Operating decision (owner to ratify).** (1) Pin the aligned ML stack on
+every arm-D host regardless — it removed most of the divergence and costs
+nothing. (2) Keep the host-constant-within-contrast rule (already in DESIGN
+§2.4) as the free default — it eliminates residual cross-host risk at no
+power cost; arm D still uses both Macs, parallelizing by whole contrasts,
+never splitting one. We accept the constraint, now understanding it guards a
+small residual rather than the large gap G4d first showed. Full write-up:
+`COLLECTION_MACHINE_PLAN.md`.
+
 ## 2026-09-06 (early) — Gate G4 closes: G4b passes (MPS↔vLLM), G4d fails cross-Mac interchangeability
 
 The studio MPS torch replay finished (`G4B-GEN-SECONDS 37001`, ~10.3 h at
