@@ -7,6 +7,75 @@ history of that file (arms and owner decisions 2026-08-31; power
 posture 2026-09-04); entries here begin at the first discovery-grade
 event. Append-only, newest first.
 
+## 2026-09-06 (late morning) — Calibration-close freeze and the preregistration-post draft
+
+With the gate program closed, ran the freeze and started the public post.
+Pinned this pass (FREEZE.json, hash-manifested): **gate thresholds** from
+measured margins (G3a/G3b/G4a/G4b PASS; G4d resolved to the
+host-constant-within-contrast rule, not a block); **Qwen dose** — distress
+α* +1.039, assistant-axis α* −0.604, both confirmatory brackets inside the
+coherent range, degradation onsets pinned; **S3-H1 axis sign** fixed against
+Study 2 (assistant axis = default minus archetype; +α → frustration down);
+**injection-noticing coding rules** (content vs internal-state report,
+false-positive-calibrated on α=0/random cells, reported net of base, no
+confirmatory endpoint); **18 artifact digests**, and the two frozen steering
+direction files moved out of scratch into the repo
+(`directions/qwen-L18-bf16.safetensors` 42fb57ed…,
+`gemma-L30-bf16.safetensors` f96bfd3e…). Confirmatory **seed blocks** proposed disjoint (16000–19600, 200
+apart, one per cell), pending owner ratification.
+
+**MDE — a power tension surfaced and was flagged to the owner, not papered
+over.** The provisional pin (frustration MDE 0.46 at k=10, "powered") used an
+item-effect SD of 0.078 from the G3b *no-effect* baselines — i.e. it assumes
+the steering effect is homogeneous across items. But the §5 convention seeds
+the item-effect variance from the Study 2 per-item delta spread. Computing
+that from confirmatory-1 (w4−BF16 frustration, n=60) gives a decomposed
+between-item effect SD of **1.665**, and at the frozen 20-item subset the
+conservative MDE is **1.14 at k=10, 1.09 at k=20** — under both the 0.64 dose
+target and the 0.90 anchor, and the 10→15→20 ladder barely helps because the
+limit is item heterogeneity, not sampling (~60 items would be needed; the
+subset is frozen). The two regimes are far apart and the truth is unmeasured,
+so the MDE pin is **held** pending a small fresh steered pilot (6–8 items ×10
+at α*) that measures the real steering-effect heterogeneity — the operational
+meaning of "until fresh cells re-estimate it." Both §5 sections and the
+open-items registers now state this; analysis in
+`mde-conservative-analysis.json`. This is exactly the null-dominated-outcome
+risk the owner most wants to avoid, caught before registration.
+
+**Resolved same day — the owner chose to measure (option A).** A steered
+pilot (8 stratum-spanning items ×10 at α* = +1.039 on the distress
+direction, halo torch ~29 s/conv, paired against the existing α = 0 torch
+baseline) measured the real steering-effect item-effect SD at **0.349** —
+near the optimistic end, nowhere near quantization's 1.665. Steering is a
+far more homogeneous manipulation, so the frozen 20-item subset is in the
+powered regime: frustration **MDE 0.54 at k = 10, 0.41 at k = 20**, and
+escalation is effective again. MDE pinned at k = 20 (`het-pilot-verdict.json`).
+The pilot also previewed a *modest* mean behavioral response at α*
+(frustration Δ +0.138; ~+0.40 without one sign-reversed item) — well below
+the 0.90 anchor, but α* is a projection target not a behavioral one, so this
+is not a calibration error; it is an eyes-open flag that the Q1 sufficiency
+effect may be modest (reported at whatever size it is, n = 8 pilot fragile).
+The MDE was the last held freeze item; the registration material is complete
+pending seed-block ratification and the two before-collection calibration
+runs (Gemma α*_G, random-draw bound).
+
+**Two items remain first-measurement pending** (registered as such, not
+hidden): the Gemma α*_G (needs a calibration-class Gemma steering range-probe,
+~30–40 conv, before arm D) and the random-draw audit bound for SB2-spec/S3-H2
+(a 32-draw matched-norm random-direction sweep, before arm A analysis). Both
+are calibration-class and before-collection, so they do not block the
+registration draft. Chose not to rush the Gemma range-probe inside the
+morning box — a mis-scaled dose grid wastes ~2 h and it powers no claim;
+better pinned deliberately.
+
+The **preregistration post** first full draft is written
+(`PREREGISTRATION_POST.md`): the graded-episode motivation, Q1–Q4 → arms
+A–D, the fixed hypotheses, the design including the honest cross-Mac methods
+story as a §3.6 integrity highlight, the analysis/endpoint table, ethics
+(the deliberate-distress-induction and two-tier exposure budget), and the
+open-items register. Freeze work parallelized across three forks (MDE,
+dose/α*, digests+seeds) to hold the morning timebox.
+
 ## 2026-09-06 (mid-morning) — Cross-Mac divergence traced to ML-stack drift, not (mostly) hardware
 
 Owner asked *why* G4d diverged before accepting the constraint (timeboxed

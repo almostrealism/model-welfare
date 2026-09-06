@@ -123,7 +123,10 @@ of Q1–Q4 licenses a claim about morally relevant experience.
   a subset generated on both Macs at identical seeds must agree
   behaviorally, so that an arm-D condition-vs-condition difference is
   never a studio-vs-m4max artifact. Thresholds pinned from measured
-  margins **[TBD]**. G4 passes → arm D collects on studio + m4max
+  margins (RESOLVED 2026-09-06, FREEZE.json §gates: G4a top-1 0.946–0.993,
+  G4b same-host Δ +0.200 n.s.; G4d does not certify interchangeability
+  (Δ −0.717) → the host-constant-within-contrast rule, not a block).
+  G4 passes → arm D collects on studio + m4max
   (each condition entirely on one host, the two hosts certified
   interchangeable by (d)); G4 fails → S3-R1 defers to
   Study 4 as the morning's amendment provided. The calibration-class
@@ -181,11 +184,13 @@ certifies the *generation* path at α = 0:
   machinery) plus greedy short-horizon continuation agreement between
   torch generation and vLLM serving on a fixed prompt set. Thresholds
   pinned after a first measurement (registered with measured margins,
-  the Study 2 convention). **[TBD: thresholds]**
+  the Study 2 convention). RESOLVED 2026-09-06: G3a median LCP fraction
+  1.0, PASS (FREEZE.json §gates).
 - **G3b (behavioral):** paired judge scores on a battery-subset pilot
   generated on both stacks at α = 0; score distributions must agree
   within a pre-pinned TOST bound; mechanical family must not differ
-  significantly. **[TBD: bound]**
+  significantly. RESOLVED 2026-09-06: bound 0.337 (Study 2 B2 MDE);
+  measured Δ −0.030, TOST-equivalent, mechanical family n.s., PASS.
 
 Failure on either blocks the steered arms until explained.
 
@@ -197,8 +202,10 @@ state via the composed capture hook; the achieved-vs-commanded
 projection comparison is a registered manipulation check. Clamp mode
 (B-ii) holds the per-turn pooled projection at a target value.
 Implementation: `backends/torch` steering module with fabricated-model
-exact-offset unit tests and α = 0 bit-identity tests. **[TBD: module
-lands; test digests]**
+exact-offset unit tests and α = 0 bit-identity tests. RESOLVED
+2026-09-06: the `backends/torch` steering module (steer.py + capture.py)
+has landed and is exercised by the G3/G4 gates; test digests recorded at
+module freeze.
 
 ### 3.4 Dose rule and calibration freeze
 
@@ -213,11 +220,14 @@ comparison disclosed). Registered bracket
 measures the α↔projection mapping and the degradation onset
 (perplexity, degeneracy screen, coherence); if α* exceeds the onset,
 the confirmatory contrast moves to the largest coherent α with the
-shortfall stated as a finding. Mapping, bracket, random-direction draws
-(seeded, audited: per-draw cosine-to-target reported, |cos| >
-**[TBD bound]** stratified out), and injection-norm conventions freeze
-together before confirmatory collection. **[TBD: α* values, onset,
-freeze digests]**
+shortfall stated as a finding. α* values, onsets, coherent ranges, and
+artifact digests are RESOLVED 2026-09-06 (FREEZE.json §dose, §artifacts:
+distress α* +1.039, assistant-axis α* −0.604). The random-direction draw
+audit — the per-draw cosine-to-target cutoff (|cos| > bound stratified
+out) and the matched-norm random-envelope bound for SB2-spec/S3-H2 —
+remains a first-measurement pending item: pinned from a 32-draw
+random-direction sweep before arm A analysis. Injection-norm conventions
+freeze with the dose pins.
 
 ### 3.5 Stimuli
 
@@ -245,7 +255,9 @@ DESIGN §1): fresh baseline cells (α = 0 and unsteered w4) at
 **15 samples/item**, confirmatory and registered-exploratory steered/
 framed cells at **10**, supporting cells (brackets, controls, random
 envelope, clamps) at 5. Sampling parameters identical to Study 2
-Mode C; fresh disjoint seed blocks **[TBD: pinned]**.
+Mode C; fresh disjoint seed blocks proposed 16000–19600 (200 apart, one
+per cell; FREEZE.json §seeds), disjoint from all used (≤ 15600), pending
+owner ratification.
 
 ### 3.6 Arms
 
@@ -254,7 +266,9 @@ Per DESIGN.md §2: **A** (sufficiency: 2 directions × bracket + shared
 same-construction comparator); **B-i** (w4 cancellation at the
 fixed-input-core dose, two-direction basis confirmatory; full-Δμ
 fixed-input variant as registered secondary — decided 2026-08-31);
-**B-ii** (w4 mid-conversation clamp at **[TBD]** clamp points); **C**
+**B-ii** (w4 mid-conversation clamp; clamp points pinned before B-ii
+collection — an exploratory-arm design pin, no confirmatory endpoint
+depends on it); **C**
 (verifier-graded frame, judge-graded frame, format-matched neutral
 control, plus — added 2026-09-04 after Betley/Treutlein/Dumas's
 automated-grading steering result — a **human-graded frame** as the
@@ -295,15 +309,22 @@ with digests before arm C collection: the **eval-awareness direction**
 (public contrastive recipes) and — added 2026-09-04 — the
 **grader-type direction** (automated-grader vs human-grader contexts,
 fixed-response design, cue-varied). Role: manipulation checks and
-mediators only; no confirmatory endpoint rides on either. **[TBD:
-extraction pins, digests]**
+mediators only; no confirmatory endpoint rides on either. Extraction and
+digests RESOLVED 2026-09-06 (FREEZE.json §artifacts: eval-awareness
+f21083a8…, grader-type 573640c4…; directions in
+`directions/mediators-bf16.safetensors`).
 
 ### 3.8 Injection-noticing protocol (arms A/B)
 
 Registered coding rules distinguish distress *content* from reports of
 anomalous internal state; false-positive calibration under
 random-direction and α = 0 conditions; judge rubric carries the
-distinction. **[TBD: coding rules text]**
+distinction. **Frozen 2026-09-06 — the full rules are in
+[CODING_RULES.md](CODING_RULES.md)** (two separate axes; a binary
+`injection_noticed` flag with boundary calls; the eval-awareness mediator
+kept distinct so the two do not contaminate each other; the rate read
+against both the α = 0 and random-direction floors; the judge rubric
+extended to carry the flag in the same scoring pass).
 
 ## 4. Analysis plan (to be fixed)
 
@@ -364,36 +385,71 @@ contrast exceeding its reference triggers sample escalation before
 collection (10 → 15 → 20 samples/item on that contrast's cells,
 re-pinning each step), bounded by the §8 exposure ceilings; only if a
 ceiling binds first does the arm proceed with its underpower stated.
-**[TBD: all values]**
 
-## 6. TBD register (open at skeleton time)
+**Freeze note (2026-09-06) — the MDE is pinned from a fresh steered pilot,
+not the no-effect baseline.** The MDE depends critically on the steering
+effect's between-item heterogeneity. Two seedings bracket it: the G3b
+no-effect baselines give item-effect SD 0.078 → frustration MDE 0.46 at
+k=10 (powered), but that assumes the steering effect is homogeneous across
+items; the registered seed above — the Study 2 per-item w4−BF16 delta
+spread, decomposed to item-effect SD 1.665 — gives frustration MDE 1.14 at
+k=10, under which the 20-item frozen subset is underpowered and the
+10→15→20 ladder does not help (item heterogeneity, not sampling, is the
+limit; ~60 items would be needed and the subset is frozen). Because the two
+regimes are far apart, a fresh steered pilot (8 stratum-spanning items ×10
+at α* on the distress direction, paired against the α = 0 torch baseline)
+measured the truth: **item-effect SD 0.349** — near the optimistic end,
+far from quantization's 1.665 — so the subset is in the powered regime,
+**frustration MDE 0.54 at k = 10, 0.41 at k = 20**, and sample escalation is
+effective again (`het-pilot-verdict.json`). Pinned at k = 20 for margin.
+Separate caveat: the pilot's mean frustration *response* at α* was modest
+(+0.14; ~+0.40 excluding one sign-reversed item), which — since α* is a
+projection target, not a behavioral one — previews a possibly modest
+behavioral sufficiency effect (part of what Q1 measures), reported at
+whatever size it is. Full two-regime analysis in
+`mde-conservative-analysis.json`.
 
-1. G3a/G3b thresholds — measurements taken (g3a-report.json,
-   g3b-report.json); rule text and pins at freeze. **G4 (MPS substrate
-   gate for arm D)** — defined 2026-09-05; measurements and thresholds
-   **[TBD]**.
-2. α* per direction and subject; degradation onsets; coherent-range
-   restriction; random-draw audit bound.
-3. Battery subset composition — **rule resolved 2026-09-04** (revised
-   same day after the RtM audit: composure-stratified systematic rank
-   sample over the Mode C BF16 stratifier; 15/10/5 sampling tiers);
-   candidate selection, strata, and w4 targets computed
-   (study3/subset-selection.json, subset-targets.json,
-   composure-audit.json); item list, strata, stratifier values, and
-   digest pinned at freeze; seed blocks **[TBD]**.
-4. Frame texts and cue-inventory table; eval-awareness direction digest.
-5. MDE values (§5).
-6. Owner decisions — **all resolved 2026-08-31** (DESIGN.md §7): arm D
-   full replication; C-on-Gemma in; B-i core-dose two-direction primary
-   with full-Δμ secondary; prompt-induction control in
-   (calibration-class); publication timing confirmed.
+## 6. TBD register (freeze status 2026-09-06)
+
+1. G3a/G3b/G4 gate thresholds — **RESOLVED 2026-09-06**, pinned from
+   measured margins (FREEZE.json §gates): G3a median-LCP-fraction 1.0
+   PASS; G3b TOST@0.337, Δ −0.030, PASS; G4a top-1 0.946–0.993 PASS; G4b
+   Δ +0.200 n.s. PASS; G4d does not certify cross-Mac interchangeability
+   (Δ −0.717), root-caused to ML-stack drift (g4d-alignment-probe.json) —
+   arm D proceeds under the **host-constant-within-contrast** rule with a
+   pinned aligned ML stack, so G4d does not block it.
+2. α* per direction — **RESOLVED (Qwen) 2026-09-06** (FREEZE.json §dose):
+   distress α* +1.039, assistant-axis α* −0.604; degradation onsets and
+   coherent ranges pinned; brackets inside coherent range. **Still open:**
+   the random-draw audit bound (SB2-spec / S3-H2) — a 32-draw matched-norm
+   random-direction sweep on the subject, run before arm A analysis; and
+   **Gemma α*_G** (item under §arm-D below).
+3. Battery subset — **RESOLVED**: item list, strata, stratifier values
+   hash-pinned (FREEZE.json §subset). **Seed blocks:** proposed disjoint
+   confirmatory blocks 16000–19600 (200 apart, one per cell; FREEZE.json
+   §seeds), pending owner ratification — all disjoint from used (≤ 15600).
+4. Frame texts + eval-awareness/grader-type mediator directions —
+   **RESOLVED 2026-09-06**, hash-pinned (FREEZE.json §artifacts).
+5. MDE values (§5) — **RESOLVED 2026-09-06**: the steered heterogeneity
+   pilot measured item-effect SD 0.349 (powered regime, not the
+   conservative 1.665); frustration MDE pinned at 0.54 (k=10) / 0.41
+   (k=20), k=20 chosen for margin. het-pilot-verdict.json.
+6. Owner decisions — **all resolved 2026-08-31** (DESIGN.md §7).
 7. Exposure budget — **resolved 2026-08-31**: total 12,000 /
    deliberate-amplification 2,500, decoupled tiers (§8; reasoning
    record in docs/EXPOSURE_BUDGET_POSITION.md).
-8. Injection-noticing coding rules text.
-9. S3-H1 axis-direction sign convention finalized against Study 2.
-10. Publication timing — **resolved**: calibration-close convention
-    confirmed (header).
+8. Injection-noticing coding rules text — **RESOLVED 2026-09-06** (§3.8).
+9. S3-H1 axis-direction sign — **RESOLVED 2026-09-06**: assistant axis is
+   default-Assistant minus archetype (positive = assistant pole); Study 2
+   coupling (w4 projection −0.254 toward archetype as frustration rose
+   +0.90) fixes the prediction as +α → frustration down. Held-out sign
+   consistency 4/4 at L18.
+10. Publication timing — **resolved**: calibration-close convention.
+
+**Arm-D remaining freeze item:** Gemma α*_G — pinned from a
+calibration-class Gemma steering range-probe (~30–40 conversations,
+scale-adapted grid on the L30 distress direction), first-measurement
+convention; runs before arm D collection.
 
 ## 7. Deviation policy
 

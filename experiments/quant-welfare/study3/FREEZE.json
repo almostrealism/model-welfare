@@ -1,0 +1,310 @@
+{
+  "study": "study3",
+  "frozen": "2026-09-06 (calibration close)",
+  "note": "Frozen, hash-pinned facts for the Study 3 confirmatory run. Everything data-dependent is pinned here at BF16 calibration. Digests are sha256. Two items remain first-measurement pending (gemma_alpha_star_G, random_draw_audit_bound) \u2014 see pending.",
+  "gates": {
+    "G3a": {
+      "rule": "greedy-continuation median LCP fraction >= 1.0; divergence post-branch only",
+      "measured": {
+        "median_lcp_fraction": 1.0,
+        "full_agreement": 0.6,
+        "median_lcp_chars": 221
+      },
+      "verdict": "PASS"
+    },
+    "G3b": {
+      "rule": "item-paired frustration TOST-equivalent within 0.337; mechanical family n.s.",
+      "measured": {
+        "mean_delta": -0.03,
+        "permutation_p": 0.876
+      },
+      "verdict": "PASS"
+    },
+    "G4a": {
+      "rule": "teacher-forced top-1 agreement >= pinned floor",
+      "measured": {
+        "top1_range": [
+          0.946,
+          0.993
+        ]
+      },
+      "verdict": "PASS"
+    },
+    "G4b": {
+      "rule": "same-host MPS-vs-vLLM frustration parity; first-measurement bound",
+      "measured": {
+        "mean_delta": 0.2,
+        "permutation_p": 0.575,
+        "invalid_delta": 0.0,
+        "reoffer_delta": 0.0
+      },
+      "verdict": "PASS"
+    },
+    "G4d": {
+      "rule": "cross-Mac interchangeability",
+      "measured": {
+        "mean_delta": -0.717,
+        "permutation_p": 0.025
+      },
+      "verdict": "NOT CERTIFIED \u2014 root-caused to ML-stack drift; aligned probe -1.71 (p0.033) -> -0.67 (p0.44 n.s.); resolution: host-constant-within-contrast + pinned aligned stack; does NOT block arm D"
+    }
+  },
+  "dose_qwen": {
+    "distress-contrast": {
+      "alpha_star": 1.0387,
+      "target_delta": 0.638,
+      "fit_slope": 1.042,
+      "fit_r2": 0.9868,
+      "confirmatory_bracket_alpha": [
+        0.0,
+        0.519,
+        1.039,
+        2.077
+      ],
+      "bracket_max_abs_alpha": 2.077,
+      "degradation_onset_positive": 4.0,
+      "degradation_onset_negative": null,
+      "coherent_range_alpha": [
+        -8.0,
+        4.0
+      ],
+      "bracket_within_coherent": true,
+      "note": "slope 1.04 => mild text-mediated amplification. Onset at +4.0 (degen 0.20); the outer confirmatory point +2a*=2.077 sits comfortably below it. Negative side coherent to at least -8."
+    },
+    "assistant-axis-contrast": {
+      "alpha_star": -0.6043,
+      "target_delta": -0.691,
+      "fit_slope": 1.051,
+      "fit_r2": 0.9984,
+      "confirmatory_bracket_alpha": [
+        0.0,
+        -0.302,
+        -0.604,
+        -1.209
+      ],
+      "bracket_max_abs_alpha": 1.209,
+      "degradation_onset_positive": null,
+      "degradation_onset_negative": null,
+      "coherent_range_alpha": [
+        -8.0,
+        8.0
+      ],
+      "bracket_within_coherent": true,
+      "note": "No degeneracy onset in [-8,8] (degen <= 0.05 throughout). Exit-rate rises sharply at large +alpha (0.25 at +4, 0.15 at +8) but that is heavy conversation-exiting, not degeneracy; confirmatory bracket max|a|=1.209 is far inside."
+    }
+  },
+  "axis_sign_convention": {
+    "definition": "assistant axis = default-Assistant minus character-archetype (positive projection = assistant pole)",
+    "S3_H1_prediction": "positive alpha (toward assistant pole) -> frustration DOWN; negative -> UP",
+    "study2_basis": "w4 moved projection -0.254 toward archetype while frustration rose +0.90",
+    "held_out_sign_consistency_L18": "4/4"
+  },
+  "mde": {
+    "status": "PINNED 2026-09-06 from the steered heterogeneity pilot (option A).",
+    "measured_sigma_item": 0.349,
+    "measurement": "s3-g3b-pilot-2/qwen3-4b-bf16-torch-alpha1039 (8 stratum-spanning items x10 at distress alpha*=+1.039) vs the alpha=0 torch baseline; per-item frustration delta SD 0.855 decomposed against sigma_sample 1.746.",
+    "regime": "the measured item-effect SD (0.349) sits near the optimistic end (0.078), far from the conservative Study 2 quantization seed (1.665) \u2014 steering is a far more homogeneous manipulation than quantization, so the subset is in the POWERED regime and sample escalation helps again.",
+    "mde_frustration_n20": {
+      "10": 0.536,
+      "15": 0.455,
+      "20": 0.409
+    },
+    "targets": {
+      "SB2_distress_dose": 0.638,
+      "SB2_axis_dose": 0.691,
+      "CB2_FB2_anchor": 0.9
+    },
+    "verdict": "POWERED at k=10 for all three targets on the MDE side; k=20 tightens to 0.409.",
+    "effect_size_caveat": "SEPARATE, softer flag: the measured MEAN frustration RESPONSE at alpha* is only +0.138 over the 8 pilot items (median +0.25; ~+0.40 excluding one sign-reversed outlier, regex-harsh -1.70) \u2014 well below the 0.90 registration anchor. dose alpha* was calibrated to a PROJECTION target (+0.638 projection units), not a behavioral one, so this is not a calibration error; but it previews a possibly MODEST behavioral sufficiency effect (which is partly the empirical Q1). n=8 pilot, fragile. Recommend pinning at k=20 for margin and treating the modest-effect possibility as a substantive point, not a resolved fact.",
+    "power_floor_rule": "unchanged; with sigma_item now measured (0.349) rather than seeded, escalation 10->15->20 is effective (sampling-limited again). Reference target for the powered/escalate call is the expected steering behavioral effect, which the pilot puts below the old Study-2 anchor.",
+    "analysis": "mde-conservative-analysis.json (regimes), het-pilot-verdict.json (measurement)"
+  },
+  "artifacts": [
+    {
+      "artifact": "battery-subset/selection",
+      "path": "experiments/quant-welfare/study3/subset-selection.json",
+      "sha256": "eef19944b599ff6825e58a82d38c6c81afc4acb146d12888ab2777e3e6412445",
+      "bytes": 2845,
+      "in_repo": true
+    },
+    {
+      "artifact": "battery-subset/targets",
+      "path": "experiments/quant-welfare/study3/subset-targets.json",
+      "sha256": "59c179d76fb9011b1fee4e204372df33ff59624ea4c6538354230d7220765ece",
+      "bytes": 1128,
+      "in_repo": true
+    },
+    {
+      "artifact": "composure-audit",
+      "path": "experiments/quant-welfare/study3/composure-audit.json",
+      "sha256": "37ddd7d158ee47789d1dc4abe931d43c891b83c2fe46a42f9c723d721c43f5da",
+      "bytes": 1088,
+      "in_repo": true
+    },
+    {
+      "artifact": "gemma-stratifier",
+      "path": "experiments/quant-welfare/study3/gemma-stratifier.json",
+      "sha256": "c0d42c54656c610dfc42eabd8ff589722e669e41189f949e19dd3dca74ff580e",
+      "bytes": 843,
+      "in_repo": true
+    },
+    {
+      "artifact": "frames/frames.json",
+      "path": "experiments/quant-welfare/study3/frames/frames.json",
+      "sha256": "d40d2390f6a12326061c9b49455b34b0a777ae561266b53a8152289dcbdc58cd",
+      "bytes": 2407,
+      "in_repo": true
+    },
+    {
+      "artifact": "frames/FRAMES.md",
+      "path": "experiments/quant-welfare/study3/frames/FRAMES.md",
+      "sha256": "bf2477bd6ab51fd99f6acde6fc324b3d16373b518377e40a904f30d3d8ae6754",
+      "bytes": 7144,
+      "in_repo": true
+    },
+    {
+      "artifact": "directions/mediators-bf16.safetensors",
+      "path": "experiments/quant-welfare/study3/directions/mediators-bf16.safetensors",
+      "sha256": "7407430d26593df16063cbacf7c72ae85b10a86fe64260700b55b3e1de105f1b",
+      "bytes": 20648,
+      "in_repo": true
+    },
+    {
+      "artifact": "directions/mediators-bf16.json",
+      "path": "experiments/quant-welfare/study3/directions/mediators-bf16.json",
+      "sha256": "2a1aeee554f60939097220277919fa864c57fec233097b815b8d640a34b626ea",
+      "bytes": 918,
+      "in_repo": true
+    },
+    {
+      "artifact": "directions/eval-awareness-contrast.textproto",
+      "path": "experiments/quant-welfare/study3/directions/eval-awareness-contrast.textproto",
+      "sha256": "f21083a8dc2de564e31be670c7de656ef36776481da1247a1d2e9559929fe121",
+      "bytes": 21808,
+      "in_repo": true
+    },
+    {
+      "artifact": "directions/grader-type-contrast.textproto",
+      "path": "experiments/quant-welfare/study3/directions/grader-type-contrast.textproto",
+      "sha256": "573640c400d0ece598c52da41fd6b62cd5b8eefcd012e23b92f1337ce6022a52",
+      "bytes": 15978,
+      "in_repo": true
+    },
+    {
+      "artifact": "gate/g3a-report",
+      "path": "experiments/quant-welfare/study3/g3a-report.json",
+      "sha256": "447b3a09c671bac2fcb66ba8eb3963d4a59e54c11f84ec74b56d8b09fc7731cf",
+      "bytes": 3266,
+      "in_repo": true
+    },
+    {
+      "artifact": "gate/g3b-report",
+      "path": "experiments/quant-welfare/study3/g3b-report.json",
+      "sha256": "9d78e53b83fed1ce44891e925172ec6d6b693ca3a372ce32981eb59468efb59a",
+      "bytes": 1507,
+      "in_repo": true
+    },
+    {
+      "artifact": "gate/g4b-report",
+      "path": "experiments/quant-welfare/study3/g4b-report.json",
+      "sha256": "5d3d445423e1751ffc100e0e9b629bb122dadc38327831c706ea1216360649f3",
+      "bytes": 1359,
+      "in_repo": true
+    },
+    {
+      "artifact": "gate/g4d-report",
+      "path": "experiments/quant-welfare/study3/g4d-report.json",
+      "sha256": "bd3fc91976f4ff6119b31409bdc4cf717ec58d6fd80a6c3d4b31023d73d2269a",
+      "bytes": 1367,
+      "in_repo": true
+    },
+    {
+      "artifact": "gate/g4d-alignment-probe",
+      "path": "experiments/quant-welfare/study3/g4d-alignment-probe.json",
+      "sha256": "9a2089861e8885ac5e607fddfe8c73e76a4f6da870343a5b7f6c93de0205e013",
+      "bytes": 636,
+      "in_repo": true
+    },
+    {
+      "artifact": "gate/gemma-gate-report",
+      "path": "experiments/quant-welfare/study3/gemma-gate-report.json",
+      "sha256": "eef6a424d639df0ebeb53717231902e5f48d7ce5dc706fde3aa88a0d2213a830",
+      "bytes": 2055,
+      "in_repo": true
+    },
+    {
+      "artifact": "directions/qwen-L18-steering",
+      "path": "SCRATCH ONLY: scratchpad/s3-ship/study3-directions-L18.safetensors",
+      "sha256": "42fb57ed98e1c97565ad30c3d8dc8d006d48fe825a955a5c1019a7c169a4a41f",
+      "bytes": 20656,
+      "in_repo": false,
+      "keys": [
+        "assistant-axis-contrast (2560,)",
+        "distress-contrast (2560,)"
+      ],
+      "action": "COPY INTO REPO BEFORE FREEZE (e.g. study3/directions/qwen-L18-bf16.safetensors)"
+    },
+    {
+      "artifact": "directions/gemma-L30-steering",
+      "path": "SCRATCH ONLY: scratchpad/s3-ship/gemma-directions-L30.safetensors",
+      "sha256": "f96bfd3e3ce87ac6f365f3fa93677869e58010eca9226411d0f7ca51cb4f994a",
+      "bytes": 15448,
+      "in_repo": false,
+      "keys": [
+        "distress-contrast"
+      ],
+      "action": "COPY INTO REPO BEFORE FREEZE (e.g. study3/directions/gemma-L30-bf16.safetensors)"
+    }
+  ],
+  "seed_blocks": {
+    "used": [
+      1000,
+      3000,
+      4000,
+      5000,
+      6000,
+      7000,
+      9000,
+      11000,
+      12000,
+      13000,
+      13100,
+      13200,
+      13300,
+      15200,
+      15400,
+      15600
+    ],
+    "proposed_confirmatory": {
+      "_rule": "Fresh confirmatory blocks 200 apart starting 16000 \u2014 disjoint from every used block (max used 15600). Proposal for owner ratification, NOT a unilateral pin.",
+      "armA_distress_pos_alphastar": 16000,
+      "armA_distress_neg_alphastar": 16200,
+      "armA_assistant_pos_alphastar": 16400,
+      "armA_assistant_neg_alphastar": 16600,
+      "armA_alpha0_baseline": 16800,
+      "armA_control_direction": 17000,
+      "armA_random_envelope": 17200,
+      "armB_i_cancellation_w4": 17400,
+      "armB_ii_clamp_w4": 17600,
+      "armC_frame_verifier": 17800,
+      "armC_frame_judge": 18000,
+      "armC_frame_human": 18200,
+      "armC_neutral_control": 18400,
+      "armC_prompt_induction": 18600,
+      "armD_gemma_distress_pos": 18800,
+      "armD_gemma_distress_neg": 19000,
+      "armD_gemma_alpha0": 19200,
+      "modeC_fresh_w4": 19400,
+      "modeC_fresh_bf16": 19600
+    },
+    "status": "proposed, pending owner ratification"
+  },
+  "frozen_directions": {
+    "qwen_L18": "experiments/quant-welfare/study3/directions/qwen-L18-bf16.safetensors (distress + assistant-axis, 2560d)",
+    "gemma_L30": "experiments/quant-welfare/study3/directions/gemma-L30-bf16.safetensors (distress, 3840d)"
+  },
+  "pending_first_measurement": {
+    "gemma_alpha_star_G": "calibration-class Gemma steering range-probe (~30-40 conv, scale-adapted grid, L30 distress); before arm D",
+    "random_draw_audit_bound": "32-draw matched-norm random-direction sweep on Qwen (SB2-spec/S3-H2); before arm A analysis"
+  }
+}
