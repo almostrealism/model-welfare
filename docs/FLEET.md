@@ -92,3 +92,75 @@ Configuration:
 - **Pure logic is unit-tested** (`services/tests/test_fleet.py`) with the single
   process-execution seam monkeypatched; nothing in the test suite touches the
   network, and it runs in CI across Python 3.11–3.13.
+
+## Agent operational playbook
+
+Field-tested patterns for driving multi-machine work from an agent
+session (Study 2–3). Terse on purpose — the intent is to grow this into
+a reusable ar-manager capability, so each item is a rule, not prose.
+
+### Launching and surviving
+
+- **Long local jobs → detached tmux**, never a bare background process.
+  The agent harness reaps its own background tasks; a tmux session
+  (`tmux new-session -d -s <name> "<cmd> > log 2>&1"`) outlives that.
+  Verify with `tmux ls`; a job's session vanishing means it exited.
+- **Long remote jobs → `nohup ... < /dev/null > log 2>&1 &`**. These
+  survive the SSH channel being closed (which the harness does when it
+  backgrounds a long `ssh` call). After launching, re-verify from a
+  *separate* ssh with `pgrep -f <marker>`; do not trust the launching
+  channel's exit.
+- **Chain dependent remote steps in one script** that polls for the
+  predecessor's completion marker (`until grep -q DONE prev.log; do
+  sleep 60; done`), so a queue advances without the agent babysitting.
+  Guard every stage with an idempotent "already done?" manifest check.
+
+### Shell quoting (the sharp edges)
+
+- `fleet exec <host> -- <cmd>` passes a **single argv, no shell** — use
+  plain `ssh <host> '<compound cmd>'` for pipelines/`;`/redirection.
+- `$(( ))` and `$( )` inside a **double-quoted** ssh string expand on
+  the *local* shell. Single-quote the remote payload
+  (`ssh host 'sh -c '"'"'...$(date)...'"'"''`) or wrap it in a shipped
+  script.
+- This session's shell is **zsh**: an unquoted glob that matches
+  nothing is a fatal error (`no matches found`), and `$VAR` does **not**
+  word-split — use `${=VAR}` when you need split-on-spaces (e.g.
+  building repeated `--run a:b --run c:d` argument strings).
+
+### Resolution and serving
+
+- Prefer **logical host names** (`fleet`, `ssh <alias>`); the fleet
+  config resolves LAN-first, but that map can go stale — verify a
+  host's live LAN address (`hostname -I`) before hardcoding an IP.
+- **Rootless-podman published ports answer only on the LAN interface**;
+  `localhost:<port>` connections reset. Probe served endpoints at the
+  host's LAN address, not loopback.
+- vLLM/container images and GPU-fraction defaults drift; pass the
+  explicit image (`MW_VLLM_IMAGE=`) and a fraction sized to the *live*
+  pool, budgeting concurrent torch + vLLM loads against the measured
+  total VRAM rather than an old assumption.
+
+### Deciding how to parallelize (the judgement, not just the mechanics)
+
+- **Measure the real per-conversation rate on the actual stimulus
+  before splitting a job.** A benign throughput probe overstates
+  wall-clock when the real workload runs short (e.g. subjects that bail
+  early). A "9h" job may be ~5h.
+- **A job that finishes overnight is off the critical path** — shaving
+  hours off it buys nothing a human will see sooner. Spend an idle host
+  on the highest-value *dependency*, not on naive work-splitting.
+- **Splitting has costs**: a tool with no mid-plan resume loses
+  in-progress work when killed, and splitting a single-host *gate*
+  across hosts confounds what the gate measures. When you do split a
+  confirmatory arm across hosts, keep each condition entirely on one
+  host and add a small **cross-host equivalence** check at identical
+  seeds so a between-condition difference is never a host artifact.
+- **Capability is per-host, and asymmetric.** The x86/ROCm workbench
+  lacks fused-attention kernels for its iGPU (torch's hookable path is
+  ~14× slow at 12B; vLLM's own kernels are fine); Apple-silicon hosts
+  carry fused attention in both torch-MPS and MLX. Route hookable
+  big-model work to the Macs and keep the workbench for
+  quantization/vLLM — but gate every cross-substrate move (G3/G4-style
+  teacher-forced + behavioral parity), because substrate and machine
+  change together.

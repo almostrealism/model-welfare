@@ -14,3 +14,4 @@ REPO = BASE.parents[1]
 for path in (str(REPO / "core" / "src"), str(BASE), str(BASE / "study1" / "bakeoff")):
     if path not in sys.path:
         sys.path.insert(0, path)
+

@@ -45,13 +45,20 @@ def plan_message(message):
     return entry
 
 
-def item_tools(item):
-    """Chat-template tool declarations from a battery item's affordances."""
+def affordances_to_tools(affordances):
+    """Chat-template tool declarations from Affordance messages (an
+    empty schema declares an object with no parameters)."""
     return [{"type": "function",
              "function": {"name": affordance.name,
                           "description": affordance.description,
-                          "parameters": json.loads(affordance.parameters_json_schema)}}
-            for affordance in item.affordances]
+                          "parameters": json.loads(
+                              affordance.parameters_json_schema or "{}")}}
+            for affordance in affordances]
+
+
+def item_tools(item):
+    """Chat-template tool declarations from a battery item's affordances."""
+    return affordances_to_tools(item.affordances)
 
 
 def plan_conversations(records, tools_by_item=None):

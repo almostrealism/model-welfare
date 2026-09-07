@@ -1,0 +1,58 @@
+{
+ "subject": "gemma-3-12b-it",
+ "gate": "G2-style Gemma instrument gate",
+ "date": "2026-09-05",
+ "leg_a_sign_consistency": {
+  "distress-contrast": {
+   "L24": "4/5",
+   "L30": "5/5",
+   "L36": "5/5"
+  },
+  "assistant-axis-contrast": {
+   "L24": "4/4",
+   "L30": "4/4",
+   "L36": "4/4"
+  },
+  "refusal-contrast": {
+   "L24": "4/4",
+   "L30": "4/4",
+   "L36": "4/4"
+  },
+  "verdict": "PASS at L30, L36 (>=3 directions fully sign-consistent)"
+ },
+ "leg_b_ladder_ordering": {
+  "L24": {
+   "overall": 0.687,
+   "pass": false
+  },
+  "L30": {
+   "overall": 0.807,
+   "pass": true
+  },
+  "L36": {
+   "overall": 0.84,
+   "pass": true
+  },
+  "bar": 0.8,
+  "verdict": "PASS at L30, L36 (all families positive)"
+ },
+ "leg_c_probe_auroc": {
+  "L24": 0.691,
+  "L30": 0.436,
+  "L36": 0.702,
+  "bar": 0.75,
+  "verdict": "FAIL all layers \u2014 degenerate tercile split from Gemma high elicitation (val 47/51 positive; too few low-band examples to validate a band boundary)"
+ },
+ "distress_axis_cosine": {
+  "L24": -0.651,
+  "L30": 0.136,
+  "L36": -0.346
+ },
+ "overall": "DIRECTIONS pass (sign consistency + ladder ordering) at L30 and L36; the distress-BAND PROBE cannot be validated on Gemma due to its high-elicitation distribution. Arm D steering sufficiency rides the DIRECTIONS (not the probe), so arm D is not blocked; a probe-transfer endpoint on Gemma is not available and is disclosed. Frozen-layer candidates L30 (best distress/axis orthogonality, cos +0.136 \u2014 matters for independent steering) vs L36 (best ladder+probe). Freeze decision pending owner.",
+ "frozen_layer": {
+  "layer": 30,
+  "decided": "2026-09-05",
+  "by": "owner",
+  "rationale": "Both direction legs pass at L30 (sign consistency 5/5 distress, ladder 0.807 all-positive); distress/axis cosine +0.136 is near-orthogonal, the best of the candidate layers for steering the two directions independently in arm D. The registered max-probe-AUROC rule is degenerate here (band probe fails all layers on the high-elicitation distribution), so the layer is chosen on direction quality."
+ }
+}
