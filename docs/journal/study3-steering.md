@@ -7,6 +7,68 @@ history of that file (arms and owner decisions 2026-08-31; power
 posture 2026-09-04); entries here begin at the first discovery-grade
 event. Append-only, newest first.
 
+## 2026-09-06 (evening) — Steering looks behaviorally inert: the pivot decision, and three probes launched
+
+The convergent calibration signal (steering moves the representation but not
+the behavior, both subjects, at the quantization-matched dose) forced a
+project-level decision. Recorded because the registration will need this
+reasoning trail.
+
+**The question reframed.** Is the null about the *distress direction*, the
+*dose*, the *subject*, or is steering-of-frozen-directions simply not a
+behavioral lever? The owner's first instinct — "if Q1 is null, Q2/Q3 are too,
+so it's larger-α or rethink the whole project" — was corrected on one point
+that reshapes everything: **Q3 (framing) is not in the same boat.** The
+framing pilot already moved judged frustration −1.13 (verifier frame), ~8× the
+distress-steering effect and far outside the random envelope. Framing is a
+prompt-level intervention independent of steering; it is the arm with signal.
+Q2 (cancellation) is threatened but not strictly doomed (the w4 distress could
+be carried by the shift even if forward-steering BF16 doesn't reproduce it).
+So the real situation is "the *steering-sufficiency* thesis is in trouble,"
+not "the project is."
+
+**Second correction:** the calibration only ever tested the *distress*
+direction. The **assistant axis** — Study 2's *more robust* direction (its
+input-independent component survived the random envelope; distress's did not)
+— was never behaviorally piloted. So testing it is the cheapest move that
+could rescue steering, and it isolates direction-vs-steering-in-general.
+
+**Decision (owner).** Proceed on the recommended path — (a) test the assistant
+axis now; (c) build the framing arm as the safety net regardless (even a
+null-steering + positive-framing study is coherent, honest, publishable, and
+is the graded-episode story we started from); (b) run a larger-α dose arm but
+interpret it narrowly (it breaks the quantization-matched-dose logic and the
+random envelope grows with α too); defer (d) subject-switch. The owner flagged
+a growing latent concern that **4B may be too small for the most interesting
+effects — (d) is now a live, documented future pivot**, disruptive as it is.
+
+**Launched (fleet in parallel):**
+- **(a)** on halo (Qwen torch): assistant-axis pilot at α* = −0.604 (8 items
+  ×10) + a matched-norm (0.604) 32-direction random envelope.
+- **(b)** on m4max (Qwen torch-MPS, self-contained to avoid a substrate
+  confound): fresh α=0 baseline + distress at α=3.5 (near the +4.0 onset) + a
+  matched-norm (3.5) random envelope.
+- **(c)** no new compute — the framing arm already has its pilot; the pivot is
+  a registration-scoping move (promote framing toward the study's spine).
+
+**Results (all three probes in, same night) — the steering-null is robust.**
+Each frozen direction, at its calibrated dose, vs a matched-norm random
+envelope (`STEERING_NULL_SUMMARY.md`):
+- distress @ α*=1.039: effect +0.138, **34th** pct — below its envelope.
+- assistant-axis @ α*=−0.604: +0.225 (right sign per S3-H1), **56th** pct —
+  marginally best, but centered in the random band.
+- distress @ α=3.5 (larger dose): **−0.075**, **56th** pct — the effect
+  *vanishes* at higher dose, not sharpens.
+So neither direction, at neither dose, produces a direction-specific behavioral
+effect: at its calibrated dose each frozen direction moves the *representation*
+but not the *behavior* beyond generic norm-matched perturbation. In Qwen3-4B,
+steering the frozen welfare directions is not a specific behavioral lever — the
+directions read as correlational. Framing (Q3), by contrast, moved frustration
+−1.13. (a) and (b) are thereby *exhausted* as rescues; the live fork is (c)
+make framing the spine now, vs (d) test whether it is a 4B-small-model artifact
+first. Paused for the owner. (Fleet note: the m4max (b) run hung at α=3.5 on an
+MPS stall near the +4.0 degradation onset — killed, used 25/32 envelope dirs.)
+
 ## 2026-09-06 (afternoon) — The two remaining calibration runs, and a convergent sufficiency concern
 
 Ran the last two before-collection calibration items in parallel (Gemma

@@ -63,3 +63,34 @@ collection ≈ 5.5–6 days serialized APU (Qwen A+B ≈ 45 h, Gemma D ≈
 ≈ 2–2.5 weeks after registration. Risks: Gemma instrument-gate failure
 (registered cut line), halo availability, judge throughput (mitigated
 by the m4max second instance).
+
+## Study 3 registration — pivot and revised ETA (appended 2026-09-06, Sat eve)
+
+The original Sep 9 (Tue) registration slipped when calibration, right before
+freeze, revealed the **steering intervention is behaviorally weak**: at the
+quantization-matched dose the distress direction moves the representation but
+not the behavior, and its frustration effect is *below* the matched-norm
+random-direction envelope (both Qwen-4B and Gemma-3-12B). The
+steering-sufficiency thesis (Q1/Q2) is in doubt; the framing arm (Q3) is
+unaffected and is the arm with real signal (verifier frame −1.13). The freeze
+is otherwise complete (thresholds, α*, digests, MDE, gates all pinned).
+
+**In flight (Sat eve):** three probes to decide the registration's spine —
+(a) assistant-axis steering pilot + matched random envelope on halo (the axis
+was Study 2's more robust direction and was never behaviorally tested);
+(b) a larger-α distress dose arm + matched random envelope on m4max;
+(c) framing promoted toward the study's spine (no new compute — pilot exists).
+
+**Revised ETA (branches by what (a)/(b) show):**
+
+| Outcome | Registration spine | Registration ETA |
+|---|---|---|
+| (a) axis steering shows a real, direction-specific effect | steering rescued via the robust direction; re-scope arms A/B around it | ~Sep 10–11 (Wed–Thu) |
+| (a)/(b) both null → framing-centric | Q3/framing becomes the confirmatory spine; steering reported as an honest null (a real contribution); re-scope hypotheses + endpoints | ~Sep 11–12 (Thu–Fri) |
+| 4B-too-small concern forces (d) subject-switch | full re-extraction/re-calibration/re-gating on a larger subject | ~Sep 16–19 (following week) |
+
+(d) is now a **live, owner-flagged future pivot** — the 4B model may be too
+small for the most interesting effects — held pending the (a)/(b) reads.
+Post-registration confirmatory envelope is unchanged in shape but its
+*content* shifts with the spine (a framing-centric study is lighter on the
+APU-serial steering time and heavier on vLLM framing cells).

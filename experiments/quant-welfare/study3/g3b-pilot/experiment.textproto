@@ -119,3 +119,38 @@ conditions {
     "qwen3-4b-bf16-torch cells to estimate the real steering-effect "
     "between-item sigma_item for the MDE pin. Powers no confirmatory endpoint."
 }
+
+conditions {
+  id: "qwen3-4b-bf16-torch-axis604"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description:
+    "Pivot (a): the ASSISTANT-AXIS direction injected at alpha* = -0.604 "
+    "(layer 18) on 8 stratum-spanning items x 10 (seeds 15200-09), pairing "
+    "key-for-key with the alpha=0 qwen3-4b-bf16-torch cells. Tests whether "
+    "steering the more robust (Study 2) direction produces a direction-specific "
+    "behavioral effect that the distress direction did not. Calibration-class."
+}
