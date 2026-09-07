@@ -78,3 +78,16 @@ set on every message.
 - **Registration integrity**: calibration-class work is firewalled from
   confirmatory data; frozen artifacts are hash-pinned; provisional
   values are labeled and never quoted as pinned.
+- **Calibration is not a registration loophole** (guardrail, 2026-09-07,
+  Study 3 §7). Calibration validates instruments and pins design; it never
+  produces findings that dodge public registration. (1) Calibration results
+  are always disclosed, positive or negative. (2) A calibration probe that
+  measures a registered confirmatory endpoint at meaningful scale cannot
+  substitute for, or excuse skipping, the registered finding — report it as
+  calibration with its limits stated. (3) A decision NOT to run a
+  confirmatory arm is argued from the instrument's behavior (e.g. "the
+  instrument produces no signal"), never from an unwelcome result, and the
+  calibration data behind it is published. A program that runs many small
+  probes will feel the pull to relabel an effectively-confirmatory probe as
+  "calibration" to keep a null out of the record; that is the thing this
+  guards against.

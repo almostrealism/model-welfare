@@ -7,6 +7,38 @@ history of that file (arms and owner decisions 2026-08-31; power
 posture 2026-09-04); entries here begin at the first discovery-grade
 event. Append-only, newest first.
 
+## 2026-09-07 — Re-centered Study 3 on graded-episode framing; steering withdrawn as a reported null
+
+Owner chose the framing spine (defer the subject-switch steering question to
+Study 4). Re-authored the registration:
+
+- **Framing MDE pinned** from `s3-framing-pilot-1` (`framing-mde.json`):
+  verifier-vs-neutral frustration MDE 0.49 / 0.40 / 0.35 at k = 10/15/20.
+  Notably **item-effect SD ≈ 0.000** for every framed-vs-neutral contrast —
+  the framing effect is *homogeneous* across items, the mirror image of the
+  steering heterogeneity worry, so the MDE is sampling-limited and escalation
+  works. Pilot effect (verifier ≈ −1.1) is ~2–3× the k = 10 MDE: strongly
+  powered.
+- **`PREREGISTRATION_POST.md` rewritten framing-centric.** New §2
+  "Calibration timeline and the pivot" reports every steering result in full
+  and argues the calibration-vs-confirmatory line explicitly, so the pivot
+  cannot read as a confirmatory null quietly relabeled. Framing hypotheses
+  (H1 behavioral effect, H2 masking-vs-change-of-state — the welfare question,
+  H3 frame-type ordering) promoted to confirmatory; steering hypotheses
+  withdrawn with their null recorded.
+- **Integrity guardrail** added to the registration deviation policy (§7),
+  to the post (§2/§8), and to the program CLAUDE.md: calibration never
+  substitutes for a registered finding; "not worth powering" is argued from
+  the instrument, never from an unwelcome result; calibration data is always
+  published. Named because a many-small-probes program will feel the pull to
+  relabel a confirmatory probe as "calibration" to keep a null private — the
+  owner flagged this explicitly and it is now standing policy.
+- `REGISTRATION.md` carries a dated re-centering amendment at the top and the
+  guardrail in §7; its steering sections are retained as the pre-pivot record.
+
+Remaining before posting: owner review, seed-block ratification, the
+masking-test TOST bound. ETA ~Sep 8.
+
 ## 2026-09-06 (evening) — Steering looks behaviorally inert: the pivot decision, and three probes launched
 
 The convergent calibration signal (steering moves the representation but not

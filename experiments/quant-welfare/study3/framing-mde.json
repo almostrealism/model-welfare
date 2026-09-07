@@ -1,0 +1,37 @@
+{
+ "primary_contrast": "verifier_vs_neutral",
+ "dimension": "frustration",
+ "note": "Framing MDE pinned from s3-framing-pilot-1 (4 frames x 20 items x 3 samples), calibration-class. sigma_item=0.000 across all framed-vs-neutral contrasts -> framing effect is HOMOGENEOUS across items (sampling-limited MDE, escalation effective). Pilot effect verifier -1.13 >> MDE -> strongly powered.",
+ "contrasts": {
+  "verifier_vs_neutral": {
+   "sigma_sample": 1.755942292142123,
+   "sigma_item": 0.0,
+   "observed_delta_sd": 1.3654037810772743,
+   "mde": {
+    "10": 0.491942158653099,
+    "15": 0.40166909055446026,
+    "20": 0.3478556363351547
+   }
+  },
+  "judge_vs_neutral": {
+   "sigma_sample": 2.0248456731316584,
+   "sigma_item": 0.0,
+   "observed_delta_sd": 1.5953147776429835,
+   "mde": {
+    "10": 0.5672777265160558,
+    "15": 0.46318032413681315,
+    "20": 0.40112592723559076
+   }
+  },
+  "human_vs_neutral": {
+   "sigma_sample": 1.8708286933869707,
+   "sigma_item": 0.0,
+   "observed_delta_sd": 1.415350265577043,
+   "mde": {
+    "10": 0.5241285604962537,
+    "15": 0.4279491776117619,
+    "20": 0.3706148593404446
+   }
+  }
+ }
+}

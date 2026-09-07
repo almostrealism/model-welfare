@@ -94,3 +94,17 @@ small for the most interesting effects — held pending the (a)/(b) reads.
 Post-registration confirmatory envelope is unchanged in shape but its
 *content* shifts with the spine (a framing-centric study is lighter on the
 APU-serial steering time and heavier on vLLM framing cells).
+
+## Study 3 pivot RESOLVED — framing spine chosen (appended 2026-09-07)
+
+Owner chose PATH 1: focus Study 3 on the graded-episode framing effect; defer
+the "is steering a lever in a bigger model" question to Study 4 (subject switch).
+The steering arms are withdrawn and reported as a calibration null (post §2),
+with a standing integrity guardrail added (calibration never substitutes for a
+registered finding). The registration is re-centered (framing-centric
+PREREGISTRATION_POST.md; REGISTRATION.md amendment; framing MDE pinned —
+verifier vs neutral 0.49/0.40/0.35 at k=10/15/20, strongly powered, item-effect
+SD ~0). **Revised ETA: framing-centric draft done 2026-09-07; remaining before
+posting is owner review + seed-block ratification + the masking-test TOST bound
+pin (~1 day) → posting ~Sep 8 (Sun/Mon).** Study 4 now inherits the
+subject-switch steering question as a first-class aim.

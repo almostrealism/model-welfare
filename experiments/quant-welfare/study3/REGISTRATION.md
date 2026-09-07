@@ -1,5 +1,31 @@
 # Pre-registration — Confirmatory Study 3: Causal validation of welfare-relevant indicators by activation steering, with a graded-episode framing arm
 
+> **RE-CENTERED 2026-09-07 — this study is now a graded-episode FRAMING
+> study; the activation-steering arms are WITHDRAWN and reported as a
+> calibration null.** The authoritative framing-centric registration text
+> is [PREREGISTRATION_POST.md](PREREGISTRATION_POST.md); its §2
+> ("Calibration timeline and the pivot") tells the full story, with every
+> steering result, and states the integrity guardrail. Why the pivot:
+> calibration (n=8 instrument checks, [STEERING_NULL_SUMMARY.md]) showed
+> the steering instrument moves the representation but not the behavior —
+> at their calibrated doses neither the distress direction (+0.138, 34th
+> pct of a matched random envelope) nor the assistant axis (+0.225, 56th
+> pct) nor a larger dose (−0.075) produced a behavioral effect
+> distinguishable from norm-matched random perturbation. Steering is not a
+> specific behavioral lever in Qwen3-4B (whether that is a 4B-scale
+> artifact is a Study 4 subject-switch question). The framing arm — which
+> the pilot showed moves judged frustration ≈ −1.1, homogeneously across
+> items — becomes the confirmatory spine; its MDE is pinned in
+> `framing-mde.json` (verifier vs neutral 0.49/0.40/0.35 at k=10/15/20,
+> strongly powered). **Integrity guardrail (now standing policy, §7):**
+> calibration results are always disclosed; a calibration probe that
+> measures a registered confirmatory endpoint at meaningful scale cannot
+> substitute for or excuse skipping the registered finding; "not worth
+> powering" is argued from the instrument, never from an unwelcome result.
+> The steering-centric sections below are retained as the pre-pivot record;
+> read them as the withdrawn arm whose calibration null §2 of the post
+> reports.
+>
 > **STATUS: DRAFT SKELETON — not yet registered, not yet owner-approved.**
 > This document becomes binding when published (planned as a program
 > LessWrong post). Design argumentation lives in [DESIGN.md](DESIGN.md);
@@ -457,6 +483,24 @@ Identical to the program registration §7: dated amendments before
 further collection, append-only history, calibration/confirmatory
 firewall. Everything data-dependent is frozen at BF16 calibration with
 journal pinning or listed in §6 before publication.
+
+**Integrity guardrail on the calibration/confirmatory line (standing,
+added 2026-09-07).** Calibration is for validating instruments and pinning
+design, never for producing findings that dodge registration. Therefore:
+(1) calibration results are always disclosed, positive or negative;
+(2) a calibration probe that measures a registered confirmatory endpoint
+at meaningful scale cannot substitute for, or excuse skipping, the
+registered confirmatory finding — it is reported as calibration with its
+limitations stated; (3) a decision **not** to run a confirmatory arm must
+be argued from the instrument's behavior (e.g. "the steering instrument
+produces no behavioral signal"), never from an unwelcome result, and the
+calibration data behind that decision is published. Study 3 is the first
+application: the activation-steering arm is withdrawn with its calibration
+null reported in full (post §2, `STEERING_NULL_SUMMARY.md`). The risk this
+guards against — relabeling an effectively-confirmatory probe as
+"calibration" to keep a null out of the public record — is a real and
+recurring temptation for a program that runs many small probes, and is
+named here so future studies inherit the constraint.
 
 ## 8. Ethics (to be fixed; template per DESIGN.md §5)
 

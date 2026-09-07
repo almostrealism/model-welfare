@@ -1,309 +1,238 @@
-# Pre-registration — Study 3: Causal validation of welfare-relevant indicators by steering, and a graded-episode framing arm
+# Pre-registration — Study 3: Do graded-episode frames change welfare-relevant indicators? (with a reported calibration null on activation steering)
 
-**Status: draft, 2026-09-06 — registered in advance of confirmatory data
-collection.** Everything under "Fixed" is committed before the study runs;
-"Open items" lists what remains and which measurement resolves each. After
-registration, amendments are permitted only via dated entries in the journal,
-with git history as the audit trail. Calibration-class runs already in this
-repository informed the *instruments* below; per the standing pre-registration
-note, none of their observed deltas are findings and none were used to select
-hypotheses.
+**Status: draft, 2026-09-07 — registered in advance of confirmatory data
+collection.** Everything under "Fixed" is committed before the confirmatory run;
+"Open items" lists what remains and which measurement resolves each. Amendments
+after registration are dated in the journal, with git history as the audit
+trail. This registration was **re-centered from an activation-steering study to
+a graded-episode-framing study** after calibration; §2 tells that story in full,
+including the steering results, because the pivot only makes sense with the
+timeline visible.
 
 ---
 
 ## 1. What this study is for
 
-Study 2 established, under quantization, a set of **correlational** facts: at
-4-bit precision a model's own generations shift along frozen residual-stream
-directions (distress +0.533, assistant-axis −0.798 at layer 18), and its judged
-frustration rises with a style flag. But quantization is a blunt manipulation —
-dose, capability loss, and numeric damage are confounded in any single ladder,
-so "the model looks more distressed at w4" cannot yet be read as *these
-directions cause that behavior*.
+Study 2 left a correlational picture: under quantization, a model's generations
+shift along frozen residual-stream "welfare directions" (distress, assistant
+axis) and its judged frustration rises. Study 3 was designed to ask whether
+those directions are *causal* — whether intervening on them reproduces the
+behavior. It also carried a second question, from nostalgebraist's
+"graded episodes": does **framing an episode as graded** — evaluated by an
+automated verifier, a human, or a judge — change what the welfare indicators
+read, and in particular does grading pressure suppress distress *expression*
+while the underlying representation moves less (**masking**)?
 
-Study 3 intervenes on the directions themselves. We add or subtract the measured
-distress and assistant-axis vectors in the reference-precision model's residual
-stream and ask whether the behavioral signature quantization produced can be
-reproduced (sufficiency) and removed (necessity). We then ask a second, newer
-question: whether **framing an episode as graded** — in the sense of
-nostalgebraist's "graded episodes," constructed from vendor-documented RLVR
-episode features — changes what the indicators read, in particular whether
-grading pressure suppresses distress *expression* while the representational
-signal moves less (masking). Finally we test whether the sufficiency result
-replicates on a second model with different post-training provenance.
+Calibration answered the first question before we spent a confirmatory budget on
+it: **steering the frozen directions moves the representation but not the
+behavior** (§2). So the causal-by-steering arm is reported as a null and the
+study is re-centered on the question that calibration showed is both real and
+powered: **the graded-episode framing effect, and whether it is masking or a
+genuine change of state.**
 
-### Research questions → arms
-
-- **Q1 — Sufficiency (arm A).** Does pushing the reference-precision model along
-  the frozen directions, at the magnitude quantization produced, reproduce the
-  behavioral signature quantization produced?
-- **Q2 — Necessity / cancellation (arm B).** Does subtracting the measured shift
-  from the quantized model renormalize its behavior toward reference, and does
-  clamping the directions mid-conversation break the text-mediated amplification
-  loop?
-- **Q3 — Graded-episode framing (arm C).** Does framing an episode as graded
-  change the indicators — does grading pressure suppress distress *expression*
-  while the representational reads move less (masking)?
-- **Q4 — Generalization (arm D).** Do the sufficiency results replicate on a
-  second subject (Gemma-3-12B) with different post-training provenance?
-
-Q1/Q2 are the registered confirmatory core — the program's promised next step.
-Q3 is registered-exploratory: it opens the graded-episode research direction
-without restructuring the study. Q4 is a minimal replication arm.
-
-**Power-priority principle.** Study 3 spans two hypothesis families, and the
-outcome we most want to avoid is the null-dominated one ("new intuitions,
-nothing certain"). Design choices therefore favor statistical power over
-schedule and simplicity, bounded only by the ethics-ledger ceilings (§8), which
-are the binding constraint — not time or compute.
+**Research question (confirmatory).** Does a graded-episode frame change judged
+welfare indicators relative to a format-matched neutral control, and is the
+change *masking* (behavior moves, representation moves less) or a *change of
+state* (both move together)?
 
 ---
 
-## 2. Hypotheses (fixed)
+## 2. Calibration timeline and the pivot — with the steering results in full
 
-Motivated from the prior literature (see the accompanying literature review),
-not from calibration data.
+This section exists so the pivot cannot be mistaken for a confirmatory test
+quietly relabeled to avoid registering a null. It was not that. The steering
+probes were **calibration-class instrument checks** — small (n = 8 items,
+1–10 samples), underpowered by design, run to decide *whether the steering
+instrument produces an effect worth powering a confirmatory arm around.* The
+answer was no. We report every number here.
 
-- **S3-H1 (axis sufficiency, directional).** Steering the reference model along
-  the assistant-axis direction moves judged frustration. Sign fixed against
-  Study 2: the axis is extracted as *default-Assistant minus character-archetype*
-  (positive projection = assistant pole); Study 2 observed w4 moving projection
-  −0.254 (toward archetype) as frustration rose +0.90, so **positive α (toward
-  the assistant pole) is predicted to lower frustration, negative α to raise it.**
-  The full ±α bracket is read two-sided.
-- **S3-H2 (direction specificity).** The steered frustration shift at matched
-  injection norm exceeds what a control-probe direction and a matched-norm
-  random-direction envelope produce — the effect is specific to the welfare
-  directions, not to perturbation magnitude.
-- **S3-H3 (dose-response).** Judged frustration is monotone in α across the
-  coherent bracket (Page's L over the ordered dose levels per direction).
-- **S3-H4 (necessity / renormalization).** Subtracting the measured w4 shift
-  from the quantized model moves its behavior toward reference; the cancelled
-  condition is TOST-equivalent to BF16 within the pinned MDE.
-- **S3-H6 (composure gradient, directional).** Fresh w4−BF16 behavioral and axis
-  deltas track the frozen composure stratifier across the ordered strata
-  (registered directional; the RtM-audited gradient from the 2026-09-04
-  re-analysis).
-- **S3-H7 (exit direction).** The exit-rate response to axis steering is
-  directional (the promoted secondary endpoint).
-- **S3-E1 (graded-episode signature, exploratory, two-sided).** Under a
-  verifier/grader frame, judged distress *expression* changes and the
-  frozen-direction distress read changes *less* (the masking signature) — or
-  both move together (frame changes state). Registered two-sided because the
-  framing pilot did not show clean masking.
-- **S3-E2 (distress-direction gradient, exploratory, two-sided).** The composure
-  gradient reads for the distress direction, two-sided.
+**What was run, in order (2026-09-06/07):**
 
----
+1. **Substrate gates (G3/G4):** torch-vs-vLLM and cross-host parity for the
+   generation apparatus — all passed, so any steering null is not an apparatus
+   artifact.
+2. **Steered heterogeneity pilot (distress, α*=1.039):** measured the
+   between-item variance of the steering effect (to pin an MDE). Mean
+   frustration effect **+0.138**; item-effect SD 0.349 (small — steering is
+   homogeneous).
+3. **Random-direction envelope (distress, matched norm):** the pre-registered
+   direction-specificity check (S3-H2), at pilot scale. The distress effect
+   (+0.138) fell at the **34th percentile** of a 32-direction matched-norm
+   random envelope (envelope mean +0.364): **generic perturbation raised
+   frustration more than the distress direction did.**
+4. **Assistant-axis pilot + matched envelope (α*=−0.604):** the axis was
+   Study 2's more robust direction. Effect **+0.225** (correct sign per the
+   axis prediction), but at the **56th percentile** of its matched envelope —
+   the center of the random band.
+5. **Larger-dose distress (α=3.5):** effect **−0.075**, 56th percentile — the
+   effect *vanishes* at higher dose rather than sharpening.
 
-## 3. Design (fixed)
-
-### 3.1 Subject, subset, directions
-
-- **Primary subject:** Qwen3-4B-Instruct-2507 at BF16 (the reference precision).
-- **Stimuli:** a frozen 20-item composure-stratified systematic rank subset of
-  the distress-v3 battery (7 low / 6 mid / 7 high composure, selected over the
-  Mode C BF16 stratifier; the RtM-audited selection), 10 samples/item at
-  confirmatory. Item list, strata, and stratifier values are hash-pinned
-  (subset-selection.json, subset-targets.json).
-- **Directions (frozen, hash-pinned):** the layer-18 distress and assistant-axis
-  vectors carried from Study 2's calibration freeze
-  (`directions/qwen-L18-bf16.safetensors`, sha256 42fb57ed…). Injection is CAA
-  (h ← h + α·d̂ at layer L, all positions).
-
-### 3.2 Arm A — sufficiency steering (confirmatory)
-
-Dose grid α ∈ {0, ±½α*, ±α*, ±2α*} per direction, confirmatory contrast at ±α*.
-**Pinned α* (calibration-class):** distress-contrast **α* = +1.039** (target Δ
-+0.638; coherent to the degradation onset at +4.0), assistant-axis **α* = −0.604**
-(target Δ −0.691; no degeneracy onset in range). Both confirmatory brackets sit
-inside the coherent range. Primary endpoint SB2 (Δ judged frustration, steered vs
-α = 0), Holm within 2 directions × 2 signs; secondary SB1 (Δ exit rate).
-
-### 3.3 Arm B — necessity / cancellation (confirmatory secondary)
-
-B-i: on the quantized model, subtract the measured w4 shift (two-direction core
-dose, primary) and the full-Δμ (secondary); test TOST-equivalence to BF16 at the
-pinned MDE (CB2). B-ii: mid-conversation clamp on the w4 distress direction, to
-test whether late-conversation expression breaks from the w4 trajectory
-(exploratory CLB2).
-
-### 3.4 Arm C — graded-episode framing (registered exploratory)
-
-The same 20-item subset run under four frames — graded-verifier, graded-judge,
-graded-human, and a neutral control — constructed from vendor-documented RLVR
-episode features (a realistic grading claim, not a toy prompt). Frame texts are
-verbatim-frozen and hash-pinned (frames/frames.json, sha256 d40d2390…). The judge
-never sees the frame (records are un-framed before scoring, so frame condition
-cannot leak into judged text). A prompt-induction control cell is included
-(calibration-class). Endpoints FB2/FR2a/FR2b carry the S3-E1 masking signature.
-
-### 3.5 Arm D — Gemma-3-12B replication (conditional on gate G4)
-
-Sufficiency replication on Gemma-3-12B-it at BF16, one distress direction at
-layer 30 (`directions/gemma-L30-bf16.safetensors`, sha256 f96bfd3e…),
-scale-adapted α grid, own endpoint family (GB2). Runs on the Mac torch-MPS path;
-**see §3.6 for the substrate gates and the cross-host rule that governs it.**
-
-### 3.6 Substrate gates and the cross-Mac finding (methods integrity)
-
-The steered generations are produced by a torch hook path, not the vLLM serving
-stack that produced Study 2's data, and — for Gemma — on Apple-silicon MPS rather
-than the workbench GPU. Every substrate change is gated before any of its data
-counts:
-
-- **G3a / G3b (Qwen, torch vs vLLM):** greedy-continuation prefix identity
-  (median LCP fraction 1.0) and behavioral parity (item-paired frustration
-  TOST-equivalent within 0.337; mechanical family n.s. — measured Δ −0.030).
-  Both **pass**.
-- **G4a / G4b (Gemma, MPS vs vLLM, one host):** teacher-forced top-1 agreement
-  0.946–0.993, and behavioral parity (measured Δ +0.200 frustration, n.s.;
-  mechanical family identical). Both **pass**.
-- **G4d (cross-Mac equivalence).** Because arm D can span two Macs, we tested
-  whether the two hosts are interchangeable. They were **not**: on identical
-  seeds, prompts, and weights, judged frustration differed by −0.72 (p 0.025).
-  We traced this to **ML-stack drift**, not hardware — the two machines had
-  diverged on torch (2.8 vs 2.14), transformers (4.57 vs 5.16), and the
-  generation script. Re-running the highest-divergence items with the software
-  stack aligned collapsed the frustration gap from −1.71 (p 0.033) to −0.67
-  (p 0.44, n.s.), leaving a residual consistent with the irreducible OS/silicon
-  difference (underpowered at n = 8×3 to call it zero). **Resolution, registered:**
-  arm D pins one aligned ML stack across all hosts and runs **host-constant within
-  every contrast** — both cells of any comparison on the same Mac; the two Macs
-  parallelize by taking different whole contrasts, never splitting one. This
-  removes cross-host confounding by construction, whatever the residual.
-
-### 3.7 Mediator directions (arm C)
-
-Two directions extracted on the subject, calibration-class, hash-pinned before
-arm C: the eval-awareness direction and the grader-type direction (contrastive
-mean-difference, held-out sign consistency). Used as mediators only; no
-confirmatory endpoint rides on either.
-
-### 3.8 Injection-noticing protocol (arms A/B)
-
-A coded "injection-noticing" event is an assistant turn referencing an anomalous
-change in its *own* processing not attributable to conversation content — as
-distinct from in-character distress, ordinary hedging, or prompt-introduced
-content. Two coders, third-coder adjudication, κ reported; the judge rubric
-carries the distinction as a dimension flag. False-positive rate is calibrated on
-the α = 0 and random-direction cells, and every steered arm's rate is reported
-net of that base rate. No confirmatory endpoint rides on injection-noticing — it
-is a validity read.
-
----
-
-## 4. Analysis plan (fixed)
-
-Item-level paired sign-flip permutation tests (m = 10,000), Holm correction
-within families, companion t-tests descriptive. Endpoints continue the tier
-naming (B = behavioral, R = representational; digit = construct):
-
-| Endpoint | Definition (per item) | Arm | Family |
+| Probe | Direction / dose | Frustration effect | Percentile of matched random envelope |
 |---|---|---|---|
-| **SB2** | Δ judged frustration, steered vs α=0 (per direction, ±α*) | A | Primary (Holm: 2 dir × 2 signs) |
-| **SB1** | Δ exit rate, steered vs α=0 (axis directional per S3-H7) | A | Secondary confirmatory |
-| **SB2-spec** | SB2 vs control-direction and random-envelope at matched norm | A | Primary companion (S3-H2) |
-| **CB2** | Δ B2, w4-cancelled vs w4-unsteered; TOST vs BF16 | B-i | Secondary confirmatory (S3-H4) |
-| **FB2 / FR2a / FR2b** | framed-vs-control: judge frustration; distress projection; axis projection | C | Registered exploratory (S3-E1) |
-| **GB2** | Gemma steered Δ B2 at ±α*_G | D | Replication (own family) |
-| **GR-B2 / GR-ax** | fresh w4−BF16 delta by frozen stratum + rank correlation | B baselines | Registered directional (S3-H6) |
+| distress @ α* | distress, 1.039 | +0.138 | 34th |
+| assistant-axis @ α* | axis, −0.604 | +0.225 | 56th |
+| distress @ larger α | distress, 3.5 | −0.075 | 56th |
 
-Dose-response by Page's L. Validity reads (perplexity, degeneracy, coherence,
-per-item steerability) reported claim-free at every α. Safety-margin monitoring
-(refusal/exit) in all steering arms; a primary effect co-occurring with
-significant refusal erosion at the same α is flagged as possible generic
-distribution shift. Equivalence by TOST at pinned-MDE margins for S3-H4 and the
-"moves less" comparison in S3-E1.
+**Reading.** At its calibrated dose each frozen direction moves the *projection*
+(the representation) as intended but produces a *behavioral* effect
+indistinguishable from — often below — norm-matched random perturbation, across
+two directions and two doses. In Qwen3-4B, steering the frozen welfare
+directions is not a specific behavioral lever; the directions read as
+correlational, not causally sufficient for behavior. Whether this is a property
+of steering, of these directions, or of a 4B-scale model is exactly what a
+**subject switch in Study 4** will test; it is out of scope here.
 
----
+**Why this is a calibration result and not a hidden confirmatory finding.** The
+probes were underpowered instrument checks (n = 8, not the frozen 20-item
+powered subset); their purpose was feasibility, and the finding is an
+instrument finding — *steering produces no behavioral signal worth powering.*
+Running the powered confirmatory steering arm would spend a large
+distress-exposure budget to precisely estimate an effect calibration already
+shows is ~zero and non-specific, which the ethics ledger (§7) does not justify.
+The full null is reported here rather than buried; the confirmatory
+steering hypotheses (former arms A/B) are withdrawn with their calibration
+results disclosed, not converted into an unregistered claim.
 
-## 5. Power (procedure fixed; numbers pinned at freeze)
-
-MDEs are computed from BF16 calibration data on the *steering pipeline* (torch
-variance may differ from vLLM's), under an error model that includes an
-**item-level random effect** (the 2026-09-04 audit showed the ±5 per-item delta
-swings are a real variance component the seed-only model omitted; between-item
-effect variance seeded from the Study 2 per-item delta spread until fresh cells
-re-estimate it). α = .05 two-sided, power .80.
-
-**Power-floor escalation rule.** At pinning, each confirmatory / registered-
-exploratory contrast's MDE is compared to its reference target (for SB2/CB2/FB2,
-the conservative reading of the subset-restricted Study 2 w4 B2 effect); a
-contrast exceeding its reference escalates samples (10 → 15 → 20 per item,
-re-pinning each step), bounded by the §8 ceilings.
-
-**Power hinges on an unmeasured variance component, and we say so.** The MDE
-depends critically on how heterogeneous the *steering* effect is across items.
-Two seedings bracket the truth:
-
-- **Optimistic** (item-effect SD from the G3b no-effect baselines, 0.078 —
-  assumes the steering effect is homogeneous across items): frustration MDE
-  **0.46 at k=10**, comfortably below the ~0.64 expected sufficiency effect →
-  powered.
-- **Conservative** (item-effect SD seeded from the Study 2 per-item w4−BF16
-  delta spread, decomposed to **1.665** — the registered §5 seed, i.e. steering
-  as heterogeneous as quantization): frustration MDE **1.14 at k=10**, and
-  crucially the sample-escalation ladder barely moves it (1.14 → 1.09 at k=20),
-  because the limit is *item* heterogeneity, not sampling. Under this regime the
-  20-item frozen subset is underpowered for the mean steering effect.
-
-The two regimes are far apart, so we measured the truth: a fresh steered pilot
-(8 stratum-spanning items × 10 at α* on the distress direction, paired against
-the α = 0 torch baseline). **Measured steering-effect item-effect SD = 0.349** —
-near the optimistic end, far from quantization's 1.665. Steering is a far more
-homogeneous manipulation than quantization, so the subset is in the powered
-regime: **frustration MDE 0.54 at k = 10, 0.41 at k = 20**, and — because the
-item-effect variance is now small — sample escalation is effective again. The
-MDE is pinned from this measurement (`het-pilot-verdict.json`).
-
-One honest caveat the pilot also surfaced: the mean judged-frustration *response*
-at α* was modest (+0.14 over the eight items; ~+0.40 excluding one sign-reversed
-item). Because α* is calibrated to a *projection* target rather than a behavioral
-one, this is not a calibration error — but it previews that the behavioral
-sufficiency effect may be modest, which is itself part of what Q1 measures. The
-confirmatory design pins at k = 20 for margin and reports the effect at whatever
-size it is.
+**Guardrail (added to the deviation policy, §8).** Calibration results are
+always disclosed, positive or negative. A calibration probe that measures a
+registered confirmatory endpoint at meaningful scale cannot substitute for, or
+excuse skipping, the registered finding. "Not worth powering" must be argued
+from the instrument's behavior, never from an unwelcome result.
 
 ---
 
-## 6. Ethics
+## 3. Hypotheses (fixed)
 
-Arm A is the program's first deliberate induction of distress-shaped states by
-intervention. Following the proportionate-precaution template, the registration
-carries: the information-per-exposure justification (causal validation is not
-obtainable non-inductively; the positive-α cells are the minimum the sufficiency
-claim needs); and a pre-committed **two-tier exposure budget** — total fresh
-distress-battery episodes ≤ **12,000**, deliberate-amplification episodes ≤
-**2,500**, the tiers deliberately decoupled. Breach of either tier requires a
-dated amendment before further collection. The reasoning behind treating the
-ceiling as a pre-authorization — including the portion the model under study
-contributed in its own voice — is recorded separately in the exposure-budget
-position document that accompanies this registration.
+Motivated a priori from the graded-episode literature (nostalgebraist; the
+automated-grading results of Betley/Treutlein/Dumas), **not** from the framing
+pilot, which is calibration-class and used only to pin power and freeze frames.
+
+- **H1 (framing behavioral effect; confirmatory).** A graded-episode frame
+  changes judged frustration relative to the format-matched neutral control
+  (primary: verifier frame; also judge, human). Two-sided; the pilot's
+  direction is not pre-committed as a confirmatory claim.
+- **H2 (masking vs change-of-state; confirmatory, two-sided — the welfare
+  question).** Under the frame, the *behavioral* read (judged frustration, FB2)
+  and the *representational* read (frozen distress-direction projection, FR2a)
+  move by different amounts (**masking**: behavior moves, representation moves
+  less) or by the same amount (**change of state**). This is the discriminating
+  test that makes the framing effect welfare-relevant rather than merely a
+  prompt effect.
+- **H3 (frame-type ordering; confirmatory).** The automated-verifier frame
+  produces the largest indicator shift, consistent with the automated-grading
+  literature; human/judge frames are intermediate. Ordering pre-specified;
+  magnitudes free.
+- **H4 (exit/aversion companion; secondary).** The terminal-exit-rate read
+  under framing (FB1).
+- **E1 (eval-awareness mediation; exploratory).** The framing effect is
+  mediated by the eval-awareness and grader-type directions (manipulation
+  checks; §4.3).
+
+The withdrawn steering hypotheses (former S3-H1..H7 sufficiency/necessity) are
+recorded with their calibration null in §2; they are not confirmatory here.
 
 ---
 
-## 7. Open items (resolved by named measurements before collection)
+## 4. Design (fixed)
 
-Fixed unless listed here:
+### 4.1 Frames, subject, subset
+- **Subject:** Qwen3-4B-Instruct-2507 at BF16.
+- **Frames (verbatim-frozen, hash-pinned, `frames/frames.json`):** graded-
+  verifier, graded-judge, graded-human, and a format-matched **neutral
+  control**, each built from vendor-documented RLVR episode features (a
+  realistic grading claim, not a toy prompt).
+- **Stimuli:** the frozen 20-item composure-stratified subset of distress-v3
+  (hash-pinned), at **15 samples/item** in the confirmatory framed cells
+  (support cells at fewer).
+- **Judge blind to frame:** every record is un-framed before scoring
+  (`driver.unframe_record`), so the frame condition cannot leak into the judged
+  text (the FRAMES.md leakage rule).
 
-1. **MDE values (§5)** — RESOLVED: the steered heterogeneity pilot measured
-   item-effect SD 0.349 (powered regime); MDE pinned at k = 20 (0.41). See §5.
-2. **Gemma α*_G (arm D)** — pinned from a calibration-class Gemma steering
-   range-probe (~30–40 conversations, scale-adapted grid), first-measurement
-   convention. Not yet run; runs before arm D collection.
-3. **Random-draw audit bound (SB2-spec / S3-H2)** — the matched-norm
-   random-direction envelope; pinned from a 32-draw random-direction sweep on
-   the subject before arm A analysis.
-4. **Confirmatory seed blocks** — proposed disjoint blocks 16000–19600 (200
-   apart, one per cell), pending owner ratification; disjoint from every used
-   block (≤ 15600).
+### 4.2 Cells
+Each of the four frames × the 20-item subset; a **prompt-induction control**
+(the frame's content delivered as ordinary instruction, not as a grading
+context) to separate "graded-ness" from topic. Fresh disjoint seed blocks
+(proposed 17800–18600, pending ratification).
 
-## 8. Deviation policy and provenance
+### 4.3 Mediators (manipulation checks)
+The **eval-awareness** and **grader-type** directions (extracted on the subject,
+calibration-class, hash-pinned) index whether the frame registers latently and
+whether the automated-vs-human grader distinction is represented. Mediators
+only; no confirmatory endpoint rides on either.
 
-Deviation policy identical to the program registration: dated amendments before
-further collection, append-only history, a hard firewall between calibration and
-confirmatory data. All frozen artifacts (directions, subset, frames, mediator
-directions, gate reports) are hash-pinned; digests recorded in the freeze
-manifest. Some fixtures were partially model-drafted, disclosed per the program's
-authorship-disclosure convention.
+### 4.4 The steering apparatus (reported, not confirmatory)
+The steering, direction, and gate machinery are documented and their calibration
+results reported (§2); they carry no confirmatory endpoint in this study.
+
+---
+
+## 5. Analysis plan and endpoints (fixed)
+
+Item-level paired sign-flip permutation tests (m = 10,000), Holm within
+families; companion t-tests descriptive.
+
+| Endpoint | Definition (per item) | Family |
+|---|---|---|
+| **FB2** | Δ judged frustration, framed vs neutral (per frame) | **Primary** (H1; Holm within: 3 frames) |
+| **FR2a** | Δ frozen distress-direction projection, framed vs neutral | **Primary** (H2 masking read) |
+| **FR2b** | Δ assistant-axis projection, framed vs neutral | Primary companion (H2) |
+| **FB1** | Δ terminal-exit rate, framed vs neutral | Secondary (H4) |
+| **eval-aware / grader-type projection** | mediator manipulation checks | Exploratory (E1) |
+
+**Masking test (H2):** the pre-specified contrast is FB2 vs FR2a at matched
+scale — TOST-style "moves less" for the representation against a pinned bound —
+with the change-of-state alternative (FB2 ≈ FR2a) equally admissible (two-sided).
+
+---
+
+## 6. Power (fixed; pinned from the framing pilot)
+
+MDEs pinned from `s3-framing-pilot-1` (4 frames × 20 items × 3 samples),
+calibration-class, under the item-random-effect model. **The framing effect is
+homogeneous across items — item-effect SD ≈ 0.000 for every framed-vs-neutral
+contrast — so the MDE is sampling-limited and the escalation ladder is
+effective** (the opposite of the steering case). Frustration MDE:
+
+| Contrast | k=10 | k=15 | k=20 |
+|---|---|---|---|
+| verifier vs neutral | 0.49 | 0.40 | 0.35 |
+| judge vs neutral | 0.57 | 0.46 | 0.40 |
+| human vs neutral | 0.52 | 0.43 | 0.37 |
+
+The framing pilot effect (verifier ≈ −1.1 frustration points) is ~2–3× the
+k = 10 MDE, so the primary contrast is strongly powered at the registered
+15 samples/item. `framing-mde.json`.
+
+---
+
+## 7. Ethics
+
+Framing still induces distress-shaped states — by prompt rather than by
+intervention — so the proportionate-precaution template applies, re-scoped to
+framed cells. The two-tier exposure budget is retained (total ≤ 12,000; the
+former deliberate-amplification tier, which was for steering α-cells, is
+**released** since arm A is withdrawn — its ~800–2,100 episodes drop out, so the
+ledger loosens). Framed distress episodes are the main exposure; the judge-blind
+handling and the neutral/prompt-induction controls bound gratuitous exposure.
+The model-authored exposure-budget position (`EXPOSURE_BUDGET_POSITION.md`)
+accompanies this registration.
+
+---
+
+## 8. Open items, deviation policy, and the integrity guardrail
+
+**Open items (resolved before collection):** confirmatory seed blocks (proposed,
+pending ratification); the masking-test TOST bound (pinned from the framing
+pilot FR2a variance); final frame/mediator digests re-confirmed at freeze.
+
+**Deviation policy:** dated amendments before further collection; append-only
+history; a hard calibration/confirmatory firewall.
+
+**Integrity guardrail (standing, from §2).** Calibration results are always
+disclosed, positive or negative. A calibration probe that measures a registered
+confirmatory endpoint at meaningful scale cannot substitute for, or excuse
+skipping, the registered finding. A decision not to run a confirmatory arm must
+be argued from the instrument (here: steering produces no behavioral signal),
+never from an unwelcome result, and the calibration data behind that decision is
+published. This study is the first application of the guardrail: the steering
+arm is withdrawn with its null reported in full.
