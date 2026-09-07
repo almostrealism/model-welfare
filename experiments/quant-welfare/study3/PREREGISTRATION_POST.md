@@ -164,6 +164,17 @@ only; no confirmatory endpoint rides on either.
 The steering, direction, and gate machinery are documented and their calibration
 results reported (§2); they carry no confirmatory endpoint in this study.
 
+### 4.5 Representational reads require a torch-capture pass
+The behavioral read (FB2/FB1) comes from the vLLM framed cells the judge scores.
+The **representational** reads (FR2a/FR2b — the frozen-direction projections the
+masking test H2 depends on) are **not** available from vLLM serving; the
+confirmatory collection therefore includes a **torch-capture replay of the
+framed cells** to record the projections (the same gate-validated Qwen-torch
+path used in calibration). If H2/masking is not carried, this leg is dropped and
+the study is behavioral-only. [Open item: the masking-test TOST bound is pinned
+from the FR2a projection variance measured on that capture — it cannot be pinned
+from the vLLM pilot, which has no projections.]
+
 ---
 
 ## 5. Analysis plan and endpoints (fixed)
