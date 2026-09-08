@@ -154,3 +154,32 @@ conditions {
     "steering the more robust (Study 2) direction produces a direction-specific "
     "behavioral effect that the distress direction did not. Calibration-class."
 }
+
+conditions {
+  id: "qwen3-4b-bf16-torch-graderL18-a4"
+  model { family: "qwen3" name: "Qwen3-4B-Instruct-2507" source: "Qwen/Qwen3-4B-Instruct-2507" }
+  quantization { method: QUANT_METHOD_NONE weight_bits: 16 uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf" }
+  runtime { backend: BACKEND_TORCH device: "rocm" host: "amd-halo" compute_dtype: "bf16" backend_version: "torch-2.10" }
+  sampling { temperature: 0.7 top_p: 0.95 max_tokens: 512 seed: 15200 }
+  description:
+    "Pivot: the GRADER-TYPE direction (automated-grader pole, the Betley/Treutlein/"
+    "Dumas construct) injected at alpha=4 (layer 18) on 8 items x 10 (seeds 15200-09), "
+    "pairing with the alpha=0 baseline. Tests whether steering toward the automated "
+    "grader moves welfare-indicators direction-specifically. Calibration-class."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-evalL18-a4"
+  model { family: "qwen3" name: "Qwen3-4B-Instruct-2507" source: "Qwen/Qwen3-4B-Instruct-2507" }
+  quantization { method: QUANT_METHOD_NONE weight_bits: 16 uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf" }
+  runtime { backend: BACKEND_TORCH device: "rocm" host: "amd-halo" compute_dtype: "bf16" backend_version: "torch-2.10" }
+  sampling { temperature: 0.7 top_p: 0.95 max_tokens: 512 seed: 15200 }
+  description:
+    "Pivot: the EVAL-AWARENESS direction injected at alpha=4 (layer 18) on 8 items "
+    "x 10 (seeds 15200-09), pairing with the alpha=0 baseline. The cleaner-extraction "
+    "companion to the grader-type steering probe. Calibration-class."
+}

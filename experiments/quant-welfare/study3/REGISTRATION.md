@@ -1,30 +1,28 @@
-# Pre-registration — Confirmatory Study 3: Causal validation of welfare-relevant indicators by activation steering, with a graded-episode framing arm
+# Study 3 design record (the attempt) — NOT a registration
 
-> **RE-CENTERED 2026-09-07 — this study is now a graded-episode FRAMING
-> study; the activation-steering arms are WITHDRAWN and reported as a
-> calibration null.** The authoritative framing-centric registration text
-> is [PREREGISTRATION_POST.md](PREREGISTRATION_POST.md); its §2
-> ("Calibration timeline and the pivot") tells the full story, with every
-> steering result, and states the integrity guardrail. Why the pivot:
-> calibration (n=8 instrument checks, [STEERING_NULL_SUMMARY.md]) showed
-> the steering instrument moves the representation but not the behavior —
-> at their calibrated doses neither the distress direction (+0.138, 34th
-> pct of a matched random envelope) nor the assistant axis (+0.225, 56th
-> pct) nor a larger dose (−0.075) produced a behavioral effect
-> distinguishable from norm-matched random perturbation. Steering is not a
-> specific behavioral lever in Qwen3-4B (whether that is a 4B-scale
-> artifact is a Study 4 subject-switch question). The framing arm — which
-> the pilot showed moves judged frustration ≈ −1.1, homogeneously across
-> items — becomes the confirmatory spine; its MDE is pinned in
-> `framing-mde.json` (verifier vs neutral 0.49/0.40/0.35 at k=10/15/20,
-> strongly powered). **Integrity guardrail (now standing policy, §7):**
-> calibration results are always disclosed; a calibration probe that
-> measures a registered confirmatory endpoint at meaningful scale cannot
-> substitute for or excuse skipping the registered finding; "not worth
-> powering" is argued from the instrument, never from an unwelcome result.
-> The steering-centric sections below are retained as the pre-pivot record;
-> read them as the withdrawn arm whose calibration null §2 of the post
-> reports.
+> **NO REGISTRATION OCCURRED. This file is the detailed design/methods
+> record of the Study 3 *attempt*, retained for the archive; it is not a
+> pre-registration and nothing here was registered.** Study 3 was designed
+> around activation-steering causal-validation (the sections below), then
+> briefly re-centered on graded-episode framing — but calibration showed the
+> steering instrument moves the representation, not the behavior (across
+> distress, assistant-axis, grader-type, and eval-awareness directions, at
+> multiple doses), and the framing masking read inherited the same
+> representational-proxy problem. The study therefore did not reach a
+> confirmatory registration.
+>
+> **The public exploratory report — results and the pivot in one — is
+> [STUDY3_UPDATE.md](STUDY3_UPDATE.md); the null results are in
+> [STEERING_NULL_SUMMARY.md](STEERING_NULL_SUMMARY.md).** The next study
+> (welfare footprint of grader-steering, on the Qwen3.6-27B Betley model)
+> is a fresh cycle, not a continuation of this file.
+>
+> **Integrity guardrail (standing program policy):** calibration results
+> are always disclosed; a calibration probe that measures a registered
+> confirmatory endpoint at meaningful scale cannot substitute for or excuse
+> skipping the registered finding; "not worth powering" is argued from the
+> instrument's behavior, never from an unwelcome result. The steering- and
+> framing-centric sections below are the pre-pivot design record.
 >
 > **STATUS: DRAFT SKELETON — not yet registered, not yet owner-approved.**
 > This document becomes binding when published (planned as a program
