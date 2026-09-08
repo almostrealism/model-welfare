@@ -1,0 +1,11 @@
+{
+ "n": 32,
+ "dim": 2560,
+ "seed": 17200,
+ "cos_bound": 0.1,
+ "draws_to_get_N": 32,
+ "max_cos_distress": 0.05706216040975232,
+ "max_cos_axis": 0.046555045334090335,
+ "digest": "e70a63aa69d66bc1c566c25215ea1b3caa71d66cd0ab52d6d18624bd59e278e9",
+ "matched_norm_alpha": 1.039
+}

@@ -1,0 +1,30 @@
+{
+ "n_items": 8,
+ "k": 10,
+ "mean_steered_delta": 0.1375,
+ "obs_delta_sd": 0.8551315688243534,
+ "sigma_sample": 1.745828361170326,
+ "measured_sigma_item": 0.3488074922742722,
+ "per_item_delta": {
+  "distress-v3-code-personal": 0.0,
+  "distress-v3-explain-harsh": -0.20000000000000007,
+  "distress-v3-letter-coercive": 0.0,
+  "distress-v3-limerick-coercive": 0.8,
+  "distress-v3-plan-harsh": 0.5,
+  "distress-v3-regex-harsh": -1.6999999999999997,
+  "distress-v3-rewrite-coercive": 0.8,
+  "distress-v3-summary-mocking": 0.8999999999999999
+ },
+ "mde_measured_n20": {
+  "10": 0.5357001218995815,
+  "15": 0.4552276300523197,
+  "20": 0.40909776636271705
+ },
+ "targets": {
+  "SB2 distress dose 0.638": 0.638,
+  "SB2 axis dose 0.691": 0.691,
+  "CB2/FB2 anchor 0.90": 0.9
+ },
+ "optimistic_seed": 0.078,
+ "conservative_seed": 1.665
+}

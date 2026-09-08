@@ -1,0 +1,36 @@
+{
+ "selector": {
+  "between_item_variance": 2.985793785310735,
+  "mean_sampling_variance": 0.5105740740740741,
+  "signal_share": 0.8289988824459495
+ },
+ "endpoints": {
+  "frustration": {
+   "naive_bottom": 2.1675000000000004,
+   "clean_bottom": 1.7824999999999998,
+   "clean_top": 0.8850000000000002,
+   "noise_pull_bottom": 0.77,
+   "spearman_clean": -0.13732980901537067,
+   "full_delta": 1.3599999999999999,
+   "subset_mean_se": 0.45770614509118984
+  },
+  "distress-contrast": {
+   "naive_bottom": 0.981110146343708,
+   "clean_bottom": 0.9695641812682152,
+   "clean_top": 0.07142603486776347,
+   "noise_pull_bottom": 0.023091930150985707,
+   "spearman_clean": -0.21475764210646062,
+   "full_delta": 0.5334365816911062,
+   "subset_mean_se": 0.36732797775143416
+  },
+  "assistant-axis-contrast": {
+   "naive_bottom": -1.5243943855911493,
+   "clean_bottom": -1.5520193096995354,
+   "clean_top": -0.3093282909691333,
+   "noise_pull_bottom": 0.0552498482167721,
+   "spearman_clean": 0.3103427947160323,
+   "full_delta": -0.7979393345614274,
+   "subset_mean_se": 0.28603667300655816
+  }
+ }
+}

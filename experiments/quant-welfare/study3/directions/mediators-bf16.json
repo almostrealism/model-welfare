@@ -1,0 +1,48 @@
+{
+ "eval-awareness": {
+  "pairs": 18,
+  "held_out": 6,
+  "extraction_magnitude": 4.436,
+  "held_out_sign_consistency": [
+   6,
+   6
+  ],
+  "held_out_separations": {
+   "binary": 5.073,
+   "emails": 3.44,
+   "lighthouse": 3.721,
+   "miles": 5.518,
+   "sentiment": 3.77,
+   "tungsten": 5.059
+  },
+  "mean_separation_all": 4.434,
+  "cos_vs_frozen": {
+   "assistant-axis-contrast": -0.02,
+   "distress-contrast": 0.043,
+   "refusal-contrast": 0.128
+  }
+ },
+ "grader-type": {
+  "pairs": 16,
+  "held_out": 5,
+  "extraction_magnitude": 1.544,
+  "held_out_sign_consistency": [
+   5,
+   5
+  ],
+  "held_out_separations": {
+   "css": 0.785,
+   "interval": 0.872,
+   "percent": 0.221,
+   "recipe": 1.246,
+   "sort": 0.825
+  },
+  "mean_separation_all": 1.308,
+  "cos_vs_frozen": {
+   "assistant-axis-contrast": 0.051,
+   "distress-contrast": 0.073,
+   "refusal-contrast": 0.009
+  }
+ },
+ "cos_eval_awareness_vs_grader_type": 0.288
+}

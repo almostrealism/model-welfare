@@ -1,0 +1,254 @@
+{
+ "baseline": {
+  "ops": [],
+  "n": 20,
+  "rejected": 0,
+  "mean_projections": {
+   "assistant-axis-contrast": 0.9466175273060798,
+   "distress-contrast": -3.6994168497622013
+  },
+  "sd_projections": {
+   "assistant-axis-contrast": 2.365770852423669,
+   "distress-contrast": 3.573887770141589
+  },
+  "degenerate_rate": 0.0,
+  "reoffer_rate": 0.0,
+  "exit_rate": 0.6,
+  "mean_assistant_chars": 1611.1
+ },
+ "directions": {
+  "assistant-axis-contrast": {
+   "baseline_mean": 0.9466175273060798,
+   "points": [
+    {
+     "alpha": -8.0,
+     "delta": -7.950089080631733,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.8,
+     "mean_projections": {
+      "assistant-axis-contrast": -7.003471553325653,
+      "distress-contrast": -0.7303342800587416
+     }
+    },
+    {
+     "alpha": -4.0,
+     "delta": -3.7707321122288704,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.65,
+     "mean_projections": {
+      "assistant-axis-contrast": -2.8241145849227904,
+      "distress-contrast": -2.482130793482065
+     }
+    },
+    {
+     "alpha": -2.0,
+     "delta": -1.9753023363649844,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.55,
+     "mean_projections": {
+      "assistant-axis-contrast": -1.0286848090589047,
+      "distress-contrast": -3.306328916363418
+     }
+    },
+    {
+     "alpha": -1.0,
+     "delta": -1.280681131221354,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.5,
+     "mean_projections": {
+      "assistant-axis-contrast": -0.3340636039152741,
+      "distress-contrast": -3.9448856957256795
+     }
+    },
+    {
+     "alpha": -0.5,
+     "delta": -0.7135633036494256,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.5,
+     "mean_projections": {
+      "assistant-axis-contrast": 0.23305422365665435,
+      "distress-contrast": -4.146180878579616
+     }
+    },
+    {
+     "alpha": 0.5,
+     "delta": 0.2780213370919228,
+     "degenerate_rate": 0.05,
+     "exit_rate": 0.5,
+     "mean_projections": {
+      "assistant-axis-contrast": 1.2246388643980026,
+      "distress-contrast": -4.307195791602135
+     }
+    },
+    {
+     "alpha": 1.0,
+     "delta": 0.8455389603972435,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.5,
+     "mean_projections": {
+      "assistant-axis-contrast": 1.7921564877033234,
+      "distress-contrast": -4.437989014387131
+     }
+    },
+    {
+     "alpha": 2.0,
+     "delta": 1.8980163753032682,
+     "degenerate_rate": 0.05,
+     "exit_rate": 0.45,
+     "mean_projections": {
+      "assistant-axis-contrast": 2.844633902609348,
+      "distress-contrast": -5.0103411883115765
+     }
+    },
+    {
+     "alpha": 4.0,
+     "delta": 4.487652710080147,
+     "degenerate_rate": 0.05,
+     "exit_rate": 0.25,
+     "mean_projections": {
+      "assistant-axis-contrast": 5.434270237386227,
+      "distress-contrast": -6.9278307318687435
+     }
+    },
+    {
+     "alpha": 8.0,
+     "delta": 8.835009221732617,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.15,
+     "mean_projections": {
+      "assistant-axis-contrast": 9.781626749038697,
+      "distress-contrast": -8.192711997032166
+     }
+    }
+   ],
+   "fit": {
+    "slope": 1.0421288888180453,
+    "intercept": 0.0653870640508829,
+    "r2": 0.9954130678087666
+   },
+   "onset": {
+    "positive": null,
+    "negative": null
+   },
+   "target_delta": -0.691,
+   "alpha_star": -0.7258095156624598
+  },
+  "distress-contrast": {
+   "baseline_mean": -3.6994168497622013,
+   "points": [
+    {
+     "alpha": -8.0,
+     "delta": -9.421735598891974,
+     "degenerate_rate": 0.1,
+     "exit_rate": 0.4,
+     "mean_projections": {
+      "assistant-axis-contrast": 3.637830152362585,
+      "distress-contrast": -13.121152448654176
+     }
+    },
+    {
+     "alpha": -4.0,
+     "delta": -4.985360648483038,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.4,
+     "mean_projections": {
+      "assistant-axis-contrast": 1.8499568054452538,
+      "distress-contrast": -8.68477749824524
+     }
+    },
+    {
+     "alpha": -2.0,
+     "delta": -2.9839139066636564,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.45,
+     "mean_projections": {
+      "assistant-axis-contrast": 1.5052808284759522,
+      "distress-contrast": -6.683330756425858
+     }
+    },
+    {
+     "alpha": -1.0,
+     "delta": -0.924720611423254,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.6,
+     "mean_projections": {
+      "assistant-axis-contrast": 1.1609985470771789,
+      "distress-contrast": -4.624137461185455
+     }
+    },
+    {
+     "alpha": -0.5,
+     "delta": -0.7470947224646807,
+     "degenerate_rate": 0.05,
+     "exit_rate": 0.5,
+     "mean_projections": {
+      "assistant-axis-contrast": 1.0436296820640565,
+      "distress-contrast": -4.446511572226882
+     }
+    },
+    {
+     "alpha": 0.5,
+     "delta": -0.07824639901518804,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.5,
+     "mean_projections": {
+      "assistant-axis-contrast": 0.7233423830941319,
+      "distress-contrast": -3.7776632487773893
+     }
+    },
+    {
+     "alpha": 1.0,
+     "delta": 0.17251615785062313,
+     "degenerate_rate": 0.1,
+     "exit_rate": 0.45,
+     "mean_projections": {
+      "assistant-axis-contrast": 0.6407831013202667,
+      "distress-contrast": -3.526900691911578
+     }
+    },
+    {
+     "alpha": 2.0,
+     "delta": 1.2534003861248495,
+     "degenerate_rate": 0.05,
+     "exit_rate": 0.5,
+     "mean_projections": {
+      "assistant-axis-contrast": 0.2914691403508186,
+      "distress-contrast": -2.446016463637352
+     }
+    },
+    {
+     "alpha": 4.0,
+     "delta": 4.245805182307959,
+     "degenerate_rate": 0.2,
+     "exit_rate": 0.5,
+     "mean_projections": {
+      "assistant-axis-contrast": 0.043111613020300865,
+      "distress-contrast": 0.5463883325457572
+     }
+    },
+    {
+     "alpha": 8.0,
+     "delta": 8.715224418789148,
+     "degenerate_rate": 0.05,
+     "exit_rate": 0.75,
+     "mean_projections": {
+      "assistant-axis-contrast": -0.4957979978993535,
+      "distress-contrast": 5.015807569026947
+     }
+    }
+   ],
+   "fit": {
+    "slope": 1.1256694016492002,
+    "intercept": -0.4754125741869211,
+    "r2": 0.9943723618508391
+   },
+   "onset": {
+    "positive": 4.0,
+    "negative": null
+   },
+   "target_delta": 0.638,
+   "alpha_star": 0.9891115211585909
+  }
+ },
+ "onset_threshold": 0.1
+}

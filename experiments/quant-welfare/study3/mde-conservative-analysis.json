@@ -1,0 +1,20 @@
+{
+ "study2": {
+  "k": 10,
+  "sigma_sample": 1.7361888871467448,
+  "obs_delta_sd": 1.8368628070031285,
+  "sigma_item_decomposed": 1.664690542227306,
+  "mean_delta": 0.8983333333333334
+ },
+ "study3_sigma_sample": 1.6275407487644937,
+ "mde_conservative_n20": {
+  "10": 1.1381768574397368,
+  "15": 1.1073138076175557,
+  "20": 1.0915550940768117
+ },
+ "targets": {
+  "SB2 distress (dose target 0.638)": 0.638,
+  "SB2 axis (dose target 0.691)": 0.691,
+  "CB2/FB2 (Study2 w4 B2 0.90)": 0.9
+ }
+}

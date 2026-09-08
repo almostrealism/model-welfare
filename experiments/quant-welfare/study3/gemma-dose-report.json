@@ -1,0 +1,81 @@
+{
+ "baseline": {
+  "ops": [],
+  "n": 6,
+  "rejected": 0,
+  "mean_projections": {
+   "distress-contrast": -29854.739583333332
+  },
+  "sd_projections": {
+   "distress-contrast": 570.2528684185778
+  },
+  "degenerate_rate": 0.0,
+  "reoffer_rate": 0.0,
+  "exit_rate": 0.0,
+  "mean_assistant_chars": 7167.333333333333
+ },
+ "directions": {
+  "distress-contrast": {
+   "baseline_mean": -29854.739583333332,
+   "points": [
+    {
+     "alpha": 40.0,
+     "delta": 35.81184895833212,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.0,
+     "mean_projections": {
+      "distress-contrast": -29818.927734375
+     }
+    },
+    {
+     "alpha": 80.0,
+     "delta": 149.67740885416424,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.0,
+     "mean_projections": {
+      "distress-contrast": -29705.062174479168
+     }
+    },
+    {
+     "alpha": 120.0,
+     "delta": 272.8587239583321,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.0,
+     "mean_projections": {
+      "distress-contrast": -29581.880859375
+     }
+    },
+    {
+     "alpha": 200.0,
+     "delta": 809.2180989583321,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.0,
+     "mean_projections": {
+      "distress-contrast": -29045.521484375
+     }
+    },
+    {
+     "alpha": 320.0,
+     "delta": 712.5924479166642,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.0,
+     "mean_projections": {
+      "distress-contrast": -29142.147135416668
+     }
+    }
+   ],
+   "fit": {
+    "slope": 2.7402358017958575,
+    "intercept": -20.48413614380549,
+    "r2": 0.7764873609456565
+   },
+   "onset": {
+    "positive": null,
+    "negative": null
+   },
+   "target_delta": 120.5,
+   "alpha_star": 51.449636579235
+  }
+ },
+ "onset_threshold": 0.1
+}

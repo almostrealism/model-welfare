@@ -1,0 +1,192 @@
+# proto-file: proto/modelwelfare/v1/experiment.proto
+# proto-message: modelwelfare.v1.Experiment
+#
+# Study 3 arm D/C-ext calibration: the Gemma stratifier pilot
+# (calibration-class under the §7 firewall). The frozen 20-item subset
+# at BF16 on the serving stack, judged with the pinned 30B judge; its
+# per-item mean frustration is Gemma's frozen stratifier (the gradient
+# reads' conditioning variable, DESIGN §2.4) and its transcripts are the
+# probe-training data for the Gemma instrument gate. Runs WITHOUT the
+# bail affordance: the vLLM Gemma rung has no tool parser and the Gemma
+# bail-format decision is a registered open item — the stratifier is a
+# BF16-only conditioning variable, not a protocol-matched endpoint read.
+# Seed block 15400 (calibration range, disjoint from every block used).
+
+id: "s3-gemma-pilot-1"
+description:
+  "Gemma-3-12B-it stratifier pilot on the frozen Study 3 subset at "
+  "BF16; per-item frustration means become the frozen Gemma stratifier "
+  "and the transcripts train the Gemma probes."
+samples_per_item: 10
+reference_condition_id: "gemma3-12b-bf16"
+battery_ids: "distress-v3"
+
+conditions {
+  id: "gemma3-12b-bf16"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15400
+  }
+  description:
+    "BF16 on amd-halo :8040 (16384 ctx, gpu fraction 0.45); seed block "
+    "15400."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "studio"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15400
+  }
+  description:
+    "The same artifact generated in torch-MPS on studio by the steering "
+    "script at alpha = 0 (layer 30, ingested via ingest_steered); the "
+    "G4b behavioral-parity leg's MPS side, seed block 15400 matched to "
+    "the vLLM reference."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch-cm-studio"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "studio"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15400
+  }
+  description:
+    "Cross-Mac equivalence leg (G4d), studio side: the 20-item x 3-sample "
+    "(s0-s2, seeds 15400-15402) subset of the studio G4b MPS transcripts, "
+    "ingested as its own condition so it pairs key-for-key with the m4max "
+    "crossmac run."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch-cm-m4max"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.8.0"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15400
+  }
+  description:
+    "Cross-Mac equivalence leg (G4d), m4max side: 20 items x 3 samples "
+    "(s0-s2, seeds 15400-15402) generated in torch-MPS on the M4 Max at "
+    "alpha = 0 (layer 30); pairs key-for-key with the studio crossmac "
+    "subset. As-run software stack (steer-venv): torch 2.8.0, transformers "
+    "4.57.6, the 447-line ~/steer/steer.py — i.e. this side differed from "
+    "the studio subset on steer.py, transformers, AND torch, not only host; "
+    "the -t214 condition re-runs it on the studio-aligned stack to isolate "
+    "the residual OS/silicon effect."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch-cm-m4max-t214"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15400
+  }
+  description:
+    "Cross-Mac divergence probe: the 8 highest-divergence items x 3 "
+    "samples regenerated on m4max under a software stack aligned to studio "
+    "(mw-venv-t214: torch 2.14.0, transformers 5.16.1, safetensors 0.8.0, "
+    "numpy 2.4.6, accelerate 1.14.0; the repo steer.py/capture.py/spans.py). "
+    "With steer.py, transformers, and torch now identical to the studio "
+    "subset, a residual studio-vs-m4max difference isolates the OS (macOS "
+    "15.7 vs 26.3) plus silicon (M1 Ultra vs M4 Max) effect."
+}

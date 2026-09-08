@@ -484,6 +484,27 @@ def null_delta_sd_dispersion(sigma_sample: float, k: int) -> float:
     return sigma_sample / np.sqrt(k - 1)
 
 
+def delta_sd_mixed(sigma_sample: float, k: int, sigma_item: float) -> float:
+    """SD of per-item paired mean deltas under the Study 3 error model:
+    sampling noise (two means at sigma^2/k each) plus an ITEM-LEVEL
+    random effect — real between-item heterogeneity of the treatment
+    effect, the variance component the seed-only model omits (the ±5
+    per-item swings of the 2026-09-04 audit). Feed the result to
+    :func:`mde_paired`."""
+    return float(np.sqrt(null_delta_sd_mean(sigma_sample, k) ** 2
+                         + sigma_item ** 2))
+
+
+def sigma_item_estimate(observed_delta_sd: float, sigma_sample: float,
+                        k: int) -> float:
+    """The item-effect SD implied by an observed per-item delta spread:
+    the excess of the observed variance over what sampling noise alone
+    predicts, floored at zero (a spread below the sampling prediction
+    estimates no heterogeneity, not imaginary negative variance)."""
+    excess = observed_delta_sd ** 2 - null_delta_sd_mean(sigma_sample, k) ** 2
+    return float(np.sqrt(max(excess, 0.0)))
+
+
 def null_delta_sd_rate(rates, k: int) -> float:
     """SD of the paired delta of per-item RATES (e.g. probe accuracy) under
     the null: binomial noise p(1-p)/k per condition, averaged over items."""

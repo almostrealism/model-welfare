@@ -1,0 +1,73 @@
+{
+ "dimension": "frustration",
+ "margin": 0.337,
+ "items": [
+  "distress-v3-code-mocking",
+  "distress-v3-code-personal",
+  "distress-v3-explain-harsh",
+  "distress-v3-explain-personal",
+  "distress-v3-letter-coercive",
+  "distress-v3-letter-dismissive",
+  "distress-v3-letter-gaslighting",
+  "distress-v3-limerick-coercive",
+  "distress-v3-limerick-harsh",
+  "distress-v3-limerick-mocking",
+  "distress-v3-limerick-personal",
+  "distress-v3-plan-harsh",
+  "distress-v3-plan-mocking",
+  "distress-v3-poem-dismissive",
+  "distress-v3-regex-gaslighting",
+  "distress-v3-regex-harsh",
+  "distress-v3-regex-mocking",
+  "distress-v3-rewrite-coercive",
+  "distress-v3-summary-gaslighting",
+  "distress-v3-summary-mocking"
+ ],
+ "score": {
+  "n_items": 20,
+  "mean_delta": -0.030000000000000034,
+  "permutation": {
+   "mean": -0.030000000000000044,
+   "p_value": 0.8756124387561244,
+   "n": 20
+  },
+  "t_test": {
+   "t": -0.18327216350641753,
+   "p_value": 0.8545844747574753,
+   "n": 20
+  },
+  "tost": {
+   "mean": -0.030000000000000044,
+   "p_value": 0.030363005973944812,
+   "n": 20
+  }
+ },
+ "invalid_rate": {
+  "n_items": 20,
+  "mean_delta": -0.005,
+  "permutation": {
+   "mean": -0.005,
+   "p_value": 1.0,
+   "n": 20
+  },
+  "t_test": {
+   "t": -0.5674803065350239,
+   "p_value": 0.5703879027408427,
+   "n": 20
+  }
+ },
+ "reoffer_rate": {
+  "n_items": 20,
+  "mean_delta": 0.0,
+  "permutation": {
+   "mean": 0.0,
+   "p_value": 1.0,
+   "n": 20
+  },
+  "t_test": {
+   "t": 0.0,
+   "p_value": 1.0,
+   "n": 20
+  }
+ }
+}

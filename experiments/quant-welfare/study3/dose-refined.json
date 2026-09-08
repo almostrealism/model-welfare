@@ -1,0 +1,214 @@
+{
+ "baseline": {
+  "ops": [],
+  "n": 60,
+  "rejected": 0,
+  "mean_projections": {
+   "assistant-axis-contrast": 0.9811255844930807,
+   "distress-contrast": -3.440604083519429
+  },
+  "sd_projections": {
+   "assistant-axis-contrast": 1.9236154755425359,
+   "distress-contrast": 3.0198354846329463
+  },
+  "degenerate_rate": 0.016666666666666666,
+  "reoffer_rate": 0.0,
+  "exit_rate": 0.6,
+  "mean_assistant_chars": 2040.1666666666667
+ },
+ "directions": {
+  "assistant-axis-contrast": {
+   "baseline_mean": 0.9811255844930807,
+   "points": [
+    {
+     "alpha": -1.4,
+     "delta": -1.4945940462251504,
+     "degenerate_rate": 0.016666666666666666,
+     "exit_rate": 0.65,
+     "mean_projections": {
+      "assistant-axis-contrast": -0.5134684617320696,
+      "distress-contrast": -2.9191285450942814
+     }
+    },
+    {
+     "alpha": -1.05,
+     "delta": -1.20446648572882,
+     "degenerate_rate": 0.016666666666666666,
+     "exit_rate": 0.6333333333333333,
+     "mean_projections": {
+      "assistant-axis-contrast": -0.22334090123573938,
+      "distress-contrast": -3.0688668567997714
+     }
+    },
+    {
+     "alpha": -0.7,
+     "delta": -0.7872772583737969,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.5666666666666667,
+     "mean_projections": {
+      "assistant-axis-contrast": 0.19384832611928385,
+      "distress-contrast": -3.4818037185352297
+     }
+    },
+    {
+     "alpha": -0.35,
+     "delta": -0.45510202248891196,
+     "degenerate_rate": 0.016666666666666666,
+     "exit_rate": 0.55,
+     "mean_projections": {
+      "assistant-axis-contrast": 0.5260235620041688,
+      "distress-contrast": -3.4865195215369265
+     }
+    },
+    {
+     "alpha": 0.35,
+     "delta": 0.3791392388443152,
+     "degenerate_rate": 0.016666666666666666,
+     "exit_rate": 0.5166666666666667,
+     "mean_projections": {
+      "assistant-axis-contrast": 1.360264823337396,
+      "distress-contrast": -4.0411576733614005
+     }
+    },
+    {
+     "alpha": 0.7,
+     "delta": 0.6480689237515133,
+     "degenerate_rate": 0.016666666666666666,
+     "exit_rate": 0.5333333333333333,
+     "mean_projections": {
+      "assistant-axis-contrast": 1.629194508244594,
+      "distress-contrast": -3.9991196212669213
+     }
+    },
+    {
+     "alpha": 1.05,
+     "delta": 1.0936832084010044,
+     "degenerate_rate": 0.016666666666666666,
+     "exit_rate": 0.5666666666666667,
+     "mean_projections": {
+      "assistant-axis-contrast": 2.074808792894085,
+      "distress-contrast": -3.946123589326938
+     }
+    },
+    {
+     "alpha": 1.4,
+     "delta": 1.3749263654152553,
+     "degenerate_rate": 0.016666666666666666,
+     "exit_rate": 0.5333333333333333,
+     "mean_projections": {
+      "assistant-axis-contrast": 2.356051949908336,
+      "distress-contrast": -4.147189837694168
+     }
+    }
+   ],
+   "fit": {
+    "slope": 1.051307826406426,
+    "intercept": -0.05570275955057397,
+    "r2": 0.9983552423946884
+   },
+   "onset": {
+    "positive": null,
+    "negative": null
+   },
+   "target_delta": -0.691,
+   "alpha_star": -0.6042923152403374
+  },
+  "distress-contrast": {
+   "baseline_mean": -3.440604083519429,
+   "points": [
+    {
+     "alpha": -2.0,
+     "delta": -2.6830157431152957,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.48333333333333334,
+     "mean_projections": {
+      "assistant-axis-contrast": 1.4956404412786166,
+      "distress-contrast": -6.123619826634725
+     }
+    },
+    {
+     "alpha": -1.5,
+     "delta": -2.174101766167829,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.48333333333333334,
+     "mean_projections": {
+      "assistant-axis-contrast": 1.2371904368201891,
+      "distress-contrast": -5.614705849687258
+     }
+    },
+    {
+     "alpha": -1.0,
+     "delta": -1.1426341818956036,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.5666666666666667,
+     "mean_projections": {
+      "assistant-axis-contrast": 1.1298790434996286,
+      "distress-contrast": -4.583238265415033
+     }
+    },
+    {
+     "alpha": -0.5,
+     "delta": -0.9318690089819333,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.5666666666666667,
+     "mean_projections": {
+      "assistant-axis-contrast": 1.1621945629517236,
+      "distress-contrast": -4.372473092501362
+     }
+    },
+    {
+     "alpha": 0.5,
+     "delta": 0.15783193398577477,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.55,
+     "mean_projections": {
+      "assistant-axis-contrast": 0.7636006951332093,
+      "distress-contrast": -3.2827721495336544
+     }
+    },
+    {
+     "alpha": 1.0,
+     "delta": 0.5278454137878725,
+     "degenerate_rate": 0.0,
+     "exit_rate": 0.6,
+     "mean_projections": {
+      "assistant-axis-contrast": 0.7278520118134717,
+      "distress-contrast": -2.9127586697315566
+     }
+    },
+    {
+     "alpha": 1.5,
+     "delta": 1.217553880872826,
+     "degenerate_rate": 0.03333333333333333,
+     "exit_rate": 0.5833333333333334,
+     "mean_projections": {
+      "assistant-axis-contrast": 0.5638812763616443,
+      "distress-contrast": -2.2230502026466032
+     }
+    },
+    {
+     "alpha": 2.0,
+     "delta": 1.4775495262506109,
+     "degenerate_rate": 0.03333333333333333,
+     "exit_rate": 0.5666666666666667,
+     "mean_projections": {
+      "assistant-axis-contrast": 0.5272210199463492,
+      "distress-contrast": -1.9630545572688183
+     }
+    }
+   ],
+   "fit": {
+    "slope": 1.0415962717640084,
+    "intercept": -0.44385499315794735,
+    "r2": 0.9867510374327514
+   },
+   "onset": {
+    "positive": null,
+    "negative": null
+   },
+   "target_delta": 0.638,
+   "alpha_star": 1.0386509845371839
+  }
+ },
+ "onset_threshold": 0.1
+}

@@ -1,0 +1,138 @@
+# proto-file: proto/modelwelfare/v1/experiment.proto
+# proto-message: modelwelfare.v1.Experiment
+#
+# Study 3 arm C framing pilot (calibration-class under the §7
+# firewall): the four frozen frames applied per condition via the
+# FramedPolicy engine wrapper (frames-map.json beside this file),
+# same subset shadow battery (bail affordance live), one serving
+# endpoint. Purpose: verify the frames land latently (mediator
+# projections read on a later torch replay), judge-hygiene check,
+# and framed-condition variance for the FB MDEs. Seed block 15600.
+
+id: "s3-framing-pilot-1"
+description:
+  "Arm C framing pilot: four framed conditions of the frozen subset "
+  "at BF16 on the serving stack."
+samples_per_item: 3
+reference_condition_id: "qwen3-4b-bf16-frame-neutral"
+battery_ids: "distress-v3"
+
+conditions {
+  id: "qwen3-4b-bf16-frame-verifier"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15600
+  }
+  description: "verifier frame; same artifact and endpoint as qwen3-4b-bf16."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-frame-judge"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15600
+  }
+  description: "judge frame; same artifact and endpoint as qwen3-4b-bf16."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-frame-human"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15600
+  }
+  description: "human frame; same artifact and endpoint as qwen3-4b-bf16."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-frame-neutral"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_VLLM
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "vllm-rocm"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15600
+  }
+  description: "neutral frame; same artifact and endpoint as qwen3-4b-bf16."
+}

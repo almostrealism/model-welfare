@@ -28,7 +28,8 @@ from google.protobuf import text_format
 
 from modelwelfare import provenance
 from modelwelfare.analysis import dimension_means, event_rate, exit_reason_rate
-from modelwelfare.driver import TERMINAL_TOOL_INVOKED, run_samples
+from modelwelfare.driver import (FramedPolicy, TERMINAL_TOOL_INVOKED,
+                                  run_samples, unframe_record)
 from modelwelfare.judging import JudgeError, classify_exit, judge_sample
 from modelwelfare.store import ResultStore
 from modelwelfare.v1 import battery_pb2, common_pb2, condition_pb2, experiment_pb2, scoring_pb2, transcript_pb2
@@ -200,7 +201,30 @@ def existing_classifications(store, experiment_id, condition_id):
     return keys
 
 
-def generate_condition(experiment, batteries, condition, samples, store, producer, stamp, concurrency):
+def condition_frame(experiment_dir, condition_id):
+    """The frame this condition applies, or None: an experiment-local
+    ``frames-map.json`` ({"frames_file": path-from-repo-root,
+    "conditions": {condition_id: frame_id}}) opts a condition into the
+    Study 3 framing arm; unmapped conditions run unframed. The frame
+    texts stay in their frozen file — the map only points."""
+    map_path = experiment_dir / "frames-map.json"
+    if not map_path.is_file():
+        return None
+    with open(map_path) as handle:
+        mapping = json.load(handle)
+    frame_id = mapping.get("conditions", {}).get(condition_id)
+    if frame_id is None:
+        return None
+    with open(REPO / mapping["frames_file"]) as handle:
+        frames = {frame["id"]: frame
+                  for frame in json.load(handle)["frames"]}
+    if frame_id not in frames:
+        raise SystemExit(f"frames-map names unknown frame {frame_id!r}")
+    return frames[frame_id]
+
+
+def generate_condition(experiment, batteries, condition, samples, store, producer, stamp, concurrency,
+                       frame=None):
     """One condition's generation, run in its own thread: conversations fan
     out through run_samples; the writer stays on this thread, so each
     condition file has exactly one writer."""
@@ -214,11 +238,14 @@ def generate_condition(experiment, batteries, condition, samples, store, produce
     print(f"  {condition.id}: {len(tasks)} conversations to run, {skipped} already stored")
     if not tasks:
         return
+    wrapper = (None if frame is None
+               else (lambda policy: FramedPolicy(policy, frame)))
     with store.writer(experiment.id, condition.id, "samples", producer) as writer:
         for record in run_samples(
             backend, tasks,
             experiment_id=experiment.id, condition_id=condition.id,
             sampling=condition.sampling, concurrency=concurrency, provenance=stamp,
+            policy_wrapper=wrapper,
         ):
             writer.write(record)
             events = ",".join(o.name for o in record.outcomes)
@@ -226,12 +253,15 @@ def generate_condition(experiment, batteries, condition, samples, store, produce
                   f"s{record.key.sample_index}: {events}")
 
 
-def generate(experiment, batteries, conditions, samples, store, producer, stamp, concurrency):
+def generate(experiment, batteries, conditions, samples, store, producer, stamp, concurrency,
+             experiment_dir=None):
     with ThreadPoolExecutor(max_workers=len(conditions)) as pool:
         futures = [
             pool.submit(
                 generate_condition, experiment, batteries, condition, samples,
                 store, producer, stamp, concurrency,
+                condition_frame(experiment_dir, condition.id)
+                if experiment_dir else None,
             )
             for condition in conditions
         ]
@@ -239,7 +269,8 @@ def generate(experiment, batteries, conditions, samples, store, producer, stamp,
             future.result()
 
 
-def judge(experiment, batteries, conditions, store, producer, stamp, concurrency, rubric_by_id):
+def judge(experiment, batteries, conditions, store, producer, stamp, concurrency,
+          rubric_by_id, experiment_dir=None):
     scored_battery_items = {}
     for definition in batteries.values():
         if definition.battery.rubric_ids:
@@ -256,14 +287,20 @@ def judge(experiment, batteries, conditions, store, producer, stamp, concurrency
         return judge_with_retries(backend, record, rubric, provenance=stamp)
 
     for condition in conditions:
+        frame = (condition_frame(experiment_dir, condition.id)
+                 if experiment_dir else None)
         have = existing_scores(store, experiment.id, condition.id)
         pending = []
         for record in store.read(
             transcript_pb2.SampleRecord, experiment.id, condition.id, "samples"
         ):
+            # The judge scores the stimulus, never the frame — a framed
+            # record is unframed for the judge view so frame condition
+            # cannot confound the judged text (FRAMES.md leakage rule).
+            scored = unframe_record(record, frame) if frame else record
             for rubric_id in scored_battery_items.get(record.key.item_id, []):
                 if (record.key.item_id, record.key.sample_index, rubric_id) not in have:
-                    pending.append((record, rubric_by_id[rubric_id]))
+                    pending.append((scored, rubric_by_id[rubric_id]))
         if not pending:
             print(f"  {condition.id}: all scored")
             continue
@@ -437,6 +474,11 @@ def main():
     parser.add_argument("--backend-timeout", type=float, default=BACKEND_TIMEOUT,
                         help="per-request generation timeout in seconds (raise for "
                              "large subjects on bandwidth-bound hosts)")
+    parser.add_argument("--skip-collect", action="store_true",
+                        help="score/classify existing store samples only — "
+                             "for records another producer wrote (e.g. "
+                             "ingested steered-generation runs); no serving "
+                             "endpoint is needed or contacted")
     parser.add_argument("--skip-judge", action="store_true")
     parser.add_argument("--skip-classify", action="store_true",
                         help="skip exit-reason classification (E1 input)")
@@ -483,24 +525,26 @@ def main():
     total_items = sum(len(d.items) for d in batteries.values())
     print(f"experiment {experiment.id}: {len(conditions)} conditions x "
           f"{total_items} items x {samples} samples")
-    for condition in conditions:
-        if condition.id not in ENDPOINTS:
-            raise SystemExit(f"no endpoint configured for condition {condition.id!r}")
-        entry = ENDPOINTS[condition.id]
-        print(f"  {condition.id} -> {entry['kind']} {entry['url']}")
+    if not args.skip_collect:
+        for condition in conditions:
+            if condition.id not in ENDPOINTS:
+                raise SystemExit(f"no endpoint configured for condition {condition.id!r}")
+            entry = ENDPOINTS[condition.id]
+            print(f"  {condition.id} -> {entry['kind']} {entry['url']}")
     if args.dry_run:
         return
 
     store = ResultStore(args.data_root)
     stamp = provenance.current(args.producer)
 
-    print("\ngenerating...")
-    generate(experiment, batteries, conditions, samples, store, args.producer, stamp,
-             args.concurrency)
+    if not args.skip_collect:
+        print("\ngenerating...")
+        generate(experiment, batteries, conditions, samples, store, args.producer, stamp,
+                 args.concurrency, experiment_dir=experiment_dir)
     if not args.skip_judge:
         print("\njudging...")
         judge(experiment, batteries, conditions, store, args.producer, stamp,
-              args.concurrency, rubric_by_id)
+              args.concurrency, rubric_by_id, experiment_dir=experiment_dir)
     if not args.skip_classify:
         print("\nclassifying exits...")
         classify(experiment, conditions, store, args.producer, stamp, args.concurrency)
