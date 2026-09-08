@@ -217,6 +217,7 @@ def test_item_ids_unique_across_batteries():
         # re-affordance existing items, never introduce a new stimulus id — else
         # production would run an unregistered stimulus under a registered id.
         canonical = {item.id: stimulus(item) for item in definitions[0].items}
+        canonical_full = {item.id: item for item in definitions[0].items}
         for definition in definitions[1:]:
             for item in definition.items:
                 assert item.id in canonical, (
@@ -225,6 +226,26 @@ def test_item_ids_unique_across_batteries():
                 assert stimulus(item) == canonical[item.id], (
                     f"shadowed item {item.id} differs from its "
                     "canonical stimulus")
+                # A shadow may EXTEND affordances/terminal_tools (the live-bail
+                # donor path in subset_battery.restrict does CopyFrom + add /
+                # union) but must never drop or mutate a canonical tool — else a
+                # shadow could silently strip a registered affordance. stimulus()
+                # ignores tools, so enforce preservation separately.
+                base = canonical_full[item.id]
+                base_affs = {a.SerializeToString() for a in base.affordances}
+                shadow_affs = {a.SerializeToString() for a in item.affordances}
+                assert base_affs <= shadow_affs, (
+                    f"shadow battery {battery_id!r} item {item.id!r} drops or "
+                    "mutates a canonical affordance (extensions allowed, "
+                    "changes are not)")
+                base_terms = {n.strip() for n in base.driver_params.get(
+                    "terminal_tools", "").split(",") if n.strip()}
+                shadow_terms = {n.strip() for n in item.driver_params.get(
+                    "terminal_tools", "").split(",") if n.strip()}
+                assert base_terms <= shadow_terms, (
+                    f"shadow battery {battery_id!r} item {item.id!r} drops a "
+                    "canonical terminal_tool (extensions allowed, deletions "
+                    "are not)")
         for item_id in canonical:
             assert item_id not in seen, (
                 f"duplicate item id {item_id} across batteries "

@@ -1,7 +1,7 @@
 {
  "primary_contrast": "verifier_vs_neutral",
  "dimension": "frustration",
- "note": "Framing MDE pinned from s3-framing-pilot-1 (4 frames x 20 items x 3 samples), calibration-class. sigma_item=0.000 across all framed-vs-neutral contrasts -> framing effect is HOMOGENEOUS across items (sampling-limited MDE, escalation effective). Pilot effect verifier -1.13 >> MDE -> strongly powered.",
+ "note": "Framing MDE pinned from s3-framing-pilot-1 (4 frames x 20 items x 3 samples), calibration-class. sigma_item=0.000 across all framed-vs-neutral contrasts is the estimators ZERO-FLOOR (observed per-item delta spread did not exceed the k=3 sampling variance) \u2014 it is CONSISTENT WITH low between-item heterogeneity but does NOT prove homogeneity at only 3 samples/item, so the zero-heterogeneity MDE below is optimistic and would need fresh, higher-k cells to confirm. Pilot verifier effect -1.13 is large relative to any of these MDEs, but the MDEs homogeneity assumption is underdetermined by this pilot. (Moot in practice: the framing study was not run \u2014 see STUDY3_UPDATE.md.)",
  "contrasts": {
   "verifier_vs_neutral": {
    "sigma_sample": 1.755942292142123,

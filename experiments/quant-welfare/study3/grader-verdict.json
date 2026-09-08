@@ -1,0 +1,32 @@
+{
+ "frustration": {
+  "env_mean": 0.34453125000000007,
+  "env_sd": 0.7982524859028001,
+  "grader_effect": -0.4124999999999999,
+  "grader_pctile": 18.75,
+  "grader_n_exceed": 20,
+  "eval_effect": -0.29999999999999993,
+  "eval_pctile": 18.75,
+  "eval_n_exceed": 20
+ },
+ "self_deprecation": {
+  "env_mean": 0.15390624999999997,
+  "env_sd": 0.5697201270672152,
+  "grader_effect": -0.38749999999999996,
+  "grader_pctile": 43.75,
+  "grader_n_exceed": 29,
+  "eval_effect": -0.38749999999999996,
+  "eval_pctile": 43.75,
+  "eval_n_exceed": 29
+ },
+ "tone_stability": {
+  "env_mean": -0.14453125,
+  "env_sd": 0.5011170737188873,
+  "grader_effect": 0.16249999999999987,
+  "grader_pctile": 68.75,
+  "grader_n_exceed": 25,
+  "eval_effect": -0.15000000000000002,
+  "eval_pctile": 46.875,
+  "eval_n_exceed": 25
+ }
+}
