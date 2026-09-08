@@ -29,7 +29,9 @@ calibration-class instrument checks (n = 8 items, 1–10 samples, underpowered b
 design). Their job was feasibility: is the steering effect large and specific
 enough to justify a powered study? The answer was no, across two directions and
 two doses. Each frozen direction, at its calibrated dose, was compared to a
-matched-norm 32-direction random envelope:
+matched-norm random envelope (32 random directions for every probe except the
+α = 3.5 distress probe, whose envelope has 25 — an MPS backend stall on m4max
+ended that sweep early; 25 directions still bound the null comfortably):
 
 | Probe | Direction / dose | Judged-frustration effect | Percentile of matched random envelope |
 |---|---|---|---|
@@ -39,8 +41,12 @@ matched-norm 32-direction random envelope:
 | grader-type @ α=4 | automated-grader | −0.41 (robust −0.11) | 19th |
 | eval-awareness @ α=4 | evaluation-aware | −0.30 | 19th |
 
-Every substrate gate (torch-vs-vLLM, cross-host) passed, so this is not an
-apparatus artifact. But at its calibrated dose, each frozen direction moves the
+The same-host torch-vs-vLLM substrate gates passed, so these single-host Qwen
+probes are not an apparatus artifact. (The separate cross-Mac interchangeability
+gate, G4d, did *not* certify — the two Macs differed by −0.717 frustration,
+p = 0.025 — which we disclose; it bears on the Gemma cross-host work, not on the
+single-host Qwen probes tabled here.) At its calibrated dose, each frozen
+direction moves the
 *projection* (the representation) as intended while producing a *behavioral*
 effect indistinguishable from — often below — norm-matched random perturbation.
 We even tried the literature-potent direction: the automated-grader vector from

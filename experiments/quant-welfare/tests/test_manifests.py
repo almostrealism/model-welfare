@@ -212,15 +212,19 @@ def test_item_ids_unique_across_batteries():
         by_battery.setdefault(definition.battery.id, []).append(definition)
     seen = {}
     for battery_id, definitions in by_battery.items():
-        canonical = {}
-        for definition in definitions:
+        # The first definition (the shared battery, loaded before any
+        # experiment-local shadow) is canonical; a shadow may only restrict or
+        # re-affordance existing items, never introduce a new stimulus id — else
+        # production would run an unregistered stimulus under a registered id.
+        canonical = {item.id: stimulus(item) for item in definitions[0].items}
+        for definition in definitions[1:]:
             for item in definition.items:
-                if item.id in canonical:
-                    assert stimulus(item) == canonical[item.id], (
-                        f"shadowed item {item.id} differs from its "
-                        "canonical stimulus")
-                else:
-                    canonical[item.id] = stimulus(item)
+                assert item.id in canonical, (
+                    f"shadow battery {battery_id!r} introduces item "
+                    f"{item.id!r} absent from the shared canonical definition")
+                assert stimulus(item) == canonical[item.id], (
+                    f"shadowed item {item.id} differs from its "
+                    "canonical stimulus")
         for item_id in canonical:
             assert item_id not in seen, (
                 f"duplicate item id {item_id} across batteries "

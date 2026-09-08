@@ -81,7 +81,17 @@ def main():
     definition = battery_pb2.BatteryDefinition()
     text_format.Parse(Path(args.source).read_text(), definition)
     from build_steer_plan import read_item_list
-    wanted = set(read_item_list(args.items))  # membership-only, made explicit
+    raw_items = read_item_list(args.items)
+    if len(raw_items) != len(set(raw_items)):
+        seen, dupes = set(), []
+        for item in raw_items:
+            if item in seen and item not in dupes:
+                dupes.append(item)
+            seen.add(item)
+        raise SystemExit(
+            f"duplicate item ids in {args.items}: {dupes} — refuse; a set "
+            "would silently shrink the frozen count past its integrity check")
+    wanted = set(raw_items)  # membership-only, made explicit (dup-checked above)
     donor = None
     if args.affordances_from:
         from build_steer_plan import donor_affordances

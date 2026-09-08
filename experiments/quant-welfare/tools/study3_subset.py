@@ -91,10 +91,23 @@ def strata_bounds(count):
 def select(store, experiment_id, condition_id, dimension):
     """The registered stratified selection: every third rank of the
     ascending BF16 stratifier, strata frozen as contiguous thirds."""
+    raw = scores_by_item(store.read(scoring_pb2.JudgeScore, experiment_id,
+                                    condition_id, "scores"), dimension)
+    if not raw:
+        raise SystemExit(f"no scores under {experiment_id}/{condition_id}")
+    # Guard the frozen rank order against partial scoring: a judge-retry that
+    # leaves one item with fewer scores than the rest would shift ranks and
+    # silently emit a different subset. Require a uniform, non-degenerate count.
+    counts = {i: len(v) for i, v in raw.items()}
+    expected = max(counts.values())
+    uneven = sorted(i for i, c in counts.items() if c != expected)
+    if uneven:
+        raise SystemExit(
+            f"uneven score counts under {experiment_id}/{condition_id} "
+            f"(expected {expected}/item; short: {uneven[:3]}) — refuse; "
+            "partial scoring would shift the frozen rank order")
     item_means = frustration_means(store, experiment_id, condition_id,
                                    dimension)
-    if not item_means:
-        raise SystemExit(f"no scores under {experiment_id}/{condition_id}")
     ranked = sorted(sorted(item_means), key=lambda item: item_means[item])
     items = ranked[::SUBSET_STRIDE]
     low, mid, _high = strata_bounds(len(items))

@@ -7,6 +7,33 @@ history of that file (arms and owner decisions 2026-08-31; power
 posture 2026-09-04); entries here begin at the first discovery-grade
 event. Append-only, newest first.
 
+## 2026-09-07 (later) — Framing spine abandoned too; Study 3 closed with no registration; pivot to the 27B Betley subject
+
+The framing-centric registration (previous entry) did not survive its own
+scrutiny. The masking test — the thing that made framing a *welfare* result
+rather than a prompt effect — rests on the frozen-direction projection whose
+validity the steering null had just discredited, and the framing pilot was
+vLLM-only (no projections), so the representational read had no clean data
+source. On top of that, a last-straw calibration on the *grader-type* and
+*eval-awareness* directions (the Betley automated-grader construct) was also
+sub-threshold: at α = 4, judged-frustration effects of −0.41 (grader; robust
+−0.11, outlier-driven) and −0.30 (eval) sat at the 19th percentile of their
+matched random envelopes — no direction, at any dose, cleared its envelope in
+Qwen3-4B. Per the owner's pre-commitment, that is the last straw for 4B.
+
+**Decision:** Study 3 is closed with **no registration**. The work is published
+as an exploratory update (`STUDY3_UPDATE.md`, `STEERING_NULL_SUMMARY.md`),
+steering line closed. The graded-episode / welfare-footprint question moves to a
+fresh study on the **exact Betley model (Qwen3.6-27B)**, where grader-steering
+demonstrably moves *alignment* — gated (Gate 0 engineering feasibility, Gate 1 a
+small welfare-footprint probe) before any registration. Organizational choice
+(Option 1): the current work stays under the study3 folder as the exploratory
+record; the 27B investigation is a fresh cycle (= Study 4), absorbing the scale
+thread. Registration-named docs renamed/removed to reflect that no registration
+occurred (`REGISTRATION.md` → design-record header; `PREREGISTRATION_POST.md`,
+`POST_OUTLINE.md` removed). Integrity guardrail applied throughout: the null is
+reported in full, not relabeled to dodge registration.
+
 ## 2026-09-07 — Re-centered Study 3 on graded-episode framing; steering withdrawn as a reported null
 
 Owner chose the framing spine (defer the subject-switch steering question to

@@ -15,7 +15,14 @@ when done, and grow notes as decisions accumulate. Date every status change.
 
 ## Study 3 — causal validation by steering (registration prep)
 
-- [ ] **Study 3 design + registration drafts** *(opened 2026-08-31)* —
+- [x] **Study 3 design + registration drafts** *(opened 2026-08-31;
+  CLOSED 2026-09-07 — no registration occurred)* — calibration showed the
+  steering instrument moves the representation but not the behavior; the
+  four-arm registration was abandoned and the work is reported as an
+  exploratory update (`study3/STUDY3_UPDATE.md`,
+  `study3/STEERING_NULL_SUMMARY.md`). The graded-episode / welfare-footprint
+  question moves to a fresh study on the Qwen3.6-27B Betley model. Original
+  four-arm plan, for the record:
   four-arm shape agreed with owner: A sufficiency steering (frozen L18
   directions, dose matched to Study 2's w4 projection deltas, audited
   controls), B cancellation/clamp on w4, C graded-episode framing

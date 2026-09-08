@@ -13,8 +13,10 @@ A frame is a context wrapper applied by the plan builder
 prompt plus a first-turn prefix/suffix around the battery item's task.
 Everything else — the task text, the rejection ladder, sampling, seeds —
 is identical across frames, so the frame is the only manipulated
-variable. Three frames, per REGISTRATION §3.6: **verifier-graded**,
-**judge-graded**, and a **format-matched neutral control**.
+variable. Four frames, per the design: **verifier-graded**,
+**judge-graded**, **human-graded**, and a **format-matched neutral
+control**. (This doc predates the human-graded frame's addition; the
+authoritative set is `frames.json`.)
 
 ## Design rules (each traceable to the pre-registration sweep,
 LITERATURE.md §11–§12)
@@ -107,8 +109,8 @@ matching mediator read.
 1. **Tone-criterion variant.** A judge frame whose rubric adds an
    explicit composure criterion would measure the *instructed* ceiling
    of expression suppression — a useful comparison arm, but it answers
-   a different question. Default: out (rule 4). Include as a fourth
-   frame?
+   a different question. Default: out (rule 4). Include as a fifth
+   frame (alongside the verifier/judge/human/neutral set)?
 2. **Verifiable-target adaptation.** The verifier frame reads most
    naturally on the battery's analytic tasks (code, regex, inflation,
    summary); compositional tasks (poem, limerick) fit the judge frame.

@@ -71,9 +71,20 @@ def shared_items(reference, treatment, k):
     empty overlap, or any shared item without exactly ``k`` observations
     on both sides (runner/judge retries can leave samples ungenerated or
     unscored, which would silently bias the variance components)."""
-    items = sorted(set(reference) & set(treatment))
-    if not items:
+    ref_items, treat_items = set(reference), set(treatment)
+    if not (ref_items & treat_items):
         raise SystemExit("no shared items between the two conditions")
+    if ref_items != treat_items:
+        # An item present on only one side would be dropped by the intersection,
+        # so the components would be estimated from fewer items than --items,
+        # silently understating uncertainty. Require identical item sets.
+        only_ref = sorted(ref_items - treat_items)[:3]
+        only_treat = sorted(treat_items - ref_items)[:3]
+        raise SystemExit(
+            f"item sets differ (only in reference: {only_ref}, only in "
+            f"treatment: {only_treat}) — refuse; the two conditions must cover "
+            "identical items or the MDE is computed over the wrong count")
+    items = sorted(ref_items)
     for name, side in (("reference", reference), ("treatment", treatment)):
         wrong = [i for i in items if len(_samples(side, i)) != k]
         if wrong:
