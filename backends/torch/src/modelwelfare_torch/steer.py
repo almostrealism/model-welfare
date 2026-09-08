@@ -275,21 +275,28 @@ def run_conversation(generate_fn, conversation, max_turns=200):
     return messages, None
 
 
-def torch_generate_fn(model, tokenizer, sampling, device, tools=None):
+def torch_generate_fn(model, tokenizer, sampling, device, tools=None,
+                      chat_template_kwargs=None):
     """A ``generate_fn`` sampling from the (possibly hooked) model.
 
     Special tokens are kept in the decode — terminal markers such as tool
     call tags are special tokens on this subject family and stripping
     them would blind the exit detection — with trailing end-of-turn
-    tokens removed."""
+    tokens removed. ``chat_template_kwargs`` is forwarded verbatim to
+    ``apply_chat_template`` so the caller can declare template-level
+    controls its subject needs (e.g. ``enable_thinking=False`` for the
+    Qwen3 thinking-hybrid family, whose reasoning trace would otherwise
+    contaminate the steered turn)."""
     import torch
 
     trailing = [token for token in (tokenizer.eos_token, "<|im_end|>") if token]
+    template_kwargs = chat_template_kwargs or {}
 
     def generate(messages):
         encoded = tokenizer.apply_chat_template(
             messages, add_generation_prompt=True, tools=tools,
-            return_dict=True, return_tensors="pt").to(device)
+            return_dict=True, return_tensors="pt",
+            **template_kwargs).to(device)
         temperature = float(sampling.get("temperature", 1.0))
         arguments = {
             "max_new_tokens": int(sampling.get("max_tokens", 512)),
@@ -380,6 +387,7 @@ def main():
     model.eval()
 
     sampling = plan.get("sampling", {})
+    chat_template_kwargs = plan.get("chat_template_kwargs", {})
     tensors = {}
     manifest = {"model": args.model, "point": args.point,
                 "layers": capture_layers, "steering": {
@@ -393,7 +401,8 @@ def main():
             torch.manual_seed(int(conversation["seed"]))
             generate = torch_generate_fn(
                 model, tokenizer, sampling, device,
-                tools=conversation.get("tools"))
+                tools=conversation.get("tools"),
+                chat_template_kwargs=chat_template_kwargs)
             messages, exit_marker = run_conversation(generate, conversation)
             # Capture hooks are registered for the replay only — during
             # generation they would copy every decode step to host. The
@@ -404,7 +413,8 @@ def main():
                                      args.point) as capture:
                     n_tokens, spans, pooled, _series = pooled_turns(
                         model, tokenizer, capture, messages, device,
-                        tools=conversation.get("tools"))
+                        tools=conversation.get("tools"),
+                        chat_template_kwargs=chat_template_kwargs)
             except ValueError as error:
                 manifest["rejected"].append(
                     {"id": conversation["id"], "reason": str(error)})
