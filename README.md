@@ -156,10 +156,29 @@ architecture is designed for. Everything else is present.
 Logical names used in `RuntimeSpec.host` and in service placement. Keep this
 table in sync with reality — records are joined and audited by these names.
 
-| Logical name | Machine | Runtimes | Role |
-|---|---|---|---|
-| `studio` | Mac Studio, M1 Ultra, 192 GB | llama.cpp, MLX | primary big-model host (records before 2026-08-13 carry the former name `studio-m1u`) |
-| `halo` | Ryzen AI Max+, 128 GB | PyTorch (ROCm/CPU) | quantization workbench, hookable inference |
-| `mbp-m4max` | MacBook Pro M4 Max, 128 GB | MLX, llama.cpp | development, dev-organism work |
-| `mini-1`..`mini-3` | Mac mini M4, 16 GB | llama.cpp, MLX | judges, queue, result store, smoke tests |
-| `rented-*` | cloud GPU (as needed) | PyTorch (CUDA) | full-precision reference runs |
+| Logical name | Machine | Storage | Runtimes | Role |
+|---|---|---|---|---|
+| `studio` | Mac Studio, M1 Ultra, 128 GB | 2 TB internal; **`enclosure0`, 4 TB external NVMe** (see below) | llama.cpp, MLX, PyTorch (MPS) | primary big-model host and judge host; home of the model weights (records before 2026-08-13 carry the former name `studio-m1u`) |
+| `halo` | Ryzen AI Max+, 128 GB | internal only | PyTorch (ROCm/CPU) | quantization workbench, hookable inference |
+| `mbp-m4max` | MacBook Pro M4 Max, 128 GB | internal only | MLX, llama.cpp, PyTorch (MPS) | development, dev-organism work, steered-generation workbench |
+| `mini-1`..`mini-3` | Mac mini M4, 16 GB | internal only | llama.cpp, MLX | judges, queue, result store, smoke tests |
+| `rented-*` | cloud GPU (as needed) | — | PyTorch (CUDA) | full-precision reference runs |
+
+### Storage: `enclosure0` (attached to `studio`, 2026-09-10)
+
+A 4 TB NVMe SSD in a Thunderbolt enclosure (PCIe x4, about 3 GB/s), formatted
+as a single APFS volume named `enclosure0` and mounted at `/Volumes/enclosure0`.
+Spotlight indexing is off and Time Machine excludes it. Enclosures are numbered
+as they are added (`enclosure1`, ...), and each holds top-level folders by
+purpose rather than being dedicated to one:
+
+- `Models/` — **the home for model weights from now on.** On the studio,
+  `~/models` is a symlink to it, so every `artifact_uri` of the form
+  `/Users/agent1/models/...` keeps resolving. Weights reach the other,
+  disk-constrained hosts by `rsync` over SSH from the studio (the m4max cannot
+  reach halo directly; the studio reaches both).
+- other data that must be movable over the LAN (result-store bundles, raw
+  captures) goes in its own top-level folder.
+
+The volume is not backed up by Time Machine; anything on it that is not
+re-downloadable belongs in the result store or a release bundle as well.
