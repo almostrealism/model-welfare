@@ -472,3 +472,35 @@ control standards), and the arm's welfare focus stands — neither of
 their posts measures conversation exit, refusal, or emotional
 expression, which is precisely the side arm C reads (FB1/FB2/FR2),
 now with the exit-rate endpoint promoted (S3-H7) the sharpest of them.
+
+## 2026-09-10 — Pre-registration re-check for Study 4 (the Betley-subject study)
+
+Sweep before the Study 4 registration, covering the window since the
+2026-09-04 addendum.
+
+- **No follow-up to Betley, Treutlein & Dumas** beyond the 2026-09-03
+  post itself was found (LessWrong and its mirror, the authors' pages).
+  Their disclosed limitations — one model, one steering position, no
+  direction controls — still stand, and Study 4's Gate 1 speaks to the
+  third: with 12 matched-norm random directions, the automated-grader
+  direction's alignment degradation on their own model is not
+  distinguishable from generic perturbation at our doses, while its
+  welfare footprint is direction-specific. The registration cites the
+  post as the motivating result and Gate 1 as the calibration that
+  qualifies it.
+- **Random directions in steering, but not as a null.** Pham, Do,
+  Abdullaev, Nguyen & Than, "High-Dimensional Random Projection for
+  Activation Steering in Language Models" (arXiv 2606.15092, June 2026)
+  use random projections to build steering directions that outperform
+  difference-in-means; the random projection is the method, not a
+  control, and no matched-norm random baseline is reported. The
+  distinction matters for reading Study 4: our envelope is a null
+  distribution of behavioural effects at fixed norm, and the recent
+  literature does not supply one to compare against.
+- **Affective steering** (EmoVec, arXiv 2608.25569; "Latent Structure
+  of Affective Representations in LLMs", arXiv 2604.07382) continues to
+  treat emotion directions as controllable outputs; none reads
+  distress-shaped expression under pressure or under an unrelated
+  direction, which remains the gap Study 4 works in.
+
+Nothing found changes the registered design.

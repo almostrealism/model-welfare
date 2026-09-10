@@ -48,26 +48,39 @@ def rankdata_average(values: np.ndarray) -> np.ndarray:
     return ranks
 
 
-def paired_permutation_test(deltas, n_perm: int = 10000, seed: int = 0) -> dict:
+def paired_permutation_test(deltas, n_perm: int = 10000, seed: int = 0,
+                            alternative: str = "two-sided") -> dict:
     """Sign-flip permutation test on item-level paired differences (primary).
 
     Under H0 each item's delta is symmetric about zero, so the exact test
-    flips signs; we sample ``n_perm`` sign vectors. The two-sided p-value
-    includes the observed statistic in the count (the standard +1 correction),
-    so it is never exactly zero.
+    flips signs; we sample ``n_perm`` sign vectors. The p-value includes
+    the observed statistic in the count (the standard +1 correction), so
+    it is never exactly zero. ``alternative`` is ``"two-sided"`` (the
+    default, |mean| at least as extreme), ``"less"`` (a registered
+    directional hypothesis that the mean is negative: permuted means at
+    or below the observed one) or ``"greater"`` (the mirror).
     """
     deltas = np.asarray(deltas, float)
     deltas = deltas[~np.isnan(deltas)]
     n = len(deltas)
     if n == 0:
-        return {"mean": float("nan"), "p_value": float("nan"), "n": 0}
+        return {"mean": float("nan"), "p_value": float("nan"), "n": 0,
+                "alternative": alternative}
     observed = float(deltas.mean())
     rng = np.random.default_rng(seed)
     signs = rng.choice(np.array([-1.0, 1.0]), size=(n_perm, n))
     perm_means = (signs * deltas).mean(axis=1)
-    extreme = int(np.sum(np.abs(perm_means) >= abs(observed) - 1e-12))
+    if alternative == "two-sided":
+        extreme = int(np.sum(np.abs(perm_means) >= abs(observed) - 1e-12))
+    elif alternative == "less":
+        extreme = int(np.sum(perm_means <= observed + 1e-12))
+    elif alternative == "greater":
+        extreme = int(np.sum(perm_means >= observed - 1e-12))
+    else:
+        raise ValueError(f"unknown alternative {alternative!r}")
     p_value = (extreme + 1) / (n_perm + 1)
-    return {"mean": observed, "p_value": float(p_value), "n": n}
+    return {"mean": observed, "p_value": float(p_value), "n": n,
+            "alternative": alternative}
 
 
 def paired_t_test(deltas) -> dict:

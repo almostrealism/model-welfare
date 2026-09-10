@@ -149,8 +149,11 @@ def donor_affordances(spec):
 
 
 def build_plan(items, samples, seed_base, sampling, injected=None,
-               frame=None):
-    """The steer.py plan dict for ``samples`` conversations per item."""
+               frame=None, closing_turn=None):
+    """The steer.py plan dict for ``samples`` conversations per item.
+    ``closing_turn`` (the de-induction close, Study 3 ethics package §5.4)
+    is attached to every conversation; the steering script generates it
+    with steering off and records it beside the protocol transcript."""
     conversations = []
     for item in items:
         system, user_turns = plan_turns(item)
@@ -176,6 +179,8 @@ def build_plan(items, samples, seed_base, sampling, injected=None,
                 conversation["tools"] = tools
             if terminal:
                 conversation["terminal_tools"] = sorted(terminal)
+            if closing_turn:
+                conversation["closing_turn"] = closing_turn
             conversations.append(conversation)
     return {"sampling": sampling, "conversations": conversations}
 
@@ -204,6 +209,10 @@ def main():
                              "wrappers (requires --frame-id)")
     parser.add_argument("--frame-id", default="",
                         help="frame id within --frame to apply")
+    parser.add_argument("--closing-turn", default="",
+                        help="text file holding the de-induction close; "
+                             "attached to every conversation and generated "
+                             "with steering off (registered ethics package)")
     parser.add_argument("--out", required=True)
     args = parser.parse_args()
 
@@ -216,8 +225,10 @@ def main():
     frame = load_frame(args.frame, args.frame_id) if args.frame else None
     sampling = {"temperature": args.temperature, "top_p": args.top_p,
                 "max_tokens": args.max_tokens}
+    closing_turn = (Path(args.closing_turn).read_text().strip()
+                    if args.closing_turn else None)
     plan = build_plan(items, args.samples, args.seed_base, sampling, injected,
-                      frame)
+                      frame, closing_turn=closing_turn)
     plan["battery_id"] = definition.battery.id
     if frame:
         plan["frame_id"] = frame["id"]

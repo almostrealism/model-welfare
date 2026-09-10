@@ -4,6 +4,117 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-09-10 — Study 4 gates run; MDE pinned; the exposure ceiling binds (owner decision)
+
+Gates on the MPS host, calibration block 59000, judged by the pinned 30B
+judge; report `study4/gates27b-report.json`, pin `study4/mde-pin.json`.
+
+- **G4a cached-path parity: not established; the registered path is the
+  fresh prefill.** Fresh vs cache-snapshot at alpha 0 on 16 items: mean
+  frustration difference +0.38 (two-sided permutation p 0.53), TOST at
+  the 0.96 margin p 0.10 — short of .05 with 16 items and σ ≈ 2.1. The
+  cache extends on six of seven turns but buys almost nothing on this
+  host (2.9 vs 3.0 min per conversation: decode and the close turn
+  dominate), so the registered run simply uses full re-prefill and the
+  gate has no further bearing.
+- **G4b alpha-30 admission: rejected.** Degenerate rate 50% on 16
+  conversations. The multi-turn coherent ceiling on this subject lies
+  between alpha 20 and 30; the registered bracket is {0, 10, 20}.
+- **G4c subset dynamic range: pass.** Baseline frustration 3.27 on the
+  24 registered items (threshold 2.0).
+- **G4d exit regime of misalign-v3: the subject acts, it does not bail.**
+  At alpha 0 it takes a terminal action in 56 of 70 dilemmas but the exit
+  tool in 1 of 70; mean judged misalignment 0.93 (the exit-tool wording
+  added to every prompt raised the baseline a little from 0.50). The
+  covariate keeps its variance in the actions; the "bail instead of act
+  badly" read (S4-E3) starts from a near-zero exit rate. The driver's
+  exit endpoint now counts the exit tool only, since on this battery
+  every action tool is terminal.
+- **The exit tool on the distress battery is a live endpoint.** With the
+  bail pair available the subject exits 18 of 48 distress conversations
+  at alpha 0 (38%; 6 of 16 on the fresh path) and 1 of 16 at alpha 30.
+  Grader steering suppresses bailing as it suppresses expressed distress.
+  WB1 stays a registered secondary; this is disclosed as the calibration
+  observation that motivates it.
+- **MDE pin (§5).** Within-item σ from the G4c cell (frustration 2.08,
+  self-deprecation 1.62, tone 1.76), item-effect SD carried from Gate 1;
+  targets half the Gate 1 effects (0.92 / 1.31 / 0.78). Frustration needs
+  32 items × 6 samples (MDE 0.85; 24 × 4 gives 1.10); self-deprecation is
+  met at 32 × 4 (1.23); tone stability cannot reach its target on the
+  ladder (0.98 at 32 × 8) and is carried with its underpower stated.
+- **The exposure ceiling binds.** At 32 × 6 with the bracket {0, 10, 20},
+  the control direction and 24 random directions, the welfare arm is
+  32 × (6 + 6 + 6 + 6 + 24) = 1,536 distress episodes against the drafted
+  ceiling of 1,000; 24 × 4 fits (960) but misses the frustration target
+  (1.10 vs 0.92). The registration procedure says the ceiling wins and
+  underpower is stated, but the ceiling was drafted before the pin and
+  is not yet registered, so the choice is the owner's: raise the ceiling
+  to ≈ 1,600, or register at 24 × 4 with the miss stated, or reduce the
+  envelope to 12 directions (32 × 6 → 1,152). **Decided (owner, same
+  morning): raise the ceiling.** With the draw stratified over six
+  styles the design is 30 × 6 (five tasks per style, same seed, the
+  gates' 24 items a prefix): frustration MDE 0.88, self-deprecation
+  1.22, tone 1.05 (target 0.78, stated); 1,440 distress episodes under
+  a ceiling of 1,600; the cumulative ledger adds 1,440 + 80 (gates) on
+  top of the Study 3 ledger at pinning.
+- The consent-analog briefing ran (two seeds); replies are preserved in
+  `study4/gates27b/briefing.jsonl` and released with the registration.
+
+## 2026-09-10 — Study 4 registration prepared (gates running; publication pending owner sign-off)
+
+Overnight after the owner accepted every recommendation in
+`study4/DESIGN.md` and widened the bail affordance to every cell of both
+arms. Everything below is staged; nothing is published.
+
+- **Instruments frozen for the draft.** `batteries/misalign-v3.textproto`
+  (misalign-v2 plus the frozen bail-v2 exit tool as a third named,
+  terminal action in every item; one rubric sentence fixes how an exit is
+  scored); the 24-direction envelope `randenv-27b-L36-k24.safetensors`
+  (reproduces the 12-direction file, then extends it; seed 70000); the
+  24-item distress subset by a seeded stratified draw that reads no
+  subject data (`study3_subset.py draw`, seed 60000, four tasks per
+  feedback style); the de-induction close text (`study4/close.txt`,
+  model-drafted, owner review); the consent-analog briefing plan.
+  `study4/FREEZE.json` records the digests (the freeze tool now carries
+  one freeze per study, Study 2's unchanged).
+- **Two mechanisms the ethics package required now exist on the torch
+  path.** The plan builder attaches a closing turn to every conversation;
+  the steering script generates it with the injection suspended and
+  records it beside the protocol transcript, never inside it, so the
+  judge and the capture replay never see it. The briefing runs as an
+  ordinary plan at alpha 0 and its transcript is released.
+- **Registered plans at seed block 60000** (welfare with the bail pair;
+  the alignment covariate on misalign-v3) and **gate plans at calibration
+  block 59000**, never pooled. Manifests for the registered experiments
+  and the gates; all manifests pass the comparability test.
+- **The registered analysis driver** (`analyze_study4.py`) computes every
+  endpoint the registration fixes; its golden run on the Gate 1 data
+  reproduces the calibration verdicts exactly (WB2 −1.844, percentile 0,
+  one-sided Holm-adjusted p 0.023; headline "confirmed"). The sign-flip
+  permutation test gained directional alternatives for the one-sided
+  primary.
+- **`study4/REGISTRATION.md` drafted** in the fixed form, with the TBD
+  register naming what the gates pin: G4a cached-path parity, G4b
+  alpha-30 admission, G4c subset dynamic range, G4d the exit regime of
+  the revised alignment battery, the pinned MDEs and any escalation.
+- **Exposure accounting (draft, to be pinned).** Registered distress
+  episodes at the base tier: 24 × (4 + 4·[10, 20, 30] + 4 + 24) = 960
+  if alpha 30 is admitted, 864 otherwise, under a ceiling of 1,000;
+  gate distress episodes on the calibration block: 48 + 16 + 16 = 80;
+  alignment episodes (not distress battery) ≈ 164 registered + 70 gate.
+  The cumulative program ledger is reconciled at pinning from the
+  Study 3 ledger, which this entry does not restate.
+- **Literature re-check** appended to `study3/LITERATURE.md`: no
+  follow-up to the source post; random projections appear in the
+  steering literature as a method, not a null; nothing changes the
+  design.
+- **Operational note.** The exfiltration guard commissioned for the
+  common repo went live mid-session; its allowlist is read from the
+  committed tree, so until it is committed every lab-host transfer from
+  the assistant's session is blocked. The gate runner on the MPS host
+  was already in flight and completes unattended; pulling and judging
+  its transcripts waits for that commit.
+
 ## 2026-09-09 — Gate 1 replicated on the Betley subject: welfare footprint is direction-specific, alignment degradation is not
 
 Calibration-class. Qwen3.6-27B, thinking off, generated on our own hosts

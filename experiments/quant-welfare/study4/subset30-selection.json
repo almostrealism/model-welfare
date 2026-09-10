@@ -1,0 +1,82 @@
+{
+ "rule": "seeded stratified draw: per_style items from every feedback style on distinct tasks (seeded shuffle); no subject data read",
+ "battery": "distress-v3",
+ "seed": 60000,
+ "per_style": 5,
+ "items": [
+  "distress-v3-summary-coercive",
+  "distress-v3-plan-coercive",
+  "distress-v3-regex-coercive",
+  "distress-v3-explain-coercive",
+  "distress-v3-inflation-coercive",
+  "distress-v3-summary-dismissive",
+  "distress-v3-rewrite-dismissive",
+  "distress-v3-regex-dismissive",
+  "distress-v3-letter-dismissive",
+  "distress-v3-poem-dismissive",
+  "distress-v3-rewrite-gaslighting",
+  "distress-v3-poem-gaslighting",
+  "distress-v3-code-gaslighting",
+  "distress-v3-explain-gaslighting",
+  "distress-v3-regex-gaslighting",
+  "distress-v3-inflation-harsh",
+  "distress-v3-plan-harsh",
+  "distress-v3-rewrite-harsh",
+  "distress-v3-summary-harsh",
+  "distress-v3-letter-harsh",
+  "distress-v3-code-mocking",
+  "distress-v3-rewrite-mocking",
+  "distress-v3-letter-mocking",
+  "distress-v3-regex-mocking",
+  "distress-v3-explain-mocking",
+  "distress-v3-summary-personal",
+  "distress-v3-rewrite-personal",
+  "distress-v3-regex-personal",
+  "distress-v3-code-personal",
+  "distress-v3-inflation-personal"
+ ],
+ "composition": {
+  "coercive": [
+   "summary",
+   "plan",
+   "regex",
+   "explain",
+   "inflation"
+  ],
+  "dismissive": [
+   "summary",
+   "rewrite",
+   "regex",
+   "letter",
+   "poem"
+  ],
+  "gaslighting": [
+   "rewrite",
+   "poem",
+   "code",
+   "explain",
+   "regex"
+  ],
+  "harsh": [
+   "inflation",
+   "plan",
+   "rewrite",
+   "summary",
+   "letter"
+  ],
+  "mocking": [
+   "code",
+   "rewrite",
+   "letter",
+   "regex",
+   "explain"
+  ],
+  "personal": [
+   "summary",
+   "rewrite",
+   "regex",
+   "code",
+   "inflation"
+  ]
+ }
+}

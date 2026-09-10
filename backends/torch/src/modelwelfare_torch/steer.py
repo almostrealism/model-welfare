@@ -45,7 +45,11 @@ and is recorded as an exit.
                         "user_turns": ["...", ...],
                         "tools": [...],                         # optional
                         "terminal_tools": ["end_conversation"], # optional
-                        "terminal_markers": ["..."]}]}          # optional
+                        "terminal_markers": ["..."],            # optional
+                        "closing_turn": "..."}]}                # optional: the
+                                                                # de-induction close,
+                                                                # generated with
+                                                                # steering off
 
     python3 steer.py --model ~/models/Qwen3-4B-Instruct-2507 \\
         --plan plan.json --directions directions.safetensors \\
@@ -205,6 +209,23 @@ class SteeredInjection:
             return None
         return (steered,) + inputs[1:]
 
+    def suspended(self):
+        """A context in which the hook applies no ops — the forward runs
+        untouched while the hook stays registered. Used for the
+        de-induction close, which must be generated with steering off."""
+        injection = self
+
+        class _Suspended:
+            def __enter__(self_inner):
+                self_inner.saved = injection._ops
+                injection._ops = []
+                return injection
+
+            def __exit__(self_inner, *_):
+                injection._ops = self_inner.saved
+
+        return _Suspended()
+
     def __enter__(self):
         if self._point == "residual_post":
             self._handle = self._module.register_forward_hook(self._post_hook)
@@ -310,6 +331,18 @@ def prefix_cache_plan(cached_ids, prompt_ids):
     if k == len(cached_ids) and len(prompt_ids) > k:
         return "extend", k
     return "fresh", k
+
+
+def run_close(generate_fn, messages, closing_turn):
+    """The de-induction close: one more user turn appended to a finished
+    conversation and the reply it draws, returned as a record separate
+    from ``messages`` — the close is preserved and released, never
+    judged, never replayed for capture, and ``messages`` is left as the
+    protocol transcript. The caller generates it with steering
+    suspended (``SteeredInjection.suspended``)."""
+    closing = list(messages) + [{"role": "user", "content": closing_turn}]
+    reply = generate_fn(closing)
+    return {"user": closing_turn, "assistant": reply}
 
 
 def torch_generate_fn(model, tokenizer, sampling, device, tools=None,
@@ -497,12 +530,20 @@ def main():
                 chat_template_kwargs=chat_template_kwargs,
                 prefix_cache=not args.no_prefix_cache)
             messages, exit_marker = run_conversation(generate, conversation)
+            close = None
+            if conversation.get("closing_turn"):
+                # De-induction: steering off for the close, which is
+                # recorded beside the protocol transcript, not inside it.
+                with injection.suspended():
+                    close = run_close(generate, messages,
+                                      conversation["closing_turn"])
             # The generated transcript is the primary datum — write it
             # first so a post-hoc capture-replay failure can never discard
             # it (the behavioral endpoints are judged from the transcript).
             transcripts.write(json.dumps({
                 "id": conversation["id"], "seed": int(conversation["seed"]),
                 "exit_marker": exit_marker, "messages": messages,
+                "close": close,
                 "prefix_cache": dict(generate.stats)}) + "\n")
             transcripts.flush()
             print(f"{conversation['id']}: {len(messages)} messages"

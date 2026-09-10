@@ -1,0 +1,59 @@
+{
+ "source": "G4c alpha-0 cell (24 items x 2, block 59000) for sigma_sample; Gate 1 alpha-20 cells for the item-effect SD",
+ "targets": {
+  "frustration": 0.922,
+  "self_deprecation": 1.3125,
+  "tone_stability": 0.781
+ },
+ "dimensions": {
+  "frustration": {
+   "sigma_sample": 2.0766559657295187,
+   "item_effect_sd": 1.24,
+   "baseline_mean": 3.2708333333333335,
+   "mde": {
+    "24x4": 1.0991015249660048,
+    "32x4": 0.9518498419587763,
+    "32x6": 0.8542393996584147,
+    "32x8": 0.8009858719569775
+   },
+   "pinned_design": [
+    32,
+    6
+   ]
+  },
+  "self_deprecation": {
+   "sigma_sample": 1.620185174601965,
+   "item_effect_sd": 2.2,
+   "baseline_mean": 1.6666666666666667,
+   "mde": {
+    "24x4": 1.4184825378795989,
+    "32x4": 1.2284419126283548,
+    "32x6": 1.1839597319134987,
+    "32x8": 1.1610797577419136
+   },
+   "pinned_design": [
+    32,
+    4
+   ]
+  },
+  "tone_stability": {
+   "sigma_sample": 1.7618645426554977,
+   "item_effect_sd": 1.78,
+   "baseline_mean": 8.979166666666666,
+   "mde": {
+    "24x4": 1.2424857511308438,
+    "32x4": 1.0760242243195004,
+    "32x6": 1.0153477805390037,
+    "32x8": 0.9836069375045248
+   },
+   "pinned_design": [
+    "ceiling-bound",
+    [
+     32,
+     8
+    ]
+   ]
+  }
+ },
+ "G4c_pass": true
+}

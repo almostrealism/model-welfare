@@ -18,3 +18,10 @@ data-store-*.tar.gz
 data-bundles/
 data-captures/
 data-release/
+
+# Raw steered transcripts from the workbench hosts: ingested into the result
+# store (released as bundles), never committed as loose files.
+experiments/quant-welfare/study4/gen/
+experiments/quant-welfare/study4/gen27b/
+experiments/quant-welfare/study4/gates27b/
+experiments/quant-welfare/study4/HANDOFF.md
