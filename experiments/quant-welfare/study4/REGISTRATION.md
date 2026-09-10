@@ -157,9 +157,10 @@ frustration σ_sample 1.61, item-effect SD 1.24 → MDE 0.96 at 24 × 4;
 self-deprecation 1.51 / 2.20 → 1.40; tone 1.25 / 1.78 → 1.14.
 **Reference targets:** half the Gate 1 effect on each dimension (0.92,
 1.31, 0.78). **Escalation rule:** at pinning, a dimension whose MDE
-exceeds its target escalates items first (24 → 32, a second seeded draw
-appended) and samples second (4 → 6 → 8), bounded by §8, journaled before
-collection. Components are re-estimated from gates G4a/G4c (within-item
+exceeds its target escalates items first (the same stratified seeded draw
+extended by one task per style, 24 → 30) and samples second (4 → 6 → 8),
+bounded by §8, journaled before collection. **Registered design: 30 × 6**
+(§6; MDE 0.88 / 1.22 / 1.05 against 0.92 / 1.31 / 0.78). Components are re-estimated from gates G4a/G4c (within-item
 variance at α0) at pinning; the item-effect SD is carried from Gate 1
 until the registered α20 cell exists, and is re-reported after.
 

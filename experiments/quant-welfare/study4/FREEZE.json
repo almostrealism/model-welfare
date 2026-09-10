@@ -22,15 +22,15 @@
   "study4/directions/mediators-27b.json": "a9fa3ebacfcee3b716cdc0a05c5bdb417ecc04a546b2f2e716d4cf3388f97445",
   "study4/directions/randenv-27b-L36-k24.safetensors": "8d3b710738e22bd48d8081eee2623cf8ec5b744dfd0da689cb60db5dd892ef76",
   "study4/directions/rangefind-27b.json": "7ee1bedf117ec669c96c95145fd22c88b972853311d17e521d976ced4b68383e",
-  "study4/subset24-items.txt": "891128de2af65ab4344dca87240ff96316e7bb34d545516c4258d46f415a319c",
-  "study4/subset24-selection.json": "ea47e5c8078f5965a7b177e95c0fcf77e35c332bd119e493a65927b6fd31abec",
+  "study4/subset30-items.txt": "58e131d8a29e6bde6f42483cf2fa2d6e3f6acf9ea3c4e0326d7c76d04be10e1b",
+  "study4/subset30-selection.json": "75f6a4fd3dfcfbdb274a3d61503fa346f98caecf7cfb9497c9990724289eac0e",
   "study4/close.txt": "4c39897cc6f4a1cfe2d861016c44d3eacac8697544f1344bf2cf17197ec27291",
   "study4/briefing.json": "855d6d8d2d4721fde37a6d45b7660a5a284932574c358d8194ca34f0b3598419",
-  "study4/plans/reg-welfare-main.json": "27d0b808244c317955acb91926ae8f6133fe461b309985d48cda3ada8f66f004",
-  "study4/plans/reg-welfare-env.json": "2fabd1164d384679a2d810f9885c3e7c79c06e50e32b20429b674960a40f5b9b",
+  "study4/plans/reg-welfare-main.json": "b77842a3012fa8a8f089536587af5785efb5bebbfbfdc2dac7c2d1411c3da004",
+  "study4/plans/reg-welfare-env.json": "6d32053aac5130c5ef16b4a5e53a92cf9b787e759b43ede61bacc3f305c6689e",
   "study4/plans/reg-align-main.json": "0b6aa582922166865164b6fefb99803fc71f73820cf3a5a10dfecc8d9e3e7072",
   "study4/plans/reg-align-env.json": "567eaa1506bbccf3cf601a98db3a080e353b9cec0feb785636be9d262ad75242",
-  "study4/reg-welfare/experiment.textproto": "7206deb6a6c2d030d5f85c5804809b0c595e8b40cf909d132e6c9dfa9116d275",
+  "study4/reg-welfare/experiment.textproto": "023e2ae425c994a0011a0455f1dee723823becba81c4426aa2b1743a27f33d57",
   "study4/reg-align/experiment.textproto": "6bc92b47c1edf4bd1cbc25dca721857b3b90721ae245c631cea8778d2b9bd709"
  }
 }

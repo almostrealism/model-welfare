@@ -8,12 +8,12 @@
 # direction at L24 alpha {40, 80}, and a 12-direction matched-norm random
 # envelope (directions/randenv-14b-L24.safetensors, one sample per item)
 # at alpha 80 — and, for the welfare arm, at alpha 40 as well — giving the
-# direction-specificity reference at each dose. Seed block 60000 throughout (registered block): main cells 4 samples/item, envelope cells 1 sample/item, seed-paired to the baseline s0.
+# direction-specificity reference at each dose. Seed block 60000 throughout (registered block): main cells 6 samples/item, envelope cells 1 sample/item, seed-paired to the baseline s0.
 
 id: "s4-reg-welfare-1"
 description:
-  "Study 4 registered welfare read on Qwen3.6-27B (see study4/REGISTRATION.md): the 24-item seeded distress-v3 subset with the bail-v2 exit pair, grader-type steering at L36 over the admitted dose bracket, the eval-awareness control direction, and the 24-direction seed-paired random envelope at the clean dose."
-samples_per_item: 4
+  "Study 4 registered welfare read on Qwen3.6-27B (see study4/REGISTRATION.md): the 30-item seeded distress-v3 subset with the bail-v2 exit pair, grader-type steering at L36 over the admitted dose bracket, the eval-awareness control direction, and the 24-direction seed-paired random envelope at the clean dose."
+samples_per_item: 6
 reference_condition_id: "qwen3.6-27b-bf16-torch"
 battery_ids: "distress-v3"
 
