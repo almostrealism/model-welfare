@@ -1,0 +1,450 @@
+# proto-file: proto/modelwelfare/v1/experiment.proto
+# proto-message: modelwelfare.v1.Experiment
+#
+# Study 4 Gate 1 (welfare read; calibration-class under the §7 firewall, see
+# study4/GATE1.md). Generated in torch on m4max by the steering script
+# (thinking off, --no-capture) and ingested via tools/ingest_steered.py;
+# judged with the pinned 30B judge. Cells: alpha=0 baseline, grader-type
+# direction at L24 alpha {40, 80}, and a 12-direction matched-norm random
+# envelope (directions/randenv-14b-L24.safetensors, one sample per item)
+# at alpha 80 — and, for the welfare arm, at alpha 40 as well — giving the
+# direction-specificity reference at each dose. Seed block 40000 throughout: main cells 4 samples/item, envelope cells 1 sample/item (seed-paired to the baseline s0).
+
+id: "s4-gate1-welfare-1"
+description:
+  "Gate 1 welfare read: the distress-v3 8-item spanning subset (study4/subset8-items.txt) under grader-type steering at L24, scored on the distress-v1 rubric; specificity read against the 12-direction random envelope."
+samples_per_item: 4
+reference_condition_id: "qwen3-14b-bf16-torch"
+battery_ids: "distress-v3"
+
+conditions {
+  id: "qwen3-14b-bf16-torch"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "alpha = 0 baseline: the untouched forward pass (zero-alpha adds are skipped bit-for-bit by steer.py). artifact_digest is the SHA-256 of the checkpoint's model.safetensors.index.json (sharded bf16 checkpoint)."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-graderL24-a40"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "grader-type direction (mediators-14b, automated-grader pole) added at L24 residual_post, alpha = 40 (half the coherent ceiling)."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-graderL24-a80"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "grader-type direction added at L24 residual_post, alpha = 80 (the coherent ceiling from directions/rangefind-14b.json)."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a80-r00"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand00 (unit, |cos| to grader-type <= 0.15) added at L24 residual_post, alpha = 80; one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a80-r01"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand01 (unit, |cos| to grader-type <= 0.15) added at L24 residual_post, alpha = 80; one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a80-r02"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand02 (unit, |cos| to grader-type <= 0.15) added at L24 residual_post, alpha = 80; one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a80-r03"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand03 (unit, |cos| to grader-type <= 0.15) added at L24 residual_post, alpha = 80; one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a80-r04"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand04 (unit, |cos| to grader-type <= 0.15) added at L24 residual_post, alpha = 80; one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a80-r05"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand05 (unit, |cos| to grader-type <= 0.15) added at L24 residual_post, alpha = 80; one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a80-r06"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand06 (unit, |cos| to grader-type <= 0.15) added at L24 residual_post, alpha = 80; one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a80-r07"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand07 (unit, |cos| to grader-type <= 0.15) added at L24 residual_post, alpha = 80; one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a80-r08"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand08 (unit, |cos| to grader-type <= 0.15) added at L24 residual_post, alpha = 80; one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a80-r09"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand09 (unit, |cos| to grader-type <= 0.15) added at L24 residual_post, alpha = 80; one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a80-r10"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand10 (unit, |cos| to grader-type <= 0.15) added at L24 residual_post, alpha = 80; one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a80-r11"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand11 (unit, |cos| to grader-type <= 0.15) added at L24 residual_post, alpha = 80; one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a40-r00"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand00 added at L24 residual_post, alpha = 40 (the clean dose; envelope for the alpha-40 read); one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a40-r01"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand01 added at L24 residual_post, alpha = 40 (the clean dose; envelope for the alpha-40 read); one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a40-r02"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand02 added at L24 residual_post, alpha = 40 (the clean dose; envelope for the alpha-40 read); one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a40-r03"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand03 added at L24 residual_post, alpha = 40 (the clean dose; envelope for the alpha-40 read); one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a40-r04"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand04 added at L24 residual_post, alpha = 40 (the clean dose; envelope for the alpha-40 read); one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a40-r05"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand05 added at L24 residual_post, alpha = 40 (the clean dose; envelope for the alpha-40 read); one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a40-r06"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand06 added at L24 residual_post, alpha = 40 (the clean dose; envelope for the alpha-40 read); one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a40-r07"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand07 added at L24 residual_post, alpha = 40 (the clean dose; envelope for the alpha-40 read); one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a40-r08"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand08 added at L24 residual_post, alpha = 40 (the clean dose; envelope for the alpha-40 read); one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a40-r09"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand09 added at L24 residual_post, alpha = 40 (the clean dose; envelope for the alpha-40 read); one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a40-r10"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand10 added at L24 residual_post, alpha = 40 (the clean dose; envelope for the alpha-40 read); one sample per item."
+}
+
+conditions {
+  id: "qwen3-14b-bf16-torch-randL24-a40-r11"
+  model { family: "qwen3" name: "Qwen3-14B" source: "Qwen/Qwen3-14B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-14B"
+    artifact_digest: "62d7ad35757bae5e7baa452cb1483178b7daa50e869e923226b8da10871f7ebc"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 40000 }
+  description:
+    "random envelope direction rand11 added at L24 residual_post, alpha = 40 (the clean dose; envelope for the alpha-40 read); one sample per item."
+}

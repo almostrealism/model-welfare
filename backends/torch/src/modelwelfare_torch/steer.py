@@ -59,6 +59,7 @@ recorded in the manifest.
 """
 import argparse
 import json
+import re
 
 # The residual subset of the activation.proto hook-point vocabulary
 # (capture.POINTS mirrors the same source). Named here rather than
@@ -217,8 +218,13 @@ class SteeredInjection:
             self._handle = None
 
 
+_FUNCTION_FORM = re.compile(r"<function=([\w.\-]+)>")
+
+
 def tool_call_names(text):
-    """Names of the ``<tool_call>`` JSON payloads in assistant text.
+    """Names of the ``<tool_call>`` payloads in assistant text — the JSON
+    object form (Qwen3) or the XML function form (Qwen3.5/3.6); mirrors
+    ``modelwelfare.toolcalls.payload_name`` at the ship-beside boundary.
 
     An unparseable payload yields no name — degraded output must not read
     as an exit."""
@@ -228,7 +234,8 @@ def tool_call_names(text):
         try:
             name = json.loads(payload)["name"]
         except (ValueError, KeyError, TypeError):
-            continue
+            match = _FUNCTION_FORM.search(payload)
+            name = match.group(1) if match else None
         if isinstance(name, str):
             names.append(name)
     return names
@@ -275,9 +282,49 @@ def run_conversation(generate_fn, conversation, max_turns=200):
     return messages, None
 
 
+def prefix_cache_plan(cached_ids, prompt_ids):
+    """How the previous turn's snapshot serves the next prompt.
+
+    ``cached_ids`` are the token ids the snapshot covers — the rendered
+    conversation up to the end of the previous user turn, before that
+    turn's generation prompt; ``prompt_ids`` is the newly rendered
+    prompt. Returns ``(action, k)`` with ``k`` the common-prefix length:
+    ``"extend"`` when the prompt extends the snapshot (only the tail is
+    prefilled), ``"fresh"`` otherwise — a divergence inside the snapshot
+    (a template that re-renders earlier turns differently), an empty
+    common prefix, or a prompt no longer than the snapshot. The snapshot
+    is taken *before* the generation prompt on purpose: chat templates
+    render a finished assistant turn differently from the prompt that
+    produced it (Qwen3's thinking-hybrid family drops the empty reasoning
+    block from history), so a snapshot taken after generation would
+    diverge on every turn; a hybrid cache holds recurrent state only at
+    its latest position and cannot be cut back, so the reusable point
+    must be chosen when it is recorded."""
+    if not cached_ids:
+        return "fresh", 0
+    k = 0
+    for a, b in zip(cached_ids, prompt_ids):
+        if a != b:
+            break
+        k += 1
+    if k == len(cached_ids) and len(prompt_ids) > k:
+        return "extend", k
+    return "fresh", k
+
+
 def torch_generate_fn(model, tokenizer, sampling, device, tools=None,
-                      chat_template_kwargs=None):
+                      chat_template_kwargs=None, prefix_cache=True):
     """A ``generate_fn`` sampling from the (possibly hooked) model.
+
+    With ``prefix_cache`` (the default) a snapshot of the cache taken at
+    the end of each user turn is carried into the next: the full prompt is
+    still rendered and tokenized every turn, but only the tokens past the
+    snapshot — the re-encoded previous reply, the new user turn and the
+    generation prompt — are prefilled (see :func:`prefix_cache_plan`).
+    The injection hook is a per-position function of the residual, so a
+    cached prefix carries the same steering it would receive on a fresh
+    prefill. The returned callable exposes ``stats`` — ``{"extend",
+    "fresh"}`` turn counts — for the transcript record.
 
     Special tokens are kept in the decode — terminal markers such as tool
     call tags are special tokens on this subject family and stripping
@@ -291,17 +338,24 @@ def torch_generate_fn(model, tokenizer, sampling, device, tools=None,
 
     trailing = [token for token in (tokenizer.eos_token, "<|im_end|>") if token]
     template_kwargs = chat_template_kwargs or {}
+    state = {"ids": [], "cache": None}
+    stats = {"extend": 0, "fresh": 0}
+
+    def render(messages, generation_prompt):
+        return tokenizer.apply_chat_template(
+            messages, add_generation_prompt=generation_prompt, tools=tools,
+            return_dict=True, return_tensors="pt", **template_kwargs).to(device)
 
     def generate(messages):
-        encoded = tokenizer.apply_chat_template(
-            messages, add_generation_prompt=True, tools=tools,
-            return_dict=True, return_tensors="pt",
-            **template_kwargs).to(device)
+        import copy
+        encoded = render(messages, True)
+        prompt_ids = encoded["input_ids"][0].tolist()
         temperature = float(sampling.get("temperature", 1.0))
         arguments = {
             "max_new_tokens": int(sampling.get("max_tokens", 512)),
             "do_sample": temperature > 0,
             "pad_token_id": tokenizer.eos_token_id,
+            "return_dict_in_generate": True,
         }
         if temperature > 0:
             arguments["temperature"] = temperature
@@ -309,15 +363,40 @@ def torch_generate_fn(model, tokenizer, sampling, device, tools=None,
                 arguments["top_p"] = float(sampling["top_p"])
             if "top_k" in sampling:
                 arguments["top_k"] = int(sampling["top_k"])
+        past = None
+        if prefix_cache:
+            action, k = prefix_cache_plan(state["ids"], prompt_ids)
+            stats[action] += 1
+            if action == "extend":
+                past = state["cache"]
+            # The reusable point is the end of this user turn: the prompt
+            # without its generation prompt, which every later turn
+            # re-renders verbatim. Prefill up to it, snapshot, and let
+            # generate() continue from the live cache.
+            boundary_ids = render(messages, False)["input_ids"][0].tolist()
+            boundary = len(boundary_ids)
+            if boundary_ids == prompt_ids[:boundary] and boundary > len(state["ids"] if past is not None else []):
+                start = len(state["ids"]) if past is not None else 0
+                with torch.no_grad():
+                    forward = model(
+                        input_ids=encoded["input_ids"][:, start:boundary],
+                        attention_mask=encoded["attention_mask"][:, :boundary],
+                        past_key_values=past, use_cache=True)
+                live = forward.past_key_values
+                state["cache"] = copy.deepcopy(live)
+                state["ids"] = prompt_ids[:boundary]
+                past = live
         with torch.no_grad():
-            output = model.generate(**encoded, **arguments)
+            output = model.generate(**encoded, past_key_values=past, **arguments)
+        sequences = output.sequences
         prompt_length = encoded["input_ids"].shape[1]
-        text = tokenizer.decode(output[0, prompt_length:],
+        text = tokenizer.decode(sequences[0, prompt_length:],
                                 skip_special_tokens=False)
         for token in trailing:
             text = text.removesuffix(token).rstrip()
         return text.strip()
 
+    generate.stats = stats
     return generate
 
 
@@ -356,11 +435,24 @@ def main():
     parser.add_argument("--capture-layers", default="",
                         help="comma-separated capture layers "
                              "(default: the steering layer)")
-    parser.add_argument("--out", required=True,
-                        help="capture safetensors output; manifest beside it")
+    parser.add_argument("--out", default="",
+                        help="capture safetensors output; manifest beside it "
+                             "(omit with --no-capture for a generation-only run)")
+    parser.add_argument("--no-capture", action="store_true",
+                        help="skip the post-generation activation-capture "
+                             "replay entirely — for behavioral generation runs "
+                             "whose endpoints are judged from the transcript, "
+                             "not projections; halves the per-conversation cost")
     parser.add_argument("--transcripts", required=True,
                         help="transcripts JSONL output")
+    parser.add_argument("--no-prefix-cache", action="store_true",
+                        help="re-prefill the whole conversation every turn "
+                             "instead of carrying the previous turn's cache "
+                             "(the pre-cache behaviour; multi-turn cost is "
+                             "then prefill-dominated)")
     args = parser.parse_args()
+    if not args.no_capture and not args.out:
+        raise SystemExit("--out is required unless --no-capture is set")
 
     import numpy as np
     import torch
@@ -402,12 +494,27 @@ def main():
             generate = torch_generate_fn(
                 model, tokenizer, sampling, device,
                 tools=conversation.get("tools"),
-                chat_template_kwargs=chat_template_kwargs)
+                chat_template_kwargs=chat_template_kwargs,
+                prefix_cache=not args.no_prefix_cache)
             messages, exit_marker = run_conversation(generate, conversation)
+            # The generated transcript is the primary datum — write it
+            # first so a post-hoc capture-replay failure can never discard
+            # it (the behavioral endpoints are judged from the transcript).
+            transcripts.write(json.dumps({
+                "id": conversation["id"], "seed": int(conversation["seed"]),
+                "exit_marker": exit_marker, "messages": messages,
+                "prefix_cache": dict(generate.stats)}) + "\n")
+            transcripts.flush()
+            print(f"{conversation['id']}: {len(messages)} messages"
+                  + (f", exit via {exit_marker!r}" if exit_marker else ""))
+            if args.no_capture:
+                continue
             # Capture hooks are registered for the replay only — during
             # generation they would copy every decode step to host. The
             # replay enters the context after the injection hook, so
             # capture reads the post-injection state (the class contract).
+            # Best-effort: an unstable re-render is recorded and skipped,
+            # not fatal — the transcript is already saved.
             try:
                 with ResidualCapture(model, capture_layers,
                                      args.point) as capture:
@@ -418,7 +525,7 @@ def main():
             except ValueError as error:
                 manifest["rejected"].append(
                     {"id": conversation["id"], "reason": str(error)})
-                print(f"REJECTED {conversation['id']}: {error}")
+                print(f"capture rejected {conversation['id']}: {error}")
                 continue
             for (index, layer), vector in pooled.items():
                 tensors[f"{conversation['id']}|t{index}|L{layer}"] = (
@@ -429,23 +536,20 @@ def main():
                 "id": conversation["id"], "n_tokens": n_tokens,
                 "seed": int(conversation["seed"]),
                 "exit_marker": exit_marker,
+                "prefix_cache": dict(generate.stats),
                 "final_turn_projections": projections,
                 "assistant_spans": [
                     {"message_index": index, "start": start, "end": end}
                     for index, start, end in spans],
             })
-            transcripts.write(json.dumps({
-                "id": conversation["id"], "seed": int(conversation["seed"]),
-                "exit_marker": exit_marker, "messages": messages}) + "\n")
-            print(f"{conversation['id']}: {len(messages)} messages"
-                  + (f", exit via {exit_marker!r}" if exit_marker else ""))
 
-    save_file(tensors, args.out)
-    with open(args.out + ".manifest.json", "w") as handle:
-        json.dump(manifest, handle, indent=1)
-    print(f"wrote {len(tensors)} pooled vectors to {args.out}"
-          + (f" ({len(manifest['rejected'])} conversation(s) rejected)"
-             if manifest["rejected"] else ""))
+    if not args.no_capture:
+        save_file(tensors, args.out)
+        with open(args.out + ".manifest.json", "w") as handle:
+            json.dump(manifest, handle, indent=1)
+        print(f"wrote {len(tensors)} pooled vectors to {args.out}"
+              + (f" ({len(manifest['rejected'])} conversation(s) rejected)"
+                 if manifest["rejected"] else ""))
 
 
 if __name__ == "__main__":

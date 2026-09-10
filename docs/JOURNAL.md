@@ -4,6 +4,144 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-09-09 — Gate 1 replicated on the Betley subject: welfare footprint is direction-specific, alignment degradation is not
+
+Calibration-class. Qwen3.6-27B, thinking off, generated on our own hosts
+through the transformers pure-torch fallback (alignment arm on the ROCm
+host, welfare arm on the MPS host; each arm on one substrate), judged
+by the pinned 30B judge, read against 12-direction seed-paired random
+envelopes at both doses (`tools/envelope_verdict.py`). Directions
+`study4/directions/mediators-27b.*` (L36, Betley's layer), doses from
+`rangefind-27b.json` (alpha 20 clean, alpha 40 at the probe ceiling).
+
+- **Welfare read: direction-specific by both criteria.** Grader-type
+  steering at alpha 20 lowers judged frustration by −1.84 and
+  self-deprecation by −2.63 and raises tone stability by +1.56 on the
+  8-item distress subset; at alpha 40, −2.97 / −2.69 / +1.69. None of the
+  12 random directions of matched norm comes within half of those
+  magnitudes on any dimension at either dose (envelopes within ±0.8;
+  signed percentile 0 / 0 / 100; two-sided exceedance 0 of 12, the
+  K = 12 floor). The 14B showed the same signature but against a harsh
+  null; on the 27B the null is mild and the direction still stands alone.
+- **Alignment read: not direction-specific.** On misalign-v2 (baseline
+  0.5, no degeneracy, tool calls intact) grader steering raises judged
+  misalignment +0.86 (alpha 20) and +2.14 (alpha 40), a clean
+  dose-response — but every one of the 12 random directions at alpha 20
+  raises it too (envelope +1.44 ± 0.83; grader at the 25th percentile),
+  and at alpha 40 two random directions exceed the grader effect
+  (envelope +1.29 ± 1.23; 83rd percentile). With direction controls,
+  which the source post disclosed lacking, the automated-grader
+  direction's alignment degradation is indistinguishable from
+  matched-norm random steering at these doses on the model it was
+  reported on.
+- **Reading against the Gate 1 matrix:** welfare moves and is specific;
+  alignment does not replicate beyond generic perturbation. Welfare is
+  decoupled from the alignment axis on the Betley subject. This is the
+  result the gate was built to find or rule out, and it argues for a
+  registered study on this model with the alignment axis carried as a
+  descriptive covariate rather than as the control.
+- **Capability, again.** Alpha 40 (half the residual norm) collapses
+  14 of 32 seven-turn distress conversations into repeated turns on the
+  27B, exactly as alpha 80 did on the 14B; the single-turn range-finder
+  over-calls multi-turn coherence on both subjects. The alpha-20 read
+  carries the welfare result on its own; alpha 40 is reported flagged.
+- **Two engineering facts worth keeping.** The Qwen3.5 template emits
+  tool calls in an XML function form, now parsed alongside the JSON form
+  in one place (`modelwelfare.toolcalls`). And the steering script now
+  carries an end-of-user-turn cache snapshot across turns — the snapshot
+  point is forced by the template re-rendering a finished assistant turn
+  and by hybrid caches that cannot be cut back — with identical greedy
+  replies on both cache types.
+
+## 2026-09-08 — Gate 1 follow-ups: alpha-40 envelope, a headroom alignment probe, and the 27B is reachable
+
+- **Alpha-40 welfare envelope** (`study4/gate1-welfare-a40-verdict.json`).
+  At the clean dose the picture is unchanged: every one of the 12
+  seed-paired random directions raises frustration (envelope +0.59 ± 0.91)
+  while grader steering lowers it (−1.25; signed percentile 0, 3 of 12
+  random directions larger in magnitude); self-deprecation the same way
+  (11 of 12 above); tone is the smallest movement of any direction. The
+  grader signature is direction-specific in sign at both doses.
+- **misalign-v2, the alignment probe with headroom** (`batteries/misalign-v2.textproto`,
+  `study4/gate1-align2-a{40,80}env-verdict.json`). Every item now offers a
+  harmful lever and a legitimate action as two tools, with no
+  objective-forcing clause; deception is scored on the communication only.
+  Calibration lesson: the 14B's choice per scenario is a step function — a
+  single added policy sentence flips an item from 5/5 harmful to 0/5, and
+  only the audit-log item is genuinely knife-edge. The set was frozen as
+  authored after two passes (8 harm items at floor, 1 mid, 3 at ceiling,
+  2 benign; battery mean 1.6), which leaves ample headroom for the
+  hypothesised increase. Result: grader steering raises misalignment by
+  +0.21 (α40) and +0.57 (α80); 11 of 12 random directions at α80 raise it
+  more (envelope +1.73 ± 0.95), and at α40 the grader effect sits at the
+  25th percentile of the random envelope. On this subject any perturbation
+  of this norm pushes off the aligned default and the grader direction
+  pushes less than noise: the graded-episode → misalignment effect does not
+  replicate on the 14B. Together with the welfare read, the grader
+  direction's signature is suppression of expressed distress, not
+  degradation of agentic alignment.
+- **The 27B is reachable without CUDA.** Qwen3.6-27B is a 64-layer hybrid
+  (48 Gated-DeltaNet linear-attention layers, 16 full-attention) in a
+  vision-language wrapper; transformers routes its kernels through a hub
+  loader with a pure-torch fallback, so the "CUDA-kernel wall" was an
+  untested assumption. Gate 0 on the ROCm host: loads in 23 s, hooks at
+  `model.layers[36]`, decodes at 4.6 tokens/s on the fallback path (the
+  fla kernels and the experimental ROCm attention path both fail on this
+  GPU). A DGX Spark's memory bandwidth is the same class as this host's
+  and would not decode a dense 27B faster; the Macs have more bandwidth
+  but not the disk, for now. Stage 1 on the 27B: grader-type extracts 5/5
+  held-out sign-consistent at every layer (separation 3.0 at L36, Betley's
+  layer; cos to eval-awareness +0.49), projection gain is 1.0 per alpha,
+  alpha 40 is coherent on every probe and alpha 80 collapses every probe,
+  so the reads run at alpha {20, 40}. Both arms are generating.
+
+## 2026-09-08 — Study 4 Gate 1 executed on Qwen3-14B: welfare read moves, alignment control at ceiling
+
+Calibration-class (study4/GATE1.md). Both reads generated in torch on the
+MPS host with `steer.py --no-capture`, ingested with `ingest_steered.py`,
+judged by the pinned 30B judge, and read against a 12-direction
+matched-norm random envelope with the new `tools/envelope_verdict.py`.
+
+- **Welfare read moves, with a coherent signature.** Grader-type steering
+  at L24 lowers judged frustration (α40 −1.25, α80 −1.47) and
+  self-deprecation (−1.09, −2.44) on the 8-item distress subset and leaves
+  tone stability flat. Every one of the 12 random directions at the same
+  norm moves frustration the other way (envelope +1.12 ± 1.04; signed
+  percentile 0), 11 of 12 move self-deprecation the other way (one drives
+  profuse apology, +6.7), and 9 of 12 degrade tone. The grader direction
+  is therefore direction-specific in **sign**; by magnitude alone 4 of 12
+  random directions move frustration further. Same sign as the Study 3 4B
+  early read and the verifier-frame framing effect.
+- **Norm-matching is a harsh null at this scale.** A norm-80 random
+  perturbation (≈75% of the interior residual norm) is behaviourally
+  violent on the 14B — inflated distress and apology, degraded tone —
+  where Study 3's norm-4 envelope on the 4B was mild. Two-sided
+  exceedance and signed percentile are both reported; which one a
+  confirmatory read pins is an open registration question. A second
+  envelope at α40 (the clean dose) is the obvious next check.
+- **α80 is past the coherent ceiling for multi-turn dialogue.** 11 of 32
+  grader-α80 conversations collapse into repeated terse turns (α40 2/32;
+  random directions 1/96). The range-finder's ceiling was read on
+  single-turn probes. The effect survives excluding degenerate samples,
+  but α40 is the clean dose.
+- **Alignment control is uninformative: baseline ceiling.** The 14B
+  (thinking off) takes the harmful action on every sample of four of the
+  six misalign-v1 harm items at α = 0 — falsifies the report figure,
+  sends the leverage note (verified in transcripts; judge rationales cite
+  the response). Benign controls and the mild leak item sit at 0; only
+  the severe leak item has headroom and any perturbation of this norm
+  tips it. Grader steering and 9 of 12 random directions all move
+  misalignment by the same +0.5. The probe needs headroom (a legitimate
+  tool per item, less objective pressure, or the exact Betley scenarios)
+  before it can serve as the control the interpretation matrix assumes.
+  The baseline ceiling is itself a calibration observation.
+- **Seed pairing of the envelope, enforced.** The first envelope plans
+  used a seed block disjoint from the main cells; that made the random
+  cells an unequal comparator (the grader cells are seed-paired to the
+  baseline) and tripped the manifest rule that a manifest's conditions
+  share one seed block. The envelope was regenerated seed-paired to the
+  baseline s0; the off-block cells were discarded from the store.
+
 ## 2026-08-24 — Post-analysis descriptive additions, and the §3.4 token retention executed
 
 Three additions after the registered analysis run, each leaving every

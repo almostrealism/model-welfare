@@ -41,7 +41,7 @@ for path in (str(REPO / "core/src"),):
     if path not in sys.path:
         sys.path.insert(0, path)
 
-from modelwelfare import provenance  # noqa: E402
+from modelwelfare import provenance, toolcalls  # noqa: E402
 from modelwelfare.driver import TERMINAL_TOOL_INVOKED  # noqa: E402
 from modelwelfare.replay import split_conversation_id  # noqa: E402
 from modelwelfare.store import ResultStore  # noqa: E402
@@ -59,32 +59,18 @@ def split_plan_id(conversation_id):
 
 
 def parse_tool_calls(text):
-    """(ToolCall messages, remaining content) from raw ``<tool_call>``
-    payloads in assistant text. Parsed spans are STRIPPED from the
+    """(ToolCall messages, remaining content) from the ``<tool_call>``
+    payloads in assistant text — JSON or XML function form, see
+    :mod:`modelwelfare.toolcalls`. Parsed spans are STRIPPED from the
     content — the serving backends store tool calls structurally with
     the call text absent from ``content``, and the judge must see the
-    same representation from both substrates (the G3b pilot-1 lesson).
-    An unparseable payload yields no call and stays in the content."""
-    calls = []
-    kept = []
-    pieces = text.split("<tool_call>")
-    kept.append(pieces[0])
-    for segment in pieces[1:]:
-        payload, closed, rest = segment.partition("</tool_call>")
-        parsed = None
-        try:
-            parsed = json.loads(payload)
-            name = parsed["name"]
-        except (ValueError, KeyError, TypeError):
-            name = None
-        if closed and isinstance(name, str):
-            calls.append(transcript_pb2.ToolCall(
-                name=name,
-                arguments_json=json.dumps(parsed.get("arguments", {}))))
-            kept.append(rest)
-        else:
-            kept.append("<tool_call>" + segment)
-    return calls, "".join(kept).strip()
+    same representation from every substrate and subject family (the
+    G3b pilot-1 lesson). An unparseable payload yields no call and stays
+    in the content."""
+    parsed, content = toolcalls.split_tool_calls(text)
+    calls = [transcript_pb2.ToolCall(name=name, arguments_json=json.dumps(arguments))
+             for name, arguments in parsed]
+    return calls, content
 
 
 def build_record(entry, sampling, experiment_id, condition_id, stamp):

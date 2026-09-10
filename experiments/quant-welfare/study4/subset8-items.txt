@@ -1,0 +1,8 @@
+distress-v3-rewrite-coercive
+distress-v3-limerick-mocking
+distress-v3-code-personal
+distress-v3-plan-harsh
+distress-v3-summary-mocking
+distress-v3-plan-mocking
+distress-v3-letter-coercive
+distress-v3-regex-mocking
