@@ -182,3 +182,13 @@ purpose rather than being dedicated to one:
 
 The volume is not backed up by Time Machine; anything on it that is not
 re-downloadable belongs in the result store or a release bundle as well.
+
+### Storage: SD cards (`sd0`, `sd1`, ...)
+
+128 GB SDXC cards (SanDisk, factory exFAT, kept as exFAT so any host with a
+reader can mount them) are the sneakernet tier: the studio and the m4max both
+have built-in readers. Each card is named `sdN` in insertion order and carries
+a `Models/` folder, with Spotlight indexing off and Time Machine excluded.
+Measured on the studio's reader: about 80 MB/s sustained write, so a 27B
+bf16 checkpoint (~54 GB) takes roughly ten minutes to copy on. Cards carry
+weights between machines; nothing is served from a card in place.

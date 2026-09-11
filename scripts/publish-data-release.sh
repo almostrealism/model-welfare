@@ -15,8 +15,18 @@
 #     records + tensors in one file (volume-split only past ~1.8GB)
 #   * quant-welfare-calibration-captures.pb — the loose calibration capture
 #     pairs, packed with their file stems as condition ids
+#   * quant-welfare-s3-captures.pb      — the Study 3 steering captures
+#     (pooled layer-18/30 vectors from every steered, envelope, dose-sweep
+#     and replay cell, plus the direction-extraction and framing-replay
+#     captures), from data-captures/s3/, host-prefixed file stems as
+#     condition ids
 #   * quant-welfare-s2-tokens[.vNN].pb  — the token-retention pass, packed
 #     as bfloat16 (lossless for a bfloat16 model's activations)
+#
+# MW_RELEASE_EXCLUDE: space-separated experiment-id globs left out of the
+# release (e.g. MW_RELEASE_EXCLUDE='s4-*' cuts a Study 3 release while
+# Study 4's collection is already in the store). The exclusion is named in
+# the release notes; excluding everything is refused by the packer.
 #
 # HARD CAP: more than MAX_ASSETS files is a regression to loose-file sprawl;
 # the script refuses to publish ANYTHING rather than upload such a release.
@@ -48,8 +58,12 @@ echo "building release layout under $RELEASE_DIR"
 rm -rf "$RELEASE_DIR"
 mkdir -p "$RELEASE_DIR"
 
+EXCLUDE_ARGS=()
+for pattern in ${MW_RELEASE_EXCLUDE:-}; do
+  EXCLUDE_ARGS+=(--exclude "$pattern")
+done
 python3 experiments/quant-welfare/tools/pack_bundles.py \
-  --release --out "$RELEASE_DIR"
+  --release --out "$RELEASE_DIR" ${EXCLUDE_ARGS[@]+"${EXCLUDE_ARGS[@]}"}
 
 CALIBRATION=()
 while IFS= read -r f; do CALIBRATION+=("$f"); done \
@@ -60,6 +74,19 @@ if [ "${#CALIBRATION[@]}" -gt 0 ]; then
     --experiment quant-welfare-calibration \
     --condition-from-name \
     "${CALIBRATION[@]}"
+fi
+
+if [ -d "$ROOT/data-captures/s3" ]; then
+  shopt -s nullglob
+  S3CAPTURES=("$ROOT"/data-captures/s3/*.safetensors)
+  shopt -u nullglob
+  if [ "${#S3CAPTURES[@]}" -gt 0 ]; then
+    python3 experiments/quant-welfare/tools/pack_captures.py \
+      --stem "$RELEASE_DIR/quant-welfare-s3-captures" \
+      --experiment quant-welfare-s3-captures \
+      --condition-from-name \
+      "${S3CAPTURES[@]}"
+  fi
 fi
 
 if [ -d "$ROOT/data-captures/s2/tok-out" ]; then
@@ -100,8 +127,17 @@ for f in "${ASSET_FILES[@]}"; do
   SHAS="$SHAS$(shasum -a 256 "$f" | sed -e "s|$RELEASE_DIR/||")"$'\n'
 done
 SIZE=$(du -shc "${ASSET_FILES[@]}" | tail -1 | cut -f1)
+EXCLUDE_NOTE=""
+if [ -n "${MW_RELEASE_EXCLUDE:-}" ]; then
+  EXCLUDE_NOTE="
+Experiments matching \`${MW_RELEASE_EXCLUDE}\` are deliberately left out of
+this release (a later study's collection still in progress); they ship
+with that study's own release.
+"
+fi
 NOTES="Result store as self-contained RecordBundles ($SIZE total,
-${#ASSET_FILES[@]} files). Every record and tensor is inside the .pb files:
+${#ASSET_FILES[@]} files).${EXCLUDE_NOTE}
+Every record and tensor is inside the .pb files:
 the combined records bundle carries each experiment's report-cited dataset
 digest in its metadata, capture bundles carry their tensors inline
 (bfloat16 where the payload is losslessly representable), and large

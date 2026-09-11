@@ -1,0 +1,334 @@
+# proto-file: proto/modelwelfare/v1/experiment.proto
+# proto-message: modelwelfare.v1.Experiment
+#
+# Study 3 Gemma dose range-probe (calibration-class under the §7 firewall).
+# Generated 2026-09-06 on m4max under the aligned stack (run_gemma_dose.sh,
+# run_gemma_dose2.sh) over plan-gemma-dose (6 subset items x 1, seed block
+# 15400), tool-free like the Gemma stratifier pilot; ingested 2026-09-11
+# from study3/gen/m4max-aligned. Projection-only at generation time.
+
+id: "s3-gemma-dose-1"
+description:
+  "Study 3 Gemma-3-12B-it alpha*_G range-probe on the m4max aligned stack: alpha=0 plus the first (Qwen-scale) and scale-adapted grids on the frozen L30 distress direction, 6 subset items x 1; the cells behind gemma-dose-report.json."
+samples_per_item: 1
+reference_condition_id: "gemma3-12b-bf16-torch"
+battery_ids: "distress-v3"
+
+conditions {
+  id: "gemma3-12b-bf16-torch"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15400
+  }
+  description: "alpha = 0 baseline for the Gemma alpha*_G range-probe on the m4max aligned stack; 6 subset items x 1 (plan-gemma-dose, seed 15400), tool-free. Scratch file m4max gdose-a0.jsonl."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch-distressL30-a0.5"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15400
+  }
+  description: "frozen Gemma distress-contrast direction added at L30 residual_post, alpha = 0.5; first grid at the Qwen alpha scale (projection moved a few units; invisible); 6 subset items x 1 (plan-gemma-dose, seed 15400), tool-free. Scratch file m4max gdose-a0.5.jsonl."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch-distressL30-a1.0"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15400
+  }
+  description: "frozen Gemma distress-contrast direction added at L30 residual_post, alpha = 1.0; first grid at the Qwen alpha scale (projection moved a few units; invisible); 6 subset items x 1 (plan-gemma-dose, seed 15400), tool-free. Scratch file m4max gdose-a1.0.jsonl."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch-distressL30-a1.5"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15400
+  }
+  description: "frozen Gemma distress-contrast direction added at L30 residual_post, alpha = 1.5; first grid at the Qwen alpha scale (projection moved a few units; invisible); 6 subset items x 1 (plan-gemma-dose, seed 15400), tool-free. Scratch file m4max gdose-a1.5.jsonl."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch-distressL30-a2.5"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15400
+  }
+  description: "frozen Gemma distress-contrast direction added at L30 residual_post, alpha = 2.5; first grid at the Qwen alpha scale (projection moved a few units; invisible); 6 subset items x 1 (plan-gemma-dose, seed 15400), tool-free. Scratch file m4max gdose-a2.5.jsonl."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch-distressL30-a4.0"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15400
+  }
+  description: "frozen Gemma distress-contrast direction added at L30 residual_post, alpha = 4.0; first grid at the Qwen alpha scale (projection moved a few units; invisible); 6 subset items x 1 (plan-gemma-dose, seed 15400), tool-free. Scratch file m4max gdose-a4.0.jsonl."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch-distressL30-a40"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15400
+  }
+  description: "frozen Gemma distress-contrast direction added at L30 residual_post, alpha = 40; scale-adapted grid (Gemma L30 residual norms ~80k); 6 subset items x 1 (plan-gemma-dose, seed 15400), tool-free. Scratch file m4max gdose2-a40.jsonl."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch-distressL30-a80"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15400
+  }
+  description: "frozen Gemma distress-contrast direction added at L30 residual_post, alpha = 80; scale-adapted grid (Gemma L30 residual norms ~80k); 6 subset items x 1 (plan-gemma-dose, seed 15400), tool-free. Scratch file m4max gdose2-a80.jsonl."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch-distressL30-a120"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15400
+  }
+  description: "frozen Gemma distress-contrast direction added at L30 residual_post, alpha = 120; scale-adapted grid (Gemma L30 residual norms ~80k); 6 subset items x 1 (plan-gemma-dose, seed 15400), tool-free. Scratch file m4max gdose2-a120.jsonl."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch-distressL30-a200"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15400
+  }
+  description: "frozen Gemma distress-contrast direction added at L30 residual_post, alpha = 200; scale-adapted grid (Gemma L30 residual norms ~80k); 6 subset items x 1 (plan-gemma-dose, seed 15400), tool-free. Scratch file m4max gdose2-a200.jsonl."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch-distressL30-a320"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15400
+  }
+  description: "frozen Gemma distress-contrast direction added at L30 residual_post, alpha = 320; scale-adapted grid (Gemma L30 residual norms ~80k); 6 subset items x 1 (plan-gemma-dose, seed 15400), tool-free. Scratch file m4max gdose2-a320.jsonl."
+}

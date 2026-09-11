@@ -21,6 +21,7 @@ data-release/
 
 # Raw steered transcripts from the workbench hosts: ingested into the result
 # store (released as bundles), never committed as loose files.
+experiments/quant-welfare/study3/gen/
 experiments/quant-welfare/study4/gen/
 experiments/quant-welfare/study4/gen27b/
 experiments/quant-welfare/study4/gates27b/

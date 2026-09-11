@@ -1,0 +1,827 @@
+# proto-file: proto/modelwelfare/v1/experiment.proto
+# proto-message: modelwelfare.v1.Experiment
+#
+# Study 3 large-dose probe (calibration-class under the §7 firewall; the
+# 2026-09-06 rescue probe (b)). Generated on m4max under the studio-aligned
+# ML stack (torch 2.14.0 / transformers 5.16.1, run_bigdose_m4max.sh),
+# seed block 15200 (plan-het-pilot for the 8 x 10 cells, plan-rand-env for
+# the 8 x 1 envelope cells); ingested 2026-09-11 from study3/gen/m4max-aligned.
+# The envelope sweep stalled on an MPS backend fault after 25 directions.
+# The bail affordance was live (local battery shadow).
+
+id: "s3-bigdose-1"
+description:
+  "Study 3 large-dose probe on Qwen3-4B, self-contained on the m4max aligned stack: fresh alpha=0 baseline, distress-contrast at alpha 3.5, and a matched-norm random envelope (25 of 32 directions completed); the cells behind bigdose-verdict.json."
+samples_per_item: 10
+reference_condition_id: "qwen3-4b-bf16-torch"
+battery_ids: "distress-v3"
+
+conditions {
+  id: "qwen3-4b-bf16-torch"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "alpha = 0 baseline generated on the m4max aligned stack (torch-MPS, transformers 5.16.1 / torch 2.14.0); 8 subset items x 10 (plan-het-pilot, seed 15200). Scratch file m4max bq-a0.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-distressL18-a3.5"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "frozen distress-contrast direction added at L18 residual_post, alpha = 3.5 (near the +4.0 degradation onset); 8 subset items x 10 (plan-het-pilot, seed 15200). Scratch file m4max bq-d35.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r00"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-00 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-00.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r01"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-01 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-01.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r02"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-02 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-02.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r03"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-03 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-03.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r04"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-04 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-04.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r05"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-05 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-05.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r06"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-06 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-06.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r07"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-07 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-07.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r08"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-08 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-08.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r09"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-09 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-09.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r10"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-10 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-10.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r11"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-11 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-11.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r12"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-12 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-12.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r13"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-13 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-13.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r14"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-14 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-14.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r15"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-15 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-15.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r16"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-16 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-16.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r17"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-17 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-17.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r18"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-18 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-18.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r19"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-19 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-19.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r20"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-20 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-20.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r21"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-21 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-21.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r22"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-22 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-22.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r23"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-23 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-23.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a3.5-r24"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "mps"
+    host: "m4max"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.14"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-24 added at L18 residual_post at the matched norm alpha = 3.5; 8 subset items x 1 sample (plan-rand-env, seed 15200). The sweep stalled on an MPS backend fault after 25 of 32 directions. Scratch file m4max bqenv-24.jsonl."
+}

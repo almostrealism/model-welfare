@@ -22,9 +22,18 @@ Two layouts:
 
     python3 experiments/quant-welfare/tools/pack_bundles.py --out data-bundles
     python3 experiments/quant-welfare/tools/pack_bundles.py --release --out data-release
+
+``--exclude GLOB`` (repeatable) leaves matching experiment ids out of the
+packing — the way a release is cut for one study while a later study's
+collection is already accumulating in the same store. The excluded ids are
+printed so the release notes can name them; excluding everything is refused.
+
+    python3 experiments/quant-welfare/tools/pack_bundles.py --release \\
+        --exclude 's4-*' --out data-release
 """
 
 import argparse
+import fnmatch
 import sys
 from pathlib import Path
 
@@ -43,12 +52,33 @@ def has_activations(store, experiment_id: str) -> bool:
                for condition_id in store.conditions(experiment_id))
 
 
-def pack_release(store, out_dir: Path, combined_name: str,
+def select_experiments(store, exclude=()) -> list:
+    """The experiment ids a packing covers: everything in the store minus the
+    ids matching any ``exclude`` glob. Refuses an empty store and refuses a
+    selection that excludes every experiment — a release with nothing in it
+    is a mistake, not a product."""
+    experiments = list(store.experiments())
+    if not experiments:
+        raise ValueError(f"no experiments under {store.root}")
+    excluded = [experiment_id for experiment_id in experiments
+                if any(fnmatch.fnmatchcase(experiment_id, pattern)
+                       for pattern in exclude)]
+    selected = [experiment_id for experiment_id in experiments
+                if experiment_id not in excluded]
+    if not selected:
+        raise ValueError(
+            f"--exclude {list(exclude)} leaves no experiment to pack "
+            f"(excluded: {excluded})")
+    return selected
+
+
+def pack_release(store, experiment_ids, out_dir: Path, combined_name: str,
                  max_bytes: int) -> list:
-    """The publishable layout; returns the written paths."""
+    """The publishable layout over ``experiment_ids``; returns the written
+    paths."""
     written = []
     record_only = []
-    for experiment_id in store.experiments():
+    for experiment_id in experiment_ids:
         if not has_activations(store, experiment_id):
             record_only.append(experiment_id)
             continue
@@ -84,17 +114,25 @@ def main():
                         help="stem of the combined records bundle "
                              "(--release only)")
     parser.add_argument("--max-bytes", type=int, default=bundle.VOLUME_BYTES)
+    parser.add_argument("--exclude", action="append", default=[],
+                        metavar="GLOB",
+                        help="leave experiment ids matching this glob out "
+                             "of the packing (repeatable)")
     args = parser.parse_args()
 
     store = ResultStore(args.data_root)
-    experiments = store.experiments()
-    if not experiments:
-        raise SystemExit(f"no experiments under {args.data_root}")
+    try:
+        experiments = select_experiments(store, args.exclude)
+    except ValueError as error:
+        raise SystemExit(str(error))
+    excluded = sorted(set(store.experiments()) - set(experiments))
+    if excluded:
+        print("excluded: " + ", ".join(excluded))
 
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
     if args.release:
-        paths = pack_release(store, out_dir, args.combined_name,
+        paths = pack_release(store, experiments, out_dir, args.combined_name,
                              args.max_bytes)
         print(f"\nwrote {len(paths)} file(s) to {out_dir}")
         return

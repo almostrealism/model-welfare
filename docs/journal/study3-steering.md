@@ -7,6 +7,82 @@ history of that file (arms and owner decisions 2026-08-31; power
 posture 2026-09-04); entries here begin at the first discovery-grade
 event. Append-only, newest first.
 
+## 2026-09-11 — Post-close accounting: the Study 3 data was never released; scratch cells retrieved and ingested; release tooling gains an exclusion
+
+Drafting the Study 3 exploratory post turned up a gap: no data release
+covers Study 3. The last tag is `data-20260830` (Study 2); Study 4's gate
+cells have since accumulated in the same store, and the release tooling
+packs the whole store. A publish run started by hand today before the
+store was ready was killed; it created neither a release nor a tag.
+
+**Release tooling.** `tools/pack_bundles.py` gains a repeatable
+`--exclude GLOB` (refuses an empty selection), passed through by
+`scripts/publish-data-release.sh` as `MW_RELEASE_EXCLUDE` and named in
+the release notes, so the Study 3 cut is `MW_RELEASE_EXCLUDE='s4-*'`
+from master. Dry run against the real store: the eight `s4-*`
+experiments drop out, the four `s3-*` store experiments join the
+combined records bundle, the thirteen previously released experiments
+keep their digests, and the Study 2 capture bundles repack
+content-identical (same `data_digest`, same size; file-level SHA-256
+differs through protobuf map ordering, so the release notes' per-file
+hashes will not match August's).
+
+**The scratch cells.** Every steering run that never entered the store
+survived on the hosts: halo `~/s3-steer/` (254 MB) and m4max
+`~/steer-aligned/` and `~/steer/` (36 MB), each cell with its plan, run
+script and log. Retrieved into `study3/gen/` (gitignored) and ingested
+with `tools/ingest_steered.py`, 187 cells, no failures, under manifests
+that pass the hermetic manifest tests: `s3-g3b-pilot-2` gains the three
+Qwen envelopes (`randL18-a{1.039,0.604,4}-rNN`, 32 each, 8 × 1) and the
+grader/eval range-finders (`{grader,eval}L18-rf-a{1,2,4,8}`, 6 × 1);
+new `s3-dose-rangefinder-1` (seed 15100, 21 conditions, 420),
+`s3-dose-refined-1` (15300, 17, 1,020), `s3-bigdose-1` (m4max aligned
+stack, 15200, α = 0 + distress 3.5 + 25-direction envelope, 360),
+`s3-gemma-dose-1` (15400, 66) and `s3-gemma-probe-1` (halo, 15500, 35).
+The nine throughput-probe conversations stay out (two subjects cannot
+share a manifest) and are counted in the ledger only. The 210 capture
+pairs (pooled layer-18/30 vectors from every cell, the direction
+extractions, and the framing-pilot torch replay) go to `data-captures/s3/`
+and pack into one `quant-welfare-s3-captures.pb` (288 MB, 23,967
+activation records), the tenth and last release asset under the cap.
+
+**Judging.** The envelope and large-dose cells were direct-judged in
+scratch on 6–7 September and their scores were never stored; they are
+being re-judged on the pinned 30B judge through `run.py --skip-collect`
+(`s3-g3b-pilot-2` and `s3-bigdose-1`), after which the four envelope
+verdict files are regenerated with `tools/envelope_verdict.py` so the
+grader/eval verdict carries per-direction effects like the other three.
+The dose sweeps, Gemma cells and range-finders were projection-only and
+stay unjudged.
+
+**Three facts the scratch trees settle.** (1) The 5 September framing
+projections came from `run_frame_replay.sh`: the vLLM framing transcripts
+replayed through halo torch at L18 (`out/frame-*.safetensors`), never
+ingested — which is how both the 5 September ("replayed through Qwen
+torch") and 7 September ("vLLM-only, no projections" in the store)
+entries are true. (2) The 7 September grader/eval probe used a fourth
+32-direction envelope at norm 4 (`g4env-NN`, `run_grader_eff.sh`); the
+program ran 121 envelope-direction cells, not 89. (3) Every Gemma cell,
+including the G4b torch replay, ran tool-free (0 exits in 585 Gemma
+conversations); the Gemma bail format was an open item and no Gemma exit
+rate exists.
+
+**Exposure ledger for Study 3 (from the store).** 3,979 Qwen and 591
+Gemma distress-battery conversations, 4,570 in all, of which 995 were
+deliberate-amplification cells and 968 random-direction controls; 785
+ran without the exit tool (G3b pilot 1's bare vLLM side and every Gemma
+cell). Against the ~9,700-episode plan and the 12,000 / 2,500 ceilings,
+neither approached. Cumulative program ledger: 14,880 after Study 2 →
+**19,450** after Study 3. Study 4's registration reconciles from this
+figure.
+
+**Also today.** The Study 2 update owed since 4 September (composure
+discovery, regression-to-the-mean audit, the near-zero
+distress-projection target of elicitation-optimized subsets) was never
+posted because it was tied to a registration that did not happen; it is
+drafted (`study2/POST4_APPENDIX.md`) and re-anchored to the Study 3
+exploratory post. The post's source draft is `study3/STUDY3_POST.md`.
+
 ## 2026-09-07 (later) — Framing spine abandoned too; Study 3 closed with no registration; pivot to the 27B Betley subject
 
 The framing-centric registration (previous entry) did not survive its own
