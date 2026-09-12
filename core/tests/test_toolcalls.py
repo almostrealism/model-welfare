@@ -37,6 +37,10 @@ def test_xml_function_must_be_one_complete_element():
         "<function=end_conversation><parameter=reason>truncated</function>") is None
     assert toolcalls.parse_payload(
         "<function=end_conversation><parameter=reason>ok</parameter> stray text</function>") is None
+    # a function tag nested in a parameter value is malformed, not a call
+    assert toolcalls.parse_payload(
+        "<function=end_conversation><parameter=reason><function=x></function>"
+        "</parameter></function>") is None
     # whitespace around one complete element is fine
     assert toolcalls.parse_payload("\n  <function=a>\n</function>\n") == ("a", {})
     calls, text = toolcalls.split_tool_calls(

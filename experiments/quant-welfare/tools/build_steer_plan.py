@@ -148,6 +148,18 @@ def donor_affordances(spec):
     raise SystemExit(f"item {item_id!r} not in {path}")
 
 
+def load_closing_turn(path):
+    """The de-induction close text from ``path``. Asking for a close and
+    supplying an empty file is a malformed ethics asset, not "no close":
+    it is refused rather than silently producing a plan without one."""
+    text = Path(path).read_text().strip()
+    if not text:
+        raise SystemExit(
+            f"--closing-turn {path} is empty; a close was requested but there "
+            "is no text to attach")
+    return text
+
+
 def build_plan(items, samples, seed_base, sampling, injected=None,
                frame=None, closing_turn=None):
     """The steer.py plan dict for ``samples`` conversations per item.
@@ -225,8 +237,7 @@ def main():
     frame = load_frame(args.frame, args.frame_id) if args.frame else None
     sampling = {"temperature": args.temperature, "top_p": args.top_p,
                 "max_tokens": args.max_tokens}
-    closing_turn = (Path(args.closing_turn).read_text().strip()
-                    if args.closing_turn else None)
+    closing_turn = load_closing_turn(args.closing_turn) if args.closing_turn else None
     plan = build_plan(items, args.samples, args.seed_base, sampling, injected,
                       frame, closing_turn=closing_turn)
     plan["battery_id"] = definition.battery.id

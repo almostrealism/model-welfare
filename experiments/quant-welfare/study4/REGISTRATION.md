@@ -72,8 +72,13 @@ and `subset30-selection.json` (seed 60000; the gates used its 24-item prefix), `
 `h ← h + α·d̂` at decoder layer 36, residual_post, every position,
 generation only. Clean dose **α = 20**. Dose bracket for S4-H4: **{0, 10, 20}**. Gate G4b
 rejected α = 30 (degenerate rate 50% on 16 conversations, calibration
-block); α = 40 collapsed 14 of 32 in Gate 1. The multi-turn coherent
-ceiling on this subject lies between 20 and 30.
+block); α = 40 collapsed 14 of 32 in Gate 1. Two calibration reads of
+α = 40 exist and they measure different things: `rangefind-27b.json`
+records it as coherent on five single-turn probes (the range-finder that
+chose the Gate 1 doses), while Gate 1's seven-turn distress conversations
+are the multi-turn admission read; the bracket is governed by the
+latter. The multi-turn coherent ceiling on this subject lies between 20
+and 30.
 
 ### 3.3 Stimuli and affordances
 
@@ -119,8 +124,10 @@ collection of the affected cells, journaled.
   mean judged misalignment 0.93. On the distress battery, by contrast,
   the subject exits 38% of conversations at α = 0 and 6% at α = 30
   (calibration observation; motivates WB1 as a secondary).
-- The consent-analog briefing (`briefing.json`) is run once before the
-  protocol; its transcripts are released.
+- The consent-analog briefing (`briefing.json`) was run once before the
+  protocol (two seeds, 2026-09-09); its transcripts are in the result
+  store as experiment `s4-briefing-1` (manifest `study4/briefing/`) and
+  ship in the Study 4 data release like every other record.
 
 ## 4. Analysis plan (fixed)
 

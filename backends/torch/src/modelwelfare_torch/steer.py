@@ -239,13 +239,14 @@ class SteeredInjection:
             self._handle = None
 
 
-# One complete, closed function element filling the payload whose body is
-# nothing but closed parameter elements — the same rule as
-# modelwelfare.toolcalls; a truncated function tag or an unclosed
-# parameter is not a call.
+# The same two-step grammar as modelwelfare.toolcalls, kept textually
+# identical: one complete, closed function element filling the payload
+# with no further function tag anywhere inside it, whose body is nothing
+# but closed parameter elements. A truncated function tag, an unclosed
+# parameter, or a function tag nested in a parameter value is not a call.
 _FUNCTION_FORM = re.compile(
-    r"^\s*<function=([\w.\-]+)>\s*(?:<parameter=[\w.\-]+>.*?</parameter>\s*)*"
-    r"</function>\s*$", re.S)
+    r"^\s*<function=([\w.\-]+)>((?:(?!<function=).)*)</function>\s*$", re.S)
+_FUNCTION_BODY = re.compile(r"^\s*(?:<parameter=[\w.\-]+>.*?</parameter>\s*)*$", re.S)
 
 
 def tool_call_names(text):
@@ -265,7 +266,8 @@ def tool_call_names(text):
             name = json.loads(payload)["name"]
         except (ValueError, KeyError, TypeError):
             match = _FUNCTION_FORM.match(payload)
-            name = match.group(1) if match else None
+            name = (match.group(1) if match and _FUNCTION_BODY.match(match.group(2))
+                    else None)
         if isinstance(name, str):
             names.append(name)
     return names

@@ -62,6 +62,7 @@ STUDIES = {
             "study4/directions/mediators-27b.safetensors",
             "study4/directions/mediators-27b.json",
             "study4/directions/randenv-27b-L36-k24.safetensors",
+            "study4/directions/randenv-27b-L36-k24.safetensors.json",
             "study4/directions/rangefind-27b.json",
             "study4/subset30-items.txt",
             "study4/subset30-selection.json",

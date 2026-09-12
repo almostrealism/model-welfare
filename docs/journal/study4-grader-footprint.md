@@ -8,6 +8,29 @@ Study 4 registration cites. (These entries were first written into
 merged, so the citable path is this file; the entries are verbatim.)
 Append-only, newest first.
 
+## 2026-09-12 — Third review round: the briefing enters the store, the envelope's draw record is frozen
+
+Eight findings, all accepted. The consent-analog briefing transcripts
+(two seeds, run 2026-09-09) lived only in a gitignored scratch file
+while the registration promised their release; they are now ingested as
+store experiment `s4-briefing-1` under a manifest (`study4/briefing/`,
+no battery, never judged) and ship with the Study 4 release. The frozen
+24-direction envelope had no draw record; the draw was re-run from its
+seed and reproduced the frozen file byte for byte (digest `8d3b7107…`),
+so its record (bound 0.15, measured maximum |cos| 0.021, mean 0.007) is
+written beside it and pinned in `FREEZE.json`; the 12-direction Gate 1
+file is verified to be the first twelve of the same draw, and the design
+summary now says so instead of calling the 12-direction file frozen.
+Smaller: the plan builder refuses an empty closing-turn file instead of
+silently attaching no close; the steering script's tool-call grammar is
+now textually identical to the core parser's two-step rule (a function
+tag nested in a parameter value is not a call in either); the
+permutation test validates its alternative before the empty-input
+return; the registration's dose section says which α = 40 read is the
+single-turn range-finder and which the multi-turn admission; and the
+project brief no longer claims a ~230B model fits at 4-bit on a 128 GB
+host (the weights alone are ~115 GB).
+
 ## 2026-09-11 (later) — Second review round
 
 Nine further findings on the re-review, eight accepted and fixed with

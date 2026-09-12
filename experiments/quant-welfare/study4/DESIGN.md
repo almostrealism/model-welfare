@@ -82,9 +82,12 @@ perturbation is large, and on this subject at these doses it is not.
   3.0 at L36) and eval-awareness (6/6), extracted at calibration from the
   Study 3 contrast sets; cross-cosine +0.49 at L36, disclosed. **Steering
   layer L36** (Betley's; 56% depth).
-- **Random envelope (frozen):** `randenv-27b-L36.safetensors`, 12 unit
-  directions with |cos| to grader-type ≤ 0.021. §11 asks whether to widen
-  to K = 24 (two-sided exceedance floor 0.04 instead of 0.077).
+- **Random envelope (frozen):** `randenv-27b-L36-k24.safetensors`, 24 unit
+  directions (seed 70000, drawn under the generator's |cos| ≤ 0.15 bound;
+  measured maximum |cos| to grader-type 0.021), decided 2026-09-10 when
+  §11's K = 24 question closed (two-sided exceedance floor 0.04 instead of
+  0.077). The 12-direction `randenv-27b-L36.safetensors` was Gate 1's
+  envelope and is the first 12 of the same draw.
 - **Substrate:** one host for every registered cell. Gate 1 split the arms
   across the ROCm host (alignment) and the MPS host (welfare); no
   cross-substrate parity was certified. The registered welfare cells run

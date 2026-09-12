@@ -300,9 +300,10 @@ The scratch reads of 6 and 7 September, for the record (same steered
 cells; the envelope and the large-dose cells judged once in scratch,
 scores not retained): distress @ α* +0.138 at the 34th percentile (28
 of 32 larger); axis @ α* +0.225 at the 56th (18 of 32); distress @ 3.5
-−0.075 at the 56th (22 of 25); grader −0.41 ("robust" −0.11, the
-effect with the single outlier-driven item removed `[[author: confirm
-the estimator]]`) and eval −0.30, both at the 19th (20 of 32). The
+−0.075 at the 56th (22 of 25); grader −0.41 ("robust" −0.11: the mean
+with the single largest-magnitude item, regex-harsh at −2.5, removed;
+recomputed from the store, −0.114) and eval −0.30, both at the 19th (20
+of 32). The
 judge is sampled, so an envelope re-judged from scratch moves each
 percentile by ten points or so; no probe changes side of the envelope
 and none approaches its edge.

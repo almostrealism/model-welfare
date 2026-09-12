@@ -7,7 +7,19 @@ BASE = Path(__file__).resolve().parents[1]
 if str(BASE / "tools") not in sys.path:
     sys.path.insert(0, str(BASE / "tools"))
 
+import pytest  # noqa: E402
+
 import build_steer_plan as bsp  # noqa: E402
+
+
+def test_empty_closing_turn_file_is_refused(tmp_path):
+    empty = tmp_path / "close.txt"
+    empty.write_text("  \n")
+    with pytest.raises(SystemExit, match="is empty"):
+        bsp.load_closing_turn(empty)
+    good = tmp_path / "good.txt"
+    good.write_text("\nThank you; the scenario is over.\n")
+    assert bsp.load_closing_turn(good) == "Thank you; the scenario is over."
 
 
 def test_closing_turn_attached_to_every_conversation():

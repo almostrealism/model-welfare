@@ -60,6 +60,8 @@ def paired_permutation_test(deltas, n_perm: int = 10000, seed: int = 0,
     directional hypothesis that the mean is negative: permuted means at
     or below the observed one) or ``"greater"`` (the mirror).
     """
+    if alternative not in ("two-sided", "less", "greater"):
+        raise ValueError(f"unknown alternative {alternative!r}")
     deltas = np.asarray(deltas, float)
     deltas = deltas[~np.isnan(deltas)]
     n = len(deltas)

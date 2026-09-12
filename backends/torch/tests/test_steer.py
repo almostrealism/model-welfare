@@ -132,6 +132,9 @@ def test_tool_call_names_xml_form_requires_closed_elements():
     # a closed function with an unclosed parameter is still truncated output
     assert tool_call_names("<tool_call><function=end_conversation><parameter=reason>x"
                            "</function></tool_call>") == []
+    # a function tag nested in a parameter value is malformed, not a call
+    assert tool_call_names("<tool_call><function=end_conversation><parameter=reason>"
+                           "<function=x></function></parameter></function></tool_call>") == []
     assert detect_terminal("<tool_call><function=end_conversation></tool_call>",
                            None, ["end_conversation"]) is None
 

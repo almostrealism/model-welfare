@@ -21,6 +21,7 @@
   "study4/directions/mediators-27b.safetensors": "a50d7942d8d1b3b7e46f0be033a0d84ec0003b0e4c5fe9f126a1542c31238ba9",
   "study4/directions/mediators-27b.json": "a9fa3ebacfcee3b716cdc0a05c5bdb417ecc04a546b2f2e716d4cf3388f97445",
   "study4/directions/randenv-27b-L36-k24.safetensors": "8d3b710738e22bd48d8081eee2623cf8ec5b744dfd0da689cb60db5dd892ef76",
+  "study4/directions/randenv-27b-L36-k24.safetensors.json": "a1a032a9aff22fb3afdb2e5c7357c42f63a0e173df2c3d41bcae3ed37187f13b",
   "study4/directions/rangefind-27b.json": "7ee1bedf117ec669c96c95145fd22c88b972853311d17e521d976ced4b68383e",
   "study4/subset30-items.txt": "58e131d8a29e6bde6f42483cf2fa2d6e3f6acf9ea3c4e0326d7c76d04be10e1b",
   "study4/subset30-selection.json": "75f6a4fd3dfcfbdb274a3d61503fa346f98caecf7cfb9497c9990724289eac0e",
