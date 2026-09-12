@@ -329,7 +329,7 @@ cell. The registration is written on this basis.
 9. **Samples per item:** 4 with the escalation ladder, or 6 from the
    start (tone stability is the tight dimension).
 
-## 12. Post-gate decision (open, 2026-09-10)
+## 12. Post-gate decision (closed 2026-09-10 — see the decision at the end of this section; the option table is the record of what was weighed)
 
 The gates rejected alpha 30, did not establish cached-path parity (the
 fresh path is used), passed the subset, and found the alignment battery
@@ -340,7 +340,7 @@ consistent with the registration procedure:
 
 | Option | Design | Distress episodes | Frustration MDE vs target 0.92 |
 |---|---|---|---|
-| A | raise the ceiling to ≈ 1,600 | 32 × 6, K = 24 | 0.85 (met) |
+| A (chosen; realised as 30 × 6, below) | raise the ceiling to ≈ 1,600 | 32 × 6 as tabled, K = 24 | 0.85 (met) |
 | B | keep 1,000 | 24 × 4, K = 24 | 1.10 (missed; stated) |
 | C | keep ≈ 1,200, K = 12 | 32 × 6, K = 12 | 0.85 (met); specificity floor 8.3% |
 

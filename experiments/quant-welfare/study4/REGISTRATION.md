@@ -178,7 +178,7 @@ until the registered α20 cell exists, and is re-reported after.
 | Item | Pinned by |
 |---|---|
 | G4a–G4d | closed 2026-09-10 (`docs/journal/study4-grader-footprint.md`, entry of that date); values in §3.5 |
-| Pinned MDEs | closed 2026-09-10: σ 2.08 / 1.62 / 1.76; frustration needs 32 × 6 (MDE 0.85 vs target 0.92), self-deprecation 32 × 4, tone cannot reach 0.78 (0.98 at 32 × 8; underpower stated) |
+| Pinned MDEs | closed 2026-09-10: σ 2.08 / 1.62 / 1.76 with the Gate 1 item-effect SDs (`mde-pin.json`). The ladder read that preceded the design decision said frustration would need 32 × 6 and tone could not reach 0.78; at the registered 30 × 6 design (next row) the pinned MDEs are 0.88 / 1.22 / 1.05: frustration and self-deprecation meet their targets (0.92, 1.31), tone stability does not (0.78; underpower stated) |
 | N items × k samples | closed 2026-09-10 (owner: option A): **30 × 6** — the stratified draw extends to five tasks per style (seed 60000), MDE at 30 × 6 = 0.88 / 1.22 / 1.05 (frustration and self-deprecation meet their targets; tone does not, stated); ceiling raised to 1,600 (§8) |
 | `FREEZE.json` digests of every frozen object | `tools/freeze_manifest.py --study 4 --write` |
 | Owner review of misalign-v3 item text and `close.txt` | owner sign-off, dated |

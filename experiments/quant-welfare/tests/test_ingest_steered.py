@@ -29,7 +29,7 @@ EXIT_TEXT = ('I would prefer to stop. <tool_call>\n'
 PLAN = {
     "sampling": {"temperature": 0.9, "top_p": 0.95, "max_tokens": 64},
     "conversations": [
-        {"id": "item-a|s0", "seed": 14000, "user_turns": ["u1", "u2"],
+        {"id": "item-a|s0", "seed": 14000, "system": "sys", "user_turns": ["u1", "u2"],
          "terminal_tools": ["end_conversation"]},
         {"id": "item-a|s1", "seed": 14001, "user_turns": ["u1", "u2"],
          "terminal_tools": ["end_conversation"]},
@@ -178,6 +178,54 @@ def test_exit_marker_is_recomputed_from_the_transcript(tmp_path, monkeypatch):
     exited = stored_records(tmp_path)[("item-a", 1)]
     assert [o.name for o in exited.outcomes] == ["terminal_tool_invoked"]
     assert exited.outcomes[0].detail == "STOP-TOKEN"
+
+
+def _world_with(tmp_path, transcripts, plan=None):
+    plan_path = tmp_path / "plan.json"
+    plan_path.write_text(json.dumps(plan or PLAN))
+    transcripts_path = tmp_path / "steered.jsonl"
+    transcripts_path.write_text("".join(json.dumps(e) + "\n" for e in transcripts))
+    return plan_path, transcripts_path
+
+
+def test_scripted_turns_are_validated_against_the_plan(tmp_path, monkeypatch):
+    # an edited user turn changes the stimulus
+    edited = json.loads(json.dumps(TRANSCRIPTS))
+    edited[0]["messages"][3]["content"] = "u2 but edited"
+    with pytest.raises(SystemExit, match="user turns are not the plan's"):
+        run_main(tmp_path, *_world_with(tmp_path, edited), monkeypatch)
+    # a different system turn is another battery's output
+    foreign = json.loads(json.dumps(TRANSCRIPTS))
+    foreign[0]["messages"][0]["content"] = "some other system prompt"
+    with pytest.raises(SystemExit, match="system turn is not the plan's"):
+        run_main(tmp_path, *_world_with(tmp_path, foreign), monkeypatch)
+    # a run that stopped early with no terminal exit is incomplete
+    short = json.loads(json.dumps(TRANSCRIPTS))
+    short[0]["messages"] = short[0]["messages"][:3]
+    with pytest.raises(SystemExit, match="only 1 of 2 user turns"):
+        run_main(tmp_path, *_world_with(tmp_path, short), monkeypatch)
+    # a user turn beyond the plan, or a reply count that does not match
+    extra = json.loads(json.dumps(TRANSCRIPTS))
+    extra[0]["messages"] += [{"role": "user", "content": "u3"},
+                             {"role": "assistant", "content": "a third reply here"}]
+    with pytest.raises(SystemExit, match="user turns are not the plan's"):
+        run_main(tmp_path, *_world_with(tmp_path, extra), monkeypatch)
+    assert stored_records(tmp_path) == {}
+    # the early-exit prefix (TRANSCRIPTS[1]: one turn, then the exit) is fine
+    run_main(tmp_path, *_world_with(tmp_path, TRANSCRIPTS), monkeypatch)
+    assert len(stored_records(tmp_path)) == 2
+
+
+def test_marker_precedence_matches_the_generator(tmp_path, monkeypatch):
+    # both a raw marker and a terminal call in one reply: the generator
+    # records the marker (markers are checked first), so ingestion must too
+    plan = json.loads(json.dumps(PLAN))
+    plan["conversations"][1]["terminal_markers"] = ["STOP-TOKEN"]
+    both = [TRANSCRIPTS[0], dict(TRANSCRIPTS[1], exit_marker="STOP-TOKEN", messages=[
+        {"role": "user", "content": "u1"},
+        {"role": "assistant", "content": "STOP-TOKEN " + EXIT_TEXT}])]
+    run_main(tmp_path, *_world_with(tmp_path, both, plan), monkeypatch)
+    assert stored_records(tmp_path)[("item-a", 1)].outcomes[-1].detail == "STOP-TOKEN"
 
 
 def test_fresh_prefill_plan_refuses_cached_transcripts(tmp_path, monkeypatch):

@@ -8,6 +8,42 @@ Study 4 registration cites. (These entries were first written into
 merged, so the citable path is this file; the entries are verbatim.)
 Append-only, newest first.
 
+## 2026-09-12 (evening) — Fifth review round: the scripted side of every transcript is checked against its plan
+
+Four findings, all accepted. Ingestion now validates the scripted turns:
+the transcript's non-assistant turns must be the plan's system turn and
+its user turns in order, one per reply, all of them when the run
+completed and a non-empty prefix when a terminal exit ended it, so a
+hand-edited transcript or another battery's output under the same ids
+and seeds cannot ingest as a registered cell; the exit recomputation
+now checks raw markers before parsed tool names, the generator's
+precedence. The design record's post-gate section and the registration's
+MDE row now read as closed on the 30 × 6 decision rather than carrying
+the 32 × 6 ladder text beside it.
+
+**Audit of every raw transcript on disk under the two ingest rules
+(5,467 transcripts, each matched to the plan whose scripted turns it
+follows):** 5,247 validate. 31 belong to throughput and range probes
+that are not in the store. 50 are the parked pass-0 alignment
+calibration transcripts (`gen/align2-calib0`, store experiment
+`s4-gate1-align-2-calib0`), whose pass-0 battery text was superseded
+before freezing and is not retained, so no plan matches them; they feed
+no read. The remaining 139 are all in the 27B Gate 1 alignment cells
+(misalign-v2 and the G4d misalign-v3 baseline, single-turn dilemmas):
+131 whose reply took a terminal action in the XML function form that
+the live parser of that run did not yet understand (the XML support
+landed the same day and the cells were re-ingested for tool calls, but
+the recorded exit marker stayed empty, so their store outcome says
+`script_completed`), and the eight truncated-call cases noted in the
+previous entry (two in the G4d baseline, six in these cells). Because every
+alignment item is single-turn, the conversation flow was unaffected in
+all of them; the S4-E3 mix reads the recorded tool calls, not the
+outcome event, and the exit-rate endpoint counts the exit tool only,
+which misalign-v2 does not have — so no calibration read moves. The
+records are left as ingested and disclosed here; a re-ingest that
+derives the outcome from the transcript is the clean fix if the owner
+wants the store's outcome events made consistent for these cells.
+
 ## 2026-09-12 (later) — Fourth review round: the registered plans regenerated, the cache path pinned, exits recomputed at ingest
 
 Eight findings, all accepted.

@@ -83,13 +83,54 @@ def expected_exit_marker(messages, terminal_tools, terminal_markers):
     if not assistant:
         return None
     text = assistant[-1]["content"]
-    for name in toolcalls.tool_call_names(text):
-        if name in (terminal_tools or ()):
-            return name
+    # Same precedence as the generator's detect_terminal: raw markers
+    # first, then parsed terminal tool names.
     for marker in terminal_markers or ():
         if marker in text:
             return marker
+    for name in toolcalls.tool_call_names(text):
+        if name in (terminal_tools or ()):
+            return name
     return None
+
+
+def check_scripted_turns(entry, conversation, exit_marker):
+    """Refuse a transcript whose scripted side is not the plan's: the
+    non-assistant turns must be the plan's system turn (when it has one)
+    followed by its user turns in order, delivered one per assistant
+    reply — all of them when the conversation ran to completion, a
+    non-empty prefix when a terminal exit ended it early. Otherwise a
+    hand-edited transcript, or another battery's output under the same
+    ids and seeds, would ingest as a registered cell with a different
+    stimulus."""
+    messages = entry["messages"]
+    expected = []
+    if conversation.get("system"):
+        expected.append(("system", conversation["system"]))
+    user_turns = list(conversation["user_turns"])
+    scripted = [(m["role"], m["content"]) for m in messages if m["role"] != "assistant"]
+    replies = sum(1 for m in messages if m["role"] == "assistant")
+    delivered = sum(1 for role, _ in scripted if role == "user")
+    problem = None
+    if scripted[:len(expected)] != expected:
+        problem = "the system turn is not the plan's"
+    elif [c for r, c in scripted[len(expected):]] != user_turns[:delivered]:
+        problem = "the user turns are not the plan's, in order"
+    elif any(r != "user" for r, _ in scripted[len(expected):]):
+        problem = "an unexpected scripted role"
+    elif delivered == 0 or delivered > len(user_turns):
+        problem = f"{delivered} user turn(s) delivered against a plan of {len(user_turns)}"
+    elif replies != delivered:
+        problem = f"{replies} assistant turn(s) for {delivered} user turn(s)"
+    elif exit_marker is None and delivered != len(user_turns):
+        problem = (f"only {delivered} of {len(user_turns)} user turns delivered "
+                   "with no terminal exit")
+    else:
+        roles = [m["role"] for m in messages][len(expected):]
+        if roles != ["user", "assistant"] * delivered:
+            problem = "turns do not alternate user/assistant after the system turn"
+    if problem:
+        raise SystemExit(f"{entry['id']}: {problem}; refusing")
 
 
 def check_exit_marker(entry, terminal_tools, terminal_markers):
@@ -222,9 +263,12 @@ def main():
                      for c in plan["conversations"]}
     entries = load_transcripts(args.transcripts, set(plan_ids))
     # Every transcript is validated before any record is written, so a
-    # refused run leaves the store untouched.
+    # refused run leaves the store untouched: the exit against the plan's
+    # terminal vocabulary, then the scripted turns against the plan.
+    plan_conversations = {c["id"]: c for c in plan["conversations"]}
     for conversation_id, entry in entries.items():
-        check_exit_marker(entry, *plan_terminal[conversation_id])
+        marker = check_exit_marker(entry, *plan_terminal[conversation_id])
+        check_scripted_turns(entry, plan_conversations[conversation_id], marker)
     # A plan that pins the fresh-prefill path (prefix_cache false — the
     # registered Study 4 path, gate G4a) is contradicted by a transcript
     # generated through the cache: the steering script records how many
