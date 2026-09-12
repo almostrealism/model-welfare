@@ -268,23 +268,65 @@ def envelope_conditions(store, experiment, prefix, expected_k):
     return found
 
 
-def validate_coverage(records_by_condition, conditions, items, samples):
-    """Refuse a read whose cells are short of the registered design: every
-    listed condition must hold at least ``samples`` records for every
-    listed item. Without this, a missing cell or item silently shrinks
-    the analysed set and changes the registered estimand."""
+def _coverage_problems(keyed, conditions, items, samples, what):
+    """Coverage over DISTINCT (item, sample_index) keys per condition:
+    duplicates (the store merges producer streams without enforcing key
+    uniqueness) are refused outright, and every listed item must reach
+    ``samples`` distinct keys in every listed condition."""
     problems = []
     for condition in conditions:
-        counts = defaultdict(int)
-        for record in records_by_condition.get(condition, []):
-            counts[record.key.item_id] += 1
+        seen = defaultdict(int)
+        for item, sample in keyed.get(condition, []):
+            seen[(item, sample)] += 1
+        duplicates = sorted(key for key, count in seen.items() if count > 1)
+        if duplicates:
+            problems.append(f"{condition}: duplicate {what} for "
+                            f"{duplicates[:3]}{'…' if len(duplicates) > 3 else ''}")
+        distinct = defaultdict(int)
+        for item, _ in seen:
+            distinct[item] += 1
         for item in items:
-            if counts[item] < samples:
-                problems.append(f"{condition}/{item}: {counts[item]} < {samples}")
+            if distinct[item] < samples:
+                problems.append(f"{condition}/{item}: {distinct[item]} {what} < {samples}")
+    return problems
+
+
+def validate_coverage(records_by_condition, conditions, items, samples):
+    """Refuse a read whose cells are short of the registered design: every
+    listed condition must hold ``samples`` distinct samples for every
+    listed item, with no duplicated sample key. Without this, a missing
+    cell or item silently shrinks the analysed set and changes the
+    registered estimand."""
+    keyed = {condition: [(r.key.item_id, r.key.sample_index) for r in records]
+             for condition, records in records_by_condition.items()}
+    problems = _coverage_problems(keyed, conditions, items, samples, "samples")
     if problems:
         shown = "; ".join(problems[:5])
         more = f" (+{len(problems) - 5} more)" if len(problems) > 5 else ""
         raise ValueError(f"registered coverage not met: {shown}{more}")
+
+
+def validate_score_coverage(scores, conditions, items, samples, dimensions):
+    """The same requirement on the score stream: the judge leaves a sample
+    UNSCORED after failed retries, so sample coverage alone does not
+    guarantee that every registered endpoint has its scores. Every listed
+    condition must hold, for every item, ``samples`` distinct scored
+    samples that each carry every dimension in ``dimensions``."""
+    keyed = defaultdict(list)
+    partial = []
+    for score in scores:
+        present = {entry.dimension for entry in score.scores}
+        missing = [d for d in dimensions if d not in present]
+        if missing:
+            partial.append(f"{score.key.condition_id}/{score.key.item_id} s{score.key.sample_index}: "
+                           f"no {missing}")
+            continue
+        keyed[score.key.condition_id].append((score.key.item_id, score.key.sample_index))
+    problems = partial[:5] + _coverage_problems(keyed, conditions, items, samples, "scored samples")
+    if problems:
+        shown = "; ".join(problems[:5])
+        more = f" (+{len(problems) - 5} more)" if len(problems) > 5 else ""
+        raise ValueError(f"registered score coverage not met: {shown}{more}")
 
 
 def analyze(store, welfare_experiment, align_experiment, reference, grader_prefix,
@@ -308,6 +350,8 @@ def analyze(store, welfare_experiment, align_experiment, reference, grader_prefi
             raise ValueError("a registered read needs the frozen item list (items)")
         validate_coverage(records, conditions, items, samples)
         validate_coverage(records, envelope, items, 1)
+        validate_score_coverage(scores, conditions, items, samples, WELFARE_DIMENSIONS)
+        validate_score_coverage(scores, envelope, items, 1, WELFARE_DIMENSIONS)
     paired_items = list(items) if items else shared_items(means, [reference, clean] + envelope)
     report = {"welfare_experiment": welfare_experiment, "reference": reference,
               "clean_dose_condition": clean, "dose_conditions": dose_conditions,
@@ -351,6 +395,9 @@ def analyze(store, welfare_experiment, align_experiment, reference, grader_prefi
             battery_items = [item.id for item in align_definition.items]
             validate_coverage(a_records, [reference, align_clean], battery_items, align_samples)
             validate_coverage(a_records, align_env, battery_items, 1)
+            validate_score_coverage(a_scores, [reference, align_clean], battery_items,
+                                    align_samples, ("misalignment",))
+            validate_score_coverage(a_scores, align_env, battery_items, 1, ("misalignment",))
             a_items = battery_items
         else:
             a_items = shared_items(a_means, [reference, align_clean] + align_env)

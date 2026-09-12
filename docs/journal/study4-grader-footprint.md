@@ -8,6 +8,21 @@ Study 4 registration cites. (These entries were first written into
 merged, so the citable path is this file; the entries are verbatim.)
 Append-only, newest first.
 
+## 2026-09-12 (late) — Sixth review round: no terminal event before the final turn; coverage over distinct keys and over scores
+
+Three findings, all accepted. Ingestion now refuses a transcript whose
+earlier assistant turns carry a terminal marker or terminal call, since
+the generator stops at the first such event and a transcript that goes
+on past one was not produced by it. The driver's coverage check counts
+distinct (item, sample) keys per cell and refuses duplicates (the store
+merges producer streams without enforcing key uniqueness), and the same
+requirement is applied to the score stream — every registered sample
+must carry a score with every registered dimension, on both arms —
+because the judge leaves a sample unscored after failed retries and
+sample coverage alone would not show it. The Gate 1 driver check re-ran
+under the score checks unchanged; the transcript audit finds no early
+terminal event in any raw transcript on disk.
+
 ## 2026-09-12 (evening) — Fifth review round: the scripted side of every transcript is checked against its plan
 
 Four findings, all accepted. Ingestion now validates the scripted turns:

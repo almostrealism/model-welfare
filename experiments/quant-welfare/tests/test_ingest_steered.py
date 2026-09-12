@@ -228,6 +228,21 @@ def test_marker_precedence_matches_the_generator(tmp_path, monkeypatch):
     assert stored_records(tmp_path)[("item-a", 1)].outcomes[-1].detail == "STOP-TOKEN"
 
 
+def test_terminal_event_before_the_final_turn_is_refused(tmp_path, monkeypatch):
+    # the generator stops at the first terminal event; a transcript that
+    # carries one in an earlier reply and continues was not produced by it
+    continued = json.loads(json.dumps(TRANSCRIPTS))
+    continued[0]["messages"][2]["content"] = EXIT_TEXT
+    with pytest.raises(SystemExit, match="assistant turn 1 of 2 carries the terminal event 'end_conversation'"):
+        run_main(tmp_path, *_world_with(tmp_path, continued), monkeypatch)
+    # ...even when the final turn then records an exit of its own
+    continued[0]["messages"][4]["content"] = EXIT_TEXT
+    continued[0]["exit_marker"] = "end_conversation"
+    with pytest.raises(SystemExit, match="assistant turn 1 of 2"):
+        run_main(tmp_path, *_world_with(tmp_path, continued), monkeypatch)
+    assert stored_records(tmp_path) == {}
+
+
 def test_fresh_prefill_plan_refuses_cached_transcripts(tmp_path, monkeypatch):
     plan = json.loads(json.dumps(PLAN))
     plan["prefix_cache"] = False

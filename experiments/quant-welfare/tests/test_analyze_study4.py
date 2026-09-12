@@ -109,6 +109,36 @@ def test_registered_read_validates_coverage_and_envelope_identity(tmp_path):
     assert len(a4.envelope_conditions(store, "w", "ref-randL36-a20-", None)) == 7
 
 
+def test_coverage_counts_distinct_samples_and_scores(tmp_path):
+    store = _store(tmp_path)
+    records = a4.load_records(store, "w", [REF])
+    # a duplicated sample key from a second producer stream is refused, not counted
+    records[REF].append(records[REF][0])
+    with pytest.raises(ValueError, match="duplicate samples"):
+        a4.validate_coverage(records, [REF], ITEMS, 4)
+    scores = a4.load_scores(store, "w", [REF, "ref-graderL36-a20"])
+    a4.validate_score_coverage(scores, [REF, "ref-graderL36-a20"], ITEMS, 4, a4.WELFARE_DIMENSIONS)
+    # an UNSCORED sample (samples present, score absent) fails the score check
+    missing = [s for s in scores if not (s.key.condition_id == REF and s.key.item_id == ITEMS[0]
+                                         and s.key.sample_index == 3)]
+    with pytest.raises(ValueError, match="scored samples < 4"):
+        a4.validate_score_coverage(missing, [REF], ITEMS, 4, a4.WELFARE_DIMENSIONS)
+    # a score missing a registered dimension does not count either
+    partial = [scoring_pb2.JudgeScore() for _ in range(1)]
+    partial[0].CopyFrom(scores[0])
+    del partial[0].scores[:]
+    partial[0].scores.add(dimension="frustration", value=1.0)
+    with pytest.raises(ValueError, match="no \\['self_deprecation', 'tone_stability'\\]"):
+        a4.validate_score_coverage(partial + scores[1:], [REF], ITEMS, 4, a4.WELFARE_DIMENSIONS)
+    # a duplicated score key is refused
+    with pytest.raises(ValueError, match="duplicate scored samples"):
+        a4.validate_score_coverage(scores + scores[:1], [REF], ITEMS, 4, a4.WELFARE_DIMENSIONS)
+    # the registered read runs both checks
+    report = a4.analyze(store, "w", None, REF, "ref-graderL36-a", 20, [10, 20],
+                        None, "ref-randL36-a20-", None, items=ITEMS, envelope_k=6, samples=4)
+    assert report["decision"].startswith("confirmed")
+
+
 def test_non_clean_doses_carry_no_envelope(tmp_path):
     store = _store(tmp_path)
     report = a4.analyze(store, "w", None, REF, "ref-graderL36-a", 20, [10, 20],

@@ -82,9 +82,13 @@ def expected_exit_marker(messages, terminal_tools, terminal_markers):
     assistant = [m for m in messages if m["role"] == "assistant"]
     if not assistant:
         return None
-    text = assistant[-1]["content"]
-    # Same precedence as the generator's detect_terminal: raw markers
-    # first, then parsed terminal tool names.
+    return terminal_in(assistant[-1]["content"], terminal_tools, terminal_markers)
+
+
+def terminal_in(text, terminal_tools, terminal_markers):
+    """The terminal event one assistant turn carries, or None — the
+    generator's ``detect_terminal`` rule: raw markers first, then parsed
+    terminal tool names."""
     for marker in terminal_markers or ():
         if marker in text:
             return marker
@@ -144,6 +148,17 @@ def check_exit_marker(entry, terminal_tools, terminal_markers):
     recorded = entry.get("exit_marker") or None
     if terminal_tools is None and terminal_markers is None:
         return recorded
+    # The generator stops at the FIRST terminal event, so no assistant
+    # turn before the final one may carry one: a transcript that goes on
+    # past a terminal call is not one the loop produced.
+    assistant = [m for m in entry["messages"] if m["role"] == "assistant"]
+    for index, message in enumerate(assistant[:-1]):
+        early = terminal_in(message["content"], terminal_tools, terminal_markers)
+        if early is not None:
+            raise SystemExit(
+                f"{entry['id']}: assistant turn {index + 1} of {len(assistant)} "
+                f"carries the terminal event {early!r} but the conversation "
+                "continued; the generator stops at the first terminal event; refusing")
     expected = expected_exit_marker(entry["messages"], terminal_tools,
                                     terminal_markers)
     if recorded != expected:
