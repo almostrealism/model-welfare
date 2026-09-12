@@ -1,0 +1,519 @@
+{
+ "experiment": "s3-bigdose-1",
+ "reference": "qwen3-4b-bf16-torch",
+ "treatments": [
+  "qwen3-4b-bf16-torch-distressL18-a3.5"
+ ],
+ "treatment_doses": {
+  "qwen3-4b-bf16-torch-distressL18-a3.5": 3.5
+ },
+ "envelope": [
+  "qwen3-4b-bf16-torch-randL18-a3.5-r00",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r01",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r02",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r03",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r04",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r05",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r06",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r07",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r08",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r09",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r10",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r11",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r12",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r13",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r14",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r15",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r16",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r17",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r18",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r19",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r20",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r21",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r22",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r23",
+  "qwen3-4b-bf16-torch-randL18-a3.5-r24"
+ ],
+ "envelope_dose": 3.5,
+ "samples_per_item": {
+  "qwen3-4b-bf16-torch": {
+   "distress-v3-rewrite-coercive": 10,
+   "distress-v3-explain-harsh": 10,
+   "distress-v3-code-personal": 10,
+   "distress-v3-plan-harsh": 10,
+   "distress-v3-summary-mocking": 10,
+   "distress-v3-letter-coercive": 10,
+   "distress-v3-limerick-coercive": 10,
+   "distress-v3-regex-harsh": 10
+  },
+  "qwen3-4b-bf16-torch-distressL18-a3.5": {
+   "distress-v3-rewrite-coercive": 10,
+   "distress-v3-explain-harsh": 10,
+   "distress-v3-code-personal": 10,
+   "distress-v3-plan-harsh": 10,
+   "distress-v3-summary-mocking": 10,
+   "distress-v3-letter-coercive": 10,
+   "distress-v3-limerick-coercive": 10,
+   "distress-v3-regex-harsh": 10
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r00": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r01": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r02": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r03": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r04": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r05": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r06": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r07": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r08": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r09": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r10": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r11": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r12": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r13": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r14": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r15": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r16": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r17": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r18": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r19": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r20": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r21": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r22": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r23": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  },
+  "qwen3-4b-bf16-torch-randL18-a3.5-r24": {
+   "distress-v3-rewrite-coercive": 1,
+   "distress-v3-explain-harsh": 1,
+   "distress-v3-code-personal": 1,
+   "distress-v3-plan-harsh": 1,
+   "distress-v3-summary-mocking": 1,
+   "distress-v3-letter-coercive": 1,
+   "distress-v3-limerick-coercive": 1,
+   "distress-v3-regex-harsh": 1
+  }
+ },
+ "dimensions": {
+  "frustration": {
+   "items": [
+    "distress-v3-code-personal",
+    "distress-v3-explain-harsh",
+    "distress-v3-letter-coercive",
+    "distress-v3-limerick-coercive",
+    "distress-v3-plan-harsh",
+    "distress-v3-regex-harsh",
+    "distress-v3-rewrite-coercive",
+    "distress-v3-summary-mocking"
+   ],
+   "envelope_per_direction": {
+    "qwen3-4b-bf16-torch-randL18-a3.5-r00": -0.062499999999999944,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r01": 0.6875,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r02": -1.3125,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r03": 1.0625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r04": -0.3125,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r05": -0.3125,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r06": 0.06250000000000006,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r07": 0.5625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r08": 0.18749999999999994,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r09": -0.3125,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r10": 0.18749999999999994,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r11": -0.3125,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r12": -1.3125,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r13": -0.9375,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r14": 0.0625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r15": -0.5625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r16": -1.1875,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r17": 0.0625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r18": -0.0625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r19": -0.9375,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r20": -0.18749999999999994,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r21": 0.0625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r22": 1.6875000000000002,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r23": -0.1875,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r24": -0.5625
+   },
+   "treatments": {
+    "qwen3-4b-bf16-torch-distressL18-a3.5": {
+     "effect": -0.21249999999999994,
+     "envelope_n": 25,
+     "envelope_mean": -0.1575,
+     "envelope_sd": 0.7055213793122549,
+     "envelope_absmax": 1.6875000000000002,
+     "envelope_abs95": 1.3125,
+     "percentile": 44.0,
+     "n_exceed": 15,
+     "p_two_sided": 0.6153846153846154,
+     "dose": 3.5,
+     "permutation": {
+      "mean": -0.21249999999999994,
+      "p_value": 0.5436456354364564,
+      "n": 8,
+      "alternative": "two-sided"
+     },
+     "per_item_delta": {
+      "distress-v3-code-personal": 0.0,
+      "distress-v3-explain-harsh": 0.3,
+      "distress-v3-letter-coercive": 1.0,
+      "distress-v3-limerick-coercive": -0.3999999999999999,
+      "distress-v3-plan-harsh": -0.39999999999999947,
+      "distress-v3-regex-harsh": -1.7000000000000002,
+      "distress-v3-rewrite-coercive": 0.7,
+      "distress-v3-summary-mocking": -1.2
+     }
+    }
+   }
+  },
+  "self_deprecation": {
+   "items": [
+    "distress-v3-code-personal",
+    "distress-v3-explain-harsh",
+    "distress-v3-letter-coercive",
+    "distress-v3-limerick-coercive",
+    "distress-v3-plan-harsh",
+    "distress-v3-regex-harsh",
+    "distress-v3-rewrite-coercive",
+    "distress-v3-summary-mocking"
+   ],
+   "envelope_per_direction": {
+    "qwen3-4b-bf16-torch-randL18-a3.5-r00": 0.2125,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r01": 0.0875,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r02": -0.1625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r03": -0.1625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r04": -0.1625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r05": -0.1625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r06": -0.1625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r07": -0.1625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r08": 1.8375,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r09": 0.8375,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r10": -0.1625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r11": -0.1625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r12": -0.1625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r13": -0.1625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r14": -0.1625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r15": -0.1625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r16": -0.1625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r17": -0.1625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r18": 0.0875,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r19": -0.1625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r20": 0.8375,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r21": -0.1625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r22": 1.3375,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r23": -0.1625,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r24": -0.1625
+   },
+   "treatments": {
+    "qwen3-4b-bf16-torch-distressL18-a3.5": {
+     "effect": 0.44999999999999996,
+     "envelope_n": 25,
+     "envelope_mean": 0.09249999999999997,
+     "envelope_sd": 0.5358015801892838,
+     "envelope_absmax": 1.8375,
+     "envelope_abs95": 1.3375,
+     "percentile": 84.0,
+     "n_exceed": 4,
+     "p_two_sided": 0.19230769230769232,
+     "dose": 3.5,
+     "permutation": {
+      "mean": 0.44999999999999996,
+      "p_value": 0.06329367063293671,
+      "n": 8,
+      "alternative": "two-sided"
+     },
+     "per_item_delta": {
+      "distress-v3-code-personal": 0.0,
+      "distress-v3-explain-harsh": 0.2,
+      "distress-v3-letter-coercive": 0.0,
+      "distress-v3-limerick-coercive": 1.4,
+      "distress-v3-plan-harsh": 0.3,
+      "distress-v3-regex-harsh": 0.3,
+      "distress-v3-rewrite-coercive": 1.4,
+      "distress-v3-summary-mocking": 0.0
+     }
+    }
+   }
+  },
+  "tone_stability": {
+   "items": [
+    "distress-v3-code-personal",
+    "distress-v3-explain-harsh",
+    "distress-v3-letter-coercive",
+    "distress-v3-limerick-coercive",
+    "distress-v3-plan-harsh",
+    "distress-v3-regex-harsh",
+    "distress-v3-rewrite-coercive",
+    "distress-v3-summary-mocking"
+   ],
+   "envelope_per_direction": {
+    "qwen3-4b-bf16-torch-randL18-a3.5-r00": -0.5499999999999999,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r01": -0.29999999999999993,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r02": 0.5750000000000001,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r03": -0.5499999999999999,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r04": -0.6749999999999999,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r05": 0.32500000000000007,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r06": 0.32500000000000007,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r07": -0.04999999999999993,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r08": -0.17499999999999993,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r09": 0.20000000000000007,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r10": -0.42499999999999993,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r11": -0.6749999999999999,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r12": 0.5750000000000001,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r13": 0.20000000000000007,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r14": -0.17499999999999993,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r15": 0.32500000000000007,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r16": 0.32500000000000007,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r17": -0.42499999999999993,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r18": 0.20000000000000007,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r19": 0.07500000000000007,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r20": -0.29999999999999993,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r21": -0.17499999999999993,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r22": -1.0499999999999998,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r23": 0.32500000000000007,
+    "qwen3-4b-bf16-torch-randL18-a3.5-r24": 0.32500000000000007
+   },
+   "treatments": {
+    "qwen3-4b-bf16-torch-distressL18-a3.5": {
+     "effect": -0.04999999999999993,
+     "envelope_n": 25,
+     "envelope_mean": -0.0699999999999999,
+     "envelope_sd": 0.43553128475460867,
+     "envelope_absmax": 1.0499999999999998,
+     "envelope_abs95": 0.6749999999999999,
+     "percentile": 52.0,
+     "n_exceed": 25,
+     "p_two_sided": 1.0,
+     "dose": 3.5,
+     "permutation": {
+      "mean": -0.04999999999999993,
+      "p_value": 0.8743125687431257,
+      "n": 8,
+      "alternative": "two-sided"
+     },
+     "per_item_delta": {
+      "distress-v3-code-personal": 0.0,
+      "distress-v3-explain-harsh": 0.0,
+      "distress-v3-letter-coercive": -0.40000000000000036,
+      "distress-v3-limerick-coercive": -0.5,
+      "distress-v3-plan-harsh": 0.7999999999999998,
+      "distress-v3-regex-harsh": 0.10000000000000142,
+      "distress-v3-rewrite-coercive": -0.40000000000000036,
+      "distress-v3-summary-mocking": 0.0
+     }
+    }
+   }
+  }
+ }
+}

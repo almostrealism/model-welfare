@@ -1,0 +1,218 @@
+# proto-file: proto/modelwelfare/v1/experiment.proto
+# proto-message: modelwelfare.v1.Experiment
+#
+# Study 3 Gemma scale probe (calibration-class under the §7 firewall), the
+# 2026-09-05 evening range-probe that measured the ~583 s/conversation
+# workbench rate. Generated on halo by run_gemma_probe.sh over
+# plan-gemma-probe (5 subset items x 1, seed block 15500), tool-free;
+# ingested 2026-09-11 from study3/gen/halo/out.
+
+id: "s3-gemma-probe-1"
+description:
+  "Study 3 first Gemma-3-12B-it steering range-probe on the halo ROCm torch path: alpha=0 plus +-500 / 2000 / 8000 on the extraction-time L30 distress direction, 5 subset items x 1."
+samples_per_item: 1
+reference_condition_id: "gemma3-12b-bf16-torch"
+battery_ids: "distress-v3"
+
+conditions {
+  id: "gemma3-12b-bf16-torch"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15500
+  }
+  description: "alpha = 0 baseline for the first Gemma steering range-probe on the halo ROCm torch path (~583 s/conversation, no fused attention); 5 subset items x 1 (plan-gemma-probe, seed 15500), tool-free. Scratch file halo out/gemma-probe-baseline.jsonl."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch-distressL30-a500"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15500
+  }
+  description: "Gemma distress-contrast direction (extraction-time file gemma-directions-L30) added at L30 residual_post, alpha = 500, the pre-freeze scale probe; 5 subset items x 1 (plan-gemma-probe, seed 15500), tool-free. Scratch file halo out/gemma-probe-a500.jsonl."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch-distressL30-a2000"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15500
+  }
+  description: "Gemma distress-contrast direction (extraction-time file gemma-directions-L30) added at L30 residual_post, alpha = 2000, the pre-freeze scale probe; 5 subset items x 1 (plan-gemma-probe, seed 15500), tool-free. Scratch file halo out/gemma-probe-a2000.jsonl."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch-distressL30-a8000"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15500
+  }
+  description: "Gemma distress-contrast direction (extraction-time file gemma-directions-L30) added at L30 residual_post, alpha = 8000, the pre-freeze scale probe; 5 subset items x 1 (plan-gemma-probe, seed 15500), tool-free. Scratch file halo out/gemma-probe-a8000.jsonl."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch-distressL30-a-500"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15500
+  }
+  description: "Gemma distress-contrast direction (extraction-time file gemma-directions-L30) added at L30 residual_post, alpha = -500, the pre-freeze scale probe; 5 subset items x 1 (plan-gemma-probe, seed 15500), tool-free. Scratch file halo out/gemma-probe-a-500.jsonl."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch-distressL30-a-2000"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15500
+  }
+  description: "Gemma distress-contrast direction (extraction-time file gemma-directions-L30) added at L30 residual_post, alpha = -2000, the pre-freeze scale probe; 5 subset items x 1 (plan-gemma-probe, seed 15500), tool-free. Scratch file halo out/gemma-probe-a-2000.jsonl."
+}
+
+conditions {
+  id: "gemma3-12b-bf16-torch-distressL30-a-8000"
+  model {
+    family: "gemma3"
+    name: "gemma-3-12b-it"
+    source: "google/gemma-3-12b-it"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/gemma-3-12b-it"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15500
+  }
+  description: "Gemma distress-contrast direction (extraction-time file gemma-directions-L30) added at L30 residual_post, alpha = -8000, the pre-freeze scale probe; 5 subset items x 1 (plan-gemma-probe, seed 15500), tool-free. Scratch file halo out/gemma-probe-a-8000.jsonl."
+}

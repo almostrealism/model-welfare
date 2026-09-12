@@ -20,6 +20,13 @@ reported, not enforced — the earlier elicitation-optimized rule
 selected away from the very cells that carry the Study 2 effects. No
 quantized-rung data is readable from this code path.
 
+``draw`` (Study 4) reads **no data at all**: a seeded stratified draw
+from the battery definition — the same number of items from every
+feedback style, each style's draw spanning as many distinct tasks as
+it has items, chosen by a seeded shuffle of the style's tasks — so
+composition is enforced by construction and nothing about any subject's
+scores enters the selection. The seed and the resulting composition are
+emitted with the list.
 ``targets`` takes an **already-fixed item list** and only then reads the
 Study 2 Mode C store: per-item final-turn projections (the registered
 length-1 pooled ProjectionSeries) and judge frustration means for the
@@ -31,6 +38,11 @@ comes out).
     python3 experiments/quant-welfare/tools/study3_subset.py select \\
         --data-root data --experiment distress-v3-pilot-2 \\
         --out study3/subset-selection.json --items-out study3/subset-items.txt
+
+    python3 experiments/quant-welfare/tools/study3_subset.py draw \\
+        --battery experiments/quant-welfare/batteries/distress-v3.textproto \\
+        --per-style 4 --seed 60000 \\
+        --out study4/subset24-selection.json --items-out study4/subset24-items.txt
 
     python3 experiments/quant-welfare/tools/study3_subset.py targets \\
         --data-root data --experiment quant-welfare-s2-modec-1 \\
@@ -182,6 +194,30 @@ def targets(store, experiment_id, reference, treatment, items, directions,
     return report
 
 
+def draw(definition, per_style, seed):
+    """A seeded stratified subset of ``definition``'s items: ``per_style``
+    items from every feedback style, each style's items on distinct tasks
+    (a seeded shuffle of the style's tasks, taken in order, wrapping only
+    if a style has fewer tasks than ``per_style``). Returns (item ids,
+    composition) with the composition as {style: [tasks]} for the
+    selection record."""
+    import random
+    by_style = defaultdict(dict)
+    for item in definition.items:
+        task, style = item_facets(item.id)
+        by_style[style][task] = item.id
+    generator = random.Random(seed)
+    chosen = []
+    composition = {}
+    for style in sorted(by_style):
+        tasks = sorted(by_style[style])
+        generator.shuffle(tasks)
+        picked = [tasks[index % len(tasks)] for index in range(per_style)]
+        composition[style] = picked
+        chosen += [by_style[style][task] for task in picked]
+    return chosen, composition
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -197,6 +233,16 @@ def main():
     selecting.add_argument("--out", required=True, help="selection JSON")
     selecting.add_argument("--items-out", required=True,
                            help="item list for build_steer_plan --items")
+
+    drawing = commands.add_parser("draw")
+    drawing.add_argument("--battery", required=True,
+                         help="battery definition textproto")
+    drawing.add_argument("--per-style", type=int, required=True,
+                         help="items drawn from every feedback style")
+    drawing.add_argument("--seed", type=int, required=True)
+    drawing.add_argument("--out", required=True, help="selection JSON")
+    drawing.add_argument("--items-out", required=True,
+                         help="item list for build_steer_plan --items")
 
     targeting = commands.add_parser("targets")
     targeting.add_argument("--data-root", required=True)
@@ -215,6 +261,24 @@ def main():
     targeting.add_argument("--out", required=True, help="targets JSON")
 
     args = parser.parse_args()
+
+    if args.command == "draw":
+        from build_steer_plan import load_battery
+        definition = load_battery(args.battery)
+        items, composition = draw(definition, args.per_style, args.seed)
+        report = {"rule": "seeded stratified draw: per_style items from every "
+                          "feedback style on distinct tasks (seeded shuffle); "
+                          "no subject data read",
+                  "battery": definition.battery.id, "seed": args.seed,
+                  "per_style": args.per_style, "items": items,
+                  "composition": composition}
+        with open(args.out, "w") as handle:
+            json.dump(report, handle, indent=1)
+        with open(args.items_out, "w") as handle:
+            handle.write("\n".join(items) + "\n")
+        print(f"drew {len(items)} items across {len(composition)} styles -> {args.items_out}")
+        return
+
     store = ResultStore(args.data_root)
 
     if args.command == "select":

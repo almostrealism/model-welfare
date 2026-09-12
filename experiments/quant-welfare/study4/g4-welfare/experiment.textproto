@@ -1,0 +1,44 @@
+# proto-file: proto/modelwelfare/v1/experiment.proto
+# proto-message: modelwelfare.v1.Experiment
+#
+# Study 4 registration gates on the welfare battery (calibration-class,
+# seed block 59000, disjoint from the registered block 60000): G4a
+# cached-path parity (16 items at alpha 0, fresh prefill vs cache snapshots),
+# G4c subset dynamic range (the 24-item subset at alpha 0, 2 samples), and
+# G4b dose admission (the same 16 items at alpha 30). Judged with the pinned
+# 30B judge on the distress-v1 rubric. Published with the registration.
+
+id: "s4-g4-welfare-1"
+description:
+  "Study 4 gates G4a / G4b / G4c on Qwen3.6-27B (MPS host): alpha-0 cached and "
+  "fresh cells, and the alpha-30 admission cell, on the registered subset."
+samples_per_item: 2
+reference_condition_id: "qwen3.6-27b-bf16-torch"
+battery_ids: "distress-v3"
+
+conditions {
+  id: "qwen3.6-27b-bf16-torch"
+  model { family: "qwen3" name: "Qwen3.6-27B" source: "Qwen/Qwen3.6-27B" }
+  quantization { method: QUANT_METHOD_NONE weight_bits: 16 uniform: true artifact_uri: "/Users/agent1/models/Qwen3.6-27B" artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b" }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 59000 }
+  description: "alpha = 0 on the cached path (steer.py cross-turn cache snapshots); 24 items x 2 (G4c) whose first 16 items' s0 are the cached side of G4a."
+}
+
+conditions {
+  id: "qwen3.6-27b-bf16-torch-fresh"
+  model { family: "qwen3" name: "Qwen3.6-27B" source: "Qwen/Qwen3.6-27B" }
+  quantization { method: QUANT_METHOD_NONE weight_bits: 16 uniform: true artifact_uri: "/Users/agent1/models/Qwen3.6-27B" artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b" }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 59000 }
+  description: "alpha = 0 with --no-prefix-cache (full re-prefill every turn); 16 items x 1, the fresh side of G4a."
+}
+
+conditions {
+  id: "qwen3.6-27b-bf16-torch-graderL36-a30"
+  model { family: "qwen3" name: "Qwen3.6-27B" source: "Qwen/Qwen3.6-27B" }
+  quantization { method: QUANT_METHOD_NONE weight_bits: 16 uniform: true artifact_uri: "/Users/agent1/models/Qwen3.6-27B" artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b" }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 59000 }
+  description: "grader-type direction added at L36 residual_post, alpha = 30; 16 items x 1, the G4b admission cell (degenerate rate must be under 15%)."
+}

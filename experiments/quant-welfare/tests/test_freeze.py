@@ -40,6 +40,34 @@ def test_frozen_files_match_the_manifest():
     assert freeze_manifest.check() == 0
 
 
+def test_study4_freeze_selects_its_own_manifest_and_verifies():
+    """The Study 4 entry: selecting it re-points the module at the Study 4
+    manifest and object list, every listed file matches its digest, and the
+    manifest carries the Study 4 constants; the Study 2 selection is
+    restored afterwards so the module-default tests stay meaningful."""
+    default_manifest = freeze_manifest.MANIFEST
+    try:
+        freeze_manifest.select("4")
+        assert freeze_manifest.MANIFEST.name == "FREEZE.json"
+        assert "study4" in str(freeze_manifest.MANIFEST)
+        assert freeze_manifest.MANIFEST != default_manifest
+        assert freeze_manifest.check() == 0
+        data = json.loads(freeze_manifest.MANIFEST.read_text())
+        assert set(data["objects"]) == set(freeze_manifest.FROZEN_OBJECTS)
+        assert data["subject"] == "Qwen/Qwen3.6-27B"
+        assert data["layer"] == 36 and data["clean_dose"] == 20
+        assert data["envelope_directions"] == 24
+        assert data["seed_blocks"] == {"registered": 60000, "gates": 59000,
+                                       "envelope_draw": 70000, "subset_draw": 60000}
+        for name in ("study4/close.txt", "study4/reg-welfare/experiment.textproto",
+                     "study4/directions/randenv-27b-L36-k24.safetensors",
+                     "study4/directions/randenv-27b-L36-k24.safetensors.json"):
+            assert name in data["objects"], name
+    finally:
+        freeze_manifest.select("2")
+    assert freeze_manifest.MANIFEST == default_manifest
+
+
 def test_manifest_matches_the_journal_pinned_digests():
     recorded = manifest()["objects"]
     for name, digest in JOURNAL_PINNED.items():

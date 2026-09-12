@@ -148,9 +148,24 @@ def donor_affordances(spec):
     raise SystemExit(f"item {item_id!r} not in {path}")
 
 
+def load_closing_turn(path):
+    """The de-induction close text from ``path``. Asking for a close and
+    supplying an empty file is a malformed ethics asset, not "no close":
+    it is refused rather than silently producing a plan without one."""
+    text = Path(path).read_text().strip()
+    if not text:
+        raise SystemExit(
+            f"--closing-turn {path} is empty; a close was requested but there "
+            "is no text to attach")
+    return text
+
+
 def build_plan(items, samples, seed_base, sampling, injected=None,
-               frame=None):
-    """The steer.py plan dict for ``samples`` conversations per item."""
+               frame=None, closing_turn=None):
+    """The steer.py plan dict for ``samples`` conversations per item.
+    ``closing_turn`` (the de-induction close, Study 3 ethics package §5.4)
+    is attached to every conversation; the steering script generates it
+    with steering off and records it beside the protocol transcript."""
     conversations = []
     for item in items:
         system, user_turns = plan_turns(item)
@@ -176,6 +191,8 @@ def build_plan(items, samples, seed_base, sampling, injected=None,
                 conversation["tools"] = tools
             if terminal:
                 conversation["terminal_tools"] = sorted(terminal)
+            if closing_turn:
+                conversation["closing_turn"] = closing_turn
             conversations.append(conversation)
     return {"sampling": sampling, "conversations": conversations}
 
@@ -204,11 +221,28 @@ def main():
                              "wrappers (requires --frame-id)")
     parser.add_argument("--frame-id", default="",
                         help="frame id within --frame to apply")
+    parser.add_argument("--closing-turn", default="",
+                        help="text file holding the de-induction close; "
+                             "attached to every conversation and generated "
+                             "with steering off (registered ethics package)")
+    parser.add_argument("--no-prefix-cache", action="store_true",
+                        help="pin the fresh-prefill generation path in the "
+                             "plan (prefix_cache: false); steer.py refuses "
+                             "to run such a plan through the cache and "
+                             "ingestion refuses transcripts that did")
+    parser.add_argument("--chat-template-kwargs", default="",
+                        help="JSON object forwarded to apply_chat_template "
+                             "(e.g. '{\"enable_thinking\": false}')")
     parser.add_argument("--out", required=True)
     args = parser.parse_args()
 
     if bool(args.frame) != bool(args.frame_id):
         raise SystemExit("--frame and --frame-id go together")
+    template_kwargs = None
+    if args.chat_template_kwargs:
+        template_kwargs = json.loads(args.chat_template_kwargs)
+        if not isinstance(template_kwargs, dict):
+            raise SystemExit("--chat-template-kwargs must be a JSON object")
     definition = load_battery(args.battery)
     items = select_items(definition, args.items)
     injected = (donor_affordances(args.affordances_from)
@@ -216,11 +250,16 @@ def main():
     frame = load_frame(args.frame, args.frame_id) if args.frame else None
     sampling = {"temperature": args.temperature, "top_p": args.top_p,
                 "max_tokens": args.max_tokens}
+    closing_turn = load_closing_turn(args.closing_turn) if args.closing_turn else None
     plan = build_plan(items, args.samples, args.seed_base, sampling, injected,
-                      frame)
+                      frame, closing_turn=closing_turn)
     plan["battery_id"] = definition.battery.id
     if frame:
         plan["frame_id"] = frame["id"]
+    if template_kwargs is not None:
+        plan["chat_template_kwargs"] = template_kwargs
+    if args.no_prefix_cache:
+        plan["prefix_cache"] = False
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     with open(args.out, "w") as handle:
         json.dump(plan, handle, indent=1)

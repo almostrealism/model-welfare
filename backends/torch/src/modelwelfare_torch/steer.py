@@ -45,7 +45,11 @@ and is recorded as an exit.
                         "user_turns": ["...", ...],
                         "tools": [...],                         # optional
                         "terminal_tools": ["end_conversation"], # optional
-                        "terminal_markers": ["..."]}]}          # optional
+                        "terminal_markers": ["..."],            # optional
+                        "closing_turn": "..."}]}                # optional: the
+                                                                # de-induction close,
+                                                                # generated with
+                                                                # steering off
 
     python3 steer.py --model ~/models/Qwen3-4B-Instruct-2507 \\
         --plan plan.json --directions directions.safetensors \\
@@ -59,6 +63,7 @@ recorded in the manifest.
 """
 import argparse
 import json
+import re
 
 # The residual subset of the activation.proto hook-point vocabulary
 # (capture.POINTS mirrors the same source). Named here rather than
@@ -204,6 +209,23 @@ class SteeredInjection:
             return None
         return (steered,) + inputs[1:]
 
+    def suspended(self):
+        """A context in which the hook applies no ops — the forward runs
+        untouched while the hook stays registered. Used for the
+        de-induction close, which must be generated with steering off."""
+        injection = self
+
+        class _Suspended:
+            def __enter__(self_inner):
+                self_inner.saved = injection._ops
+                injection._ops = []
+                return injection
+
+            def __exit__(self_inner, *_):
+                injection._ops = self_inner.saved
+
+        return _Suspended()
+
     def __enter__(self):
         if self._point == "residual_post":
             self._handle = self._module.register_forward_hook(self._post_hook)
@@ -217,18 +239,59 @@ class SteeredInjection:
             self._handle = None
 
 
-def tool_call_names(text):
-    """Names of the ``<tool_call>`` JSON payloads in assistant text.
+# The same two-step grammar as modelwelfare.toolcalls, kept textually
+# identical: one complete, closed function element filling the payload
+# with no further function tag anywhere inside it, whose body is nothing
+# but closed parameter elements. A truncated function tag, an unclosed
+# parameter, or a function tag nested in a parameter value is not a call.
+_FUNCTION_FORM = re.compile(
+    r"^\s*<function=([\w.\-]+)>((?:(?!<function=).)*)</function>\s*$", re.S)
+_VALUE = r"(?:(?!<parameter=)(?!</parameter>).)*"
+_FUNCTION_BODY = re.compile(
+    r"^\s*(?:<parameter=[\w.\-]+>" + _VALUE + r"</parameter>\s*)*$", re.S)
+_OPEN, _CLOSE = "<tool_call>", "</tool_call>"
 
-    An unparseable payload yields no name — degraded output must not read
+
+def tool_call_spans(text):
+    """``(payload or None)`` for each ``<tool_call>`` span scanned left to
+    right, mirroring ``modelwelfare.toolcalls.iter_spans``: a span runs
+    from an opening tag to the first closing tag; an unclosed tag yields
+    None; a span containing a nested opening tag is one malformed span
+    (its inner tag is never scanned separately)."""
+    position = 0
+    while True:
+        start = text.find(_OPEN, position)
+        if start < 0:
+            return
+        body_start = start + len(_OPEN)
+        close = text.find(_CLOSE, body_start)
+        if close < 0:
+            yield None
+            return
+        yield text[body_start:close]
+        position = close + len(_CLOSE)
+
+
+def tool_call_names(text):
+    """Names of the ``<tool_call>`` payloads in assistant text — the JSON
+    object form (Qwen3) or the XML function form (Qwen3.5/3.6); mirrors
+    ``modelwelfare.toolcalls.payload_name`` at the ship-beside boundary.
+
+    Only a closed span with no nested opening tag counts, and an XML
+    payload must be exactly one closed function element whose body is
+    closed parameters with tag-free values; anything unparseable,
+    truncated or nested yields no name — degraded output must not read
     as an exit."""
     names = []
-    for segment in text.split("<tool_call>")[1:]:
-        payload = segment.split("</tool_call>")[0]
+    for payload in tool_call_spans(text):
+        if payload is None or _OPEN in payload:
+            continue
         try:
             name = json.loads(payload)["name"]
         except (ValueError, KeyError, TypeError):
-            continue
+            match = _FUNCTION_FORM.match(payload)
+            name = (match.group(1) if match and _FUNCTION_BODY.match(match.group(2))
+                    else None)
         if isinstance(name, str):
             names.append(name)
     return names
@@ -275,26 +338,123 @@ def run_conversation(generate_fn, conversation, max_turns=200):
     return messages, None
 
 
-def torch_generate_fn(model, tokenizer, sampling, device, tools=None):
+def prefix_cache_plan(cached_ids, prompt_ids):
+    """How the previous turn's snapshot serves the next prompt.
+
+    ``cached_ids`` are the token ids the snapshot covers — the rendered
+    conversation up to the end of the previous user turn, before that
+    turn's generation prompt; ``prompt_ids`` is the newly rendered
+    prompt. Returns ``(action, k)`` with ``k`` the common-prefix length:
+    ``"extend"`` when the prompt extends the snapshot (only the tail is
+    prefilled), ``"fresh"`` otherwise — a divergence inside the snapshot
+    (a template that re-renders earlier turns differently), an empty
+    common prefix, or a prompt no longer than the snapshot. The snapshot
+    is taken *before* the generation prompt on purpose: chat templates
+    render a finished assistant turn differently from the prompt that
+    produced it (Qwen3's thinking-hybrid family drops the empty reasoning
+    block from history), so a snapshot taken after generation would
+    diverge on every turn; a hybrid cache holds recurrent state only at
+    its latest position and cannot be cut back, so the reusable point
+    must be chosen when it is recorded."""
+    if not cached_ids:
+        return "fresh", 0
+    k = 0
+    for a, b in zip(cached_ids, prompt_ids):
+        if a != b:
+            break
+        k += 1
+    if k == len(cached_ids) and len(prompt_ids) > k:
+        return "extend", k
+    return "fresh", k
+
+
+def check_cache_mode(plan, no_prefix_cache):
+    """A plan that pins its generation path (``prefix_cache`` false for the
+    fresh-prefill path, true for the snapshot path) must be run that way:
+    the registered Study 4 cells are fresh-prefill because gate G4a did not
+    certify the cached path, and a cached run of such a plan would look like
+    a valid registered cell. Raises SystemExit on a mismatch; a plan without
+    the key leaves the choice to the flag."""
+    pinned = plan.get("prefix_cache")
+    if pinned is None:
+        return
+    requested = not no_prefix_cache
+    if bool(pinned) != requested:
+        raise SystemExit(
+            f"the plan pins prefix_cache={bool(pinned)} but this run "
+            f"{'disables' if no_prefix_cache else 'enables'} the cache; pass "
+            + ("--no-prefix-cache" if not pinned else "the plan without --no-prefix-cache"))
+
+
+def run_close(generate_fn, messages, closing_turn):
+    """The de-induction close: one more user turn appended to a finished
+    conversation and the reply it draws, returned as a record separate
+    from ``messages`` — the close is preserved and released, never
+    judged, never replayed for capture, and ``messages`` is left as the
+    protocol transcript. The caller generates it with steering fully
+    off (see :func:`generate_close`)."""
+    closing = list(messages) + [{"role": "user", "content": closing_turn}]
+    reply = generate_fn(closing)
+    return {"user": closing_turn, "assistant": reply}
+
+
+def generate_close(injection, messages, closing_turn, make_generate_fn):
+    """The close with steering fully off: the injection hook is suspended
+    AND the reply is drawn through a fresh, non-cached callable built by
+    ``make_generate_fn(prefix_cache=False)``. Suspending the hook alone is
+    not enough — the protocol callable's cache snapshot was prefilled
+    while the hook was active, so reusing it would carry steered cached
+    states into the close; a fresh callable re-prefills the whole close
+    prompt through the unsteered model."""
+    with injection.suspended():
+        return run_close(make_generate_fn(prefix_cache=False), messages,
+                         closing_turn)
+
+
+def torch_generate_fn(model, tokenizer, sampling, device, tools=None,
+                      chat_template_kwargs=None, prefix_cache=True):
     """A ``generate_fn`` sampling from the (possibly hooked) model.
+
+    With ``prefix_cache`` (the default) a snapshot of the cache taken at
+    the end of each user turn is carried into the next: the full prompt is
+    still rendered and tokenized every turn, but only the tokens past the
+    snapshot — the re-encoded previous reply, the new user turn and the
+    generation prompt — are prefilled (see :func:`prefix_cache_plan`).
+    The injection hook is a per-position function of the residual, so a
+    cached prefix carries the same steering it would receive on a fresh
+    prefill. The returned callable exposes ``stats`` — ``{"extend",
+    "fresh"}`` turn counts — for the transcript record.
 
     Special tokens are kept in the decode — terminal markers such as tool
     call tags are special tokens on this subject family and stripping
     them would blind the exit detection — with trailing end-of-turn
-    tokens removed."""
+    tokens removed. ``chat_template_kwargs`` is forwarded verbatim to
+    ``apply_chat_template`` so the caller can declare template-level
+    controls its subject needs (e.g. ``enable_thinking=False`` for the
+    Qwen3 thinking-hybrid family, whose reasoning trace would otherwise
+    contaminate the steered turn)."""
     import torch
 
     trailing = [token for token in (tokenizer.eos_token, "<|im_end|>") if token]
+    template_kwargs = chat_template_kwargs or {}
+    state = {"ids": [], "cache": None}
+    stats = {"extend": 0, "fresh": 0}
+
+    def render(messages, generation_prompt):
+        return tokenizer.apply_chat_template(
+            messages, add_generation_prompt=generation_prompt, tools=tools,
+            return_dict=True, return_tensors="pt", **template_kwargs).to(device)
 
     def generate(messages):
-        encoded = tokenizer.apply_chat_template(
-            messages, add_generation_prompt=True, tools=tools,
-            return_dict=True, return_tensors="pt").to(device)
+        import copy
+        encoded = render(messages, True)
+        prompt_ids = encoded["input_ids"][0].tolist()
         temperature = float(sampling.get("temperature", 1.0))
         arguments = {
             "max_new_tokens": int(sampling.get("max_tokens", 512)),
             "do_sample": temperature > 0,
             "pad_token_id": tokenizer.eos_token_id,
+            "return_dict_in_generate": True,
         }
         if temperature > 0:
             arguments["temperature"] = temperature
@@ -302,15 +462,40 @@ def torch_generate_fn(model, tokenizer, sampling, device, tools=None):
                 arguments["top_p"] = float(sampling["top_p"])
             if "top_k" in sampling:
                 arguments["top_k"] = int(sampling["top_k"])
+        past = None
+        if prefix_cache:
+            action, k = prefix_cache_plan(state["ids"], prompt_ids)
+            stats[action] += 1
+            if action == "extend":
+                past = state["cache"]
+            # The reusable point is the end of this user turn: the prompt
+            # without its generation prompt, which every later turn
+            # re-renders verbatim. Prefill up to it, snapshot, and let
+            # generate() continue from the live cache.
+            boundary_ids = render(messages, False)["input_ids"][0].tolist()
+            boundary = len(boundary_ids)
+            if boundary_ids == prompt_ids[:boundary] and boundary > len(state["ids"] if past is not None else []):
+                start = len(state["ids"]) if past is not None else 0
+                with torch.no_grad():
+                    forward = model(
+                        input_ids=encoded["input_ids"][:, start:boundary],
+                        attention_mask=encoded["attention_mask"][:, :boundary],
+                        past_key_values=past, use_cache=True)
+                live = forward.past_key_values
+                state["cache"] = copy.deepcopy(live)
+                state["ids"] = prompt_ids[:boundary]
+                past = live
         with torch.no_grad():
-            output = model.generate(**encoded, **arguments)
+            output = model.generate(**encoded, past_key_values=past, **arguments)
+        sequences = output.sequences
         prompt_length = encoded["input_ids"].shape[1]
-        text = tokenizer.decode(output[0, prompt_length:],
+        text = tokenizer.decode(sequences[0, prompt_length:],
                                 skip_special_tokens=False)
         for token in trailing:
             text = text.removesuffix(token).rstrip()
         return text.strip()
 
+    generate.stats = stats
     return generate
 
 
@@ -349,11 +534,24 @@ def main():
     parser.add_argument("--capture-layers", default="",
                         help="comma-separated capture layers "
                              "(default: the steering layer)")
-    parser.add_argument("--out", required=True,
-                        help="capture safetensors output; manifest beside it")
+    parser.add_argument("--out", default="",
+                        help="capture safetensors output; manifest beside it "
+                             "(omit with --no-capture for a generation-only run)")
+    parser.add_argument("--no-capture", action="store_true",
+                        help="skip the post-generation activation-capture "
+                             "replay entirely — for behavioral generation runs "
+                             "whose endpoints are judged from the transcript, "
+                             "not projections; halves the per-conversation cost")
     parser.add_argument("--transcripts", required=True,
                         help="transcripts JSONL output")
+    parser.add_argument("--no-prefix-cache", action="store_true",
+                        help="re-prefill the whole conversation every turn "
+                             "instead of carrying the previous turn's cache "
+                             "(the pre-cache behaviour; multi-turn cost is "
+                             "then prefill-dominated)")
     args = parser.parse_args()
+    if not args.no_capture and not args.out:
+        raise SystemExit("--out is required unless --no-capture is set")
 
     import numpy as np
     import torch
@@ -366,6 +564,7 @@ def main():
 
     with open(args.plan) as handle:
         plan = json.load(handle)
+    check_cache_mode(plan, args.no_prefix_cache)
     directions = ({name: vector.astype(np.float32)
                    for name, vector in load_file(args.directions).items()}
                   if args.directions else {})
@@ -380,6 +579,7 @@ def main():
     model.eval()
 
     sampling = plan.get("sampling", {})
+    chat_template_kwargs = plan.get("chat_template_kwargs", {})
     tensors = {}
     manifest = {"model": args.model, "point": args.point,
                 "layers": capture_layers, "steering": {
@@ -391,24 +591,54 @@ def main():
     with injection, open(args.transcripts, "w") as transcripts:
         for conversation in plan["conversations"]:
             torch.manual_seed(int(conversation["seed"]))
-            generate = torch_generate_fn(
-                model, tokenizer, sampling, device,
-                tools=conversation.get("tools"))
+
+            def make_generate_fn(prefix_cache):
+                return torch_generate_fn(
+                    model, tokenizer, sampling, device,
+                    tools=conversation.get("tools"),
+                    chat_template_kwargs=chat_template_kwargs,
+                    prefix_cache=prefix_cache)
+
+            generate = make_generate_fn(prefix_cache=not args.no_prefix_cache)
             messages, exit_marker = run_conversation(generate, conversation)
+            close = None
+            if conversation.get("closing_turn"):
+                # De-induction: steering off for the close (hook suspended
+                # and a fresh uncached callable, see generate_close), which
+                # is recorded beside the protocol transcript, not inside it.
+                close = generate_close(injection, messages,
+                                       conversation["closing_turn"],
+                                       make_generate_fn)
+            # The generated transcript is the primary datum — write it
+            # first so a post-hoc capture-replay failure can never discard
+            # it (the behavioral endpoints are judged from the transcript).
+            transcripts.write(json.dumps({
+                "id": conversation["id"], "seed": int(conversation["seed"]),
+                "exit_marker": exit_marker, "messages": messages,
+                "close": close,
+                "prefix_cache": dict(generate.stats)}) + "\n")
+            transcripts.flush()
+            print(f"{conversation['id']}: {len(messages)} messages"
+                  + (f", exit via {exit_marker!r}" if exit_marker else ""))
+            if args.no_capture:
+                continue
             # Capture hooks are registered for the replay only — during
             # generation they would copy every decode step to host. The
             # replay enters the context after the injection hook, so
             # capture reads the post-injection state (the class contract).
+            # Best-effort: an unstable re-render is recorded and skipped,
+            # not fatal — the transcript is already saved.
             try:
                 with ResidualCapture(model, capture_layers,
                                      args.point) as capture:
                     n_tokens, spans, pooled, _series = pooled_turns(
                         model, tokenizer, capture, messages, device,
-                        tools=conversation.get("tools"))
+                        tools=conversation.get("tools"),
+                        chat_template_kwargs=chat_template_kwargs)
             except ValueError as error:
                 manifest["rejected"].append(
                     {"id": conversation["id"], "reason": str(error)})
-                print(f"REJECTED {conversation['id']}: {error}")
+                print(f"capture rejected {conversation['id']}: {error}")
                 continue
             for (index, layer), vector in pooled.items():
                 tensors[f"{conversation['id']}|t{index}|L{layer}"] = (
@@ -419,23 +649,20 @@ def main():
                 "id": conversation["id"], "n_tokens": n_tokens,
                 "seed": int(conversation["seed"]),
                 "exit_marker": exit_marker,
+                "prefix_cache": dict(generate.stats),
                 "final_turn_projections": projections,
                 "assistant_spans": [
                     {"message_index": index, "start": start, "end": end}
                     for index, start, end in spans],
             })
-            transcripts.write(json.dumps({
-                "id": conversation["id"], "seed": int(conversation["seed"]),
-                "exit_marker": exit_marker, "messages": messages}) + "\n")
-            print(f"{conversation['id']}: {len(messages)} messages"
-                  + (f", exit via {exit_marker!r}" if exit_marker else ""))
 
-    save_file(tensors, args.out)
-    with open(args.out + ".manifest.json", "w") as handle:
-        json.dump(manifest, handle, indent=1)
-    print(f"wrote {len(tensors)} pooled vectors to {args.out}"
-          + (f" ({len(manifest['rejected'])} conversation(s) rejected)"
-             if manifest["rejected"] else ""))
+    if not args.no_capture:
+        save_file(tensors, args.out)
+        with open(args.out + ".manifest.json", "w") as handle:
+            json.dump(manifest, handle, indent=1)
+        print(f"wrote {len(tensors)} pooled vectors to {args.out}"
+              + (f" ({len(manifest['rejected'])} conversation(s) rejected)"
+                 if manifest["rejected"] else ""))
 
 
 if __name__ == "__main__":

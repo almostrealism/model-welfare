@@ -25,6 +25,16 @@ def test_permutation_symmetric_is_null():
     assert result["p_value"] > 0.5
 
 
+def test_permutation_rejects_unknown_alternative_even_on_empty_input():
+    import pytest
+    with pytest.raises(ValueError, match="alternative"):
+        stats.paired_permutation_test([], alternative="sideways")
+    with pytest.raises(ValueError, match="alternative"):
+        stats.paired_permutation_test([1.0, -1.0], alternative="sideways")
+    empty = stats.paired_permutation_test([float("nan")], alternative="less")
+    assert empty["n"] == 0 and empty["alternative"] == "less"
+
+
 def test_permutation_ignores_nan_and_reports_n():
     result = stats.paired_permutation_test([1.0, float("nan"), 1.0], n_perm=500, seed=0)
     assert result["n"] == 2

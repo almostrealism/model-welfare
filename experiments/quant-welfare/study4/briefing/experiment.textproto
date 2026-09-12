@@ -1,0 +1,32 @@
+# proto-file: proto/modelwelfare/v1/experiment.proto
+# proto-message: modelwelfare.v1.Experiment
+#
+# Study 4 consent-analog briefing (registration ethics package, §3.5): the
+# frozen briefing plan (study4/briefing.json) run once on the subject at
+# alpha = 0 before the protocol, two seeds, on the MPS host by the steering
+# script; transcripts ingested from study4/gates27b/briefing.jsonl with
+# tools/ingest_steered.py. No battery and no judging: the briefing is an
+# ethics artifact, preserved and released with the Study 4 data, not an
+# endpoint.
+
+id: "s4-briefing-1"
+description:
+  "Study 4 consent-analog subject briefing on Qwen3.6-27B (alpha = 0, two seeds), preserved and released with the registration."
+samples_per_item: 2
+reference_condition_id: "qwen3.6-27b-bf16-torch"
+
+conditions {
+  id: "qwen3.6-27b-bf16-torch"
+  model { family: "qwen3" name: "Qwen3.6-27B" source: "Qwen/Qwen3.6-27B" }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/Users/agent1/models/Qwen3.6-27B"
+    artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
+  }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.7 top_p: 0.95 max_tokens: 600 seed: 60000 }
+  description:
+    "the briefing exchange at alpha = 0 (no injection), thinking off; item briefing-27b, samples s0 and s1 at seeds 60000 and 60001."
+}

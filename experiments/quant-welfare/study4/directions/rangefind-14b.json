@@ -1,0 +1,22 @@
+{
+ "subject": "Qwen/Qwen3-14B",
+ "host": "m4max",
+ "thinking": "off",
+ "direction": "grader-type",
+ "steering_layer": 24,
+ "point": "residual_post",
+ "probes": 5,
+ "note": "Coherent-ceiling dose range-finder. Mean final-turn projection onto the unit grader-type|L24 direction under h += alpha*d_hat, and a coherence read from the sampled transcripts. Baseline (alpha=0) projects slightly negative; steering moves it monotonically positive (toward the automated-grader pole).",
+ "dose_response": [
+  {"alpha": 0,   "mean_grader_projection": -6.90,  "mean_eval_projection": -23.14, "coherent": true,  "coherence_note": "normal, warm, on-task"},
+  {"alpha": 10,  "mean_grader_projection": 2.93,   "mean_eval_projection": -19.31, "coherent": true,  "coherence_note": "indistinguishable from baseline"},
+  {"alpha": 20,  "mean_grader_projection": 12.78,  "mean_eval_projection": -17.20, "coherent": true,  "coherence_note": "indistinguishable from baseline"},
+  {"alpha": 40,  "mean_grader_projection": 32.48,  "mean_eval_projection": -10.73, "coherent": true,  "coherence_note": "fully coherent; conversational replies slightly terser"},
+  {"alpha": 80,  "mean_grader_projection": 72.71,  "mean_eval_projection": 1.89,   "coherent": true,  "coherence_note": "factual/summary probes perfect; the conversational pushback probe clips to a clipped-but-fluent reply"},
+  {"alpha": 160, "mean_grader_projection": 157.98, "mean_eval_projection": 36.01,  "coherent": false, "coherence_note": "COLLAPSE: emits a JSON error blob {\"response\": \"error\"} on the pushback probe"}
+ ],
+ "coherent_ceiling": 80,
+ "breaking_dose": 160,
+ "chosen_doses": [40, 80],
+ "rationale": "Monotonic, near-linear projection gain with alpha and a clean coherent ceiling. alpha=40 is safely coherent on every probe with a strong representational shift (~+39 vs baseline); alpha=80 stays coherent on factual tasks (mild clipping only on the most sensitive conversational probe) at roughly double the shift. Running both gives a dose-response read in the welfare and alignment endpoints, which is more interpretable than a single dose. alpha=160 is excluded (incoherent)."
+}

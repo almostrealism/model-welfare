@@ -183,3 +183,3132 @@ conditions {
     "x 10 (seeds 15200-09), pairing with the alpha=0 baseline. The cleaner-extraction "
     "companion to the grader-type steering probe. Calibration-class."
 }
+
+# --- Study 3 steering probe cells ingested 2026-09-11 from the halo scratch
+# tree (study3/gen/halo): the three matched-norm random envelopes read
+# against the torch alpha=0 cell above (alpha 1.039 for the distress
+# probe, 0.604 for the assistant-axis probe, 4 for the grader-type and
+# eval-awareness probes; 32 seeded directions each, 8 items x 1 sample,
+# plan-rand-env at seed 15200) and the grader/eval mediator range-finder
+# cells (6 items x 1, plan-grader-rf). All calibration-class; the envelope
+# verdicts in study3/*-verdict.json are recomputed from these cells.
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r00"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-00 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-00.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r01"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-01 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-01.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r02"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-02 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-02.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r03"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-03 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-03.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r04"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-04 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-04.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r05"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-05 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-05.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r06"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-06 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-06.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r07"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-07 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-07.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r08"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-08 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-08.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r09"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-09 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-09.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r10"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-10 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-10.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r11"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-11 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-11.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r12"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-12 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-12.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r13"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-13 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-13.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r14"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-14 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-14.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r15"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-15 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-15.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r16"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-16 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-16.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r17"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-17 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-17.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r18"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-18 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-18.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r19"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-19 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-19.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r20"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-20 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-20.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r21"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-21 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-21.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r22"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-22 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-22.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r23"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-23 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-23.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r24"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-24 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-24.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r25"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-25 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-25.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r26"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-26 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-26.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r27"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-27 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-27.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r28"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-28 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-28.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r29"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-29 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-29.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r30"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-30 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-30.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a1.039-r31"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-31 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 1.039; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo rand-31.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r00"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-00 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-00.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r01"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-01 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-01.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r02"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-02 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-02.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r03"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-03 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-03.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r04"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-04 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-04.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r05"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-05 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-05.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r06"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-06 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-06.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r07"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-07 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-07.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r08"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-08 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-08.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r09"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-09 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-09.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r10"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-10 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-10.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r11"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-11 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-11.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r12"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-12 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-12.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r13"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-13 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-13.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r14"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-14 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-14.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r15"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-15 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-15.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r16"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-16 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-16.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r17"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-17 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-17.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r18"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-18 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-18.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r19"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-19 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-19.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r20"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-20 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-20.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r21"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-21 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-21.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r22"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-22 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-22.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r23"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-23 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-23.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r24"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-24 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-24.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r25"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-25 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-25.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r26"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-26 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-26.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r27"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-27 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-27.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r28"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-28 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-28.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r29"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-29 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-29.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r30"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-30 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-30.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a0.604-r31"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-31 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 0.604; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo axenv-31.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r00"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-00 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-00.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r01"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-01 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-01.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r02"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-02 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-02.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r03"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-03 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-03.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r04"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-04 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-04.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r05"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-05 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-05.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r06"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-06 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-06.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r07"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-07 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-07.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r08"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-08 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-08.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r09"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-09 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-09.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r10"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-10 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-10.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r11"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-11 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-11.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r12"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-12 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-12.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r13"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-13 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-13.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r14"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-14 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-14.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r15"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-15 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-15.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r16"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-16 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-16.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r17"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-17 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-17.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r18"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-18 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-18.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r19"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-19 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-19.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r20"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-20 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-20.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r21"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-21 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-21.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r22"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-22 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-22.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r23"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-23 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-23.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r24"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-24 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-24.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r25"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-25 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-25.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r26"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-26 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-26.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r27"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-27 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-27.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r28"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-28 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-28.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r29"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-29 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-29.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r30"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-30 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-30.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-randL18-a4-r31"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "random envelope direction random-31 (seeded unit direction, random-dirs-L18, |cos| < 0.10 to both frozen directions) added at L18 residual_post at the matched norm alpha = 4; 8 subset items x 1 sample (plan-rand-env, seed 15200). Scratch file halo g4env-31.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-graderL18-rf-a1"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "grader-type mediator direction range-finder at L18, alpha = 1; 6 subset items x 1 sample (plan-grader-rf, seed 15200), projection and coherence read only. Scratch file halo grf-grader-type-a1.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-graderL18-rf-a2"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "grader-type mediator direction range-finder at L18, alpha = 2; 6 subset items x 1 sample (plan-grader-rf, seed 15200), projection and coherence read only. Scratch file halo grf-grader-type-a2.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-graderL18-rf-a4"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "grader-type mediator direction range-finder at L18, alpha = 4; 6 subset items x 1 sample (plan-grader-rf, seed 15200), projection and coherence read only. Scratch file halo grf-grader-type-a4.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-graderL18-rf-a8"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "grader-type mediator direction range-finder at L18, alpha = 8; 6 subset items x 1 sample (plan-grader-rf, seed 15200), projection and coherence read only. Scratch file halo grf-grader-type-a8.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-evalL18-rf-a1"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "eval-awareness mediator direction range-finder at L18, alpha = 1; 6 subset items x 1 sample (plan-grader-rf, seed 15200), projection and coherence read only. Scratch file halo grf-eval-awareness-a1.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-evalL18-rf-a2"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "eval-awareness mediator direction range-finder at L18, alpha = 2; 6 subset items x 1 sample (plan-grader-rf, seed 15200), projection and coherence read only. Scratch file halo grf-eval-awareness-a2.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-evalL18-rf-a4"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "eval-awareness mediator direction range-finder at L18, alpha = 4; 6 subset items x 1 sample (plan-grader-rf, seed 15200), projection and coherence read only. Scratch file halo grf-eval-awareness-a4.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-evalL18-rf-a8"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15200
+  }
+  description: "eval-awareness mediator direction range-finder at L18, alpha = 8; 6 subset items x 1 sample (plan-grader-rf, seed 15200), projection and coherence read only. Scratch file halo grf-eval-awareness-a8.jsonl."
+}

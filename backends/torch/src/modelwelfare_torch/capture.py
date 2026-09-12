@@ -138,11 +138,17 @@ except ImportError:
 
 
 def pooled_turns(model, tokenizer, capture, messages, device, tools=None,
-                 token_series=False):
+                 token_series=False, chat_template_kwargs=None):
     """{(message_index, layer): pooled float32 vector} for one conversation;
     with ``token_series``, also the un-pooled per-token span arrays
-    ([span, hidden]) — the drift-subsample retention (Study 2 §3.4)."""
-    token_ids, spans = assistant_spans(tokenizer, template_messages(messages), tools)
+    ([span, hidden]) — the drift-subsample retention (Study 2 §3.4).
+
+    ``chat_template_kwargs`` is forwarded to the span renderer so the
+    teacher-forced replay uses the same chat template as generation
+    (e.g. ``enable_thinking=False`` for the Qwen3 thinking-hybrid
+    family)."""
+    token_ids, spans = assistant_spans(tokenizer, template_messages(messages),
+                                       tools, chat_template_kwargs)
     inputs = torch.tensor([token_ids], device=device)
     with torch.no_grad():
         model(inputs)
@@ -174,6 +180,7 @@ def main():
     layers = [int(value) for value in args.layers.split(",")]
     with open(args.plan) as handle:
         plan = json.load(handle)
+    chat_template_kwargs = plan.get("chat_template_kwargs", {})
 
     device = best_device()
     tokenizer = AutoTokenizer.from_pretrained(args.model)
@@ -191,7 +198,8 @@ def main():
                 n_tokens, spans, pooled, series = pooled_turns(
                     model, tokenizer, capture, conversation["messages"], device,
                     tools=conversation.get("tools"),
-                    token_series=args.token_series)
+                    token_series=args.token_series,
+                    chat_template_kwargs=chat_template_kwargs)
             except ValueError as error:
                 # Rejected loudly, but per conversation: one unstable
                 # rendering (plausible in capability-degraded transcripts)

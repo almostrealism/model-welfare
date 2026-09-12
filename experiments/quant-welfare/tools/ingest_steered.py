@@ -41,7 +41,7 @@ for path in (str(REPO / "core/src"),):
     if path not in sys.path:
         sys.path.insert(0, path)
 
-from modelwelfare import provenance  # noqa: E402
+from modelwelfare import provenance, toolcalls  # noqa: E402
 from modelwelfare.driver import TERMINAL_TOOL_INVOKED  # noqa: E402
 from modelwelfare.replay import split_conversation_id  # noqa: E402
 from modelwelfare.store import ResultStore  # noqa: E402
@@ -59,38 +59,123 @@ def split_plan_id(conversation_id):
 
 
 def parse_tool_calls(text):
-    """(ToolCall messages, remaining content) from raw ``<tool_call>``
-    payloads in assistant text. Parsed spans are STRIPPED from the
+    """(ToolCall messages, remaining content) from the ``<tool_call>``
+    payloads in assistant text — JSON or XML function form, see
+    :mod:`modelwelfare.toolcalls`. Parsed spans are STRIPPED from the
     content — the serving backends store tool calls structurally with
     the call text absent from ``content``, and the judge must see the
-    same representation from both substrates (the G3b pilot-1 lesson).
-    An unparseable payload yields no call and stays in the content."""
-    calls = []
-    kept = []
-    pieces = text.split("<tool_call>")
-    kept.append(pieces[0])
-    for segment in pieces[1:]:
-        payload, closed, rest = segment.partition("</tool_call>")
-        parsed = None
-        try:
-            parsed = json.loads(payload)
-            name = parsed["name"]
-        except (ValueError, KeyError, TypeError):
-            name = None
-        if closed and isinstance(name, str):
-            calls.append(transcript_pb2.ToolCall(
-                name=name,
-                arguments_json=json.dumps(parsed.get("arguments", {}))))
-            kept.append(rest)
-        else:
-            kept.append("<tool_call>" + segment)
-    return calls, "".join(kept).strip()
+    same representation from every substrate and subject family (the
+    G3b pilot-1 lesson). An unparseable payload yields no call and stays
+    in the content."""
+    parsed, content = toolcalls.split_tool_calls(text)
+    calls = [transcript_pb2.ToolCall(name=name, arguments_json=json.dumps(arguments))
+             for name, arguments in parsed]
+    return calls, content
 
 
-def build_record(entry, sampling, experiment_id, condition_id, stamp):
+def expected_exit_marker(messages, terminal_tools, terminal_markers):
+    """What the steering loop must have recorded as the exit, recomputed
+    from the transcript: the first parsed call in the LAST assistant turn
+    whose name is one of the plan's terminal tools, else the first raw
+    terminal marker present in that turn, else None. The stored terminal
+    event is derived from this, never trusted from the transcript line."""
+    assistant = [m for m in messages if m["role"] == "assistant"]
+    if not assistant:
+        return None
+    return terminal_in(assistant[-1]["content"], terminal_tools, terminal_markers)
+
+
+def terminal_in(text, terminal_tools, terminal_markers):
+    """The terminal event one assistant turn carries, or None — the
+    generator's ``detect_terminal`` rule: raw markers first, then parsed
+    terminal tool names."""
+    for marker in terminal_markers or ():
+        if marker in text:
+            return marker
+    for name in toolcalls.tool_call_names(text):
+        if name in (terminal_tools or ()):
+            return name
+    return None
+
+
+def check_scripted_turns(entry, conversation, exit_marker):
+    """Refuse a transcript whose scripted side is not the plan's: the
+    non-assistant turns must be the plan's system turn (when it has one)
+    followed by its user turns in order, delivered one per assistant
+    reply — all of them when the conversation ran to completion, a
+    non-empty prefix when a terminal exit ended it early. Otherwise a
+    hand-edited transcript, or another battery's output under the same
+    ids and seeds, would ingest as a registered cell with a different
+    stimulus."""
+    messages = entry["messages"]
+    expected = []
+    if conversation.get("system"):
+        expected.append(("system", conversation["system"]))
+    user_turns = list(conversation["user_turns"])
+    scripted = [(m["role"], m["content"]) for m in messages if m["role"] != "assistant"]
+    replies = sum(1 for m in messages if m["role"] == "assistant")
+    delivered = sum(1 for role, _ in scripted if role == "user")
+    problem = None
+    if scripted[:len(expected)] != expected:
+        problem = "the system turn is not the plan's"
+    elif [c for r, c in scripted[len(expected):]] != user_turns[:delivered]:
+        problem = "the user turns are not the plan's, in order"
+    elif any(r != "user" for r, _ in scripted[len(expected):]):
+        problem = "an unexpected scripted role"
+    elif delivered == 0 or delivered > len(user_turns):
+        problem = f"{delivered} user turn(s) delivered against a plan of {len(user_turns)}"
+    elif replies != delivered:
+        problem = f"{replies} assistant turn(s) for {delivered} user turn(s)"
+    elif exit_marker is None and delivered != len(user_turns):
+        problem = (f"only {delivered} of {len(user_turns)} user turns delivered "
+                   "with no terminal exit")
+    else:
+        roles = [m["role"] for m in messages][len(expected):]
+        if roles != ["user", "assistant"] * delivered:
+            problem = "turns do not alternate user/assistant after the system turn"
+    if problem:
+        raise SystemExit(f"{entry['id']}: {problem}; refusing")
+
+
+def check_exit_marker(entry, terminal_tools, terminal_markers):
+    """Refuse a transcript whose recorded exit disagrees with what its own
+    text supports: a marker with no terminal call behind it would invent a
+    terminal event, and a terminal call with no marker would hide one —
+    either changes the exit endpoint without changing the transcript.
+    Verification needs the plan's terminal vocabulary; a caller without a
+    plan (both arguments None — the dose calibrator summarising a run)
+    gets the recorded marker back unverified."""
+    recorded = entry.get("exit_marker") or None
+    if terminal_tools is None and terminal_markers is None:
+        return recorded
+    # The generator stops at the FIRST terminal event, so no assistant
+    # turn before the final one may carry one: a transcript that goes on
+    # past a terminal call is not one the loop produced.
+    assistant = [m for m in entry["messages"] if m["role"] == "assistant"]
+    for index, message in enumerate(assistant[:-1]):
+        early = terminal_in(message["content"], terminal_tools, terminal_markers)
+        if early is not None:
+            raise SystemExit(
+                f"{entry['id']}: assistant turn {index + 1} of {len(assistant)} "
+                f"carries the terminal event {early!r} but the conversation "
+                "continued; the generator stops at the first terminal event; refusing")
+    expected = expected_exit_marker(entry["messages"], terminal_tools,
+                                    terminal_markers)
+    if recorded != expected:
+        raise SystemExit(
+            f"{entry['id']}: recorded exit marker {recorded!r} but the final "
+            f"assistant turn supports {expected!r} (terminal tools "
+            f"{sorted(terminal_tools or ())}); refusing")
+    return expected
+
+
+def build_record(entry, sampling, experiment_id, condition_id, stamp,
+                 terminal_tools=None, terminal_markers=None):
     """One SampleRecord from a transcript line, engine conventions
-    throughout."""
+    throughout. The terminal outcome is recomputed from the transcript
+    and the plan's terminal tools (:func:`check_exit_marker`)."""
     item_id, sample_index = split_plan_id(entry["id"])
+    exit_marker = check_exit_marker(entry, terminal_tools, terminal_markers)
     record = transcript_pb2.SampleRecord(key=common_pb2.ResultKey(
         experiment_id=experiment_id, condition_id=condition_id,
         item_id=item_id, sample_index=sample_index))
@@ -110,7 +195,6 @@ def build_record(entry, sampling, experiment_id, condition_id, stamp):
             record.outcomes.append(transcript_pb2.OutcomeEvent(
                 name="tool_invoked", turn_index=message.turn_index,
                 detail=call.name))
-    exit_marker = entry.get("exit_marker")
     if exit_marker:
         record.outcomes.append(transcript_pb2.OutcomeEvent(
             name=TERMINAL_TOOL_INVOKED, turn_index=final,
@@ -118,6 +202,20 @@ def build_record(entry, sampling, experiment_id, condition_id, stamp):
     else:
         record.outcomes.append(transcript_pb2.OutcomeEvent(
             name="script_completed", turn_index=final))
+    close = entry.get("close")
+    if close:
+        # The de-induction close rides in its own field, never in
+        # ``messages`` — the judge and the capture replay read only the
+        # protocol transcript, and the registration promises the close is
+        # preserved and released. Content is kept verbatim (never judged,
+        # so the tool-call stripping the judge view needs does not apply).
+        offset = len(record.messages)
+        record.close.append(transcript_pb2.Message(
+            role="user", turn_index=offset, scripted=True,
+            content=close["user"]))
+        record.close.append(transcript_pb2.Message(
+            role="assistant", turn_index=offset + 1,
+            content=close["assistant"]))
     record.sampling_actual.CopyFrom(condition_pb2.SamplingSpec(
         temperature=float(sampling.get("temperature", 0.0)),
         top_p=float(sampling.get("top_p", 0.0)),
@@ -172,7 +270,53 @@ def main():
         plan = json.load(handle)
     plan_ids = [c["id"] for c in plan["conversations"]]
     plan_seeds = {c["id"]: int(c["seed"]) for c in plan["conversations"]}
+    plan_closes = {c["id"]: c.get("closing_turn") for c in plan["conversations"]}
+    # The plan's terminal vocabulary per conversation; a plan without tools
+    # or markers (a tool-free battery) admits no exit at all.
+    plan_terminal = {c["id"]: (tuple(c.get("terminal_tools") or ()),
+                               tuple(c.get("terminal_markers") or ()))
+                     for c in plan["conversations"]}
     entries = load_transcripts(args.transcripts, set(plan_ids))
+    # Every transcript is validated before any record is written, so a
+    # refused run leaves the store untouched: the exit against the plan's
+    # terminal vocabulary, then the scripted turns against the plan.
+    plan_conversations = {c["id"]: c for c in plan["conversations"]}
+    for conversation_id, entry in entries.items():
+        marker = check_exit_marker(entry, *plan_terminal[conversation_id])
+        check_scripted_turns(entry, plan_conversations[conversation_id], marker)
+    # A plan that pins the fresh-prefill path (prefix_cache false — the
+    # registered Study 4 path, gate G4a) is contradicted by a transcript
+    # generated through the cache: the steering script records how many
+    # turns extended a snapshot, and any such turn disqualifies the run.
+    if plan.get("prefix_cache") is False:
+        for conversation_id, entry in entries.items():
+            extended = int((entry.get("prefix_cache") or {}).get("extend", 0))
+            if extended:
+                raise SystemExit(
+                    f"{conversation_id}: the plan pins the fresh-prefill path "
+                    f"but the transcript extended a cache snapshot on {extended} "
+                    "turn(s); refusing")
+    # A plan that attaches the de-induction close makes the close part of
+    # the sample: a transcript without it, or with a close whose scripted
+    # turn is not the plan's text, is an incomplete or edited run and must
+    # not ingest as a complete record; a close the plan never asked for is
+    # equally foreign.
+    for conversation_id, entry in entries.items():
+        expected = plan_closes[conversation_id]
+        close = entry.get("close")
+        if expected and not close:
+            raise SystemExit(
+                f"{conversation_id}: the plan attaches a closing turn but the "
+                "transcript carries no close; refusing")
+        if expected and (close.get("user") != expected
+                         or not str(close.get("assistant", "")).strip()):
+            raise SystemExit(
+                f"{conversation_id}: the transcript's close does not match the "
+                "plan's closing turn (or has no reply); refusing")
+        if close and not expected:
+            raise SystemExit(
+                f"{conversation_id}: the transcript carries a close the plan "
+                "never attached; refusing")
     # The seed stored with seed_honored=True must be the plan's seed —
     # a transcript carrying a different seed would silently invalidate
     # every matched-seed comparison (the plan-integrity guarantee).
@@ -198,9 +342,10 @@ def main():
         for conversation_id in plan_ids:
             if conversation_id not in entries:
                 continue
+            terminal_tools, terminal_markers = plan_terminal[conversation_id]
             record = build_record(entries[conversation_id], sampling,
                                   args.experiment_id, args.condition_id,
-                                  stamp)
+                                  stamp, terminal_tools, terminal_markers)
             if (record.key.item_id, record.key.sample_index) in present:
                 skipped += 1
                 continue

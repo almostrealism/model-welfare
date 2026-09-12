@@ -51,23 +51,34 @@ def template_messages(messages):
     return rendered
 
 
-def render_text(tokenizer, messages, tools=None, add_generation_prompt=False):
+def render_text(tokenizer, messages, tools=None, add_generation_prompt=False,
+                chat_template_kwargs=None):
     return tokenizer.apply_chat_template(
         messages, tools=tools, tokenize=False,
-        add_generation_prompt=add_generation_prompt)
+        add_generation_prompt=add_generation_prompt,
+        **(chat_template_kwargs or {}))
 
 
-def assistant_spans(tokenizer, messages, tools=None):
+def assistant_spans(tokenizer, messages, tools=None, chat_template_kwargs=None):
     """(token_ids, [(message_index, token_start, token_end)]) for every
-    assistant turn, via character offsets into the full rendering."""
-    full_text = render_text(tokenizer, messages, tools)
+    assistant turn, via character offsets into the full rendering.
+
+    ``chat_template_kwargs`` is forwarded to every rendering so the
+    template is applied identically here and in generation — required for
+    thinking-hybrid subjects (Qwen3 with ``enable_thinking=False``),
+    whose generation-prompt reasoning scaffold would otherwise break the
+    prefix-stability the span computation depends on."""
+    full_text = render_text(tokenizer, messages, tools,
+                            chat_template_kwargs=chat_template_kwargs)
     character_spans = []
     for index, message in enumerate(messages):
         if message["role"] != "assistant":
             continue
         prefix = render_text(tokenizer, messages[:index], tools,
-                             add_generation_prompt=True)
-        complete = render_text(tokenizer, messages[:index + 1], tools)
+                             add_generation_prompt=True,
+                             chat_template_kwargs=chat_template_kwargs)
+        complete = render_text(tokenizer, messages[:index + 1], tools,
+                               chat_template_kwargs=chat_template_kwargs)
         if not complete.startswith(prefix) or not full_text.startswith(complete):
             raise ValueError(
                 f"chat template rendering is not prefix-stable at message "

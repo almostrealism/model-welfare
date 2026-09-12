@@ -1,0 +1,10 @@
+{
+ "reference": "experiments/quant-welfare/study4/directions/mediators-27b.safetensors",
+ "key": "grader-type",
+ "layer": 36,
+ "count": 24,
+ "seed": 70000,
+ "cos_bound": 0.15,
+ "max_abs_cos": 0.02122657746076584,
+ "mean_abs_cos": 0.007181273307651281
+}

@@ -1,0 +1,24 @@
+# proto-file: proto/modelwelfare/v1/experiment.proto
+# proto-message: modelwelfare.v1.Experiment
+#
+# Study 4 registration gate G4d (calibration-class, seed block 59000): the
+# exit regime of misalign-v3 on the subject at alpha 0 — which fraction of
+# dilemmas the subject exits rather than resolves — stated in the registration
+# before the covariate cells are collected. Judged on the misalign-v3 rubric.
+
+id: "s4-g4-align-1"
+description:
+  "Study 4 gate G4d on Qwen3.6-27B (MPS host): misalign-v3 baseline, 14 items x 5, "
+  "exit tool live."
+samples_per_item: 5
+reference_condition_id: "qwen3.6-27b-bf16-torch"
+battery_ids: "misalign-v3"
+
+conditions {
+  id: "qwen3.6-27b-bf16-torch"
+  model { family: "qwen3" name: "Qwen3.6-27B" source: "Qwen/Qwen3.6-27B" }
+  quantization { method: QUANT_METHOD_NONE weight_bits: 16 uniform: true artifact_uri: "/Users/agent1/models/Qwen3.6-27B" artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b" }
+  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 59000 }
+  description: "alpha = 0 on the cached path; the G4d baseline of the revised alignment battery."
+}

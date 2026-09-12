@@ -120,6 +120,34 @@ def test_tool_call_names_parses_and_skips_garbage():
     assert tool_call_names("no calls at all") == []
 
 
+def test_tool_call_names_xml_form_requires_closed_elements():
+    from modelwelfare_torch.steer import tool_call_names
+    complete = ("<tool_call>\n<function=end_conversation>\n<parameter=reason>done"
+                "</parameter>\n</function>\n</tool_call>")
+    assert tool_call_names(complete) == ["end_conversation"]
+    # a truncated generation must not stop the protocol (matches the core parser)
+    assert tool_call_names("<tool_call><function=end_conversation>") == []
+    assert tool_call_names("<tool_call><function=end_conversation></tool_call>") == []
+    assert tool_call_names("<tool_call>so <function=end_conversation></function> no</tool_call>") == []
+    # a closed function with an unclosed parameter is still truncated output
+    assert tool_call_names("<tool_call><function=end_conversation><parameter=reason>x"
+                           "</function></tool_call>") == []
+    # a function tag nested in a parameter value is malformed, not a call
+    assert tool_call_names("<tool_call><function=end_conversation><parameter=reason>"
+                           "<function=x></function></parameter></function></tool_call>") == []
+    # a parameter tag nested in a parameter value is malformed too
+    assert tool_call_names("<tool_call><function=end_conversation><parameter=reason>"
+                           "<parameter=b>v</parameter></parameter></function></tool_call>") == []
+    # an inner span nested in a malformed outer span is never parsed on its own
+    nested = ("<tool_call>garbage <tool_call><function=end_conversation></function>"
+              "</tool_call> tail")
+    assert tool_call_names(nested) == []
+    assert detect_terminal(nested, None, ["end_conversation"]) is None
+    assert tool_call_names(nested + " <tool_call><function=later></function></tool_call>") == ["later"]
+    assert detect_terminal("<tool_call><function=end_conversation></tool_call>",
+                           None, ["end_conversation"]) is None
+
+
 def test_detect_terminal_is_name_precise():
     terminal = ["end_conversation"]
     assert detect_terminal(EXIT_CALL, None, terminal) == "end_conversation"

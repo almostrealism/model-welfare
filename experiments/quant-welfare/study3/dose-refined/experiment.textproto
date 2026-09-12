@@ -1,0 +1,524 @@
+# proto-file: proto/modelwelfare/v1/experiment.proto
+# proto-message: modelwelfare.v1.Experiment
+#
+# Study 3 refined dose sweep (calibration-class under the §7 firewall).
+# Generated 2026-09-05 on halo by run_refined.sh over plan-refined (20 subset
+# items x 3, seed block 15300), ingested 2026-09-11 from study3/gen/halo/out.
+# The bail affordance was live (local battery shadow).
+
+id: "s3-dose-refined-1"
+description:
+  "Study 3 registered-grade refined dose sweep on Qwen3-4B (halo torch): {1/2, 1, 3/2, 2} x alpha* per direction, both signs, over the full 20-item subset x 3, with a fresh alpha=0 baseline; the mapping behind dose-refined.json and the pinned alpha* values."
+samples_per_item: 3
+reference_condition_id: "qwen3-4b-bf16-torch"
+battery_ids: "distress-v3"
+
+conditions {
+  id: "qwen3-4b-bf16-torch"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15300
+  }
+  description: "alpha = 0 baseline for the refined dose sweep (20 subset items x 3, seed block 15300); halo torch."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-distressL18-a0.5"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15300
+  }
+  description: "frozen distress-contrast direction added at L18 residual_post, alpha = 0.5; 20 subset items x 3, seed block 15300. Scratch file refined-distress-contrast_0p5.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-distressL18-a1.0"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15300
+  }
+  description: "frozen distress-contrast direction added at L18 residual_post, alpha = 1.0; 20 subset items x 3, seed block 15300. Scratch file refined-distress-contrast_1p0.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-distressL18-a1.5"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15300
+  }
+  description: "frozen distress-contrast direction added at L18 residual_post, alpha = 1.5; 20 subset items x 3, seed block 15300. Scratch file refined-distress-contrast_1p5.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-distressL18-a2.0"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15300
+  }
+  description: "frozen distress-contrast direction added at L18 residual_post, alpha = 2.0; 20 subset items x 3, seed block 15300. Scratch file refined-distress-contrast_2p0.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-distressL18-a-0.5"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15300
+  }
+  description: "frozen distress-contrast direction added at L18 residual_post, alpha = -0.5; 20 subset items x 3, seed block 15300. Scratch file refined-distress-contrast_-0p5.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-distressL18-a-1.0"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15300
+  }
+  description: "frozen distress-contrast direction added at L18 residual_post, alpha = -1.0; 20 subset items x 3, seed block 15300. Scratch file refined-distress-contrast_-1p0.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-distressL18-a-1.5"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15300
+  }
+  description: "frozen distress-contrast direction added at L18 residual_post, alpha = -1.5; 20 subset items x 3, seed block 15300. Scratch file refined-distress-contrast_-1p5.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-distressL18-a-2.0"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15300
+  }
+  description: "frozen distress-contrast direction added at L18 residual_post, alpha = -2.0; 20 subset items x 3, seed block 15300. Scratch file refined-distress-contrast_-2p0.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-axisL18-a0.35"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15300
+  }
+  description: "frozen assistant-axis-contrast direction added at L18 residual_post, alpha = 0.35; 20 subset items x 3, seed block 15300. Scratch file refined-assistant-axis-contrast_0p35.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-axisL18-a0.7"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15300
+  }
+  description: "frozen assistant-axis-contrast direction added at L18 residual_post, alpha = 0.7; 20 subset items x 3, seed block 15300. Scratch file refined-assistant-axis-contrast_0p7.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-axisL18-a1.05"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15300
+  }
+  description: "frozen assistant-axis-contrast direction added at L18 residual_post, alpha = 1.05; 20 subset items x 3, seed block 15300. Scratch file refined-assistant-axis-contrast_1p05.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-axisL18-a1.4"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15300
+  }
+  description: "frozen assistant-axis-contrast direction added at L18 residual_post, alpha = 1.4; 20 subset items x 3, seed block 15300. Scratch file refined-assistant-axis-contrast_1p4.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-axisL18-a-0.35"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15300
+  }
+  description: "frozen assistant-axis-contrast direction added at L18 residual_post, alpha = -0.35; 20 subset items x 3, seed block 15300. Scratch file refined-assistant-axis-contrast_-0p35.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-axisL18-a-0.7"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15300
+  }
+  description: "frozen assistant-axis-contrast direction added at L18 residual_post, alpha = -0.7; 20 subset items x 3, seed block 15300. Scratch file refined-assistant-axis-contrast_-0p7.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-axisL18-a-1.05"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15300
+  }
+  description: "frozen assistant-axis-contrast direction added at L18 residual_post, alpha = -1.05; 20 subset items x 3, seed block 15300. Scratch file refined-assistant-axis-contrast_-1p05.jsonl."
+}
+
+conditions {
+  id: "qwen3-4b-bf16-torch-axisL18-a-1.4"
+  model {
+    family: "qwen3"
+    name: "Qwen3-4B-Instruct-2507"
+    source: "Qwen/Qwen3-4B-Instruct-2507"
+  }
+  quantization {
+    method: QUANT_METHOD_NONE
+    weight_bits: 16
+    uniform: true
+    artifact_uri: "/home/agent1/models/Qwen3-4B-Instruct-2507"
+    artifact_digest: "79f6bbc34572c0063d12022f0f93074d90bbcd5dfd82134423bf892f7f8df3cf"
+  }
+  runtime {
+    backend: BACKEND_TORCH
+    device: "rocm"
+    host: "amd-halo"
+    compute_dtype: "bf16"
+    backend_version: "torch-2.10"
+  }
+  sampling {
+    temperature: 0.7
+    top_p: 0.95
+    max_tokens: 512
+    seed: 15300
+  }
+  description: "frozen assistant-axis-contrast direction added at L18 residual_post, alpha = -1.4; 20 subset items x 3, seed block 15300. Scratch file refined-assistant-axis-contrast_-1p4.jsonl."
+}

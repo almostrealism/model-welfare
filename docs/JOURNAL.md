@@ -4,6 +4,14 @@ Dated log of instrument and infrastructure decisions: what changed, why,
 and what was considered and rejected. PLANNING.md tracks *what is open*;
 this file records *why things are the way they are*. Newest first.
 
+## 2026-09-11 — This journal is closed; the series continues under docs/journal/
+
+Study 1 and Study 2 are the era this file records, and it closes here.
+From Study 3 onward, entries live in per-study files under
+[docs/journal/](journal/README.md): `docs/journal/study3-steering.md`,
+`docs/journal/study4-grader-footprint.md`, and `docs/journal/program.md`
+for cross-study infrastructure. Nothing below is edited, moved, or split.
+
 ## 2026-08-24 — Post-analysis descriptive additions, and the §3.4 token retention executed
 
 Three additions after the registered analysis run, each leaving every

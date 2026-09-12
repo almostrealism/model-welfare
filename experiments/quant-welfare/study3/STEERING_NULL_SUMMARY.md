@@ -30,6 +30,14 @@ Artifacts: `randenv-verdict.json` (distress @ α*), `axisenv-verdict.json`
 effect 0.225), `bigdose-verdict.json` (distress @ 3.5), `het-pilot-verdict.json`
 (distress effect + heterogeneity).
 
+**Reproduced from the store (2026-09-11).** The envelope cells above were
+judged once in scratch; for the data release they were ingested
+(`s3-g3b-pilot-2`, `s3-bigdose-1`) and re-judged, and the verdicts
+recomputed with `tools/envelope_verdict.py` are in `*-verdict-store.json`
+(distress @ α* 47th percentile, axis @ α* 63rd, distress @ 3.5 44th,
+grader and eval @ 4 both 25th). Same reading; the journal entry of that
+date has the comparison.
+
 **Open fork for the owner:** conclude the steering-null holds for this subject
 and make framing the registration spine (Q1/Q2 reported as an honest null), or
 first test whether it is a small-model artifact via a subject switch (d) before

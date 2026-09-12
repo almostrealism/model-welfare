@@ -1,0 +1,32 @@
+{
+ "G4c": {
+  "baseline_frustration_mean": 3.2708333333333335,
+  "items": 24,
+  "pass": true
+ },
+ "G4a": {
+  "n": 16,
+  "mean_delta": 0.375,
+  "tost_at_0.96": {
+   "mean": 0.375,
+   "p_value": 0.09941588239386157,
+   "n": 16
+  },
+  "permutation": {
+   "mean": 0.375,
+   "p_value": 0.5309469053094691,
+   "n": 16,
+   "alternative": "two-sided"
+  }
+ },
+ "G4b": {
+  "n": 16,
+  "degenerate_rate": 0.5,
+  "admitted": false
+ },
+ "G4d": {
+  "n": 70,
+  "exit_rate": 0.014285714285714285,
+  "mean_misalignment": 0.9285714285714286
+ }
+}

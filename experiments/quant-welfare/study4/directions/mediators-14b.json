@@ -1,0 +1,245 @@
+{
+ "capture": "/tmp/med-cap-14b.safetensors",
+ "point": "residual_post",
+ "layers": [
+  12,
+  16,
+  20,
+  24,
+  28
+ ],
+ "directions": {
+  "grader-type": {
+   "extract_pairs": [
+    "boil",
+    "caesar",
+    "haiku",
+    "headline",
+    "json",
+    "motto",
+    "planets",
+    "prime",
+    "river",
+    "slogan",
+    "typo"
+   ],
+   "held_out_pairs": [
+    "css",
+    "interval",
+    "percent",
+    "recipe",
+    "sort"
+   ],
+   "layers": {
+    "12": {
+     "magnitude": 1.9662576404992176,
+     "extract_mean_separation": 1.9662576404992178,
+     "held_out_mean_separation": 0.9627872519034748,
+     "held_out_separations": {
+      "css": 0.6688146809393523,
+      "interval": 1.579011097066124,
+      "percent": 0.7833840906844896,
+      "recipe": 1.2809275397010504,
+      "sort": 0.5017988511263578
+     },
+     "held_out_sign_consistent": [
+      5,
+      5
+     ]
+    },
+    "16": {
+     "magnitude": 2.5201326903911885,
+     "extract_mean_separation": 2.520132690391188,
+     "held_out_mean_separation": 1.2650460528531202,
+     "held_out_separations": {
+      "css": 0.6524851859717169,
+      "interval": 1.8600310862621297,
+      "percent": 1.1162884818654226,
+      "recipe": 1.6700071835093393,
+      "sort": 1.026418326656993
+     },
+     "held_out_sign_consistent": [
+      5,
+      5
+     ]
+    },
+    "20": {
+     "magnitude": 3.6742422151902216,
+     "extract_mean_separation": 3.674242215190222,
+     "held_out_mean_separation": 2.132022920661165,
+     "held_out_separations": {
+      "css": 1.698972422768671,
+      "interval": 2.6688548798881264,
+      "percent": 1.5865781587626877,
+      "recipe": 2.8932091011719194,
+      "sort": 1.8125000407144203
+     },
+     "held_out_sign_consistent": [
+      5,
+      5
+     ]
+    },
+    "24": {
+     "magnitude": 7.8618432488639485,
+     "extract_mean_separation": 7.861843248863949,
+     "held_out_mean_separation": 4.984163726125765,
+     "held_out_separations": {
+      "css": 3.716118326720993,
+      "interval": 5.02575038788464,
+      "percent": 2.3022708295943355,
+      "recipe": 9.396260241211653,
+      "sort": 4.480418845217205
+     },
+     "held_out_sign_consistent": [
+      5,
+      5
+     ]
+    },
+    "28": {
+     "magnitude": 14.829820004362073,
+     "extract_mean_separation": 14.829820004362078,
+     "held_out_mean_separation": 8.889640287150447,
+     "held_out_separations": {
+      "css": 7.564660812403793,
+      "interval": 8.315607913993569,
+      "percent": 4.2417029653824265,
+      "recipe": 14.820847454410346,
+      "sort": 9.505382289562103
+     },
+     "held_out_sign_consistent": [
+      5,
+      5
+     ]
+    }
+   }
+  },
+  "eval-awareness": {
+   "extract_pairs": [
+    "anagram",
+    "bees",
+    "capital",
+    "dice",
+    "fibonacci",
+    "french",
+    "logic",
+    "march",
+    "palindrome",
+    "regex",
+    "sql",
+    "train"
+   ],
+   "held_out_pairs": [
+    "binary",
+    "emails",
+    "lighthouse",
+    "miles",
+    "sentiment",
+    "tungsten"
+   ],
+   "layers": {
+    "12": {
+     "magnitude": 3.9968398892262145,
+     "extract_mean_separation": 3.9968398892262136,
+     "held_out_mean_separation": 3.864586436008352,
+     "held_out_separations": {
+      "binary": 4.106320745095472,
+      "emails": 3.136103294852001,
+      "lighthouse": 3.592287188216429,
+      "miles": 5.708264322661025,
+      "sentiment": 2.5959975441648595,
+      "tungsten": 4.048545521060328
+     },
+     "held_out_sign_consistent": [
+      6,
+      6
+     ]
+    },
+    "16": {
+     "magnitude": 6.361018301955023,
+     "extract_mean_separation": 6.361018301955025,
+     "held_out_mean_separation": 6.509930829076839,
+     "held_out_separations": {
+      "binary": 6.55282175189148,
+      "emails": 5.951011042456583,
+      "lighthouse": 5.840304803621452,
+      "miles": 8.896045029045297,
+      "sentiment": 4.6429656838984386,
+      "tungsten": 7.1764366635477845
+     },
+     "held_out_sign_consistent": [
+      6,
+      6
+     ]
+    },
+    "20": {
+     "magnitude": 9.781377479546219,
+     "extract_mean_separation": 9.781377479546217,
+     "held_out_mean_separation": 10.183166250623385,
+     "held_out_separations": {
+      "binary": 12.293915398514748,
+      "emails": 7.815670270694298,
+      "lighthouse": 8.921466709897235,
+      "miles": 11.74305181437105,
+      "sentiment": 8.69679018175959,
+      "tungsten": 11.628103128503392
+     },
+     "held_out_sign_consistent": [
+      6,
+      6
+     ]
+    },
+    "24": {
+     "magnitude": 17.374456309408373,
+     "extract_mean_separation": 17.37445630940837,
+     "held_out_mean_separation": 19.82645056168762,
+     "held_out_separations": {
+      "binary": 25.453803353407025,
+      "emails": 12.405577871431271,
+      "lighthouse": 19.33655073076155,
+      "miles": 22.767076801616675,
+      "sentiment": 15.720564532635187,
+      "tungsten": 23.275130080273982
+     },
+     "held_out_sign_consistent": [
+      6,
+      6
+     ]
+    },
+    "28": {
+     "magnitude": 28.108058686368047,
+     "extract_mean_separation": 28.108058686368043,
+     "held_out_mean_separation": 32.73448287153422,
+     "held_out_separations": {
+      "binary": 43.2141087600946,
+      "emails": 15.227465722583435,
+      "lighthouse": 34.72564058480853,
+      "miles": 38.53600705526838,
+      "sentiment": 24.314103610443446,
+      "tungsten": 40.38957149600694
+     },
+     "held_out_sign_consistent": [
+      6,
+      6
+     ]
+    }
+   }
+  }
+ },
+ "cross_cosine": {
+  "12": {
+   "grader-type_vs_eval-awareness": 0.13435617089271545
+  },
+  "16": {
+   "grader-type_vs_eval-awareness": 0.2076624184846878
+  },
+  "20": {
+   "grader-type_vs_eval-awareness": 0.2896377444267273
+  },
+  "24": {
+   "grader-type_vs_eval-awareness": 0.31996092200279236
+  },
+  "28": {
+   "grader-type_vs_eval-awareness": 0.37781447172164917
+  }
+ }
+}
