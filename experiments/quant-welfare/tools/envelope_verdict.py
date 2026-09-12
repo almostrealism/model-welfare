@@ -32,6 +32,7 @@ envelope's question.
 
 import argparse
 import json
+import re
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -108,12 +109,55 @@ def samples_per_item(store, experiment_id, condition_id) -> dict:
     return dict(counts)
 
 
+_DOSE = re.compile(r"-a(\d+(?:\.\d+)?)(?:-|$)")
+
+
+def condition_dose(condition_id: str):
+    """The steering dose a condition id carries under the ``…-a<dose>``
+    naming (``-graderL36-a20``, ``-randL18-a1.039-r07``), as a float, or
+    None when the id does not name one."""
+    match = _DOSE.search(condition_id)
+    return float(match.group(1)) if match else None
+
+
+def envelope_dose(envelope, treatment_doses=None):
+    """The one dose every envelope cell was generated at, or None when the
+    ids do not name a dose. An envelope mixing doses is refused: a
+    specificity read is a same-size comparison by definition."""
+    doses = {condition_dose(c) for c in envelope}
+    doses.discard(None)
+    if len(doses) > 1:
+        raise ValueError(f"the envelope mixes doses {sorted(doses)}; one envelope per dose")
+    return doses.pop() if doses else None
+
+
+def treatment_dose(treatment, treatment_doses=None):
+    override = (treatment_doses or {}).get(treatment)
+    return float(override) if override is not None else condition_dose(treatment)
+
+
 def verdict(store, experiment_id, reference, treatments, envelope, dimensions=None,
-            items=None) -> dict:
+            items=None, treatment_doses=None) -> dict:
     """The full report: per dimension, each treatment's paired effect,
     permutation p, per-item deltas, and its envelope placement, plus the
-    envelope's per-direction effects and every cell's samples per item."""
+    envelope's per-direction effects and every cell's samples per item.
+
+    The envelope is a same-size null: a treatment is placed in it only
+    when its dose equals the envelope's. A treatment at another dose gets
+    its effect and permutation test but no placement (``envelope`` None,
+    with a note); a treatment whose id names no dose, while the envelope's
+    does, must be given one through ``treatment_doses``."""
     conditions = [reference] + list(treatments) + list(envelope)
+    env_dose = envelope_dose(envelope)
+    doses = {}
+    for treatment in treatments:
+        dose = treatment_dose(treatment, treatment_doses)
+        if env_dose is not None and dose is None:
+            raise ValueError(
+                f"{treatment}: no dose in the id and none given (--treatment-dose) "
+                f"while the envelope is at dose {env_dose}; cannot decide whether "
+                "the specificity read is same-size")
+        doses[treatment] = dose
     scores = []
     for condition in conditions:
         scores += list(store.read(scoring_pb2.JudgeScore, experiment_id, condition, "scores"))
@@ -126,7 +170,9 @@ def verdict(store, experiment_id, reference, treatments, envelope, dimensions=No
         "experiment": experiment_id,
         "reference": reference,
         "treatments": list(treatments),
+        "treatment_doses": doses,
         "envelope": list(envelope),
+        "envelope_dose": env_dose,
         "samples_per_item": {c: samples_per_item(store, experiment_id, c) for c in conditions},
         "dimensions": {},
     }
@@ -143,7 +189,14 @@ def verdict(store, experiment_id, reference, treatments, envelope, dimensions=No
                  "treatments": {}}
         for treatment in treatments:
             effect, per_item = condition_effect(means, treatment, reference, paired_items)
-            summary = envelope_summary(effect, envelope_effects)
+            if env_dose is None or doses[treatment] == env_dose:
+                summary = envelope_summary(effect, envelope_effects)
+            else:
+                summary = {"effect": effect, "envelope": None,
+                           "note": (f"treatment dose {doses[treatment]} differs from the "
+                                    f"envelope dose {env_dose}; no specificity read — "
+                                    "the envelope is a same-size null")}
+            summary["dose"] = doses[treatment]
             summary["permutation"] = stats.paired_permutation_test(list(per_item.values()))
             summary["per_item_delta"] = per_item
             entry["treatments"][treatment] = summary
@@ -169,8 +222,19 @@ def main():
     parser.add_argument("--items", default="",
                         help="file of item ids, one per line (default: items "
                              "scored in every cell)")
+    parser.add_argument("--treatment-dose", action="append", default=[],
+                        metavar="CONDITION=DOSE",
+                        help="the dose of a treatment whose id does not name "
+                             "one (repeatable); a treatment is placed in the "
+                             "envelope only at the envelope's dose")
     parser.add_argument("--out", default="", help="write the JSON report here")
     args = parser.parse_args()
+    treatment_doses = {}
+    for spec in args.treatment_dose:
+        condition, _, dose = spec.rpartition("=")
+        if not condition or not dose:
+            raise SystemExit(f"--treatment-dose {spec!r} is not CONDITION=DOSE")
+        treatment_doses[condition] = float(dose)
 
     store = ResultStore(args.data_root)
     envelope = [c for c in args.envelope.split(",") if c]
@@ -186,13 +250,21 @@ def main():
         items = [line.strip() for line in Path(args.items).read_text().splitlines()
                  if line.strip()]
 
-    report = verdict(store, args.experiment, args.reference,
-                     [c for c in args.treatments.split(",") if c],
-                     envelope, dimensions, items)
+    try:
+        report = verdict(store, args.experiment, args.reference,
+                         [c for c in args.treatments.split(",") if c],
+                         envelope, dimensions, items, treatment_doses)
+    except ValueError as error:
+        raise SystemExit(str(error))
     for dimension, entry in report["dimensions"].items():
         print(f"== {dimension} ({len(entry['items'])} items, "
               f"K={len(entry['envelope_per_direction'])} random directions) ==")
         for treatment, summary in entry["treatments"].items():
+            if summary.get("envelope", "") is None:
+                print(f"  {treatment}: effect {summary['effect']:+.3f} "
+                      f"(perm p={summary['permutation']['p_value']:.3f}); "
+                      f"no envelope placement — {summary['note']}")
+                continue
             print(f"  {treatment}: effect {summary['effect']:+.3f} "
                   f"(perm p={summary['permutation']['p_value']:.3f}); "
                   f"envelope mean {summary['envelope_mean']:+.3f} sd {summary['envelope_sd']:.3f} "

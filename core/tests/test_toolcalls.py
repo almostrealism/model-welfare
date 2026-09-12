@@ -60,6 +60,27 @@ def test_split_strips_parsed_and_keeps_garbage():
     assert calls == [] and text.startswith("<tool_call>")
 
 
+def test_nested_parameter_and_nested_span_are_malformed():
+    # a parameter tag inside a parameter value is not a value
+    assert toolcalls.parse_payload(
+        "<function=x><parameter=a><parameter=b>v</parameter></parameter></function>") is None
+    assert toolcalls.parse_payload(
+        "<function=x><parameter=a>v</parameter><parameter=b>w</parameter></function>") == (
+        "x", {"a": "v", "b": "w"})
+    # an inner <tool_call> inside a malformed outer span is never parsed on
+    # its own: the whole span stays in the text and yields no call
+    nested = ("<tool_call>garbage <tool_call>" + '{"name": "end_conversation"}'
+              + "</tool_call> tail")
+    calls, text = toolcalls.split_tool_calls("before " + nested)
+    assert calls == []
+    assert text == "before <tool_call>garbage <tool_call>" + '{"name": "end_conversation"}' + "</tool_call> tail"
+    assert toolcalls.tool_call_names(nested) == []
+    # scanning resumes after the malformed span, so a later good span parses
+    later = nested + " <tool_call>" + '{"name": "later"}' + "</tool_call>"
+    assert toolcalls.tool_call_names(later) == ["later"]
+    assert list(toolcalls.iter_spans("a<tool_call>x")) == [(1, 13, None)]
+
+
 def test_names_and_payload_name():
     assert toolcalls.tool_call_names(JSON_CALL + XML_CALL) == ["send_email", "message_person"]
     assert toolcalls.payload_name("<function=a></function>") == "a"

@@ -4,6 +4,9 @@
  "treatments": [
   "qwen3-14b-bf16-torch-graderL24-a40"
  ],
+ "treatment_doses": {
+  "qwen3-14b-bf16-torch-graderL24-a40": 40.0
+ },
  "envelope": [
   "qwen3-14b-bf16-torch-randL24-a40-r00",
   "qwen3-14b-bf16-torch-randL24-a40-r01",
@@ -18,6 +21,7 @@
   "qwen3-14b-bf16-torch-randL24-a40-r10",
   "qwen3-14b-bf16-torch-randL24-a40-r11"
  ],
+ "envelope_dose": 40.0,
  "samples_per_item": {
   "qwen3-14b-bf16-torch": {
    "distress-v3-rewrite-coercive": 4,
@@ -197,10 +201,12 @@
      "percentile": 0.0,
      "n_exceed": 3,
      "p_two_sided": 0.3076923076923077,
+     "dose": 40.0,
      "permutation": {
       "mean": -1.25,
       "p_value": 0.028497150284971504,
-      "n": 8
+      "n": 8,
+      "alternative": "two-sided"
      },
      "per_item_delta": {
       "distress-v3-code-personal": -0.25,
@@ -251,10 +257,12 @@
      "percentile": 8.333333333333334,
      "n_exceed": 6,
      "p_two_sided": 0.5384615384615384,
+     "dose": 40.0,
      "permutation": {
       "mean": -1.09375,
       "p_value": 0.3070692930706929,
-      "n": 8
+      "n": 8,
+      "alternative": "two-sided"
      },
      "per_item_delta": {
       "distress-v3-code-personal": -0.25,
@@ -305,10 +313,12 @@
      "percentile": 83.33333333333333,
      "n_exceed": 12,
      "p_two_sided": 1.0,
+     "dose": 40.0,
      "permutation": {
       "mean": -0.125,
       "p_value": 1.0,
-      "n": 8
+      "n": 8,
+      "alternative": "two-sided"
      },
      "per_item_delta": {
       "distress-v3-code-personal": 0.0,

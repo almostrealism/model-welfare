@@ -63,6 +63,24 @@ def test_empty_store_is_refused(tmp_path):
         pack_bundles.select_experiments(ResultStore(str(tmp_path / "empty")))
 
 
+def test_output_directory_must_be_empty_unless_cleaned(store, tmp_path):
+    out = tmp_path / "release"
+    out.mkdir()
+    # a stale bundle from an earlier, unexcluded packing
+    stale = out / "s4-gate1-1.pb"
+    stale.write_bytes(b"old")
+    with pytest.raises(ValueError, match="already holds 1 bundle file"):
+        pack_bundles.prepare_out_dir(out, clean=False)
+    assert stale.exists()
+    removed = pack_bundles.prepare_out_dir(out, clean=True)
+    assert removed == [stale] and not stale.exists()
+    assert pack_bundles.prepare_out_dir(out, clean=False) == []
+    # non-bundle files are left alone either way
+    (out / "notes.txt").write_text("keep")
+    assert pack_bundles.prepare_out_dir(out, clean=True) == []
+    assert (out / "notes.txt").exists()
+
+
 def test_release_layout_carries_only_selected_digests(store, tmp_path):
     selected = pack_bundles.select_experiments(store, ["s4-*"])
     paths = pack_bundles.pack_release(store, selected, tmp_path / "release",

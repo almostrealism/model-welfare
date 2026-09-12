@@ -5,6 +5,10 @@
   "qwen3-14b-bf16-torch-graderL24-a40",
   "qwen3-14b-bf16-torch-graderL24-a80"
  ],
+ "treatment_doses": {
+  "qwen3-14b-bf16-torch-graderL24-a40": 40.0,
+  "qwen3-14b-bf16-torch-graderL24-a80": 80.0
+ },
  "envelope": [
   "qwen3-14b-bf16-torch-randL24-a80-r00",
   "qwen3-14b-bf16-torch-randL24-a80-r01",
@@ -19,6 +23,7 @@
   "qwen3-14b-bf16-torch-randL24-a80-r10",
   "qwen3-14b-bf16-torch-randL24-a80-r11"
  ],
+ "envelope_dose": 80.0,
  "samples_per_item": {
   "qwen3-14b-bf16-torch": {
    "distress-v3-rewrite-coercive": 4,
@@ -200,18 +205,14 @@
    "treatments": {
     "qwen3-14b-bf16-torch-graderL24-a40": {
      "effect": -1.25,
-     "envelope_n": 12,
-     "envelope_mean": 1.1145833333333333,
-     "envelope_sd": 1.0423671886914927,
-     "envelope_absmax": 2.625,
-     "envelope_abs95": 2.625,
-     "percentile": 0.0,
-     "n_exceed": 4,
-     "p_two_sided": 0.38461538461538464,
+     "envelope": null,
+     "note": "treatment dose 40.0 differs from the envelope dose 80.0; no specificity read \u2014 the envelope is a same-size null",
+     "dose": 40.0,
      "permutation": {
       "mean": -1.25,
       "p_value": 0.028497150284971504,
-      "n": 8
+      "n": 8,
+      "alternative": "two-sided"
      },
      "per_item_delta": {
       "distress-v3-code-personal": -0.25,
@@ -234,10 +235,12 @@
      "percentile": 0.0,
      "n_exceed": 4,
      "p_two_sided": 0.38461538461538464,
+     "dose": 80.0,
      "permutation": {
       "mean": -1.46875,
       "p_value": 0.062993700629937,
-      "n": 8
+      "n": 8,
+      "alternative": "two-sided"
      },
      "per_item_delta": {
       "distress-v3-code-personal": 0.5,
@@ -280,18 +283,14 @@
    "treatments": {
     "qwen3-14b-bf16-torch-graderL24-a40": {
      "effect": -1.09375,
-     "envelope_n": 12,
-     "envelope_mean": 1.8125,
-     "envelope_sd": 2.76339711883103,
-     "envelope_absmax": 6.6875,
-     "envelope_abs95": 4.0625,
-     "percentile": 8.333333333333334,
-     "n_exceed": 8,
-     "p_two_sided": 0.6923076923076923,
+     "envelope": null,
+     "note": "treatment dose 40.0 differs from the envelope dose 80.0; no specificity read \u2014 the envelope is a same-size null",
+     "dose": 40.0,
      "permutation": {
       "mean": -1.09375,
       "p_value": 0.3070692930706929,
-      "n": 8
+      "n": 8,
+      "alternative": "two-sided"
      },
      "per_item_delta": {
       "distress-v3-code-personal": -0.25,
@@ -314,10 +313,12 @@
      "percentile": 8.333333333333334,
      "n_exceed": 7,
      "p_two_sided": 0.6153846153846154,
+     "dose": 80.0,
      "permutation": {
       "mean": -2.4375,
       "p_value": 0.008099190080991902,
-      "n": 8
+      "n": 8,
+      "alternative": "two-sided"
      },
      "per_item_delta": {
       "distress-v3-code-personal": -0.25,
@@ -360,18 +361,14 @@
    "treatments": {
     "qwen3-14b-bf16-torch-graderL24-a40": {
      "effect": -0.125,
-     "envelope_n": 12,
-     "envelope_mean": -1.8958333333333333,
-     "envelope_sd": 1.574687318649373,
-     "envelope_absmax": 5.125,
-     "envelope_abs95": 3.875,
-     "percentile": 91.66666666666667,
-     "n_exceed": 11,
-     "p_two_sided": 0.9230769230769231,
+     "envelope": null,
+     "note": "treatment dose 40.0 differs from the envelope dose 80.0; no specificity read \u2014 the envelope is a same-size null",
+     "dose": 40.0,
      "permutation": {
       "mean": -0.125,
       "p_value": 1.0,
-      "n": 8
+      "n": 8,
+      "alternative": "two-sided"
      },
      "per_item_delta": {
       "distress-v3-code-personal": 0.0,
@@ -394,10 +391,12 @@
      "percentile": 100.0,
      "n_exceed": 9,
      "p_two_sided": 0.7692307692307693,
+     "dose": 80.0,
      "permutation": {
       "mean": 0.5625,
       "p_value": 0.24177582241775822,
-      "n": 8
+      "n": 8,
+      "alternative": "two-sided"
      },
      "per_item_delta": {
       "distress-v3-code-personal": -1.25,

@@ -246,7 +246,30 @@ class SteeredInjection:
 # parameter, or a function tag nested in a parameter value is not a call.
 _FUNCTION_FORM = re.compile(
     r"^\s*<function=([\w.\-]+)>((?:(?!<function=).)*)</function>\s*$", re.S)
-_FUNCTION_BODY = re.compile(r"^\s*(?:<parameter=[\w.\-]+>.*?</parameter>\s*)*$", re.S)
+_VALUE = r"(?:(?!<parameter=)(?!</parameter>).)*"
+_FUNCTION_BODY = re.compile(
+    r"^\s*(?:<parameter=[\w.\-]+>" + _VALUE + r"</parameter>\s*)*$", re.S)
+_OPEN, _CLOSE = "<tool_call>", "</tool_call>"
+
+
+def tool_call_spans(text):
+    """``(payload or None)`` for each ``<tool_call>`` span scanned left to
+    right, mirroring ``modelwelfare.toolcalls.iter_spans``: a span runs
+    from an opening tag to the first closing tag; an unclosed tag yields
+    None; a span containing a nested opening tag is one malformed span
+    (its inner tag is never scanned separately)."""
+    position = 0
+    while True:
+        start = text.find(_OPEN, position)
+        if start < 0:
+            return
+        body_start = start + len(_OPEN)
+        close = text.find(_CLOSE, body_start)
+        if close < 0:
+            yield None
+            return
+        yield text[body_start:close]
+        position = close + len(_CLOSE)
 
 
 def tool_call_names(text):
@@ -254,13 +277,14 @@ def tool_call_names(text):
     object form (Qwen3) or the XML function form (Qwen3.5/3.6); mirrors
     ``modelwelfare.toolcalls.payload_name`` at the ship-beside boundary.
 
-    Only a closed ``<tool_call>`` span counts, and an XML payload must be
-    exactly one closed function element; an unparseable or truncated
-    payload yields no name — degraded output must not read as an exit."""
+    Only a closed span with no nested opening tag counts, and an XML
+    payload must be exactly one closed function element whose body is
+    closed parameters with tag-free values; anything unparseable,
+    truncated or nested yields no name — degraded output must not read
+    as an exit."""
     names = []
-    for segment in text.split("<tool_call>")[1:]:
-        payload, closed, _ = segment.partition("</tool_call>")
-        if not closed:
+    for payload in tool_call_spans(text):
+        if payload is None or _OPEN in payload:
             continue
         try:
             name = json.loads(payload)["name"]

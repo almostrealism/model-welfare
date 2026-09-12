@@ -8,6 +8,35 @@ Study 4 registration cites. (These entries were first written into
 merged, so the citable path is this file; the entries are verbatim.)
 Append-only, newest first.
 
+## 2026-09-12 (night) — Seventh review round: same-size envelopes only; nested tags never parsed; the packer starts from an empty directory
+
+Four findings, all accepted.
+
+- **The envelope is a same-size null.** `envelope_verdict.py` placed
+  every treatment it was given in whatever envelope it was given, and
+  the Gate 1 verdict files were run with both doses against one dose's
+  envelope, so each carried a mismatched placement beside the matched
+  one (the α = 40 treatment against the α = 20 envelope in the a20env
+  file, and the reverse). The tool now reads the dose from the
+  `…-a<dose>` naming (or an explicit `--treatment-dose` for ids that
+  name none), refuses an envelope that mixes doses, and gives a
+  treatment at another dose its effect and permutation test but no
+  placement, with a note. The thirteen committed verdict files were
+  regenerated: every same-dose number is unchanged and only the
+  mismatched placements are gone. Nothing quoted in this journal or the
+  registration used a mismatched placement — each dose's read was
+  always taken from its own envelope file.
+- **Nested tags are never parsed.** Both tool-call parsers now scan
+  spans left to right, treat a span containing a nested opening tag as
+  one malformed span kept verbatim, and require parameter values free
+  of parameter tags; a nested payload can no longer end a conversation
+  or be recorded as an action.
+- **The packer starts from an empty directory.** `pack_bundles.py`
+  refuses an output directory that already holds bundle files unless
+  `--clean` removes them, so a bundle left by an earlier packing of an
+  experiment this run excludes cannot ride into a release. The publish
+  script builds into a freshly created directory and is unaffected.
+
 ## 2026-09-12 (late) — Sixth review round: no terminal event before the final turn; coverage over distinct keys and over scores
 
 Three findings, all accepted. Ingestion now refuses a transcript whose

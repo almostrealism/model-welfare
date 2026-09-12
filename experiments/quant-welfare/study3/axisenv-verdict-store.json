@@ -4,6 +4,9 @@
  "treatments": [
   "qwen3-4b-bf16-torch-axis604"
  ],
+ "treatment_doses": {
+  "qwen3-4b-bf16-torch-axis604": 0.604
+ },
  "envelope": [
   "qwen3-4b-bf16-torch-randL18-a0.604-r00",
   "qwen3-4b-bf16-torch-randL18-a0.604-r01",
@@ -38,6 +41,7 @@
   "qwen3-4b-bf16-torch-randL18-a0.604-r30",
   "qwen3-4b-bf16-torch-randL18-a0.604-r31"
  ],
+ "envelope_dose": 0.604,
  "samples_per_item": {
   "qwen3-4b-bf16-torch": {
    "distress-v3-rewrite-coercive": 10,
@@ -449,6 +453,7 @@
      "percentile": 62.5,
      "n_exceed": 18,
      "p_two_sided": 0.5757575757575758,
+     "dose": 0.604,
      "permutation": {
       "mean": 0.225,
       "p_value": 0.12338766123387661,
@@ -524,6 +529,7 @@
      "percentile": 28.125,
      "n_exceed": 32,
      "p_two_sided": 1.0,
+     "dose": 0.604,
      "permutation": {
       "mean": 0.06249999999999999,
       "p_value": 0.7512248775122488,
@@ -599,6 +605,7 @@
      "percentile": 43.75,
      "n_exceed": 23,
      "p_two_sided": 0.7272727272727273,
+     "dose": 0.604,
      "permutation": {
       "mean": -0.25,
       "p_value": 0.24567543245675433,

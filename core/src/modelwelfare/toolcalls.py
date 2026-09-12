@@ -22,8 +22,14 @@ import re
 # action.
 _FUNCTION = re.compile(
     r"^\s*<function=([\w.\-]+)>((?:(?!<function=).)*)</function>\s*$", re.S)
-_PARAMETER = re.compile(r"<parameter=([\w.\-]+)>\s*(.*?)\s*</parameter>", re.S)
-_BODY = re.compile(r"^\s*(?:<parameter=[\w.\-]+>.*?</parameter>\s*)*$", re.S)
+# A parameter value may not contain a parameter tag of either kind: a
+# nested or unclosed parameter is malformed output, never a value.
+_VALUE = r"(?:(?!<parameter=)(?!</parameter>).)*"
+_PARAMETER = re.compile(
+    r"<parameter=([\w.\-]+)>\s*(" + _VALUE + r"?)\s*</parameter>", re.S)
+_BODY = re.compile(
+    r"^\s*(?:<parameter=[\w.\-]+>" + _VALUE + r"</parameter>\s*)*$", re.S)
+OPEN, CLOSE = "<tool_call>", "</tool_call>"
 
 
 def parse_payload(payload: str):
@@ -52,22 +58,48 @@ def payload_name(payload: str):
     return parsed[0] if parsed else None
 
 
+def iter_spans(text: str):
+    """The ``<tool_call>`` spans of ``text`` scanned left to right, as
+    ``(start, end, payload)`` with ``end`` just past the closing tag, or
+    ``payload=None`` for an unclosed opening tag (``end`` is then
+    ``len(text)``). A span whose payload contains another opening tag is
+    malformed as a whole: it is yielded once, from its outer opening tag
+    to the first closing tag, and its inner opening tag is never treated
+    as a span of its own — nested delimiters are never parsed."""
+    position = 0
+    while True:
+        start = text.find(OPEN, position)
+        if start < 0:
+            return
+        body_start = start + len(OPEN)
+        close = text.find(CLOSE, body_start)
+        if close < 0:
+            yield start, len(text), None
+            return
+        end = close + len(CLOSE)
+        yield start, end, text[body_start:close]
+        position = end
+
+
 def split_tool_calls(text: str):
     """``([(name, arguments), ...], remaining_text)``: every well-formed
     ``<tool_call>`` span parsed and STRIPPED from the text; a span that does
-    not parse, or is unclosed, stays in the text verbatim."""
+    not parse, is unclosed, or contains a nested opening tag stays in the
+    text verbatim, in full."""
     calls = []
     kept = []
-    pieces = text.split("<tool_call>")
-    kept.append(pieces[0])
-    for segment in pieces[1:]:
-        payload, closed, rest = segment.partition("</tool_call>")
-        parsed = parse_payload(payload) if closed else None
+    position = 0
+    for start, end, payload in iter_spans(text):
+        kept.append(text[position:start])
+        parsed = None
+        if payload is not None and OPEN not in payload:
+            parsed = parse_payload(payload)
         if parsed is None:
-            kept.append("<tool_call>" + segment)
+            kept.append(text[start:end])
         else:
             calls.append(parsed)
-            kept.append(rest)
+        position = end
+    kept.append(text[position:])
     return calls, "".join(kept).strip()
 
 

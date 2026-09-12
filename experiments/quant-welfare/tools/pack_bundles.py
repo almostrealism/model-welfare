@@ -72,6 +72,26 @@ def select_experiments(store, exclude=()) -> list:
     return selected
 
 
+def prepare_out_dir(out_dir: Path, clean: bool) -> list:
+    """The output directory must hold no bundle files before a packing
+    writes into it: a bundle left there by an earlier run — for an
+    experiment this run excludes — would otherwise become part of the
+    layout. With ``clean`` the existing ``*.pb`` files are removed and
+    returned; without it a non-empty directory is refused."""
+    stale = sorted(p for p in out_dir.glob("*.pb") if p.is_file())
+    if not stale:
+        return []
+    if not clean:
+        raise ValueError(
+            f"{out_dir} already holds {len(stale)} bundle file(s) "
+            f"({', '.join(p.name for p in stale[:3])}{'…' if len(stale) > 3 else ''}); "
+            "a packing must start from an empty directory — pass --clean to "
+            "remove them or choose another --out")
+    for path in stale:
+        path.unlink()
+    return stale
+
+
 def pack_release(store, experiment_ids, out_dir: Path, combined_name: str,
                  max_bytes: int) -> list:
     """The publishable layout over ``experiment_ids``; returns the written
@@ -118,6 +138,11 @@ def main():
                         metavar="GLOB",
                         help="leave experiment ids matching this glob out "
                              "of the packing (repeatable)")
+    parser.add_argument("--clean", action="store_true",
+                        help="remove the bundle files already in the output "
+                             "directory first; without it a non-empty output "
+                             "directory is refused, so a stale bundle from an "
+                             "earlier packing can never ride along")
     args = parser.parse_args()
 
     store = ResultStore(args.data_root)
@@ -131,6 +156,10 @@ def main():
 
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        prepare_out_dir(out_dir, args.clean)
+    except ValueError as error:
+        raise SystemExit(str(error))
     if args.release:
         paths = pack_release(store, experiments, out_dir, args.combined_name,
                              args.max_bytes)

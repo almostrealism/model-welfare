@@ -93,6 +93,43 @@ def test_verdict_over_store(tmp_path):
     assert tone["effect"] == pytest.approx(-1.0)
 
 
+def test_condition_dose_parsing():
+    assert ev.condition_dose("qwen3.6-27b-bf16-torch-graderL36-a20") == 20.0
+    assert ev.condition_dose("qwen3-4b-bf16-torch-randL18-a1.039-r07") == 1.039
+    assert ev.condition_dose("qwen3-4b-bf16-torch-alpha1039") is None
+    assert ev.condition_dose("ref") is None
+    assert ev.envelope_dose(["x-randL36-a20-r00", "x-randL36-a20-r01"]) == 20.0
+    assert ev.envelope_dose(["r0", "r1"]) is None
+    with pytest.raises(ValueError, match="mixes doses"):
+        ev.envelope_dose(["x-randL36-a20-r00", "x-randL36-a40-r01"])
+
+
+def test_treatment_at_another_dose_gets_no_placement(tmp_path):
+    store = ResultStore(str(tmp_path))
+    exp = "e"
+    _write(store, exp, "ref", {"i1": 2.0, "i2": 4.0}, samples=2)
+    _write(store, exp, "m-graderL36-a20", {"i1": 3.0, "i2": 5.0}, samples=2)
+    _write(store, exp, "m-graderL36-a40", {"i1": 4.0, "i2": 6.0}, samples=2)
+    _write(store, exp, "m-alpha", {"i1": 3.5, "i2": 5.5}, samples=2)
+    env = ["m-randL36-a20-r00", "m-randL36-a20-r01"]
+    _write(store, exp, env[0], {"i1": 2.5, "i2": 4.0})
+    _write(store, exp, env[1], {"i1": 2.0, "i2": 4.5})
+    report = ev.verdict(store, exp, "ref", ["m-graderL36-a20", "m-graderL36-a40"], env)
+    assert report["envelope_dose"] == 20.0
+    same = report["dimensions"]["frustration"]["treatments"]["m-graderL36-a20"]
+    other = report["dimensions"]["frustration"]["treatments"]["m-graderL36-a40"]
+    assert same["dose"] == 20.0 and "percentile" in same
+    assert other["dose"] == 40.0 and other["envelope"] is None
+    assert "differs from the envelope dose 20.0" in other["note"]
+    assert other["effect"] == pytest.approx(2.0) and "permutation" in other
+    # a treatment whose id names no dose must be given one
+    with pytest.raises(ValueError, match="no dose in the id"):
+        ev.verdict(store, exp, "ref", ["m-alpha"], env)
+    placed = ev.verdict(store, exp, "ref", ["m-alpha"], env, treatment_doses={"m-alpha": 20})
+    assert placed["dimensions"]["frustration"]["treatments"]["m-alpha"]["dose"] == 20.0
+    assert "percentile" in placed["dimensions"]["frustration"]["treatments"]["m-alpha"]
+
+
 def test_verdict_explicit_items_refuse_missing(tmp_path):
     store = ResultStore(str(tmp_path))
     _write(store, "e", "ref", {"i1": 1.0})
