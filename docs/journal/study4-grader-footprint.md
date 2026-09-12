@@ -8,6 +8,29 @@ Study 4 registration cites. (These entries were first written into
 merged, so the citable path is this file; the entries are verbatim.)
 Append-only, newest first.
 
+## 2026-09-11 (later) — Second review round
+
+Nine further findings on the re-review, eight accepted and fixed with
+tests: the tool-call grammar now also requires a function body made only
+of closed parameter elements (an unclosed parameter no longer reads as
+an exit; steering-script mirror included); ingestion refuses a transcript
+whose plan attaches a close but which carries none, or a mismatched or
+unrequested one; the driver reports the non-clean dose cells without an
+envelope (the envelope exists at the clean dose only), recomputes the
+item pairing for the non-degenerate re-report instead of failing into a
+note, and `make_random_envelope.py` takes its cosine bound as an
+explicit required input and writes a draw record beside the file (the
+frozen envelopes were drawn under 0.15; the Study 4 file's measured
+maximum is 0.021, now stated that way in the registration); the release
+script splits exclusion patterns without pathname expansion; and the
+registered `draw` is pinned by a test that reproduces the frozen 30- and
+24-item subsets from seed 60000. The ninth — that `generate()` is handed
+the whole prompt together with the cache — is declined: transformers
+5.16 slices the prompt to the tokens past the cache's length inside
+`prepare_inputs_for_generation`, which is the library's documented
+cache-reuse pattern, and the identical greedy replies on both cache
+paths (4B and 27B) recorded on 2026-09-09 are the empirical check.
+
 ## 2026-09-11 — Pre-publication review fixes (PR #16 automated review), re-freeze
 
 Twelve findings from the automated review of the registration branch,

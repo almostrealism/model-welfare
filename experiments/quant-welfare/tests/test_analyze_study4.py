@@ -86,6 +86,29 @@ def test_driver_end_to_end(tmp_path):
     assert report["mechanical"][REF]["capability_flag"] is False
 
 
+def test_non_clean_doses_carry_no_envelope(tmp_path):
+    store = _store(tmp_path)
+    report = a4.analyze(store, "w", None, REF, "ref-graderL36-a", 20, [10, 20],
+                        None, "ref-randL36-a20-", None, envelope_k=6)
+    assert "envelope" in report["welfare"]["ref-graderL36-a20"]["frustration"]
+    assert "envelope" not in report["welfare"]["ref-graderL36-a10"]["frustration"]
+
+
+def test_non_degenerate_family_recomputes_the_item_pairing(tmp_path):
+    store = _store(tmp_path)
+    scores = a4.load_scores(store, "w", [REF, "ref-graderL36-a20"])
+    # the guard removed every reference sample of the first item
+    survivors = [s for s in scores
+                 if not (s.key.condition_id == REF and s.key.item_id == ITEMS[0])]
+    family = a4.non_degenerate_family(survivors, REF, "ref-graderL36-a20", ITEMS)
+    assert family["dropped"] == [ITEMS[0]]
+    assert family["items"] == ITEMS[1:]
+    assert family["frustration"]["effect"] == pytest.approx(-2.0)
+    assert "note" not in family
+    nothing = a4.non_degenerate_family([], REF, "ref-graderL36-a20", ITEMS)
+    assert nothing["items"] == [] and nothing["dropped"] == ITEMS
+
+
 def test_dose_response_sign_convention(tmp_path):
     store = _store(tmp_path)
     conditions = [REF, "ref-graderL36-a10", "ref-graderL36-a20", "ref-graderL36-a30"]

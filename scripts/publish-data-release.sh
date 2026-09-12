@@ -58,8 +58,14 @@ echo "building release layout under $RELEASE_DIR"
 rm -rf "$RELEASE_DIR"
 mkdir -p "$RELEASE_DIR"
 
+# Split the patterns with read, never with an unquoted expansion: the
+# shell would glob a pattern like 's4-*' against the working directory
+# before the packer ever saw it.
 EXCLUDE_ARGS=()
-for pattern in ${MW_RELEASE_EXCLUDE:-}; do
+EXCLUDE_PATTERNS=()
+IFS=' ' read -r -a EXCLUDE_PATTERNS <<< "${MW_RELEASE_EXCLUDE:-}"
+for pattern in ${EXCLUDE_PATTERNS[@]+"${EXCLUDE_PATTERNS[@]}"}; do
+  [ -n "$pattern" ] || continue
   EXCLUDE_ARGS+=(--exclude "$pattern")
 done
 python3 experiments/quant-welfare/tools/pack_bundles.py \

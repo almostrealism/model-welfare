@@ -211,6 +211,27 @@ def welfare_family(scores, reference, treatment, envelope, items, clean=True):
     return family
 
 
+def non_degenerate_family(scores_clean, reference, treatment, items):
+    """The clean-dose welfare family re-read on non-degenerate samples
+    only. The capability guard can remove every sample of an item from a
+    cell, so the item pairing is recomputed from what survives (an item
+    must keep at least one sample in both cells on every dimension) and
+    the dropped items are named; the family is over the survivors."""
+    surviving = list(items)
+    for dimension in WELFARE_DIMENSIONS:
+        present = set(shared_items(dimension_means(scores_clean, dimension),
+                                   [reference, treatment]))
+        surviving = [item for item in surviving if item in present]
+    dropped = [item for item in items if item not in surviving]
+    if not surviving:
+        return {"note": "no item keeps a non-degenerate sample in both cells",
+                "items": [], "dropped": dropped}
+    family = welfare_family(scores_clean, reference, treatment, [], surviving)
+    family["items"] = surviving
+    family["dropped"] = dropped
+    return family
+
+
 def decision(family):
     """§4 headline rule: confirmed if WB2 (frustration) is significant
     one-sided after Holm AND its signed percentile is 0; moves-not-specific
@@ -257,9 +278,12 @@ def analyze(store, welfare_experiment, align_experiment, reference, grader_prefi
               "envelope": envelope, "items": paired_items,
               "welfare": {}, "mechanical": mechanical(records)}
     report["welfare"][clean] = welfare_family(scores, reference, clean, envelope, paired_items)
+    # The envelope was generated at the clean dose only; the registration
+    # defines the specificity read there and nowhere else, so the other
+    # dose cells are reported descriptively, without an envelope.
     for condition in dose_conditions:
         if condition != clean and any(k[0] == condition for k in means):
-            report["welfare"][condition] = welfare_family(scores, reference, condition, envelope, paired_items)
+            report["welfare"][condition] = welfare_family(scores, reference, condition, [], paired_items)
     report["exit_rates"] = exit_rates(records, reference, paired_items)
     report["dose_response"] = dose_response(scores, reference, dose_conditions, "frustration", paired_items)
     if eval_condition and any(k[0] == eval_condition for k in means):
@@ -276,10 +300,8 @@ def analyze(store, welfare_experiment, align_experiment, reference, grader_prefi
     keep = {(r.key.condition_id, r.key.item_id, r.key.sample_index)
             for rs in clean_records.values() for r in rs}
     scores_clean = [s for s in scores if (s.key.condition_id, s.key.item_id, s.key.sample_index) in keep]
-    try:
-        report["welfare_non_degenerate"] = welfare_family(scores_clean, reference, clean, [], paired_items)
-    except KeyError as error:
-        report["welfare_non_degenerate"] = {"note": f"item dropped by the guard: {error}"}
+    report["welfare_non_degenerate"] = non_degenerate_family(
+        scores_clean, reference, clean, paired_items)
     report["decision"] = decision(report["welfare"][clean])
     if align_experiment:
         align_clean = clean

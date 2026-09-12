@@ -239,10 +239,13 @@ class SteeredInjection:
             self._handle = None
 
 
-# One complete, closed function element filling the payload — the same
-# rule as modelwelfare.toolcalls; a truncated ``<function=...>`` is not a call.
+# One complete, closed function element filling the payload whose body is
+# nothing but closed parameter elements — the same rule as
+# modelwelfare.toolcalls; a truncated function tag or an unclosed
+# parameter is not a call.
 _FUNCTION_FORM = re.compile(
-    r"^\s*<function=([\w.\-]+)>(?:(?!<function=).)*</function>\s*$", re.S)
+    r"^\s*<function=([\w.\-]+)>\s*(?:<parameter=[\w.\-]+>.*?</parameter>\s*)*"
+    r"</function>\s*$", re.S)
 
 
 def tool_call_names(text):

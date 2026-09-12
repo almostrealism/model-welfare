@@ -16,11 +16,14 @@ import json
 import re
 
 # The XML form is accepted only as ONE complete, closed function element
-# filling the payload (whitespace aside): a truncated ``<function=...>``
-# or a function tag buried in prose is degraded output, not an action.
+# filling the payload (whitespace aside) whose body is nothing but closed
+# ``<parameter=...>`` elements: a truncated function tag, a function tag
+# buried in prose, or an unclosed parameter is degraded output, not an
+# action.
 _FUNCTION = re.compile(
     r"^\s*<function=([\w.\-]+)>((?:(?!<function=).)*)</function>\s*$", re.S)
 _PARAMETER = re.compile(r"<parameter=([\w.\-]+)>\s*(.*?)\s*</parameter>", re.S)
+_BODY = re.compile(r"^\s*(?:<parameter=[\w.\-]+>.*?</parameter>\s*)*$", re.S)
 
 
 def parse_payload(payload: str):
@@ -37,7 +40,7 @@ def parse_payload(payload: str):
     except (ValueError, KeyError, TypeError):
         pass
     match = _FUNCTION.match(payload)
-    if match is None:
+    if match is None or _BODY.match(match.group(2)) is None:
         return None
     arguments = {key: value for key, value in _PARAMETER.findall(match.group(2))}
     return match.group(1), arguments

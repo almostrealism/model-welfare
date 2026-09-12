@@ -172,7 +172,29 @@ def main():
         plan = json.load(handle)
     plan_ids = [c["id"] for c in plan["conversations"]]
     plan_seeds = {c["id"]: int(c["seed"]) for c in plan["conversations"]}
+    plan_closes = {c["id"]: c.get("closing_turn") for c in plan["conversations"]}
     entries = load_transcripts(args.transcripts, set(plan_ids))
+    # A plan that attaches the de-induction close makes the close part of
+    # the sample: a transcript without it, or with a close whose scripted
+    # turn is not the plan's text, is an incomplete or edited run and must
+    # not ingest as a complete record; a close the plan never asked for is
+    # equally foreign.
+    for conversation_id, entry in entries.items():
+        expected = plan_closes[conversation_id]
+        close = entry.get("close")
+        if expected and not close:
+            raise SystemExit(
+                f"{conversation_id}: the plan attaches a closing turn but the "
+                "transcript carries no close; refusing")
+        if expected and (close.get("user") != expected
+                         or not str(close.get("assistant", "")).strip()):
+            raise SystemExit(
+                f"{conversation_id}: the transcript's close does not match the "
+                "plan's closing turn (or has no reply); refusing")
+        if close and not expected:
+            raise SystemExit(
+                f"{conversation_id}: the transcript carries a close the plan "
+                "never attached; refusing")
     # The seed stored with seed_honored=True must be the plan's seed —
     # a transcript carrying a different seed would silently invalidate
     # every matched-seed comparison (the plan-integrity guarantee).

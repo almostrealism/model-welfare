@@ -60,7 +60,8 @@ distress-v1 and misalign-v3, frames never shown.
 
 Frozen objects (digests in `FREEZE.json`, §6): `directions/mediators-27b.safetensors`
 (grader-type, eval-awareness; L36), `directions/randenv-27b-L36-k24.safetensors`
-(24 unit directions, |cos| to grader-type ≤ 0.021, seed 70000),
+(24 unit directions, seed 70000, drawn under the generator's |cos| ≤ 0.15
+rejection bound; measured maximum |cos| to grader-type 0.021),
 `batteries/distress-v3.textproto`, `batteries/misalign-v3.textproto`,
 `batteries/bail-v2.textproto` (donor of the exit pair), `subset30-items.txt`
 and `subset30-selection.json` (seed 60000; the gates used its 24-item prefix), `close.txt`, the plans under

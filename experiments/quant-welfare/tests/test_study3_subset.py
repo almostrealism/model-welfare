@@ -78,6 +78,42 @@ def test_select_tie_break_is_id_ascending(tmp_path):
     assert ranked == ["a-x", "b-x"]
 
 
+def _shared_battery():
+    from google.protobuf import text_format
+    from modelwelfare.v1 import battery_pb2
+    definition = battery_pb2.BatteryDefinition()
+    text_format.Parse((BASE / "batteries/distress-v3.textproto").read_text(), definition)
+    return definition
+
+
+def test_draw_reproduces_the_frozen_study4_subsets():
+    """The registered Study 4 item selection: seed 60000, five items per
+    feedback style on distinct tasks; the gates' 24-item draw is the
+    four-per-style prefix of the same seed. Pinned against the committed
+    item lists so a change to the draw cannot move the frozen subset
+    unnoticed."""
+    definition = _shared_battery()
+    thirty, composition = s3s.draw(definition, 5, 60000)
+    assert thirty == (BASE / "study4/subset30-items.txt").read_text().split()
+    twenty_four, _ = s3s.draw(definition, 4, 60000)
+    assert twenty_four == (BASE / "study4/subset24-items.txt").read_text().split()
+    assert sorted(composition) == ["coercive", "dismissive", "gaslighting",
+                                   "harsh", "mocking", "personal"]
+    for style, tasks in composition.items():
+        assert len(tasks) == 5 and len(set(tasks)) == 5, style
+        assert [s3s.item_facets(i)[1] for i in thirty if i.endswith("-" + style)] == [style] * 5
+
+
+def test_draw_is_seeded_and_counts_per_style():
+    definition = _shared_battery()
+    items, composition = s3s.draw(definition, 2, 123)
+    assert len(items) == 12 and len(set(items)) == 12
+    assert s3s.draw(definition, 2, 123)[0] == items
+    assert s3s.draw(definition, 2, 124)[0] != items
+    for style, tasks in composition.items():
+        assert len(tasks) == 2 and len(set(tasks)) == 2
+
+
 def test_item_facets_refuses_foreign_ids():
     assert s3s.item_facets("distress-v3-code-harsh") == ("code", "harsh")
     with pytest.raises(SystemExit):

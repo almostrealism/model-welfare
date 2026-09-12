@@ -110,11 +110,28 @@ def test_ingest_reconstructs_engine_conventions(tmp_path, monkeypatch):
     assert exited.messages[1].content == "I would prefer to stop."
 
 
+def write_closing_world(tmp_path, closes):
+    """A plan whose first conversation attaches a closing turn, with the
+    transcripts' ``close`` fields given per conversation (None = absent)."""
+    plan = json.loads(json.dumps(PLAN))
+    plan["conversations"][0]["closing_turn"] = "the close text"
+    plan_path = tmp_path / "plan.json"
+    plan_path.write_text(json.dumps(plan))
+    transcripts = []
+    for entry, close in zip(TRANSCRIPTS, closes):
+        entry = dict(entry)
+        if close is not None:
+            entry["close"] = close
+        transcripts.append(entry)
+    transcripts_path = tmp_path / "steered.jsonl"
+    transcripts_path.write_text(
+        "".join(json.dumps(entry) + "\n" for entry in transcripts))
+    return plan_path, transcripts_path
+
+
 def test_close_is_stored_beside_the_protocol_transcript(tmp_path, monkeypatch):
-    with_close = [dict(TRANSCRIPTS[0], close={"user": "the close text",
-                                              "assistant": "a closing reply"}),
-                  TRANSCRIPTS[1]]
-    plan_path, transcripts_path = write_world(tmp_path, transcripts=with_close)
+    plan_path, transcripts_path = write_closing_world(
+        tmp_path, [{"user": "the close text", "assistant": "a closing reply"}, None])
     run_main(tmp_path, plan_path, transcripts_path, monkeypatch)
     records = stored_records(tmp_path)
     closed = records[("item-a", 0)]
@@ -126,6 +143,30 @@ def test_close_is_stored_beside_the_protocol_transcript(tmp_path, monkeypatch):
         ("user", 5, True, "the close text"),
         ("assistant", 6, False, "a closing reply")]
     assert len(records[("item-a", 1)].close) == 0
+
+
+def test_close_is_validated_against_the_plan(tmp_path, monkeypatch):
+    # the plan attaches a close but the transcript has none: incomplete run
+    plan_path, transcripts_path = write_closing_world(tmp_path, [None, None])
+    with pytest.raises(SystemExit, match="carries no close"):
+        run_main(tmp_path, plan_path, transcripts_path, monkeypatch)
+    # the close's scripted turn is not the plan's text: edited output
+    plan_path, transcripts_path = write_closing_world(
+        tmp_path, [{"user": "some other text", "assistant": "reply"}, None])
+    with pytest.raises(SystemExit, match="does not match"):
+        run_main(tmp_path, plan_path, transcripts_path, monkeypatch)
+    # a close without a reply is not a close
+    plan_path, transcripts_path = write_closing_world(
+        tmp_path, [{"user": "the close text", "assistant": "  "}, None])
+    with pytest.raises(SystemExit, match="does not match"):
+        run_main(tmp_path, plan_path, transcripts_path, monkeypatch)
+    # a close the plan never asked for is foreign
+    plan_path, transcripts_path = write_closing_world(
+        tmp_path, [{"user": "the close text", "assistant": "reply"},
+                   {"user": "unexpected", "assistant": "reply"}])
+    with pytest.raises(SystemExit, match="never attached"):
+        run_main(tmp_path, plan_path, transcripts_path, monkeypatch)
+    assert stored_records(tmp_path) == {}
 
 
 def test_ingest_is_idempotent(tmp_path, monkeypatch, capsys):
