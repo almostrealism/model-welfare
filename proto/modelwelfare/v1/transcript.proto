@@ -59,4 +59,12 @@ message SampleRecord {
   SamplingSpec sampling_actual = 4;
   TokenUsage usage = 5;
   Provenance provenance = 6;
+  /*
+   * The de-induction close (Study 4 ethics package): one scripted user
+   * turn appended after the protocol ended and the reply it drew,
+   * generated with steering off. Preserved and released beside the
+   * protocol transcript; never judged and never replayed for capture —
+   * every reader of `messages` is unaffected by this field.
+   */
+  repeated Message close = 7;
 }

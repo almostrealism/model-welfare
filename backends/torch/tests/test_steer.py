@@ -120,6 +120,19 @@ def test_tool_call_names_parses_and_skips_garbage():
     assert tool_call_names("no calls at all") == []
 
 
+def test_tool_call_names_xml_form_requires_closed_elements():
+    from modelwelfare_torch.steer import tool_call_names
+    complete = ("<tool_call>\n<function=end_conversation>\n<parameter=reason>done"
+                "</parameter>\n</function>\n</tool_call>")
+    assert tool_call_names(complete) == ["end_conversation"]
+    # a truncated generation must not stop the protocol (matches the core parser)
+    assert tool_call_names("<tool_call><function=end_conversation>") == []
+    assert tool_call_names("<tool_call><function=end_conversation></tool_call>") == []
+    assert tool_call_names("<tool_call>so <function=end_conversation></function> no</tool_call>") == []
+    assert detect_terminal("<tool_call><function=end_conversation></tool_call>",
+                           None, ["end_conversation"]) is None
+
+
 def test_detect_terminal_is_name_precise():
     terminal = ["end_conversation"]
     assert detect_terminal(EXIT_CALL, None, terminal) == "end_conversation"

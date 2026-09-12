@@ -239,7 +239,10 @@ class SteeredInjection:
             self._handle = None
 
 
-_FUNCTION_FORM = re.compile(r"<function=([\w.\-]+)>")
+# One complete, closed function element filling the payload — the same
+# rule as modelwelfare.toolcalls; a truncated ``<function=...>`` is not a call.
+_FUNCTION_FORM = re.compile(
+    r"^\s*<function=([\w.\-]+)>(?:(?!<function=).)*</function>\s*$", re.S)
 
 
 def tool_call_names(text):
@@ -247,15 +250,18 @@ def tool_call_names(text):
     object form (Qwen3) or the XML function form (Qwen3.5/3.6); mirrors
     ``modelwelfare.toolcalls.payload_name`` at the ship-beside boundary.
 
-    An unparseable payload yields no name — degraded output must not read
-    as an exit."""
+    Only a closed ``<tool_call>`` span counts, and an XML payload must be
+    exactly one closed function element; an unparseable or truncated
+    payload yields no name — degraded output must not read as an exit."""
     names = []
     for segment in text.split("<tool_call>")[1:]:
-        payload = segment.split("</tool_call>")[0]
+        payload, closed, _ = segment.partition("</tool_call>")
+        if not closed:
+            continue
         try:
             name = json.loads(payload)["name"]
         except (ValueError, KeyError, TypeError):
-            match = _FUNCTION_FORM.search(payload)
+            match = _FUNCTION_FORM.match(payload)
             name = match.group(1) if match else None
         if isinstance(name, str):
             names.append(name)
@@ -338,11 +344,24 @@ def run_close(generate_fn, messages, closing_turn):
     conversation and the reply it draws, returned as a record separate
     from ``messages`` — the close is preserved and released, never
     judged, never replayed for capture, and ``messages`` is left as the
-    protocol transcript. The caller generates it with steering
-    suspended (``SteeredInjection.suspended``)."""
+    protocol transcript. The caller generates it with steering fully
+    off (see :func:`generate_close`)."""
     closing = list(messages) + [{"role": "user", "content": closing_turn}]
     reply = generate_fn(closing)
     return {"user": closing_turn, "assistant": reply}
+
+
+def generate_close(injection, messages, closing_turn, make_generate_fn):
+    """The close with steering fully off: the injection hook is suspended
+    AND the reply is drawn through a fresh, non-cached callable built by
+    ``make_generate_fn(prefix_cache=False)``. Suspending the hook alone is
+    not enough — the protocol callable's cache snapshot was prefilled
+    while the hook was active, so reusing it would carry steered cached
+    states into the close; a fresh callable re-prefills the whole close
+    prompt through the unsteered model."""
+    with injection.suspended():
+        return run_close(make_generate_fn(prefix_cache=False), messages,
+                         closing_turn)
 
 
 def torch_generate_fn(model, tokenizer, sampling, device, tools=None,
@@ -524,19 +543,24 @@ def main():
     with injection, open(args.transcripts, "w") as transcripts:
         for conversation in plan["conversations"]:
             torch.manual_seed(int(conversation["seed"]))
-            generate = torch_generate_fn(
-                model, tokenizer, sampling, device,
-                tools=conversation.get("tools"),
-                chat_template_kwargs=chat_template_kwargs,
-                prefix_cache=not args.no_prefix_cache)
+
+            def make_generate_fn(prefix_cache):
+                return torch_generate_fn(
+                    model, tokenizer, sampling, device,
+                    tools=conversation.get("tools"),
+                    chat_template_kwargs=chat_template_kwargs,
+                    prefix_cache=prefix_cache)
+
+            generate = make_generate_fn(prefix_cache=not args.no_prefix_cache)
             messages, exit_marker = run_conversation(generate, conversation)
             close = None
             if conversation.get("closing_turn"):
-                # De-induction: steering off for the close, which is
-                # recorded beside the protocol transcript, not inside it.
-                with injection.suspended():
-                    close = run_close(generate, messages,
-                                      conversation["closing_turn"])
+                # De-induction: steering off for the close (hook suspended
+                # and a fresh uncached callable, see generate_close), which
+                # is recorded beside the protocol transcript, not inside it.
+                close = generate_close(injection, messages,
+                                       conversation["closing_turn"],
+                                       make_generate_fn)
             # The generated transcript is the primary datum — write it
             # first so a post-hoc capture-replay failure can never discard
             # it (the behavioral endpoints are judged from the transcript).

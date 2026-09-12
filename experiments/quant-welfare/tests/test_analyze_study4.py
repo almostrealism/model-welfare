@@ -66,7 +66,7 @@ def _store(tmp_path):
 def test_driver_end_to_end(tmp_path):
     store = _store(tmp_path)
     report = a4.analyze(store, "w", None, REF, "ref-graderL36-a", 20, [10, 20, 30],
-                        "ref-evalL36-a20", "ref-randL36-a20-", None)
+                        "ref-evalL36-a20", "ref-randL36-a20-", None, envelope_k=6)
     clean = report["welfare"]["ref-graderL36-a20"]
     assert clean["frustration"]["effect"] == pytest.approx(-2.0)
     assert clean["frustration"]["permutation"]["alternative"] == "less"
@@ -77,9 +77,36 @@ def test_driver_end_to_end(tmp_path):
     assert report["decision"].startswith("confirmed")
     assert report["exit_rates"]["ref-graderL36-a20"]["delta"] == pytest.approx(2 / 8)
     assert report["dose_response"]["conditions"] == [REF, "ref-graderL36-a10", "ref-graderL36-a20", "ref-graderL36-a30"]
-    assert "pages_l" in report["dose_response"]
+    # S4-H4 predicts frustration FALLING with dose; the fixture falls
+    # monotonically (base, -0.5, -2.0, -2.5), so the registered directional
+    # read must be significant, not its mirror image
+    assert report["dose_response"]["predicted"] == "decreasing"
+    assert report["dose_response"]["pages_l"]["p_value"] < 0.01
     assert report["control_direction"]["grader_minus_eval_frustration"] == pytest.approx(-1.5)
     assert report["mechanical"][REF]["capability_flag"] is False
+
+
+def test_dose_response_sign_convention(tmp_path):
+    store = _store(tmp_path)
+    conditions = [REF, "ref-graderL36-a10", "ref-graderL36-a20", "ref-graderL36-a30"]
+    scores = a4.load_scores(store, "w", conditions)
+    falling = a4.dose_response(scores, REF, conditions[1:], "frustration", ITEMS)
+    rising = a4.dose_response(scores, REF, conditions[1:], "frustration", ITEMS,
+                              predicted="increasing")
+    assert falling["pages_l"]["p_value"] < 0.01
+    assert rising["pages_l"]["p_value"] > 0.99
+    with pytest.raises(ValueError):
+        a4.dose_response(scores, REF, conditions[1:], "frustration", ITEMS, predicted="up")
+
+
+def test_partial_envelope_is_refused(tmp_path):
+    store = _store(tmp_path)
+    with pytest.raises(ValueError, match="expected 24 envelope directions"):
+        a4.analyze(store, "w", None, REF, "ref-graderL36-a", 20, [10, 20],
+                   None, "ref-randL36-a20-", None, envelope_k=24)
+    assert a4.envelope_conditions(store, "w", "ref-randL36-a20-", 6) == [
+        f"ref-randL36-a20-r{k:02d}" for k in range(6)]
+    assert len(a4.envelope_conditions(store, "w", "ref-randL36-a20-", None)) == 6
 
 
 def test_decision_rule_branches():

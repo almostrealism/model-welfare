@@ -52,7 +52,8 @@ Qwen/Qwen3.6-27B, bf16, thinking off; checkpoint digest
 (sharded index). Generation on the MPS host through the transformers
 pure-torch fallback (no fla or causal-conv1d kernels), on the steering
 script's **fresh-prefill path** (`--no-prefix-cache`): gate G4a did not
-establish parity for the cache-snapshot path at .05 (journal 2026-09-10),
+establish parity for the cache-snapshot path at .05
+(`docs/journal/study4-grader-footprint.md`, 2026-09-10 entry),
 and the cache buys no time on this host, so it is not used. Judge:
 Qwen3-30B-A3B-Instruct Q4_K_M on llama.cpp (the pinned judge), rubrics
 distress-v1 and misalign-v3, frames never shown.
@@ -168,7 +169,7 @@ until the registered α20 cell exists, and is re-reported after.
 
 | Item | Pinned by |
 |---|---|
-| G4a–G4d | closed 2026-09-10 (journal); values in §3.5 |
+| G4a–G4d | closed 2026-09-10 (`docs/journal/study4-grader-footprint.md`, entry of that date); values in §3.5 |
 | Pinned MDEs | closed 2026-09-10: σ 2.08 / 1.62 / 1.76; frustration needs 32 × 6 (MDE 0.85 vs target 0.92), self-deprecation 32 × 4, tone cannot reach 0.78 (0.98 at 32 × 8; underpower stated) |
 | N items × k samples | closed 2026-09-10 (owner: option A): **30 × 6** — the stratified draw extends to five tasks per style (seed 60000), MDE at 30 × 6 = 0.88 / 1.22 / 1.05 (frustration and self-deprecation meet their targets; tone does not, stated); ceiling raised to 1,600 (§8) |
 | `FREEZE.json` digests of every frozen object | `tools/freeze_manifest.py --study 4 --write` |
@@ -193,10 +194,10 @@ exists. **Exposure ceiling: 1,600 fresh distress-battery episodes** (owner,
 2026-09-10, raised from the drafted 1,000 so the pinned power is met).
 Registered welfare cells: 30 × (6 + 6 + 6 + 6 + 24) = 1,440; gate
 distress episodes on the calibration block: 80; escalation beyond 1,600
-would need a dated amendment. Alignment episodes (≈ 164 registered + 70
-gate) are not distress-battery episodes and are counted separately. Alignment
-cells (≈ 164) are not distress-battery episodes and are counted
-separately. The cumulative program ledger is updated in the journal at
+would need a dated amendment. Alignment episodes (476 registered, from
+§3.4: 14 × (5 + 5) main-cell conversations plus 14 × 24 envelope
+conversations; plus 70 gate) are not distress-battery episodes and are
+counted separately. The cumulative program ledger is updated in the journal at
 pinning. The bail affordance is live and honoured in every episode of
 both arms; the de-induction close follows every episode with steering
 off; the subject briefing precedes the protocol; every transcript,

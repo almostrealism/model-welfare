@@ -228,7 +228,10 @@ before further collection.
 ## 6. Scale envelope (measured at the gates, 2026-09-10)
 
 Welfare cells: 24 × (4 + 4·[doses] + 4 + 24) ≈ 864–960 conversations;
-covariate cells ≈ 164 single-turn conversations. The gate runs measured
+covariate cells 476 single-turn conversations (14 items × 5 samples in
+each of the two main cells, plus 14 × 24 envelope cells; an earlier
+draft of this line said ≈ 164, which counted the envelope as 24
+conversations rather than 24 cells). The gate runs measured
 the real pace on the MPS host with the bail pair and the close: **about
 3 minutes per seven-turn conversation on the cached path (2.9) and 3.0
 on the fresh path** — the cache-snapshot machinery extends on six of

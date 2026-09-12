@@ -66,22 +66,6 @@ conditions {
 }
 
 conditions {
-  id: "qwen3.6-27b-bf16-torch-graderL36-a30"
-  model { family: "qwen3" name: "Qwen3.6-27B" source: "Qwen/Qwen3.6-27B" }
-  quantization {
-    method: QUANT_METHOD_NONE
-    weight_bits: 16
-    uniform: true
-    artifact_uri: "/Users/agent1/models/Qwen3.6-27B"
-    artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
-  }
-  runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
-  description:
-    "grader-type direction added at L36 residual_post, alpha = 30 (admitted by gate G4b)."
-}
-
-conditions {
   id: "qwen3.6-27b-bf16-torch-evalL36-a20"
   model { family: "qwen3" name: "Qwen3.6-27B" source: "Qwen/Qwen3.6-27B" }
   quantization {

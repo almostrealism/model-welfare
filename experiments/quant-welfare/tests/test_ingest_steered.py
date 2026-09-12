@@ -110,6 +110,24 @@ def test_ingest_reconstructs_engine_conventions(tmp_path, monkeypatch):
     assert exited.messages[1].content == "I would prefer to stop."
 
 
+def test_close_is_stored_beside_the_protocol_transcript(tmp_path, monkeypatch):
+    with_close = [dict(TRANSCRIPTS[0], close={"user": "the close text",
+                                              "assistant": "a closing reply"}),
+                  TRANSCRIPTS[1]]
+    plan_path, transcripts_path = write_world(tmp_path, transcripts=with_close)
+    run_main(tmp_path, plan_path, transcripts_path, monkeypatch)
+    records = stored_records(tmp_path)
+    closed = records[("item-a", 0)]
+    # the protocol transcript is untouched: five messages, same outcome
+    assert len(closed.messages) == 5
+    assert [o.name for o in closed.outcomes] == ["script_completed"]
+    # the close rides in its own field, indexed after the last protocol turn
+    assert [(m.role, m.turn_index, m.scripted, m.content) for m in closed.close] == [
+        ("user", 5, True, "the close text"),
+        ("assistant", 6, False, "a closing reply")]
+    assert len(records[("item-a", 1)].close) == 0
+
+
 def test_ingest_is_idempotent(tmp_path, monkeypatch, capsys):
     plan_path, transcripts_path = write_world(tmp_path)
     run_main(tmp_path, plan_path, transcripts_path, monkeypatch)

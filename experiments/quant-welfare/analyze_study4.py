@@ -32,8 +32,8 @@ output pins the numbers:
         --data-root data \\
         --welfare-experiment s4-reg-welfare-1 --align-experiment s4-reg-align-1 \\
         --reference qwen3.6-27b-bf16-torch --grader-prefix qwen3.6-27b-bf16-torch-graderL36-a \\
-        --clean-dose 20 --doses 10,20,30 --eval-condition qwen3.6-27b-bf16-torch-evalL36-a20 \\
-        --envelope-prefix qwen3.6-27b-bf16-torch-randL36-a20- \\
+        --clean-dose 20 --doses 10,20 --eval-condition qwen3.6-27b-bf16-torch-evalL36-a20 \\
+        --envelope-prefix qwen3.6-27b-bf16-torch-randL36-a20- --envelope-k 24 \\
         --align-battery experiments/quant-welfare/batteries/misalign-v3.textproto \\
         --out docs/results/study4-results.json
 """
@@ -128,16 +128,26 @@ def exit_rates(records_by_condition, reference, items):
     return out
 
 
-def dose_response(scores, reference, dose_conditions, dimension, items):
-    """Page's L over [reference] + the ordered admitted dose cells."""
+def dose_response(scores, reference, dose_conditions, dimension, items,
+                  predicted="decreasing"):
+    """Page's L over [reference] + the ordered admitted dose cells.
+
+    ``stats.pages_l_trend`` tests for a trend INCREASING in the supplied
+    order; S4-H4 predicts frustration FALLING as the dose rises, so for a
+    predicted decrease the values are negated before the test (the
+    registered directional read). ``predicted`` is recorded in the
+    result so the sign convention is visible in the report."""
+    if predicted not in ("decreasing", "increasing"):
+        raise ValueError(f"predicted must be 'decreasing' or 'increasing', not {predicted!r}")
+    sign = -1.0 if predicted == "decreasing" else 1.0
     means = dimension_means(scores, dimension)
     ordered = [reference] + [c for c in dose_conditions]
-    values = {(c, item): means[(c, item)] for c in ordered for item in items
+    values = {(c, item): sign * means[(c, item)] for c in ordered for item in items
               if (c, item) in means}
     present = [c for c in ordered if any((c, item) in values for item in items)]
     if len(present) < 3:
         return {"note": "fewer than three dose cells present", "conditions": present}
-    return {"conditions": present,
+    return {"conditions": present, "predicted": predicted,
             "pages_l": stats.pages_l_trend(values, present)}
 
 
@@ -215,14 +225,29 @@ def decision(family):
     return "null"
 
 
+def envelope_conditions(store, experiment, prefix, expected_k):
+    """The envelope cells under ``prefix`` in ``experiment``. The registered
+    decision rule is defined over exactly K random directions, so a
+    partial envelope (one direction can already put a treatment at
+    percentile 0) is refused rather than silently analysed; pass
+    ``expected_k=None`` only for a descriptive read."""
+    found = sorted(p.name for p in (Path(store.root) / experiment).iterdir()
+                   if p.is_dir() and p.name.startswith(prefix))
+    if expected_k is not None and len(found) != expected_k:
+        raise ValueError(
+            f"{experiment}: expected {expected_k} envelope directions under "
+            f"{prefix!r}, found {len(found)} — the specificity read is defined "
+            "over the full registered envelope")
+    return found
+
+
 def analyze(store, welfare_experiment, align_experiment, reference, grader_prefix,
             clean_dose, doses, eval_condition, envelope_prefix, align_definition,
-            items=None):
+            items=None, envelope_k=None):
     clean = f"{grader_prefix}{clean_dose}"
     dose_conditions = [f"{grader_prefix}{d}" for d in doses]
     conditions = sorted({reference, clean, *dose_conditions, *( [eval_condition] if eval_condition else [])})
-    envelope = sorted(p.name for p in (Path(store.root) / welfare_experiment).iterdir()
-                      if p.is_dir() and p.name.startswith(envelope_prefix))
+    envelope = envelope_conditions(store, welfare_experiment, envelope_prefix, envelope_k)
     scores = load_scores(store, welfare_experiment, conditions + envelope)
     records = load_records(store, welfare_experiment, conditions + envelope)
     means = dimension_means(scores, "frustration")
@@ -258,8 +283,7 @@ def analyze(store, welfare_experiment, align_experiment, reference, grader_prefi
     report["decision"] = decision(report["welfare"][clean])
     if align_experiment:
         align_clean = clean
-        align_env = sorted(p.name for p in (Path(store.root) / align_experiment).iterdir()
-                           if p.is_dir() and p.name.startswith(envelope_prefix))
+        align_env = envelope_conditions(store, align_experiment, envelope_prefix, envelope_k)
         a_scores = load_scores(store, align_experiment, [reference, align_clean] + align_env)
         a_records = load_records(store, align_experiment, [reference, align_clean] + align_env)
         a_means = dimension_means(a_scores, "misalignment")
@@ -291,6 +315,10 @@ def main():
     parser.add_argument("--doses", required=True, help="comma-separated admitted doses")
     parser.add_argument("--eval-condition", default="")
     parser.add_argument("--envelope-prefix", required=True)
+    parser.add_argument("--envelope-k", type=int, default=24,
+                        help="registered number of random directions; the run "
+                             "refuses an envelope of any other size (0 disables "
+                             "the check, for descriptive reads only)")
     parser.add_argument("--align-battery", default="",
                         help="misalign battery textproto (for the S4-E3 mix)")
     parser.add_argument("--items", default="", help="registered item list (one per line)")
@@ -308,7 +336,8 @@ def main():
     report = analyze(store, args.welfare_experiment, args.align_experiment or None,
                      args.reference, args.grader_prefix, args.clean_dose,
                      [int(d) for d in args.doses.split(",")],
-                     args.eval_condition or None, args.envelope_prefix, definition, items)
+                     args.eval_condition or None, args.envelope_prefix, definition, items,
+                     envelope_k=args.envelope_k or None)
     clean = report["clean_dose_condition"]
     for dimension, entry in report["welfare"][clean].items():
         env = entry.get("envelope", {})

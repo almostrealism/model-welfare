@@ -1,7 +1,12 @@
 # Study 4 — Gate 1 design (the two-read calibration)
 
-**Status:** prerequisites running (direction extraction + dose range-finder on
-Qwen3-14B); generation not yet launched. This is calibration-class under the §7
+**Status:** COMPLETE. The gate ran on Qwen3-14B (2026-09-08) and was then
+replicated on the Betley subject Qwen3.6-27B (2026-09-08/09); the outcomes are
+recorded in the Study 4 journal (`docs/journal/study4-grader-footprint.md`,
+entries of those dates) and the verdict files beside this document
+(`gate1-*-verdict.json`, `gate1-27b-*env-verdict.json`). The design below is
+kept as written before the gate ran, with the 14B extraction and range-finder
+results appended as they landed. This is calibration-class under the §7
 firewall — a feasibility go/no-go, not a registered finding. Calibration data is
 published regardless of outcome.
 

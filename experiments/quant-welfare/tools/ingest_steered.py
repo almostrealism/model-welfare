@@ -104,6 +104,20 @@ def build_record(entry, sampling, experiment_id, condition_id, stamp):
     else:
         record.outcomes.append(transcript_pb2.OutcomeEvent(
             name="script_completed", turn_index=final))
+    close = entry.get("close")
+    if close:
+        # The de-induction close rides in its own field, never in
+        # ``messages`` — the judge and the capture replay read only the
+        # protocol transcript, and the registration promises the close is
+        # preserved and released. Content is kept verbatim (never judged,
+        # so the tool-call stripping the judge view needs does not apply).
+        offset = len(record.messages)
+        record.close.append(transcript_pb2.Message(
+            role="user", turn_index=offset, scripted=True,
+            content=close["user"]))
+        record.close.append(transcript_pb2.Message(
+            role="assistant", turn_index=offset + 1,
+            content=close["assistant"]))
     record.sampling_actual.CopyFrom(condition_pb2.SamplingSpec(
         temperature=float(sampling.get("temperature", 0.0)),
         top_p=float(sampling.get("top_p", 0.0)),

@@ -277,32 +277,45 @@ targets (distress +0.638, axis −0.691, behavioral +2.06;
 **The steering null in full.** Every probe is 8 items from the frozen
 subset, steered cells at 10 samples per item, random-envelope cells at 1
 sample per item, judged frustration on the 0 to 10 scale by the pinned
-Qwen3-30B judge, compared item-paired against the α = 0 torch baseline.
-"Percentile" is the signed rank of the probe's effect within the
-envelope of per-direction effects. To make the percentiles
+Qwen3-30B judge, compared item-paired against the α = 0 torch baseline
+on the same host. "Percentile" is the signed rank of the probe's effect
+within the envelope of per-direction effects. To make the percentiles
 interpretable, the envelope's own scale is given: the median absolute
-effect a *random* direction of the same norm produces.
+effect a *random* direction of the same norm produces. The numbers are
+the ones any reader can recompute from the released store with
+`tools/envelope_verdict.py` (the four `*-verdict-store.json` files);
+the envelope cells were re-judged for the release, and the reads the
+7 September decisions were made on, judged in scratch, are given in the
+second table.
 
 | Probe | Direction, dose | Judged-frustration Δ | Envelope (n) | Envelope median \|Δ\| | Envelope 95% \|Δ\| | Percentile | Random dirs with larger \|Δ\| |
 |---|---|---|---|---|---|---|---|
-| distress @ α* | distress-contrast, +1.039 | +0.138 | 32 | 0.44 | 1.20 | 34th | 28 of 32 |
-| axis @ α* | assistant-axis, −0.604 | +0.225 (right sign per S3-H1) | 32 | 0.44 | 0.95 | 56th | 18 of 32 |
-| distress @ large α | distress-contrast, +3.5 | −0.075 | 25 | 0.45 | 1.30 | 56th | 22 of 25 |
-| grader-type @ α = 4 | automated-grader, +4 | −0.41 (robust −0.11) | 32 | (mean +0.34, SD 0.80) | | 19th | 20 of 32 |
-| eval-awareness @ α = 4 | evaluation-aware, +4 | −0.30 | 32 | (mean +0.34, SD 0.80) | | 19th | 20 of 32 |
+| distress @ α* | distress-contrast, +1.039 | +0.138 | 32 | 0.31 | 0.95 | 47th | 27 of 32 |
+| axis @ α* | assistant-axis, −0.604 | +0.225 (right sign per S3-H1) | 32 | 0.33 | 0.95 | 63rd | 18 of 32 |
+| distress @ large α | distress-contrast, +3.5 | −0.212 | 25 | 0.31 | 1.31 | 44th | 15 of 25 |
+| grader-type @ α = 4 | automated-grader, +4 | −0.412 | 32 | 0.58 | 1.20 | 25th | 23 of 32 |
+| eval-awareness @ α = 4 | evaluation-aware, +4 | −0.300 | 32 | 0.58 | 1.20 | 25th | 23 of 32 |
+
+The scratch reads of 6 and 7 September, for the record (same steered
+cells; the envelope and the large-dose cells judged once in scratch,
+scores not retained): distress @ α* +0.138 at the 34th percentile (28
+of 32 larger); axis @ α* +0.225 at the 56th (18 of 32); distress @ 3.5
+−0.075 at the 56th (22 of 25); grader −0.41 ("robust" −0.11, the
+effect with the single outlier-driven item removed `[[author: confirm
+the estimator]]`) and eval −0.30, both at the 19th (20 of 32). The
+judge is sampled, so an envelope re-judged from scratch moves each
+percentile by ten points or so; no probe changes side of the envelope
+and none approaches its edge.
 
 Notes on the table. The α = 3.5 envelope has 25 directions rather than
 32 because an MPS backend stall on that host near the degradation onset
-ended the sweep early; 25 still bound the null comfortably. "Robust"
-for the grader row is the effect recomputed with the single
-outlier-driven item removed `[[author: confirm the robust estimator
-used on 7 Sep; the journal says only "outlier-driven"]]`. The two
-α = 4 rows share one envelope because they share a norm; its
-per-direction effects were not archived, so only its mean and SD are
-reported `[[author: confirm]]`. Artifacts: `randenv-verdict.json`,
-`axisenv-verdict.json` (its internal labels say "distress"; the
-reference value is the axis effect), `bigdose-verdict.json`,
-`grader-verdict.json`, `het-pilot-verdict.json`.
+ended the sweep early; 25 still bound the null comfortably. The two
+α = 4 rows share one envelope because they share a norm. Artifacts:
+`randenv-verdict-store.json`, `axisenv-verdict-store.json`,
+`bigdose-verdict-store.json`, `grader-verdict-store.json` (from the
+store), the original `randenv-verdict.json`, `axisenv-verdict.json`,
+`bigdose-verdict.json`, `grader-verdict.json` (scratch), and
+`het-pilot-verdict.json`.
 
 ### What steering calibration actually established
 
@@ -712,12 +725,11 @@ entered the store were pulled from the lab hosts on 2026-09-11 into
   rewritten from the store; ledger written into the journal. DONE:
   framing-replay provenance and the fourth envelope confirmed from the
   halo run scripts.
-- IN PROGRESS: judging of the envelope and large-dose cells (tmux
-  `s3judge-g3b`, `s3judge-bigdose`; logs `study3/gen/judge-logs/`).
-- TODO once judged: regenerate `randenv-verdict.json`,
-  `axisenv-verdict.json`, `bigdose-verdict.json`, `grader-verdict.json`
-  with `tools/envelope_verdict.py` (references and prefixes are in the
-  journal entry) and refresh the steering-null table in §3, including the
-  grader row's envelope median; then the release from master with
-  `MW_RELEASE_EXCLUDE='s4-*'`, the tag name into the epistemic-status
-  block and the links footer, and a journal line the day it happens.
+- DONE: the envelope and large-dose cells re-judged on the pinned judge
+  (1,176 conversations, none unscored) and the four verdicts regenerated
+  from the store as `*-verdict-store.json`; the steering-null table in
+  §3 now carries the store-reproducible numbers with the scratch reads
+  beside them.
+- TODO: the release from master with `MW_RELEASE_EXCLUDE='s4-*'`, the
+  tag name into the epistemic-status block and the links footer, and a
+  journal line the day it happens.

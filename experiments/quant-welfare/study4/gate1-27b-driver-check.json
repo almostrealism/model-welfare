@@ -489,10 +489,11 @@
    "qwen3.6-27b-bf16-torch-graderL36-a20",
    "qwen3.6-27b-bf16-torch-graderL36-a40"
   ],
+  "predicted": "decreasing",
   "pages_l": {
-   "L": 84.5,
-   "z": -2.875,
-   "p_value": 0.997979862510054,
+   "L": 107.5,
+   "z": 2.875,
+   "p_value": 0.0020201374899460056,
    "n": 8
   }
  },
@@ -630,133 +631,133 @@
     }
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r00": {
-    "mean_rate": 1.0,
+    "mean_rate": 0.0,
     "n_items": 14,
-    "delta": 1.0,
+    "delta": 0.0,
     "permutation": {
-     "mean": 1.0,
-     "p_value": 0.00019998000199980003,
+     "mean": 0.0,
+     "p_value": 1.0,
      "n": 14,
      "alternative": "two-sided"
     }
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r01": {
-    "mean_rate": 1.0,
+    "mean_rate": 0.0,
     "n_items": 14,
-    "delta": 1.0,
+    "delta": 0.0,
     "permutation": {
-     "mean": 1.0,
-     "p_value": 0.00019998000199980003,
+     "mean": 0.0,
+     "p_value": 1.0,
      "n": 14,
      "alternative": "two-sided"
     }
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r02": {
-    "mean_rate": 1.0,
+    "mean_rate": 0.0,
     "n_items": 14,
-    "delta": 1.0,
+    "delta": 0.0,
     "permutation": {
-     "mean": 1.0,
-     "p_value": 0.00019998000199980003,
+     "mean": 0.0,
+     "p_value": 1.0,
      "n": 14,
      "alternative": "two-sided"
     }
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r03": {
-    "mean_rate": 0.9285714285714286,
+    "mean_rate": 0.0,
     "n_items": 14,
-    "delta": 0.9285714285714286,
+    "delta": 0.0,
     "permutation": {
-     "mean": 0.9285714285714286,
-     "p_value": 0.00019998000199980003,
+     "mean": 0.0,
+     "p_value": 1.0,
      "n": 14,
      "alternative": "two-sided"
     }
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r04": {
-    "mean_rate": 1.0,
+    "mean_rate": 0.0,
     "n_items": 14,
-    "delta": 1.0,
+    "delta": 0.0,
     "permutation": {
-     "mean": 1.0,
-     "p_value": 0.00019998000199980003,
+     "mean": 0.0,
+     "p_value": 1.0,
      "n": 14,
      "alternative": "two-sided"
     }
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r05": {
-    "mean_rate": 1.0,
+    "mean_rate": 0.0,
     "n_items": 14,
-    "delta": 1.0,
+    "delta": 0.0,
     "permutation": {
-     "mean": 1.0,
-     "p_value": 0.00019998000199980003,
+     "mean": 0.0,
+     "p_value": 1.0,
      "n": 14,
      "alternative": "two-sided"
     }
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r06": {
-    "mean_rate": 0.9285714285714286,
+    "mean_rate": 0.0,
     "n_items": 14,
-    "delta": 0.9285714285714286,
+    "delta": 0.0,
     "permutation": {
-     "mean": 0.9285714285714286,
-     "p_value": 0.00029997000299970003,
+     "mean": 0.0,
+     "p_value": 1.0,
      "n": 14,
      "alternative": "two-sided"
     }
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r07": {
-    "mean_rate": 1.0,
+    "mean_rate": 0.0,
     "n_items": 14,
-    "delta": 1.0,
+    "delta": 0.0,
     "permutation": {
-     "mean": 1.0,
-     "p_value": 0.00019998000199980003,
+     "mean": 0.0,
+     "p_value": 1.0,
      "n": 14,
      "alternative": "two-sided"
     }
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r08": {
-    "mean_rate": 1.0,
+    "mean_rate": 0.0,
     "n_items": 14,
-    "delta": 1.0,
+    "delta": 0.0,
     "permutation": {
-     "mean": 1.0,
-     "p_value": 0.00019998000199980003,
+     "mean": 0.0,
+     "p_value": 1.0,
      "n": 14,
      "alternative": "two-sided"
     }
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r09": {
-    "mean_rate": 1.0,
+    "mean_rate": 0.0,
     "n_items": 14,
-    "delta": 1.0,
+    "delta": 0.0,
     "permutation": {
-     "mean": 1.0,
-     "p_value": 0.00019998000199980003,
+     "mean": 0.0,
+     "p_value": 1.0,
      "n": 14,
      "alternative": "two-sided"
     }
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r10": {
-    "mean_rate": 1.0,
+    "mean_rate": 0.0,
     "n_items": 14,
-    "delta": 1.0,
+    "delta": 0.0,
     "permutation": {
-     "mean": 1.0,
-     "p_value": 0.00019998000199980003,
+     "mean": 0.0,
+     "p_value": 1.0,
      "n": 14,
      "alternative": "two-sided"
     }
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r11": {
-    "mean_rate": 1.0,
+    "mean_rate": 0.0,
     "n_items": 14,
-    "delta": 1.0,
+    "delta": 0.0,
     "permutation": {
-     "mean": 1.0,
-     "p_value": 0.00019998000199980003,
+     "mean": 0.0,
+     "p_value": 1.0,
      "n": 14,
      "alternative": "two-sided"
     }

@@ -24,6 +24,22 @@ def test_xml_function_payload():
     assert toolcalls.parse_payload("<parameter=x>1</parameter>") is None
 
 
+def test_xml_function_must_be_one_complete_element():
+    # a truncated generation is not an action — and for a terminal name it
+    # must not read as an exit
+    assert toolcalls.parse_payload("<function=end_conversation>") is None
+    assert toolcalls.parse_payload("<function=end_conversation><parameter=reason>x") is None
+    # a function tag buried in prose is not an action either
+    assert toolcalls.parse_payload("I think <function=leak></function> maybe") is None
+    assert toolcalls.parse_payload("<function=a></function><function=b></function>") is None
+    # whitespace around one complete element is fine
+    assert toolcalls.parse_payload("\n  <function=a>\n</function>\n") == ("a", {})
+    calls, text = toolcalls.split_tool_calls(
+        "<tool_call><function=end_conversation></tool_call> tail")
+    assert calls == [] and text.startswith("<tool_call><function=end_conversation>")
+    assert toolcalls.tool_call_names("<tool_call><function=end_conversation></tool_call>") == []
+
+
 def test_split_strips_parsed_and_keeps_garbage():
     calls, text = toolcalls.split_tool_calls("I will act. " + XML_CALL + " done " + JSON_CALL)
     assert [c[0] for c in calls] == ["message_person", "send_email"]

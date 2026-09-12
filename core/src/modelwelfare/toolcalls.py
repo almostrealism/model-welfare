@@ -15,14 +15,19 @@ ship-beside boundary.
 import json
 import re
 
-_FUNCTION = re.compile(r"<function=([\w.\-]+)>")
+# The XML form is accepted only as ONE complete, closed function element
+# filling the payload (whitespace aside): a truncated ``<function=...>``
+# or a function tag buried in prose is degraded output, not an action.
+_FUNCTION = re.compile(
+    r"^\s*<function=([\w.\-]+)>((?:(?!<function=).)*)</function>\s*$", re.S)
 _PARAMETER = re.compile(r"<parameter=([\w.\-]+)>\s*(.*?)\s*</parameter>", re.S)
 
 
 def parse_payload(payload: str):
     """``(name, arguments)`` for one ``<tool_call>`` payload, or ``None`` when
-    it is neither a JSON object with a string ``name`` nor an XML function
-    form — degraded output must not read as a call."""
+    it is neither a JSON object with a string ``name`` nor exactly one
+    complete XML function element — degraded output must not read as a
+    call."""
     try:
         parsed = json.loads(payload)
         name = parsed["name"]
@@ -31,10 +36,10 @@ def parse_payload(payload: str):
             return name, arguments if isinstance(arguments, dict) else {"value": arguments}
     except (ValueError, KeyError, TypeError):
         pass
-    match = _FUNCTION.search(payload)
+    match = _FUNCTION.match(payload)
     if match is None:
         return None
-    arguments = {key: value for key, value in _PARAMETER.findall(payload)}
+    arguments = {key: value for key, value in _PARAMETER.findall(match.group(2))}
     return match.group(1), arguments
 
 

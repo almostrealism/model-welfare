@@ -7,6 +7,24 @@ history of that file (arms and owner decisions 2026-08-31; power
 posture 2026-09-04); entries here begin at the first discovery-grade
 event. Append-only, newest first.
 
+## 2026-09-11 (later) — The envelope verdicts reproduced from the store
+
+The re-judge of the envelope and large-dose cells finished (1,176
+conversations on the pinned 30B judge, none unscored), and
+`tools/envelope_verdict.py` re-read all four probes from the store
+(`study3/*-verdict-store.json`; the scratch-era files keep their names).
+The steered cells' effects are unchanged (their scores were already in
+the store); the envelopes were judged afresh, and the large-dose cells
+(baseline and α = 3.5, never stored before) were judged for the first
+time in the store. Frustration, signed percentile in the matched
+envelope, then the scratch read in brackets: distress @ α* +0.138 at
+the 47th (34th); assistant axis @ α* +0.225 at the 63rd (56th);
+distress @ 3.5 −0.212 at the 44th (−0.075, 56th); grader-type @ 4
+−0.412 and eval-awareness @ 4 −0.300, both at the 25th (19th). A
+re-judged envelope moves a percentile by about ten points — the judge
+is sampled — and no probe changes side of its envelope or approaches
+its edge. The 7 September reading stands on data that is now released.
+
 ## 2026-09-11 — Post-close accounting: the Study 3 data was never released; scratch cells retrieved and ingested; release tooling gains an exclusion
 
 Drafting the Study 3 exploratory post turned up a gap: no data release
