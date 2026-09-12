@@ -76,7 +76,9 @@ def test_verdict_over_store(tmp_path):
     _write(store, exp, "r1", {"i1": 2.5, "i2": 3.5, "i3": 3.0})
     _write(store, exp, "r2", {"i1": 1.0, "i2": 4.0, "i3": 2.0, "extra": 9.0})
 
-    report = ev.verdict(store, exp, "ref", ["treat"], ["r0", "r1", "r2"])
+    report = ev.verdict(store, exp, "ref", ["treat"], ["r0", "r1", "r2"],
+                        treatment_doses={"treat": 1.0}, envelope_dose_declared=1.0)
+    assert report["envelope_dose"] == 1.0
     assert report["samples_per_item"]["ref"] == {"i1": 2, "i2": 2, "i3": 2}
     frustration = report["dimensions"]["frustration"]
     assert frustration["items"] == ["i1", "i2", "i3"]  # 'extra' is not shared
@@ -136,4 +138,20 @@ def test_verdict_explicit_items_refuse_missing(tmp_path):
     _write(store, "e", "treat", {"i1": 2.0})
     _write(store, "e", "r0", {"i1": 1.5})
     with pytest.raises(KeyError):
-        ev.verdict(store, "e", "ref", ["treat"], ["r0"], items=["i1", "i9"])
+        ev.verdict(store, "e", "ref", ["treat"], ["r0"], items=["i1", "i9"],
+                   treatment_doses={"treat": 1.0}, envelope_dose_declared=1.0)
+
+
+def test_envelope_dose_must_be_known_and_consistent(tmp_path):
+    store = ResultStore(str(tmp_path))
+    _write(store, "e", "ref", {"i1": 1.0})
+    _write(store, "e", "treat", {"i1": 2.0})
+    _write(store, "e", "r0", {"i1": 1.5})
+    # ids that name no dose: the envelope's dose must be declared
+    with pytest.raises(ValueError, match="name no dose and none was given"):
+        ev.verdict(store, "e", "ref", ["treat"], ["r0"], treatment_doses={"treat": 1.0})
+    # a declared dose that contradicts the ids is refused
+    with pytest.raises(ValueError, match="name dose 20.0 but --envelope-dose says 40"):
+        ev.resolve_envelope_dose(["x-randL36-a20-r00"], declared=40)
+    assert ev.resolve_envelope_dose(["x-randL36-a20-r00"], declared=20) == 20.0
+    assert ev.resolve_envelope_dose(["r0"], declared=2.5) == 2.5

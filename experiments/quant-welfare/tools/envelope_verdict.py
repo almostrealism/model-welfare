@@ -136,23 +136,40 @@ def treatment_dose(treatment, treatment_doses=None):
     return float(override) if override is not None else condition_dose(treatment)
 
 
+def resolve_envelope_dose(envelope, declared=None):
+    """The dose the envelope was generated at: from the ids, or from
+    ``declared`` when the ids name none. Both known and different is a
+    contradiction; neither known is refused — a placement is a same-size
+    comparison and cannot be made against an envelope of unknown size."""
+    named = envelope_dose(envelope)
+    if named is not None and declared is not None and float(declared) != named:
+        raise ValueError(
+            f"the envelope ids name dose {named} but --envelope-dose says {declared}")
+    if named is None and declared is None:
+        raise ValueError(
+            "the envelope ids name no dose and none was given (--envelope-dose); "
+            "a specificity read needs the envelope's dose to be a same-size comparison")
+    return named if named is not None else float(declared)
+
+
 def verdict(store, experiment_id, reference, treatments, envelope, dimensions=None,
-            items=None, treatment_doses=None) -> dict:
+            items=None, treatment_doses=None, envelope_dose_declared=None) -> dict:
     """The full report: per dimension, each treatment's paired effect,
     permutation p, per-item deltas, and its envelope placement, plus the
     envelope's per-direction effects and every cell's samples per item.
 
-    The envelope is a same-size null: a treatment is placed in it only
-    when its dose equals the envelope's. A treatment at another dose gets
-    its effect and permutation test but no placement (``envelope`` None,
-    with a note); a treatment whose id names no dose, while the envelope's
-    does, must be given one through ``treatment_doses``."""
+    The envelope is a same-size null: its dose must be known (from its
+    ids or ``envelope_dose_declared``), every treatment's dose must be
+    known (from its id or ``treatment_doses``), and a treatment is placed
+    in the envelope only when the two are equal. A treatment at another
+    dose gets its effect and permutation test but no placement
+    (``envelope`` None, with a note)."""
     conditions = [reference] + list(treatments) + list(envelope)
-    env_dose = envelope_dose(envelope)
+    env_dose = resolve_envelope_dose(envelope, envelope_dose_declared)
     doses = {}
     for treatment in treatments:
         dose = treatment_dose(treatment, treatment_doses)
-        if env_dose is not None and dose is None:
+        if dose is None:
             raise ValueError(
                 f"{treatment}: no dose in the id and none given (--treatment-dose) "
                 f"while the envelope is at dose {env_dose}; cannot decide whether "
@@ -189,7 +206,7 @@ def verdict(store, experiment_id, reference, treatments, envelope, dimensions=No
                  "treatments": {}}
         for treatment in treatments:
             effect, per_item = condition_effect(means, treatment, reference, paired_items)
-            if env_dose is None or doses[treatment] == env_dose:
+            if doses[treatment] == env_dose:
                 summary = envelope_summary(effect, envelope_effects)
             else:
                 summary = {"effect": effect, "envelope": None,
@@ -227,6 +244,9 @@ def main():
                         help="the dose of a treatment whose id does not name "
                              "one (repeatable); a treatment is placed in the "
                              "envelope only at the envelope's dose")
+    parser.add_argument("--envelope-dose", type=float, default=None,
+                        help="the dose the envelope was generated at, when its "
+                             "condition ids do not name one")
     parser.add_argument("--out", default="", help="write the JSON report here")
     args = parser.parse_args()
     treatment_doses = {}
@@ -253,7 +273,8 @@ def main():
     try:
         report = verdict(store, args.experiment, args.reference,
                          [c for c in args.treatments.split(",") if c],
-                         envelope, dimensions, items, treatment_doses)
+                         envelope, dimensions, items, treatment_doses,
+                         envelope_dose_declared=args.envelope_dose)
     except ValueError as error:
         raise SystemExit(str(error))
     for dimension, entry in report["dimensions"].items():

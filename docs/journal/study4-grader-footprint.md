@@ -8,6 +8,25 @@ Study 4 registration cites. (These entries were first written into
 merged, so the citable path is this file; the entries are verbatim.)
 Append-only, newest first.
 
+## 2026-09-12 (overnight) — Eighth review round, and the stopping rule
+
+Two findings, both follow-ups to the seventh round's fixes and neither
+touching a number, an artifact or a promise — the round the owner's
+stopping rule names as the one to merge on. One accepted: an envelope
+whose ids name no dose could still place treatments, so the verdict
+tool now requires the envelope's dose to be known (from its ids or an
+explicit `--envelope-dose`) and refuses a declared dose that contradicts
+the ids. One declined: the claim that the packer writes volumes below
+`out_dir/<experiment>/` and so misses them when checking the directory
+is empty — the volume writer takes that path as a file stem and writes
+`<stem>.pb` or `<stem>.vNN.pb` at the top level, which the check covers.
+Eight rounds in total: the first four found things that were false
+(a reversed registered test, an un-ingested and not-steering-free close,
+truncated calls read as actions, a rejected dose frozen in a manifest,
+stale close text in the frozen plans, an opt-in fresh-prefill path, a
+promised briefing not in the release path, an envelope without
+provenance); the last four hardened the ingest and analysis validators.
+
 ## 2026-09-12 (night) — Seventh review round: same-size envelopes only; nested tags never parsed; the packer starts from an empty directory
 
 Four findings, all accepted.
