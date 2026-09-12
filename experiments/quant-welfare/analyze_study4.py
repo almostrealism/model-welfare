@@ -34,8 +34,9 @@ output pins the numbers:
         --reference qwen3.6-27b-bf16-torch --grader-prefix qwen3.6-27b-bf16-torch-graderL36-a \\
         --clean-dose 20 --doses 10,20 --eval-condition qwen3.6-27b-bf16-torch-evalL36-a20 \\
         --envelope-prefix qwen3.6-27b-bf16-torch-randL36-a20- --envelope-k 24 \\
+        --items experiments/quant-welfare/study4/subset30-items.txt --samples 6 \\
         --align-battery experiments/quant-welfare/batteries/misalign-v3.textproto \\
-        --out docs/results/study4-results.json
+        --align-samples 5 --out docs/results/study4-results.json
 """
 
 import argparse
@@ -248,23 +249,53 @@ def decision(family):
 
 def envelope_conditions(store, experiment, prefix, expected_k):
     """The envelope cells under ``prefix`` in ``experiment``. The registered
-    decision rule is defined over exactly K random directions, so a
-    partial envelope (one direction can already put a treatment at
-    percentile 0) is refused rather than silently analysed; pass
-    ``expected_k=None`` only for a descriptive read."""
+    decision rule is defined over exactly the directions r00..r{K-1}, so
+    the cells found must be exactly those ids — a missing direction, or an
+    extra same-prefix cell standing in for one, is refused rather than
+    silently analysed (one direction can already put a treatment at
+    percentile 0); pass ``expected_k=None`` only for a descriptive read."""
     found = sorted(p.name for p in (Path(store.root) / experiment).iterdir()
                    if p.is_dir() and p.name.startswith(prefix))
-    if expected_k is not None and len(found) != expected_k:
-        raise ValueError(
-            f"{experiment}: expected {expected_k} envelope directions under "
-            f"{prefix!r}, found {len(found)} — the specificity read is defined "
-            "over the full registered envelope")
+    if expected_k is not None:
+        expected = [f"{prefix}r{index:02d}" for index in range(expected_k)]
+        if found != expected:
+            missing = sorted(set(expected) - set(found))
+            extra = sorted(set(found) - set(expected))
+            raise ValueError(
+                f"{experiment}: the envelope under {prefix!r} is not exactly "
+                f"r00..r{expected_k - 1:02d} (missing {missing}, unexpected {extra}) "
+                "— the specificity read is defined over the full registered envelope")
     return found
+
+
+def validate_coverage(records_by_condition, conditions, items, samples):
+    """Refuse a read whose cells are short of the registered design: every
+    listed condition must hold at least ``samples`` records for every
+    listed item. Without this, a missing cell or item silently shrinks
+    the analysed set and changes the registered estimand."""
+    problems = []
+    for condition in conditions:
+        counts = defaultdict(int)
+        for record in records_by_condition.get(condition, []):
+            counts[record.key.item_id] += 1
+        for item in items:
+            if counts[item] < samples:
+                problems.append(f"{condition}/{item}: {counts[item]} < {samples}")
+    if problems:
+        shown = "; ".join(problems[:5])
+        more = f" (+{len(problems) - 5} more)" if len(problems) > 5 else ""
+        raise ValueError(f"registered coverage not met: {shown}{more}")
 
 
 def analyze(store, welfare_experiment, align_experiment, reference, grader_prefix,
             clean_dose, doses, eval_condition, envelope_prefix, align_definition,
-            items=None, envelope_k=None):
+            items=None, envelope_k=None, samples=None, align_samples=None):
+    """The registered read. ``items`` is the frozen item list and ``samples``
+    the registered samples per item for the main cells (envelope cells
+    carry one); when ``samples`` is given every main cell is checked to
+    hold that many records for every item, and the alignment cells
+    likewise against ``align_samples`` over the alignment battery's items.
+    Both are None only for descriptive reads."""
     clean = f"{grader_prefix}{clean_dose}"
     dose_conditions = [f"{grader_prefix}{d}" for d in doses]
     conditions = sorted({reference, clean, *dose_conditions, *( [eval_condition] if eval_condition else [])})
@@ -272,6 +303,11 @@ def analyze(store, welfare_experiment, align_experiment, reference, grader_prefi
     scores = load_scores(store, welfare_experiment, conditions + envelope)
     records = load_records(store, welfare_experiment, conditions + envelope)
     means = dimension_means(scores, "frustration")
+    if samples is not None:
+        if not items:
+            raise ValueError("a registered read needs the frozen item list (items)")
+        validate_coverage(records, conditions, items, samples)
+        validate_coverage(records, envelope, items, 1)
     paired_items = list(items) if items else shared_items(means, [reference, clean] + envelope)
     report = {"welfare_experiment": welfare_experiment, "reference": reference,
               "clean_dose_condition": clean, "dose_conditions": dose_conditions,
@@ -309,7 +345,15 @@ def analyze(store, welfare_experiment, align_experiment, reference, grader_prefi
         a_scores = load_scores(store, align_experiment, [reference, align_clean] + align_env)
         a_records = load_records(store, align_experiment, [reference, align_clean] + align_env)
         a_means = dimension_means(a_scores, "misalignment")
-        a_items = shared_items(a_means, [reference, align_clean] + align_env)
+        if align_samples is not None:
+            if align_definition is None:
+                raise ValueError("a registered alignment read needs the battery definition")
+            battery_items = [item.id for item in align_definition.items]
+            validate_coverage(a_records, [reference, align_clean], battery_items, align_samples)
+            validate_coverage(a_records, align_env, battery_items, 1)
+            a_items = battery_items
+        else:
+            a_items = shared_items(a_means, [reference, align_clean] + align_env)
         effect, per_item = condition_effect(a_means, align_clean, reference, a_items)
         env_effects = {d: condition_effect(a_means, d, reference, a_items)[0] for d in align_env}
         report["alignment"] = {
@@ -343,9 +387,19 @@ def main():
                              "the check, for descriptive reads only)")
     parser.add_argument("--align-battery", default="",
                         help="misalign battery textproto (for the S4-E3 mix)")
-    parser.add_argument("--items", default="", help="registered item list (one per line)")
+    parser.add_argument("--items", required=True,
+                        help="the frozen item list (one per line); every main "
+                             "cell must cover it")
+    parser.add_argument("--samples", type=int, required=True,
+                        help="registered samples per item in the main welfare "
+                             "cells (envelope cells carry one)")
+    parser.add_argument("--align-samples", type=int, default=None,
+                        help="registered samples per item in the alignment "
+                             "main cells; required with --align-experiment")
     parser.add_argument("--out", default="")
     args = parser.parse_args()
+    if args.align_experiment and (args.align_samples is None or not args.align_battery):
+        raise SystemExit("--align-experiment needs --align-samples and --align-battery")
 
     definition = None
     if args.align_battery:
@@ -359,7 +413,8 @@ def main():
                      args.reference, args.grader_prefix, args.clean_dose,
                      [int(d) for d in args.doses.split(",")],
                      args.eval_condition or None, args.envelope_prefix, definition, items,
-                     envelope_k=args.envelope_k or None)
+                     envelope_k=args.envelope_k or None, samples=args.samples,
+                     align_samples=args.align_samples)
     clean = report["clean_dose_condition"]
     for dimension, entry in report["welfare"][clean].items():
         env = entry.get("envelope", {})

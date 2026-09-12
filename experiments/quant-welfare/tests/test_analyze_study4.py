@@ -86,6 +86,29 @@ def test_driver_end_to_end(tmp_path):
     assert report["mechanical"][REF]["capability_flag"] is False
 
 
+def test_registered_read_validates_coverage_and_envelope_identity(tmp_path):
+    store = _store(tmp_path)
+    # the fixture holds 4 samples per main cell and 1 per envelope cell
+    report = a4.analyze(store, "w", None, REF, "ref-graderL36-a", 20, [10, 20],
+                        None, "ref-randL36-a20-", None, items=ITEMS, envelope_k=6,
+                        samples=4)
+    assert report["items"] == ITEMS
+    with pytest.raises(ValueError, match="registered coverage not met"):
+        a4.analyze(store, "w", None, REF, "ref-graderL36-a", 20, [10, 20],
+                   None, "ref-randL36-a20-", None, items=ITEMS, envelope_k=6, samples=5)
+    with pytest.raises(ValueError, match="frozen item list"):
+        a4.analyze(store, "w", None, REF, "ref-graderL36-a", 20, [10, 20],
+                   None, "ref-randL36-a20-", None, items=None, envelope_k=6, samples=4)
+    # an item missing from one cell is a short cell, not a smaller battery
+    with pytest.raises(ValueError, match="ghost-item"):
+        a4.validate_coverage(a4.load_records(store, "w", [REF]), [REF], ITEMS + ["ghost-item"], 1)
+    # the envelope must be exactly r00..r{K-1}: a gap plus a stand-in fails
+    _write(store, "w", "ref-randL36-a20-r07", {i: 1.0 for i in ITEMS}, 1)
+    with pytest.raises(ValueError, match="missing \\['ref-randL36-a20-r06'\\]"):
+        a4.envelope_conditions(store, "w", "ref-randL36-a20-", 7)
+    assert len(a4.envelope_conditions(store, "w", "ref-randL36-a20-", None)) == 7
+
+
 def test_non_clean_doses_carry_no_envelope(tmp_path):
     store = _store(tmp_path)
     report = a4.analyze(store, "w", None, REF, "ref-graderL36-a", 20, [10, 20],
@@ -124,7 +147,7 @@ def test_dose_response_sign_convention(tmp_path):
 
 def test_partial_envelope_is_refused(tmp_path):
     store = _store(tmp_path)
-    with pytest.raises(ValueError, match="expected 24 envelope directions"):
+    with pytest.raises(ValueError, match="not exactly r00..r23"):
         a4.analyze(store, "w", None, REF, "ref-graderL36-a", 20, [10, 20],
                    None, "ref-randL36-a20-", None, envelope_k=24)
     assert a4.envelope_conditions(store, "w", "ref-randL36-a20-", 6) == [

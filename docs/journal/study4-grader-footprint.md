@@ -8,6 +8,55 @@ Study 4 registration cites. (These entries were first written into
 merged, so the citable path is this file; the entries are verbatim.)
 Append-only, newest first.
 
+## 2026-09-12 (later) — Fourth review round: the registered plans regenerated, the cache path pinned, exits recomputed at ingest
+
+Eight findings, all accepted.
+
+- **The frozen plans carried the old close.** The four `reg-*.json` plans
+  embedded the close text as it stood before the 11 September rewording,
+  so the collected close would have disagreed with the released asset.
+  The plans are rebuilt from the frozen inputs through
+  `build_steer_plan.py` (which now takes `--chat-template-kwargs`, so the
+  build is reproducible from the command line) and differ from the
+  frozen ones only in the close text and the new cache pin; `FREEZE.json`
+  is regenerated.
+- **The fresh-prefill path is pinned, not opt-in.** The registered plans
+  carry `prefix_cache: false`; `steer.py` refuses to run a pinned plan
+  the other way, and ingestion refuses a transcript that extended a
+  cache snapshot under a plan that pins the fresh path. G4a's finding
+  can no longer be bypassed by omitting a flag.
+- **The exit is recomputed at ingest.** The stored terminal event now
+  derives from the transcript itself — the first parsed terminal call in
+  the final assistant turn, or a raw terminal marker — checked against
+  the plan's terminal vocabulary before anything is written; a recorded
+  marker with no call behind it, or a call with no marker, refuses the
+  whole run. Auditing every raw transcript on disk against this rule
+  found eight alignment calibration conversations (two in the G4d
+  baseline on misalign-v3, six in the 27B Gate 1 alignment cells on
+  misalign-v2) where the pre-fix live parser had accepted a truncated or
+  unclosed tool call as a terminal action and ended the conversation;
+  their store records carry a terminal event with no recorded call. They
+  are calibration-class, none is an exit-tool exit (so no exit-rate read
+  moves), and the S4-E3 mix already reads them as "none"; they are left
+  as ingested and disclosed here. The strict parsers prevent a
+  recurrence.
+- **The MDE pin matches the registered design.** `mde-pin.json` had
+  recorded the 32-item ladder read before the 30 × 6 decision; it now
+  carries 30 × 4 / 6 / 8 from the same components with 30 × 6 pinned for
+  every dimension (0.88 / 1.22 / 1.05, as the registration quotes) and
+  states which dimensions meet their target.
+- **The driver refuses short cells and wrong envelopes.** The registered
+  read requires the frozen item list and the registered samples per item
+  for every main cell (one for envelope cells), on both arms, and the
+  envelope must be exactly r00..r{K−1}. The Gate 1 driver check re-ran
+  under those checks: every effect is identical; the α = 40 cell no
+  longer carries the α = 20 envelope (the second-round rule, which the
+  committed check had not yet absorbed), and the sign-flip permutation
+  p-values move in the third decimal because the paired deltas now
+  follow the frozen item order rather than a sorted one (the seeded
+  permutation draws are assigned by position).
+- `test_freeze.py` now exercises the Study 4 selection.
+
 ## 2026-09-12 — Third review round: the briefing enters the store, the envelope's draw record is frozen
 
 Eight findings, all accepted. The consent-analog briefing transcripts

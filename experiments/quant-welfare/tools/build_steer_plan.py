@@ -225,11 +225,24 @@ def main():
                         help="text file holding the de-induction close; "
                              "attached to every conversation and generated "
                              "with steering off (registered ethics package)")
+    parser.add_argument("--no-prefix-cache", action="store_true",
+                        help="pin the fresh-prefill generation path in the "
+                             "plan (prefix_cache: false); steer.py refuses "
+                             "to run such a plan through the cache and "
+                             "ingestion refuses transcripts that did")
+    parser.add_argument("--chat-template-kwargs", default="",
+                        help="JSON object forwarded to apply_chat_template "
+                             "(e.g. '{\"enable_thinking\": false}')")
     parser.add_argument("--out", required=True)
     args = parser.parse_args()
 
     if bool(args.frame) != bool(args.frame_id):
         raise SystemExit("--frame and --frame-id go together")
+    template_kwargs = None
+    if args.chat_template_kwargs:
+        template_kwargs = json.loads(args.chat_template_kwargs)
+        if not isinstance(template_kwargs, dict):
+            raise SystemExit("--chat-template-kwargs must be a JSON object")
     definition = load_battery(args.battery)
     items = select_items(definition, args.items)
     injected = (donor_affordances(args.affordances_from)
@@ -243,6 +256,10 @@ def main():
     plan["battery_id"] = definition.battery.id
     if frame:
         plan["frame_id"] = frame["id"]
+    if template_kwargs is not None:
+        plan["chat_template_kwargs"] = template_kwargs
+    if args.no_prefix_cache:
+        plan["prefix_cache"] = False
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     with open(args.out, "w") as handle:
         json.dump(plan, handle, indent=1)

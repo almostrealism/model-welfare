@@ -3,7 +3,20 @@
 The planner decides, from token ids alone, whether the previous turn's
 snapshot extends the new prompt or is discarded; the conversation loop records the
 per-turn outcome. Pure — no torch."""
-from modelwelfare_torch.steer import prefix_cache_plan, run_conversation
+import pytest
+
+from modelwelfare_torch.steer import check_cache_mode, prefix_cache_plan, run_conversation
+
+
+def test_plan_pinned_cache_mode_must_match_the_run():
+    check_cache_mode({}, no_prefix_cache=False)           # unpinned: either way
+    check_cache_mode({}, no_prefix_cache=True)
+    check_cache_mode({"prefix_cache": False}, no_prefix_cache=True)
+    check_cache_mode({"prefix_cache": True}, no_prefix_cache=False)
+    with pytest.raises(SystemExit, match="pins prefix_cache=False"):
+        check_cache_mode({"prefix_cache": False}, no_prefix_cache=False)
+    with pytest.raises(SystemExit, match="pins prefix_cache=True"):
+        check_cache_mode({"prefix_cache": True}, no_prefix_cache=True)
 
 
 def test_extend_when_prompt_grows_from_snapshot():

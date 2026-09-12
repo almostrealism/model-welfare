@@ -27,10 +27,10 @@
   "study4/subset30-selection.json": "75f6a4fd3dfcfbdb274a3d61503fa346f98caecf7cfb9497c9990724289eac0e",
   "study4/close.txt": "2ed75fdd15249cc313e39dde473ec9d2288c5ef2eb7b79ce8f213f3e6c0af7f3",
   "study4/briefing.json": "855d6d8d2d4721fde37a6d45b7660a5a284932574c358d8194ca34f0b3598419",
-  "study4/plans/reg-welfare-main.json": "b77842a3012fa8a8f089536587af5785efb5bebbfbfdc2dac7c2d1411c3da004",
-  "study4/plans/reg-welfare-env.json": "6d32053aac5130c5ef16b4a5e53a92cf9b787e759b43ede61bacc3f305c6689e",
-  "study4/plans/reg-align-main.json": "0b6aa582922166865164b6fefb99803fc71f73820cf3a5a10dfecc8d9e3e7072",
-  "study4/plans/reg-align-env.json": "567eaa1506bbccf3cf601a98db3a080e353b9cec0feb785636be9d262ad75242",
+  "study4/plans/reg-welfare-main.json": "191c4f63cb6f0460ad3b4b1f8b7c30a7db2c7390268c6ec253d7981997b23f85",
+  "study4/plans/reg-welfare-env.json": "005fea72d156566932bb78f2ae4ef67e796852ca01723844b0d243df6018f8a5",
+  "study4/plans/reg-align-main.json": "a9e9450d5a3d0e5b73f9e28ee3fcfde7e57b80ffb8fb990cea6e366ec0009616",
+  "study4/plans/reg-align-env.json": "8932b36306992f192c2690d25624e47664b90b85140038be4ce95718101935b1",
   "study4/reg-welfare/experiment.textproto": "a7f332f35ec0cab6dbd2953fff6d37d5de982b3847144cb3c87aeb999ed98148",
   "study4/reg-align/experiment.textproto": "6bc92b47c1edf4bd1cbc25dca721857b3b90721ae245c631cea8778d2b9bd709"
  }

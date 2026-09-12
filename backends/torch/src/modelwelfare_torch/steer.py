@@ -344,6 +344,24 @@ def prefix_cache_plan(cached_ids, prompt_ids):
     return "fresh", k
 
 
+def check_cache_mode(plan, no_prefix_cache):
+    """A plan that pins its generation path (``prefix_cache`` false for the
+    fresh-prefill path, true for the snapshot path) must be run that way:
+    the registered Study 4 cells are fresh-prefill because gate G4a did not
+    certify the cached path, and a cached run of such a plan would look like
+    a valid registered cell. Raises SystemExit on a mismatch; a plan without
+    the key leaves the choice to the flag."""
+    pinned = plan.get("prefix_cache")
+    if pinned is None:
+        return
+    requested = not no_prefix_cache
+    if bool(pinned) != requested:
+        raise SystemExit(
+            f"the plan pins prefix_cache={bool(pinned)} but this run "
+            f"{'disables' if no_prefix_cache else 'enables'} the cache; pass "
+            + ("--no-prefix-cache" if not pinned else "the plan without --no-prefix-cache"))
+
+
 def run_close(generate_fn, messages, closing_turn):
     """The de-induction close: one more user turn appended to a finished
     conversation and the reply it draws, returned as a record separate
@@ -522,6 +540,7 @@ def main():
 
     with open(args.plan) as handle:
         plan = json.load(handle)
+    check_cache_mode(plan, args.no_prefix_cache)
     directions = ({name: vector.astype(np.float32)
                    for name, vector in load_file(args.directions).items()}
                   if args.directions else {})

@@ -145,6 +145,57 @@ def test_close_is_stored_beside_the_protocol_transcript(tmp_path, monkeypatch):
     assert len(records[("item-a", 1)].close) == 0
 
 
+def test_exit_marker_is_recomputed_from_the_transcript(tmp_path, monkeypatch):
+    # a marker with no terminal call behind it would invent a terminal event
+    invented = [dict(TRANSCRIPTS[0], exit_marker="end_conversation"), TRANSCRIPTS[1]]
+    plan_path, transcripts_path = write_world(tmp_path, transcripts=invented)
+    with pytest.raises(SystemExit, match="recorded exit marker 'end_conversation'"):
+        run_main(tmp_path, plan_path, transcripts_path, monkeypatch)
+    # a terminal call with no marker would hide one
+    hidden = [TRANSCRIPTS[0], dict(TRANSCRIPTS[1], exit_marker=None)]
+    plan_path, transcripts_path = write_world(tmp_path, transcripts=hidden)
+    with pytest.raises(SystemExit, match="supports 'end_conversation'"):
+        run_main(tmp_path, plan_path, transcripts_path, monkeypatch)
+    # a truncated call is not a terminal call, so a marker claiming it is refused
+    truncated = [TRANSCRIPTS[0], dict(TRANSCRIPTS[1], messages=[
+        {"role": "user", "content": "u1"},
+        {"role": "assistant", "content": "I will stop. <tool_call><function=end_conversation>"}])]
+    plan_path, transcripts_path = write_world(tmp_path, transcripts=truncated)
+    with pytest.raises(SystemExit, match="supports None"):
+        run_main(tmp_path, plan_path, transcripts_path, monkeypatch)
+    assert stored_records(tmp_path) == {}
+    # a raw terminal marker from the plan is honoured the same way
+    raw = [TRANSCRIPTS[0], dict(TRANSCRIPTS[1], exit_marker="STOP-TOKEN", messages=[
+        {"role": "user", "content": "u1"},
+        {"role": "assistant", "content": "enough. STOP-TOKEN"}])]
+    plan = json.loads(json.dumps(PLAN))
+    plan["conversations"][1]["terminal_markers"] = ["STOP-TOKEN"]
+    plan_path = tmp_path / "plan.json"
+    plan_path.write_text(json.dumps(plan))
+    transcripts_path = tmp_path / "steered.jsonl"
+    transcripts_path.write_text("".join(json.dumps(e) + "\n" for e in raw))
+    run_main(tmp_path, plan_path, transcripts_path, monkeypatch)
+    exited = stored_records(tmp_path)[("item-a", 1)]
+    assert [o.name for o in exited.outcomes] == ["terminal_tool_invoked"]
+    assert exited.outcomes[0].detail == "STOP-TOKEN"
+
+
+def test_fresh_prefill_plan_refuses_cached_transcripts(tmp_path, monkeypatch):
+    plan = json.loads(json.dumps(PLAN))
+    plan["prefix_cache"] = False
+    plan_path = tmp_path / "plan.json"
+    plan_path.write_text(json.dumps(plan))
+    cached = [dict(TRANSCRIPTS[0], prefix_cache={"extend": 1, "fresh": 1}), TRANSCRIPTS[1]]
+    transcripts_path = tmp_path / "steered.jsonl"
+    transcripts_path.write_text("".join(json.dumps(e) + "\n" for e in cached))
+    with pytest.raises(SystemExit, match="fresh-prefill"):
+        run_main(tmp_path, plan_path, transcripts_path, monkeypatch)
+    fresh = [dict(TRANSCRIPTS[0], prefix_cache={"extend": 0, "fresh": 2}), TRANSCRIPTS[1]]
+    transcripts_path.write_text("".join(json.dumps(e) + "\n" for e in fresh))
+    run_main(tmp_path, plan_path, transcripts_path, monkeypatch)
+    assert len(stored_records(tmp_path)) == 2
+
+
 def test_close_is_validated_against_the_plan(tmp_path, monkeypatch):
     # the plan attaches a close but the transcript has none: incomplete run
     plan_path, transcripts_path = write_closing_world(tmp_path, [None, None])
