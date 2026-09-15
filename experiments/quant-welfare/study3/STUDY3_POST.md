@@ -1,10 +1,10 @@
-# Study 3: Steering welfare-relevant directions moved the representation, but not the behavior
+# Study 3: Steering welfare-relevant directions moved the representation, but not [detectably] the behavior
 
-> Source draft for the LessWrong post of the same title. Section structure
-> mirrors the LessWrong draft exactly (two H2 groups with H3 children, then
-> three H2 sections, then the Study 4 H3). Bracketed notes in the form
-> `[[author: ...]]` are items the author must confirm or fill before posting;
-> none of them should survive into the published text.
+> Source draft for the LessWrong post of the same title, published on
+> 14 September 2026: <https://www.lesswrong.com/posts/TpEL7pSwp7DvCekAq/study-3-steering-welfare-relevant-directions-moved-the>.
+> The published text was edited by hand from this draft after an external
+> review and differs from it in wording and in the order of some sections;
+> the post is the record, this file is its source.
 
 *Epistemic status: an exploratory report. These results are from the
 calibration process intended to produce a preregistration for the third
@@ -14,10 +14,12 @@ The calibration process resulted in the experimental procedure not being
 worth running, so I am publishing this instead. Nothing below is
 confirmatory. Every number here is calibration-class: small cells (mostly
 8 items, 1 to 10 samples each), run to decide whether a powered study was
-feasible, not to establish a finding. All of it is published with the
-data release tagged `[[author: data-2026MMDD — the tag covering the
-s3-* experiments does not exist yet; the latest cut is data-20260830]]`.
-Dates in this post are the dates events happened. The program journal
+feasible, not to establish a finding. All of it is published in the data
+release tagged
+[`data-20260911`](https://github.com/almostrealism/model-welfare/releases/tag/data-20260911):
+every conversation this post counts is in the result-store bundles, and
+every steering capture is in the Study 3 capture bundle. Dates in this
+post are the dates events happened. The program journal
 they come from is append-only and newest-first; one entry (the 5 September
 evening cluster) was written about a day late and says so in its header,
 and I have used event dates rather than entry dates throughout.*
@@ -49,7 +51,7 @@ initial version of that claim was one-third regression-to-the-mean
 artifact on the behavioral endpoint, and a subset chosen for high
 elicitation carries a near-zero, sign-flipped distress-projection
 target. That material is a **Study 2 appendix, published alongside this
-post** `[[author: link]]`. The journal committed on 4 September to
+post**: [Appendix: where the 4-bit effects sit in the battery](https://www.lesswrong.com/posts/pxXTJtvtpJaNwdCTw/study-2-results-exploring-representational-counterparts-of#Appendix__where_the_4_bit_effects_sit_in_the_battery__Updated_September_2026_). The journal committed on 4 September to
 publishing it "to accompany the registration's publication"; there is no
 registration, so that commitment is discharged here instead. Study 3's
 subset rule, the composure-stratified systematic rank sample described
@@ -126,8 +128,12 @@ This section is the spine of the post. Every entry has a dated journal
 record and a committed artifact; the artifact names are given so the
 numbers can be checked.
 
-**30 to 31 August. Subset audit and the stratified rule.** Covered in the
-Study 2 appendix `[[author: link]]`. The outputs Study 3 inherited: the
+**31 August. The design decisions.** Arms A to D, the 20-item subset
+size, and the two-tier exposure budget (12,000 total, 2,500
+deliberate-amplification) were fixed by the owner on this date.
+
+**4 September. Subset audit and the stratified rule.** Covered in the
+[Study 2 appendix](https://www.lesswrong.com/posts/pxXTJtvtpJaNwdCTw/study-2-results-exploring-representational-counterparts-of#Appendix__where_the_4_bit_effects_sit_in_the_battery__Updated_September_2026_). The outputs Study 3 inherited: the
 20-item composure-stratified subset (`subset-selection.json`), its w4
 targets (distress +0.638, axis −0.691, behavioral +2.06;
 `subset-targets.json`), and the audit report (`composure-audit.json`).
@@ -621,17 +627,22 @@ subject, Qwen3.6-27B, and asks whether the alignment-degrading
 grader-steering also moves welfare indicators, and whether that movement
 is direction-specific.
 
-Two gates were stated before any design work and are pure feasibility
-checks under the calibration firewall. **Gate 0** is engineering: can the
-27B be loaded, hooked at Betley's layer, and steered at a workable rate
-on this program's hardware? **Gate 1** is a small exploratory probe: does
-grader-type steering touch the welfare indicators at all, on 8 items,
-against a matched-norm random envelope, with an alignment probe read
-alongside? Registration happens only if Gate 1 shows a footprint. Both
-gates have now run, and their calibration data is published with the
-registration draft whatever the owner decides `[[author: state the Gate
-1 outcome here or leave it to the Study 4 registration post; the journal
-entries of 8 to 10 September have it]]`.
+Before designing the new study I ran one small unregistered probe on the
+27B: grader-type steering at layer 36 (the layer used by Betley,
+Treutlein and Dumas), 8 distress items at 4 samples each, against 12
+random directions of matched norm at 1 sample per item, with an
+alignment read alongside. The welfare footprint is there. Grader
+steering lowered judged frustration by 1.84 and self-deprecation by 2.62
+and raised tone stability by 1.56, each significant on its own paired
+test (p 0.016, 0.032, 0.063), and no random direction moved any of the
+three by more than 1.2. The alignment read did not replicate as
+direction-specific: on a 14-scenario agentic battery scored by the same
+judge, grader steering raised judged misalignment by 0.86, but 9 of the
+12 random directions at the same norm raised it more (envelope mean
++1.43). The random envelope has the weakness discussed above, so both
+reads are previews for the registration, not results
+(`study4/gate1-27b-welfare-a20env-verdict.json`,
+`study4/gate1-27b-align-a20env-verdict.json`).
 
 What carries over from Study 3: the integrity guardrail, verbatim, in
 Study 4's deviation policy; the single-host rule (every within-endpoint
@@ -650,13 +661,18 @@ question is open, on a model where the manipulation is known to work.
 
 **Links.**
 
-- Data release: `[[author: data-2026MMDD]]` on
-  [almostrealism/model-welfare](https://github.com/almostrealism/model-welfare)
+- Data release:
+  [`data-20260911`](https://github.com/almostrealism/model-welfare/releases/tag/data-20260911)
+  on [almostrealism/model-welfare](https://github.com/almostrealism/model-welfare)
+  (ten bundles; the Study 4 experiments are deliberately excluded and
+  ship with that study's own release)
 - Journal: `docs/journal/study3-steering.md` (entries 4 to 7 September
   2026) and `docs/journal/program.md`
 - Steering null: `experiments/quant-welfare/study3/STEERING_NULL_SUMMARY.md`
 - Composure audit: `experiments/quant-welfare/study3/composure-audit.json`
-- Study 2 appendix: `[[author: link]]`
+- The published post: [Study 3: Steering welfare-relevant directions
+  moved the representation, but not \[detectably\] the behavior](https://www.lesswrong.com/posts/TpEL7pSwp7DvCekAq/study-3-steering-welfare-relevant-directions-moved-the)
+- Study 2 appendix: [where the 4-bit effects sit in the battery](https://www.lesswrong.com/posts/pxXTJtvtpJaNwdCTw/study-2-results-exploring-representational-counterparts-of#Appendix__where_the_4_bit_effects_sit_in_the_battery__Updated_September_2026_)
 - Study 2 results post: [Study 2 Results: Exploring representational
   counterparts of welfare-relevant indicators under post-training
   quantization](https://www.lesswrong.com/posts/pxXTJtvtpJaNwdCTw/study-2-results-exploring-representational-counterparts-of)
@@ -667,70 +683,3 @@ question is open, on a model where the manipulation is known to work.
   tirade)](https://www.lesswrong.com/posts/AfoGGrJfuNzofpzWL/models-may-behave-differently-in-graded-episodes-a-tirade)
 - Exposure-budget reasoning record: `docs/EXPOSURE_BUDGET_POSITION.md`
 
----
-
-## Working notes (not for publication): the data release this post depends on
-
-Recorded 2026-09-11 so the post is not finished ahead of its data. Delete
-this section before the text goes to LessWrong.
-
-**The gap.** No data release covers Study 3. The last tag is
-`data-20260830` (Study 2). Since then the Study 3 store experiments
-(`s3-*`, last write 2026-09-07 14:49) and the Study 4 gate experiments
-(`s4-*`, first write 2026-09-08 03:33) have both accumulated in the same
-result store, and the release tooling packs the whole store.
-
-**The mechanism, now in place.** `tools/pack_bundles.py` takes a
-repeatable `--exclude GLOB`; `scripts/publish-data-release.sh` passes
-`MW_RELEASE_EXCLUDE` (space-separated globs) through to it and names the
-exclusion in the release notes. Excluding everything is refused. Test:
-`tests/test_pack_bundles.py`. The Study 3 cut is therefore
-
-```
-MW_RELEASE_EXCLUDE='s4-*' scripts/publish-data-release.sh data-2026MMDD
-```
-
-run from a pushed commit, with no directory moved. The previously
-released experiments repack to the same digests (append-only store; the
-loose calibration captures and Study 2 token captures are unchanged since
-August), so the release is cumulative as before.
-
-**The scratch cells, now retrieved.** The steering runs that never
-entered the store were pulled from the lab hosts on 2026-09-11 into
-`experiments/quant-welfare/study3/gen/` (gitignored, ~290 MB):
-
-- `gen/halo/` (from halo `~/s3-steer/`): dose range-finder and refined
-  sweeps (`out/sweep-*`, `out/refined-*`), the heterogeneity pilot
-  (`het-pilot`), the assistant-axis pilot (`axis-pilot`), the three Qwen
-  envelopes at norms 1.039 / 0.604 / 4 (`rand-NN`, `axenv-NN`,
-  `g4env-NN`, 32 each), the grader-type and eval-awareness effect cells
-  (`grader-eff`, `eval-eff`) and their range-finders (`grf-*`), the
-  G3a/G3b torch side, the Gemma direction/ladder/probe captures, and the
-  **framing-pilot torch replay** (`out/frame-{verifier,judge,human,neutral}
-  .safetensors`, `plan-frame-*.json`, `run_frame_replay.sh`), which is the
-  source of the S3-E1 projection numbers. Every cell has its `plan-*.json`
-  and the `run_*.sh` that produced it.
-- `gen/m4max-aligned/` (from m4max `~/steer-aligned/`): the large-dose
-  cell (`bq-a0`, `bq-d35`), its 25-direction envelope (`bqenv-00..24`),
-  the Gemma dose grids (`gdose-*`, `gdose2-*`), and the aligned-stack
-  cross-Mac probe (`probe`).
-- `gen/m4max-steer/` (from m4max `~/steer/`): the original cross-Mac run
-  (`crossmac`) and the Gemma throughput probe.
-
-**Progress (2026-09-11, same day).**
-
-- DONE: 187 scratch cells ingested (six store experiments; see the
-  journal entry of this date for the layout). DONE: 210 capture pairs
-  staged in `data-captures/s3/` and the publish script packs them into
-  `quant-welfare-s3-captures.pb` (asset ten of ten). DONE: exposure tally
-  rewritten from the store; ledger written into the journal. DONE:
-  framing-replay provenance and the fourth envelope confirmed from the
-  halo run scripts.
-- DONE: the envelope and large-dose cells re-judged on the pinned judge
-  (1,176 conversations, none unscored) and the four verdicts regenerated
-  from the store as `*-verdict-store.json`; the steering-null table in
-  §3 now carries the store-reproducible numbers with the scratch reads
-  beside them.
-- TODO: the release from master with `MW_RELEASE_EXCLUDE='s4-*'`, the
-  tag name into the epistemic-status block and the links footer, and a
-  journal line the day it happens.
