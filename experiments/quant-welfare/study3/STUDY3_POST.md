@@ -632,10 +632,11 @@ Before designing the new study I ran one small unregistered probe on the
 Treutlein and Dumas), 8 distress items at 4 samples each, against 12
 random directions of matched norm at 1 sample per item, with an
 alignment read alongside. The welfare footprint is there. Grader
-steering lowered judged frustration by 1.84 and self-deprecation by 2.62
-and raised tone stability by 1.56, each significant on its own paired
-test (p 0.016, 0.032, 0.063), and no random direction moved any of the
-three by more than 1.2. The alignment read did not replicate as
+steering lowered judged frustration by 1.84 (paired permutation p 0.016)
+and self-deprecation by 2.62 (p 0.032) and raised tone stability by 1.56
+(p 0.063, not significant on its own). On every dimension the effect
+exceeded all 12 random directions, whose largest magnitudes were 1.19,
+1.31 and 1.44 respectively. The alignment read did not replicate as
 direction-specific: on a 14-scenario agentic battery scored by the same
 judge, grader steering raised judged misalignment by 0.86, but 9 of the
 12 random directions at the same norm raised it more (envelope mean
