@@ -7,6 +7,29 @@ history of that file (arms and owner decisions 2026-08-31; power
 posture 2026-09-04); entries here begin at the first discovery-grade
 event. Append-only, newest first.
 
+## 2026-09-11 (night) — The Study 3 data released: `data-20260911`
+
+The release was cut from master after the calibration branch merged
+(PR #16, eight automated review rounds, recorded in the Study 4
+journal), with `MW_RELEASE_EXCLUDE='s4-*'`:
+<https://github.com/almostrealism/model-welfare/releases/tag/data-20260911>.
+Ten bundles, 9.0 GB: the combined records bundle (now 22 experiments —
+the 13 released on 2026-08-30 with their digests unchanged, plus all nine
+`s3-*` store experiments: the four pilots and the five ingested on this
+date, `s3-dose-rangefinder-1`, `s3-dose-refined-1`, `s3-bigdose-1`,
+`s3-gemma-dose-1` and `s3-gemma-probe-1`), the three Study 2 capture
+bundles (content-identical
+to August), the calibration captures and the Study 2 token volumes as
+before, and the new `quant-welfare-s3-captures.pb` (23,967 activation
+records from every Study 3 steering cell, the direction extractions and
+the framing replay). The release notes state that the `s4-*` experiments
+are deliberately left out and ship with Study 4's own release. This is
+the release the Study 3 exploratory post cites. Every store-backed row of
+its exposure table and every number in its steering-null table is
+reproducible from these bundles; the nine throughput-probe conversations
+counted in the ledger only (see the entry below) are the one exception,
+and the Study 4 preview cells are excluded by design.
+
 ## 2026-09-11 (later) — The envelope verdicts reproduced from the store
 
 The re-judge of the envelope and large-dose cells finished (1,176
