@@ -1,7 +1,7 @@
 # Study 2 results post — appendix (the owed composure disclosure)
 
-> Compact draft, 2026-09-14, to be appended to the published Study 2
-> results post (LessWrong `pxXTJtvtpJaNwdCTw`) as a dated update and
+> Source of the update appended on 2026-09-14 to the published Study 2
+> results post (LessWrong `pxXTJtvtpJaNwdCTw`) as a dated section, and
 > linked from the Study 3 exploratory post. Every number is in
 > `study3/composure-audit.json`, `study3/subset-targets.json`, or the
 > `docs/journal/study3-steering.md` entry of 2026-09-04 (all verified

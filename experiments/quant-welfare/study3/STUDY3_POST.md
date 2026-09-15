@@ -17,8 +17,11 @@ confirmatory. Every number here is calibration-class: small cells (mostly
 feasible, not to establish a finding. All of it is published in the data
 release tagged
 [`data-20260911`](https://github.com/almostrealism/model-welfare/releases/tag/data-20260911):
-every conversation this post counts is in the result-store bundles, and
-every steering capture is in the Study 3 capture bundle. Dates in this
+every Study 3 conversation this post counts is in the result-store
+bundles, apart from nine throughput probes counted in the ledger only,
+and every steering capture is in the Study 3 capture bundle. The Study 4
+preview's cells are deliberately excluded and ship with that study's own
+release. Dates in this
 post are the dates events happened. The program journal
 they come from is append-only and newest-first; one entry (the 5 September
 evening cluster) was written about a day late and says so in its header,
@@ -130,7 +133,10 @@ numbers can be checked.
 
 **31 August. The design decisions.** Arms A to D, the 20-item subset
 size, and the two-tier exposure budget (12,000 total, 2,500
-deliberate-amplification) were fixed by the owner on this date.
+deliberate-amplification) were fixed by the owner on this date. This
+predates the Study 3 journal, which opens on 4 September; the record is
+the dated decision register in `study3/DESIGN.md` §7 and the exposure
+reasoning in `docs/EXPOSURE_BUDGET_POSITION.md`.
 
 **4 September. Subset audit and the stratified rule.** Covered in the
 [Study 2 appendix](https://www.lesswrong.com/posts/pxXTJtvtpJaNwdCTw/study-2-results-exploring-representational-counterparts-of#Appendix__where_the_4_bit_effects_sit_in_the_battery__Updated_September_2026_). The outputs Study 3 inherited: the
@@ -549,7 +555,12 @@ distress-increasing axis dose); "control" marks random-direction cells.
 
 Outside the store: nine throughput-probe conversations (three Qwen,
 six Gemma; two subjects cannot share a manifest) and the G3a gate's 40
-greedy 128-token continuations, which are not conversations.
+greedy 128-token continuations, which are not conversations. The store
+also holds 60 records more than the ledger counts: the studio side of
+G4d (`gemma3-12b-bf16-torch-cm-studio`) is a re-keyed copy of three
+samples per item from the G4b replay, kept for pairing, not a fresh
+generation, so a reader summing the released bundle's Study 3 samples
+will reach 4,621.
 
 Totals: **3,979 Qwen distress episodes and 591 Gemma distress episodes,
 4,570 in all**, of which 995 were deliberate-amplification cells and 968
@@ -633,7 +644,7 @@ Treutlein and Dumas), 8 distress items at 4 samples each, against 12
 random directions of matched norm at 1 sample per item, with an
 alignment read alongside. The welfare footprint is there. Grader
 steering lowered judged frustration by 1.84 (paired permutation p 0.016)
-and self-deprecation by 2.62 (p 0.032) and raised tone stability by 1.56
+and self-deprecation by 2.63 (p 0.032) and raised tone stability by 1.56
 (p 0.063, not significant on its own). On every dimension the effect
 exceeded all 12 random directions, whose largest magnitudes were 1.19,
 1.31 and 1.44 respectively. The alignment read did not replicate as
