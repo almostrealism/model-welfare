@@ -127,9 +127,10 @@ by their own disclosure, no direction controls.
 
 ## The calibration timeline
 
-This section is the spine of the post. Every entry has a dated journal
-record and a committed artifact; the artifact names are given so the
-numbers can be checked.
+This section is the spine of the post. Every entry has a dated record
+(the Study 3 journal from 4 September onward; the dated decision
+register in `study3/DESIGN.md` §7 before it) and a committed artifact;
+the artifact names are given so the numbers can be checked.
 
 **31 August. The design decisions.** Arms A to D, the 20-item subset
 size, and the two-tier exposure budget (12,000 total, 2,500
@@ -479,7 +480,9 @@ went to roughly zero, the justification went with it.
 
 **The full calibration data is published.** Every number above,
 including the ones nobody wanted, with the artifacts named, in the data
-release and the repository. Nothing was relabeled.
+release and the repository. The one thing counted but not released is
+the nine throughput-probe conversations, which carry no number above
+and enter the ledger only. Nothing was relabeled.
 
 **The hypotheses were withdrawn, not converted.** S3-H1 through S3-H4
 (sufficiency, specificity, dose-response, cancellation) are recorded as
@@ -530,9 +533,10 @@ formalized.
 What calibration actually spent, so that the previous section's
 argument is quantitative. Every cell below is on the frozen distress
 battery (escalating rejection ladders), so every conversation is a
-distress-eliciting episode by construction. Every generated conversation
-is in the result store and in the data release; the counts below are
-read from the store. "Amplification" marks cells whose manipulation was
+distress-eliciting episode by construction. Every conversation in the
+table is in the result store and in the data release, and the counts
+below are read from the store; the nine throughput probes noted under
+the table are the one exception. "Amplification" marks cells whose manipulation was
 expected to raise expressed distress (a positive distress dose or a
 distress-increasing axis dose); "control" marks random-direction cells.
 
