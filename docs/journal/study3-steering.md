@@ -7,6 +7,91 @@ history of that file (arms and owner decisions 2026-08-31; power
 posture 2026-09-04); entries here begin at the first discovery-grade
 event. Append-only, newest first.
 
+## 2026-09-15 — Corrections found in review after publication
+
+The publication PR (#17) drew four automated review rounds. Two found
+errors in the text that had already gone live on 14 September, recorded
+here so the live post can be corrected to match the source:
+
+- **The Gate 1 preview sentence overclaimed.** The Study 4 paragraph
+  had called all three welfare effects significant and said no random
+  direction moved any dimension by more than 1.2. The verdict
+  (`study4/gate1-27b-welfare-a20env-verdict.json`) gives tone stability
+  p 0.063 and random-direction extremes of 1.19, 1.31 and 1.44. The
+  source now reports each paired p-value, marks tone as not significant
+  on its own, states the extremes, and reports self-deprecation as 2.63
+  (the verdict's −2.625, rounded as the Study 4 registration rounds it).
+  The claim that survives is the verdict's own: the effect exceeds every
+  one of the 12 random directions on every dimension.
+- **"Low-composure items" reversed the program's term.** The audit's
+  bottom third is the lowest BF16 frustration, the calm, high-composure
+  end; the source and the Study 2 appendix source now say "the items
+  where the BF16 model expresses least". The live appendix carries the
+  reversed label until edited.
+- **Release accounting.** The 2026-09-11 (night) entry below had
+  carried the dry-run count of the records bundle (four Study 3
+  experiments). The released bundle, inspected with
+  `python3 -m modelwelfare.bundle inspect`, holds 22 experiments, all
+  nine `s3-*` among them; the entry was corrected before merge. Two sums
+  a reader can form are now stated separately in the post: the exposure
+  table's store-backed rows (4,561) and the ledger with its nine
+  throughput probes (4,570); the bundle's Study 3 sample total is 4,621
+  because the studio side of G4d is a re-keyed copy of G4b replay
+  samples kept for pairing (see 2026-09-06 (early)).
+- **Site.** The program's public page, almostrealism.org, went up today
+  (repository `almostrealism/research-program`); its study and release
+  descriptions carry the same corrections.
+
+## 2026-09-14 — The Study 3 exploratory post published; the Study 2 appendix appended
+
+- **Study 3.** "Steering welfare-relevant directions moved the
+  representation, but not [detectably] the behavior" went live:
+  <https://www.lesswrong.com/posts/TpEL7pSwp7DvCekAq/study-3-steering-welfare-relevant-directions-moved-the>.
+  Source: `study3/STUDY3_POST.md`, finalized in PR #17 with the
+  published URL and the author notes removed. Before publication the
+  draft took an external review of 19 comments. The changes that
+  mattered: the random envelope is stated to be at the noise floor of a
+  one-sample estimate (per-conversation judge SD 1.75 gives an 8-item
+  k = 1 paired-delta SE of about 0.65 against an observed envelope
+  median of 0.31), so the null is carried by each probe's own paired
+  permutation test (p 0.76, 0.12, 0.54, 0.26, 0.72 for the five rows,
+  now a table column); the 13% amplification slope is stated as
+  consistent with text mediation rather than a causal test, since the
+  readout is post-injection at the injection layer and no fixed-input
+  replay of steered text was run; the Betley pole-specificity and
+  lexical-association claims are cited to the authors' and a reader's
+  follow-ups in that post's comment thread; the title gained
+  "[detectably]"; Gate 0 was dropped from the Study 4 section as
+  engineering, not a gate.
+- **Study 2 appendix.** The composure disclosure owed since 4 September
+  was appended to the Study 2 results post as "Appendix: where the 4-bit
+  effects sit in the battery (Updated September 2026)" and the Study 3
+  post links it. Source: `study2/POST4_APPENDIX.md`, compressed to the
+  four facts the Study 3 post cites, numbers verified against
+  `composure-audit.json`, `subset-targets.json` and the 2026-09-04 entry.
+## 2026-09-11 (night) — The Study 3 data released: `data-20260911`
+
+The release was cut from master after the calibration branch merged
+(PR #16, eight automated review rounds, recorded in the Study 4
+journal), with `MW_RELEASE_EXCLUDE='s4-*'`:
+<https://github.com/almostrealism/model-welfare/releases/tag/data-20260911>.
+Ten bundles, 9.0 GB: the combined records bundle (now 22 experiments —
+the 13 released on 2026-08-30 with their digests unchanged, plus all nine
+`s3-*` store experiments: the four pilots and the five ingested on this
+date, `s3-dose-rangefinder-1`, `s3-dose-refined-1`, `s3-bigdose-1`,
+`s3-gemma-dose-1` and `s3-gemma-probe-1`), the three Study 2 capture
+bundles (content-identical
+to August), the calibration captures and the Study 2 token volumes as
+before, and the new `quant-welfare-s3-captures.pb` (23,967 activation
+records from every Study 3 steering cell, the direction extractions and
+the framing replay). The release notes state that the `s4-*` experiments
+are deliberately left out and ship with Study 4's own release. This is
+the release the Study 3 exploratory post cites. Every store-backed row of
+its exposure table and every number in its steering-null table is
+reproducible from these bundles; the nine throughput-probe conversations
+counted in the ledger only (see the entry below) are the one exception,
+and the Study 4 preview cells are excluded by design.
+
 ## 2026-09-11 (later) — The envelope verdicts reproduced from the store
 
 The re-judge of the envelope and large-dose cells finished (1,176
