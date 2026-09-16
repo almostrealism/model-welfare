@@ -16,11 +16,11 @@ structure of the w4 effects reported above. Nothing here changes a
 battery-level result; it qualifies how anyone building on them should
 sample.
 
-- **The effects concentrate in low-composure items**, those where the
-  BF16 model expresses little. On a clean split-half read, the bottom
-  third of items by BF16 frustration carries a judged-frustration delta
-  of +1.78 against +0.89 in the top third, and an assistant-axis delta
-  of −1.55 against −0.31.
+- **The effects concentrate in the items where the BF16 model expresses
+  least**, the bottom third by BF16 frustration (the high-composure
+  end). On a clean split-half read, that third carries a
+  judged-frustration delta of +1.78 against +0.89 in the top third, and
+  an assistant-axis delta of −1.55 against −0.31.
 - **My first version of that claim was one-third artifact.** Selecting
   items by their BF16 baseline and measuring deltas against the same
   baseline is a regression-to-the-mean setup, as an external reviewer

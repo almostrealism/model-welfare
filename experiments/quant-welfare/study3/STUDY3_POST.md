@@ -49,7 +49,8 @@ causal question by intervening on the directions directly.
 Between Study 2's publication and the start of Study 3 calibration, the
 subset-selection work turned up something about Study 2's own data that
 needed disclosing on its own: the w4 effects concentrate in
-low-composure items (cells where the BF16 model expresses little), an
+the items where the BF16 model expresses least (the high-composure
+end), an
 initial version of that claim was one-third regression-to-the-mean
 artifact on the behavioral endpoint, and a subset chosen for high
 elicitation carries a near-zero, sign-flipped distress-projection
@@ -555,12 +556,14 @@ distress-increasing axis dose); "control" marks random-direction cells.
 
 Outside the store: nine throughput-probe conversations (three Qwen,
 six Gemma; two subjects cannot share a manifest) and the G3a gate's 40
-greedy 128-token continuations, which are not conversations. The store
-also holds 60 records more than the ledger counts: the studio side of
-G4d (`gemma3-12b-bf16-torch-cm-studio`) is a re-keyed copy of three
-samples per item from the G4b replay, kept for pairing, not a fresh
-generation, so a reader summing the released bundle's Study 3 samples
-will reach 4,621.
+greedy 128-token continuations, which are not conversations. Two
+different sums are therefore in play. The table's store-backed rows sum
+to 4,561; the ledger adds the nine throughput probes to reach 4,570. The
+released bundle holds 60 Study 3 records more than the table's rows,
+because the studio side of G4d (`gemma3-12b-bf16-torch-cm-studio`) is a
+re-keyed copy of three samples per item from the G4b replay, kept for
+pairing, not a fresh generation; a reader summing the bundle's Study 3
+samples will reach 4,621, and should count those 60 once.
 
 Totals: **3,979 Qwen distress episodes and 591 Gemma distress episodes,
 4,570 in all**, of which 995 were deliberate-amplification cells and 968
