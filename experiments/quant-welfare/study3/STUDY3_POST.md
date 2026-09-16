@@ -4,7 +4,7 @@
 > 14 September 2026: <https://www.lesswrong.com/posts/TpEL7pSwp7DvCekAq/study-3-steering-welfare-relevant-directions-moved-the>.
 > The published text was edited by hand from this draft after an external
 > review and differs from it in wording and in the order of some sections;
-> the post is the record, this file is its source.
+> the post is the record; this file is its source.
 
 *Epistemic status: an exploratory report. These results are from the
 calibration process intended to produce a preregistration for the third
@@ -50,8 +50,7 @@ Between Study 2's publication and the start of Study 3 calibration, the
 subset-selection work turned up something about Study 2's own data that
 needed disclosing on its own: the w4 effects concentrate in
 the items where the BF16 model expresses least (the high-composure
-end), an
-initial version of that claim was one-third regression-to-the-mean
+end). An initial version of that claim was one-third regression-to-the-mean
 artifact on the behavioral endpoint, and a subset chosen for high
 elicitation carries a near-zero, sign-flipped distress-projection
 target. That material is a **Study 2 appendix, published alongside this
