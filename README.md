@@ -17,9 +17,10 @@ post-training intervention can move: capabilities, alignment, and
 welfare-relevant indicators. Each study takes an intervention with a
 documented effect on one of them and asks what it does to the third.
 
-Public face: [almostrealism.org](https://almostrealism.org). Every study is
-registered on LessWrong before its confirmatory data exists, and every
-conversation, score and tensor is released.
+Public face: [almostrealism.org](https://almostrealism.org). A confirmatory
+study is registered on LessWrong before its data exists; a study that stops
+in calibration is published as an exploratory report instead. Every
+conversation, score and tensor is released either way.
 
 ## The studies
 

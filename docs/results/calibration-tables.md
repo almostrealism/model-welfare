@@ -8,8 +8,9 @@ selection (the bakeoff) is summarized in
 [docs/JOURNAL.md](../JOURNAL.md).
 
 The tables below the marker are rendered from the result store by
-`experiments/quant-welfare/report.py`, and every one can be reproduced
-from the released bundles:
+`experiments/quant-welfare/report.py`, which skips the registered runs
+(they have their own records here, produced by their analysis drivers).
+Every table can be reproduced from the released bundles:
 
 ```bash
 # download bundle(s) from the repository's Releases page, then:
