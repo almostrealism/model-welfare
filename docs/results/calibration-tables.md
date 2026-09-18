@@ -1,35 +1,62 @@
-# Results
+# Calibration-class tables
 
-Confirmatory results from the pre-registered study
-([PREREGISTRATION.md](PREREGISTRATION.md)) will appear here when they
-exist. **They do not exist yet.**
+Everything in this file is calibration-class: instrument validation and
+pipeline shakeout runs from the Study 1 era, barred by the standing
+declaration below from supporting a conclusion. The confirmatory and
+registered results are the sibling files in this directory. Judge
+selection (the bakeoff) is summarized in
+[docs/JOURNAL.md](../JOURNAL.md).
 
-Everything below the marker is calibration-class output: instrument
-validation and pipeline shakeout runs that are, by the standing
-pre-registration note, barred from supporting conclusions about
-quantization. They are published because the pre-registration's credibility
-rests on the full run history being visible. Judge-selection results
-(the bakeoff) are summarized in [docs/JOURNAL.md](docs/JOURNAL.md).
-
-The full result store is published as **GitHub release assets** (it only
-grows, so it is not committed to the tree) — one self-describing
-`RecordBundle` `.pb` per experiment, with condition and record kind carried
-by the data itself and the content-based dataset digest each results
-document cites stamped in the bundle's metadata. To reproduce every table
-below from the raw records:
+The tables below the marker are rendered from the result store by
+`experiments/quant-welfare/report.py`, and every one can be reproduced
+from the released bundles:
 
 ```bash
-# download bundle(s) from the repo's Releases page into a directory, then:
+# download bundle(s) from the repository's Releases page, then:
 python3 experiments/quant-welfare/report.py --bundle <dir-or-file>
 # registered statistics / digest for one experiment:
-python3 experiments/quant-welfare/analyze.py --experiment study1/confirmatory --bundle quant-welfare-confirmatory-1.pb
-python3 experiments/quant-welfare/tools/signature.py --experiment study1/confirmatory --bundle quant-welfare-confirmatory-1.pb
+python3 experiments/quant-welfare/analyze.py --experiment study1/confirmatory --bundle quant-welfare-records.pb
+python3 experiments/quant-welfare/tools/signature.py --experiment study1/confirmatory --bundle quant-welfare-records.pb
 ```
 
 Each stored record carries its git commit, host, and (for scores) the
 judge identity and rubric SHA-256, so the release assets are
-self-describing, auditable snapshots. Maintainers cut a new release with
-`scripts/publish-data-release.sh`.
+self-describing, auditable snapshots.
+
+## The trial run's declaration (2026-08-06)
+
+Declared 2026-08-06, before trial data collection (only a one-sample smoke
+pass existed when this was written).
+
+**Purpose.** This run validates the pipeline and calibrates the instruments:
+per-item base rates, multi-sample variance, ceiling/floor behavior of the
+rubric, judge noise, and cost/timing. Those quantities are the inputs to the
+power analysis for any later confirmatory run.
+
+**No result about quantization can come from this run.** Ten items, one
+model pair, a vendor W4 artifact with uncontrolled calibration, and a
+same-family 4B judge. Per-item rates at five samples are quantized to steps
+of 0.2; with ten items and two conditions and no pre-specified hypothesis,
+spurious item-level transitions are expected under the null.
+
+**Commitments.**
+1. No delta observed in this trial will be promoted to a finding, reported
+   as evidence, or cited in support of any conclusion about quantization.
+2. Trial data may inform *instrument design* — item difficulty, rubric
+   dynamic range, protocol length, judge configuration. It will **not** be
+   used to select which indicators or directions to test confirmatorily;
+   confirmatory hypotheses must be motivated from the literature, not from
+   this trial's largest deltas.
+3. Before any confirmatory run, the following are fixed in advance and
+   recorded in the experiment manifest: hypotheses (indicator and expected
+   direction), item counts sized by power analysis from this trial's
+   variance estimates, samples per item, judge model + rubric versions, and
+   the multiplicity-correction method.
+4. Known validity limitations of this trial's setup, restated so they cannot
+   be quietly forgotten: the W4 rung is not a controlled-ladder artifact;
+   the judge is small and family-related to the subjects; the item pool is
+   roughly 1–2 orders of magnitude below the scale at which the cited
+   literature measures item-level transition rates.
 
 <!-- GENERATED BELOW — do not edit by hand -->
 

@@ -1,4 +1,4 @@
-# Calibration stability, model-execution tier (docs/CALIBRATION_CI.md).
+# Calibration stability, model-execution tier (docs/CI.md).
 #
 # Runs on the lab's self-hosted runners — jobs here execute models, which
 # GitHub-hosted runners cannot. Triggers are schedule + manual dispatch

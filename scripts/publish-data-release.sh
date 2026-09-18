@@ -37,7 +37,7 @@
 # must already be pushed to GitHub — a release tags a commit that exists on
 # the remote.
 #
-# Readers consume the assets per RESULTS.md: download bundle(s), then
+# Readers consume the assets per docs/results/calibration-tables.md: download bundle(s), then
 #   python3 -m modelwelfare.bundle inspect <file.pb>
 #   python3 experiments/quant-welfare/report.py --bundle <dir-or-file>
 #   python3 experiments/quant-welfare/analyze.py --experiment study1/confirmatory --bundle <file>

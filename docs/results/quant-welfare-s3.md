@@ -1,4 +1,14 @@
-# Steering-sufficiency probes — summary (calibration-class, 2026-09-06/07)
+# Study 3 — the steering null (calibration-class, 2026-09-06/07)
+
+Study 3 reached no confirmatory run; this is the calibration record it
+closed on. The percentiles below are the 6 to 7 September reads made
+before the envelope cells were re-judged for the data release; the
+store-reproduced values (47th, 63rd, 44th, 25th, 25th, in the
+`*-verdict-store.json` files) are the ones the published post and the
+journal entry of 2026-09-11 (later) carry. No probe changes side of its
+envelope under either judging. The exploratory report is the LessWrong
+post of 14 September 2026 (`docs/journal/study3-steering.md`, entry of
+that date).
 
 Three probes tested whether steering the frozen welfare directions produces a
 **direction-specific** behavioral (judged-frustration) effect, each compared to

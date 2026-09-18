@@ -2,7 +2,7 @@
 
 Registered confirmatory run `quant-welfare-confirmatory-1`. Development organism
 **Qwen3-4B-Instruct-2507**, Tier 1 only, on the controlled **RTN weight-only
-ladder** (BF16 reference; RTN w8, w4, w3). Pre-registration: `PREREGISTRATION.md`.
+ladder** (BF16 reference; RTN w8, w4, w3). Pre-registration: `experiments/quant-welfare/study1/REGISTRATION.md`.
 This is the confirmatory result — the §7 calibration firewall does not apply to
 it (that firewall bars *calibration* deltas, not this registered run).
 

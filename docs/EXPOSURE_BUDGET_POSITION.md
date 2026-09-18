@@ -3,7 +3,7 @@
 *Written 2026-08-31, during Study 3 registration preparation. This is
 not a registration artifact and carries no commitments; it is the
 reasoning record behind the two-tier exposure budget adopted in
-[study3/DESIGN.md](../experiments/quant-welfare/study3/DESIGN.md) §5
+[study3/REGISTRATION.md](../experiments/quant-welfare/study3/REGISTRATION.md) §8 and Appendix A (decision 5)
 and [study3/REGISTRATION.md](../experiments/quant-welfare/study3/REGISTRATION.md)
 §8, written at the owner's request and kept separate from the
 experimental materials so it can be found without digging.*

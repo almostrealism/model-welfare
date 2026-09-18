@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render the result store into RESULTS.md.
+"""Render the result store into docs/results/calibration-tables.md.
 
 Rewrites everything below the GENERATED marker: for each experiment
 manifest in this directory, a terminal-exit-rate table per battery and
@@ -25,7 +25,7 @@ from modelwelfare.store import ResultStore
 from modelwelfare.v1 import battery_pb2, experiment_pb2, scoring_pb2, transcript_pb2
 
 BASE = Path(__file__).resolve().parent
-RESULTS = REPO / "RESULTS.md"
+RESULTS = REPO / "docs" / "results" / "calibration-tables.md"
 MARKER = "<!-- GENERATED BELOW — do not edit by hand -->"
 
 

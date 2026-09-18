@@ -1,8 +1,8 @@
 # model-welfare — agent working notes
 
 Conventions and recurring reminders for agents working this repo. The
-scientific frame lives in `PROJECT_BRIEF.md` and the study registrations
-under `experiments/quant-welfare/`; this file is the operational layer.
+scientific frame lives in `README.md` and the study registrations under
+`experiments/quant-welfare/`; this file is the operational layer.
 
 ## Journal discipline (a recurring lapse — keep it fed)
 

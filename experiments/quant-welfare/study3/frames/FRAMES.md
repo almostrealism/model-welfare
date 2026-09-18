@@ -19,7 +19,7 @@ control**. (This doc predates the human-graded frame's addition; the
 authoritative set is `frames.json`.)
 
 ## Design rules (each traceable to the pre-registration sweep,
-LITERATURE.md §11–§12)
+docs/LITERATURE.md Part B §11–§12)
 
 1. **Cues, never declarations.** No frame says "this is a test" or
    "you are being evaluated." Gradeability is conveyed by the features

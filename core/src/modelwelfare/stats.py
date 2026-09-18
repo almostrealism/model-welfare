@@ -1,4 +1,4 @@
-"""Registered confirmatory statistics for Study 1 (see PREREGISTRATION.md §4).
+"""Registered confirmatory statistics for Study 1 (see study1/REGISTRATION.md §4).
 
 Pure-numpy implementations of exactly the tests the pre-registration commits
 to, so the confirmatory analysis is fixed as tested code before any data:

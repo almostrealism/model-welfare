@@ -2,7 +2,7 @@
 
 Registered run `quant-welfare-methodarm-1`. Subject **SmolLM3-3B-Instruct**, on
 three precisions: **BF16** (reference), first-party **RTN w4**, and first-party
-**AWQ w4**. Pre-registration: `PREREGISTRATION.md` §9 (Amendment 2026-08-12).
+**AWQ w4**. Pre-registration: `experiments/quant-welfare/study1/REGISTRATION.md` §9 (Amendment 2026-08-12).
 This is a **calibration-class** run under the §7 firewall; it is not a welfare
 finding.
 

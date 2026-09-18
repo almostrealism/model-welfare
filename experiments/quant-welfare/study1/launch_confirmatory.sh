@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Launch the confirmatory Study 1 collection (PREREGISTRATION.md).
+# Launch the confirmatory Study 1 collection (study1/REGISTRATION.md).
 #
 # WHERE TO RUN: on the judge host (studio). run.py judges via
 # 127.0.0.1:8095 and classifies via 127.0.0.1:8092, and generates against the

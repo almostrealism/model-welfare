@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Serving-equivalence check for the RTN ladder (PREREGISTRATION.md TBD gate).
+"""Serving-equivalence check for the RTN ladder (study1/REGISTRATION.md TBD gate).
 
 A fake-quant artifact is only trustworthy as a ladder rung if the runtime
 serves the weights it actually contains. This probes each RTN rung against
