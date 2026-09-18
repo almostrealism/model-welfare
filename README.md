@@ -20,7 +20,9 @@ documented effect on one of them and asks what it does to the third.
 Public face: [almostrealism.org](https://almostrealism.org). A confirmatory
 study is registered on LessWrong before its data exists; a study that stops
 in calibration is published as an exploratory report instead. Every
-conversation, score and tensor is released either way.
+conversation in the result store, every score and every tensor is released
+either way; the few conversations that never entered the store are counted
+in the exposure ledger and disclosed in the study's accounting.
 
 ## The studies
 

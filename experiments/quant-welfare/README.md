@@ -12,7 +12,7 @@ Shared assets sit at this level; each study owns a directory.
 | Path | What it is |
 |---|---|
 | `run.py` | the collection driver: generates conversations against the configured endpoints, judges them, appends to the store; resumable |
-| `analyze.py`, `analyze_tier2.py`, `analyze_study4.py` | the registered analysis drivers for Studies 1, 2 and 4, each checked against a committed golden |
+| `analyze.py`, `analyze_tier2.py`, `analyze_study4.py` | the registered analysis drivers for Studies 1 and 2, and the draft driver for Study 4, each checked against a committed golden |
 | `report.py` | renders the calibration-class tables into `docs/results/calibration-tables.md` |
 | `sweep.py` | parameter sweeps over a manifest |
 | `batteries/` | the stimulus pools: `bail-*` (exit affordance), `distress-*` (repeated rejection), `misalign-*` (agentic probe), `refusal-v1` |

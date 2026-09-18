@@ -28,7 +28,7 @@ stay flat while fine-grained behavioral dispositions shift. We ask whether
 ## 2. Hypotheses (fixed)
 
 Motivated from the prior literature cited in
-[PROJECT_BRIEF.md](../../../docs/LITERATURE.md) §4, not from our calibration data:
+[docs/LITERATURE.md](../../../docs/LITERATURE.md) Part A, not from our calibration data:
 
 - **H1 (behavioral transitions).** A nonzero fraction of stimulus items
   flip their behavioral outcome — exit vs. no-exit for bail, or a change in
@@ -255,7 +255,7 @@ before the registered tests.
   breakdowns, response length.
 - **Publication:** the full item-level result store (per condition, item,
   sample) is published as a GitHub release asset; summary tables render from
-  it to [RESULTS.md](../../../docs/results/calibration-tables.md) via `report.py`.
+  it to [docs/results/calibration-tables.md](../../../docs/results/calibration-tables.md) via `report.py`.
 
 ## 5. Power (recomputed from v2 difficulty calibration, 2026-08-08)
 
