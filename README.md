@@ -88,7 +88,8 @@ ethics section carries the specific commitments.
 python3 -m modelwelfare.bundle inspect quant-welfare-records.pb
 python3 experiments/quant-welfare/report.py --bundle quant-welfare-records.pb
 python3 experiments/quant-welfare/analyze.py --experiment study1/confirmatory --bundle quant-welfare-records.pb
-python3 experiments/quant-welfare/analyze_tier2.py --bundle-dir <dir>       # Study 2
+python3 experiments/quant-welfare/analyze_tier2.py --bundle <dir> \
+    --mode-a quant-welfare-s2-modea-1 --mode-b quant-welfare-s2-modeb-1 --mode-c quant-welfare-s2-modec-1
 ```
 
 Each results record names the analysis command and the committed golden its

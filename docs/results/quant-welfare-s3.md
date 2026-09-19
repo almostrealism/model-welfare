@@ -48,7 +48,9 @@ recomputed with `tools/envelope_verdict.py` are in `*-verdict-store.json`
 grader and eval @ 4 both 25th). Same reading; the journal entry of that
 date has the comparison.
 
-**Open fork for the owner:** conclude the steering-null holds for this subject
-and make framing the registration spine (Q1/Q2 reported as an honest null), or
-first test whether it is a small-model artifact via a subject switch (d) before
-concluding. The null is robust *within* Qwen3-4B across direction and dose.
+**The fork as it stood on 7 September (resolved that evening):** conclude the
+steering null holds for this subject and make framing the registration spine,
+or first test whether it is a small-model artifact via a subject switch. The
+null is robust *within* Qwen3-4B across direction and dose. Resolution: the
+framing spine did not survive scrutiny, no registration occurred, and the
+program moved to a new subject (journal entry of 2026-09-07 (later)).

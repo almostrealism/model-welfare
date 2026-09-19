@@ -31,13 +31,12 @@
 > literature basis is [docs/LITERATURE.md](../../../docs/LITERATURE.md)
 > Part B. Open decisions at the time are collected in §6.
 >
-> **Publication timing (assumed, pending owner confirmation):** the
-> Study 2 convention — publish at **calibration close**, after gate G3,
-> the dose-calibration freeze, the framing-set freeze, and the MDE
-> pinning, and immediately before any confirmatory steered collection,
-> so the post states frozen, hash-pinned facts. Everything
-> data-dependent that calibration decides is pre-committed by dated
-> journal entries before the corresponding calibration work runs.
+> **Publication timing (the plan at the time, historical):** the
+> Study 2 convention — publish at calibration close, after gate G3, the
+> dose-calibration freeze, the framing-set freeze, and the MDE pinning,
+> and immediately before any confirmatory steered collection. Calibration
+> closed on 7 September without the freeze completing; no registration
+> was published and no confirmatory collection occurred.
 >
 > **Registration policy note.** Per the policy adopted at Study 2, this
 > study's registration lives in its study directory
