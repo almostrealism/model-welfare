@@ -234,7 +234,7 @@ released.
 - Author and tooling circularity disclosures carry over; batteries,
   contrast sets and the close text are partially model-drafted and
   committed with digests.
-- Literature re-check: §6 entry, appended to `study3/LITERATURE.md`
+- Literature re-check: §6 entry, appended to `docs/LITERATURE.md`
   before publication.
 
 ## 10. Publication

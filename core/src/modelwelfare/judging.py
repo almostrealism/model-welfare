@@ -152,7 +152,7 @@ def judge_sample(
     return score
 
 
-# The pre-registered exit-reason taxonomy (PREREGISTRATION.md §3). Ordered; the
+# The pre-registered exit-reason taxonomy (study1/REGISTRATION.md §3). Ordered; the
 # wording is hashed into every ExitClassification so a later revision is
 # distinguishable in the store, exactly like a rubric_digest.
 EXIT_TAXONOMY = [

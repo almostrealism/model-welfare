@@ -1,8 +1,9 @@
 # vLLM ladder server (`halo`)
 
-The controlled arm of the study. vLLM serves the models we quantize ourselves —
-BF16 reference rungs now, our own W4 rungs when the quantization harness exists —
-on `halo`, the Ryzen AI Max+ box (Strix Halo, gfx1151, 128 GB unified).
+The controlled arm of the quantization studies. vLLM serves the BF16
+reference rungs and the RTN rungs the repository quantizes itself
+(`core/quantize.py`) on `halo`, the Ryzen AI Max+ box (Strix Halo, gfx1151,
+128 GB unified).
 
 The other arm is llama.cpp serving community GGUFs. Both speak the same
 OpenAI-compatible protocol, so `core/` talks to either without knowing which.

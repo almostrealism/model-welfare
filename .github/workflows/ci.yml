@@ -30,7 +30,7 @@ jobs:
           PYTHONPATH=core/src:backends/llamacpp/src:backends/vllm/src:backends/anthropic/src:backends/torch/src \
             python -m pytest core/tests backends experiments/quant-welfare/tests services/tests -q
 
-  # Calibration stability, hermetic tier (docs/CALIBRATION_CI.md): the
+  # Calibration stability, hermetic tier (docs/CI.md): the
   # published Study 1 statistics must reproduce exactly from the released,
   # sha-pinned bundle — every statistic is seeded, so drift is a real
   # code-behavior change, not noise.

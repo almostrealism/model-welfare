@@ -2,7 +2,7 @@
 
 Registered confirmatory run `quant-welfare-confirmatory-1`. Development organism
 **Qwen3-4B-Instruct-2507**, Tier 1 only, on the controlled **RTN weight-only
-ladder** (BF16 reference; RTN w8, w4, w3). Pre-registration: `PREREGISTRATION.md`.
+ladder** (BF16 reference; RTN w8, w4, w3). Pre-registration: `experiments/quant-welfare/study1/REGISTRATION.md`.
 This is the confirmatory result — the §7 calibration firewall does not apply to
 it (that firewall bars *calibration* deltas, not this registered run).
 
@@ -194,7 +194,7 @@ These validate the measuring instrument; they are not welfare findings.
   and the reference confirms the construct is tracked rather than noise — but it
   is a genuine construct-validity caveat.
 - **Development organism only.** Qwen3-4B, Tier 1, one study. No claim about
-  models at large; larger subject arms and Tier 2 are deferred (PROJECT_BRIEF).
+  models at large; larger subject arms and Tier 2 are deferred (the project brief of the time; its live content is docs/LITERATURE.md).
 - **w3 is uninterpretable** as welfare (capability-degraded) and is excluded, as
   pre-registered.
 

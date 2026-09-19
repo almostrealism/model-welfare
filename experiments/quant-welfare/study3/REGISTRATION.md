@@ -11,10 +11,11 @@
 > representational-proxy problem. The study therefore did not reach a
 > confirmatory registration.
 >
-> **The public exploratory report — results and the pivot in one — is
-> [STUDY3_UPDATE.md](STUDY3_UPDATE.md); the null results are in
-> [STEERING_NULL_SUMMARY.md](STEERING_NULL_SUMMARY.md).** The next study
-> (welfare footprint of grader-steering, on the Qwen3.6-27B Betley model)
+> **The public exploratory report is the LessWrong post
+> [Study 3: Steering welfare-relevant directions moved the representation, but not [detectably] the behavior](https://www.lesswrong.com/posts/TpEL7pSwp7DvCekAq/study-3-steering-welfare-relevant-directions-moved-the)
+> (14 September 2026); the calibration record of the steering null is
+> [docs/results/quant-welfare-s3.md](../../../docs/results/quant-welfare-s3.md).**
+> The next study (the welfare footprint of grader-steering on Qwen3.6-27B)
 > is a fresh cycle, not a continuation of this file.
 >
 > **Integrity guardrail (standing program policy):** calibration results
@@ -24,20 +25,18 @@
 > instrument's behavior, never from an unwelcome result. The steering- and
 > framing-centric sections below are the pre-pivot design record.
 >
-> **STATUS: DRAFT SKELETON — not yet registered, not yet owner-approved.**
-> This document becomes binding when published (planned as a program
-> LessWrong post). Design argumentation lives in [DESIGN.md](DESIGN.md);
-> the literature basis is [LITERATURE.md](LITERATURE.md). Open decisions
-> are collected in §6; owner decisions from DESIGN.md §7 must be resolved
-> before this draft advances.
+> **Status of the text below: a draft that never advanced to registration.**
+> The design document it was drafted from was folded into this file when
+> the study closed: its dated decision register is Appendix A, and the
+> literature basis is [docs/LITERATURE.md](../../../docs/LITERATURE.md)
+> Part B. Open decisions at the time are collected in §6.
 >
-> **Publication timing (assumed, pending owner confirmation):** the
-> Study 2 convention — publish at **calibration close**, after gate G3,
-> the dose-calibration freeze, the framing-set freeze, and the MDE
-> pinning, and immediately before any confirmatory steered collection,
-> so the post states frozen, hash-pinned facts. Everything
-> data-dependent that calibration decides is pre-committed by dated
-> journal entries before the corresponding calibration work runs.
+> **Publication timing (the plan at the time, historical):** the
+> Study 2 convention — publish at calibration close, after gate G3, the
+> dose-calibration freeze, the framing-set freeze, and the MDE pinning,
+> and immediately before any confirmatory steered collection. Calibration
+> closed on 7 September without the freeze completing; no registration
+> was published and no confirmatory collection occurred.
 >
 > **Registration policy note.** Per the policy adopted at Study 2, this
 > study's registration lives in its study directory
@@ -494,7 +493,7 @@ be argued from the instrument's behavior (e.g. "the steering instrument
 produces no behavioral signal"), never from an unwelcome result, and the
 calibration data behind that decision is published. Study 3 is the first
 application: the activation-steering arm is withdrawn with its calibration
-null reported in full (post §2, `STEERING_NULL_SUMMARY.md`). The risk this
+null reported in full (the post, and `docs/results/quant-welfare-s3.md`). The risk this
 guards against — relabeling an effectively-confirmatory probe as
 "calibration" to keep a null out of the public record — is a real and
 recurring temptation for a program that runs many small probes, and is
@@ -591,3 +590,47 @@ Program policy unchanged: full result store released as self-contained
 RecordBundles (≤ 10 assets, tensors inline) with content digests;
 analysis code in-repo; registered analysis driver with committed golden
 expected-results; results document under `docs/results/`.
+
+## Appendix A — the dated decision register (2026-08-31 to 2026-09-04)
+
+Formerly `study3/DESIGN.md` §7, the name the journal cites it under. The
+section numbers inside the entries refer to that design document as it
+stood; its argumentation is in the git history of this directory.
+
+1. **Arm D depth:** RESOLVED — full replication (full arm-A structure on
+   Gemma; §2.4). The §2.4 cut line survives only as a registered
+   amendment-gated fallback.
+2. **The C-on-Gemma extension:** RESOLVED — in (§2.4).
+3. **Battery subset size:** RESOLVED — 20 items × 5 samples.
+4. **B-i subtraction basis:** RESOLVED — two-direction subtraction at
+   the fixed-input-core magnitudes as the confirmatory carrier; full-Δμ
+   (fixed-input-estimated) as registered secondary variant (§2.2).
+5. **Exposure budget:** RESOLVED — total 12,000 / deliberate
+   amplification 2,500, decoupled tiers (§5.2; reasoning record in
+   docs/EXPOSURE_BUDGET_POSITION.md).
+6. **Prompt-induction positive control:** RESOLVED — in,
+   calibration-class only (§3.3).
+7. **Publication timing:** RESOLVED — confirmed: registration publishes
+   at calibration close, after G3/dose/frames/MDEs freeze, before
+   confirmatory steered collection.
+8. **Subset rule and power posture (2026-09-04, morning):** RESOLVED —
+   Option A (5 tasks × 4 styles, elicitation-optimized); power-priority
+   principle adopted (§1) with two-tier sampling (§4) and the
+   power-floor escalation rule (§3.6). Owner's stated criterion: avoid
+   the null-result-dominated outcome; power outranks schedule, effort,
+   and simplicity within the ethics ceilings. *Superseded same day by
+   decision 9.*
+9. **Stratified subset + asymmetric gradient registration (2026-09-04,
+   after the RtM audit; adopted on external review):** RESOLVED — the
+   elicitation-optimized rule is replaced by the composure-stratified
+   systematic rank sample (§2.1: the optimized subset carried a
+   near-zero distress-projection target, the behavioral concentration
+   was one-third artifact, and the distress organization is
+   unresolved). Gradient predictions registered asymmetrically (§2.2
+   B-iii); item-level random effect added to the error model and seeds
+   spent on the fresh baselines at 15 samples/item (§3.6); arm C
+   masking read over mid+high frozen strata with the
+   fresh-assignment sensitivity fallback (§2.3); Study 2 post update
+   obligation recorded (§5); audit committed as
+   tools/composure_audit.py with the report at
+   study3/composure-audit.json.

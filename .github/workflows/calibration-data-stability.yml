@@ -1,4 +1,4 @@
-# Calibration stability, released-data tier (docs/CALIBRATION_CI.md).
+# Calibration stability, released-data tier (docs/CI.md).
 #
 # GitHub-hosted (free for a public repo): every job downloads sha-pinned
 # assets from the data-20260818 release and re-performs a calibration
