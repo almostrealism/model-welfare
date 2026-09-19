@@ -20,7 +20,7 @@ protection cannot see it.
 
 | Job | What it re-proves |
 |---|---|
-| `test` (Python 3.11, 3.12, 3.13) | the full hermetic suite, including `test_freeze.py`, which checks every study's `FREEZE.json` against the repository and pins the journal's digests as independent constants so a manifest cannot be silently regenerated |
+| `test` (Python 3.11, 3.12, 3.13) | the full hermetic suite, including `test_freeze.py`, which checks the freeze manifests (`study2/calibration/FREEZE.json`, `study3/FREEZE.json`, `study4/FREEZE.json`) against the repository and pins the journal's digests as independent constants so a manifest cannot be silently regenerated |
 | `study1-reproduce` | `analyze.py` over the sha-pinned Study 1 release bundle still yields the committed `expected-results.json` |
 | `tokenizer-spans` | the span algorithm against the real Qwen chat template and BPE, from a revision-pinned download, matches the committed expectations |
 

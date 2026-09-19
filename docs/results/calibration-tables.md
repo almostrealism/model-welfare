@@ -1,9 +1,10 @@
 # Calibration-class tables
 
-Everything in this file is calibration-class: instrument validation and
-pipeline shakeout runs from the Study 1 era, barred by the standing
-declaration below from supporting a conclusion. The confirmatory and
-registered results are the sibling files in this directory. Judge
+Everything in this file is calibration-class: instrument validation,
+pipeline shakeout and calibration cells from every study, barred by the
+standing declaration below (and by each study's calibration firewall) from
+supporting a conclusion. The registered results are the sibling files in
+this directory. Judge
 selection (the bakeoff) is summarized in
 [docs/JOURNAL.md](../JOURNAL.md).
 

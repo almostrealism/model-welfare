@@ -1,5 +1,11 @@
 # Pre-registration — Confirmatory Study 1: Quantization × Welfare Indicators
 
+> Moved here from the repository root, where it was published, without
+> changes to the registered text. Its references to `PROJECT_BRIEF.md` name
+> the project brief as it stood at registration; that document was retired
+> in September 2026 and its live content is `docs/LITERATURE.md` (Part A)
+> and `docs/FLEET.md`. `RESULTS.md` is now `docs/results/calibration-tables.md`.
+
 **Status: v1 draft, 2026-08-07 — registered in advance of confirmatory data
 collection.** Everything in "Fixed" sections is committed before the study
 runs; "TBD" sections list what remains open and which measurement resolves

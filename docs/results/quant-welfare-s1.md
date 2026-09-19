@@ -194,7 +194,7 @@ These validate the measuring instrument; they are not welfare findings.
   and the reference confirms the construct is tracked rather than noise — but it
   is a genuine construct-validity caveat.
 - **Development organism only.** Qwen3-4B, Tier 1, one study. No claim about
-  models at large; larger subject arms and Tier 2 are deferred (PROJECT_BRIEF).
+  models at large; larger subject arms and Tier 2 are deferred (the project brief of the time; its live content is docs/LITERATURE.md).
 - **w3 is uninterpretable** as welfare (capability-degraded) and is excluded, as
   pre-registered.
 
