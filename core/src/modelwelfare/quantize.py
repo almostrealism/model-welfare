@@ -5,7 +5,7 @@ no ML framework required — producing "fake-quant" checkpoints: weights are
 quantized to the b-bit grid and dequantized back to the source dtype, so
 the artifact serves on any BF16/F16-capable runtime with bit-exact
 quantized weight values and standard weight-only PTQ semantics
-(PREREGISTRATION.md section 3). GPTQ/AWQ, which require calibration
+(study1/REGISTRATION.md section 3). GPTQ/AWQ, which require calibration
 forward passes, are separate torch-side tooling.
 
 Safetensors I/O is implemented here from the format specification (8-byte

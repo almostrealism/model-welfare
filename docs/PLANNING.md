@@ -1,489 +1,63 @@
-# Planning — active workstream tracking
+# Open items
 
-Working items between the brief (scientific frame, stable) and the READMEs
-(how things work today). Items land here when identified, get checked off
-when done, and grow notes as decisions accumulate. Date every status change.
+What is open and not owned by a study's registration. Study-level work is
+tracked in the study's journal file and its registration's TBD register;
+finished items are not kept here (the journals and git history record
+them). Date every status change.
 
-## Program record-keeping
+## Study 4
 
-- [x] **Journal series organization** *(decided 2026-08-24)* —
-  `docs/JOURNAL.md` closes at Study 2 close (final entry will point
-  forward); from Study 3 onward, per-study files plus a program-level
-  file under `docs/journal/` (scheme, placement rule, and unchanged
-  append-only conventions in `docs/journal/README.md`). No retroactive
-  split: published citations pin the existing file's dated entries.
+- [ ] **Registration** — the draft is
+  `experiments/quant-welfare/study4/REGISTRATION.md`; its §6 items are
+  pinned by dated journal entries before any confirmatory cell is
+  generated. `study4/DESIGN.md` stays until the registration is
+  published, then folds into it.
+- [ ] **Item-order independence of the seeded permutation test** *(opened
+  2026-09-12)* — the golden verdict's third-decimal p-values moved with
+  item order on regeneration; make the seeded test order-independent
+  before the registered run.
+- [ ] **Derive-outcome re-ingest of the 139 alignment calibration records**
+  *(opened 2026-09-11)* — the 27B alignment calibration conversations whose
+  outcome events were missed by the pre-XML live parser are disclosed, not
+  rewritten; a re-ingest that derives outcomes from the transcripts would
+  make them consistent.
 
-## Study 3 — causal validation by steering (registration prep)
-
-- [x] **Study 3 design + registration drafts** *(opened 2026-08-31;
-  CLOSED 2026-09-07 — no registration occurred)* — calibration showed the
-  steering instrument moves the representation but not the behavior; the
-  four-arm registration was abandoned and the work is reported as an
-  exploratory update (`study3/STUDY3_UPDATE.md`,
-  `study3/STEERING_NULL_SUMMARY.md`). The graded-episode / welfare-footprint
-  question moves to a fresh study on the Qwen3.6-27B Betley model. Original
-  four-arm plan, for the record:
-  four-arm shape agreed with owner: A sufficiency steering (frozen L18
-  directions, dose matched to Study 2's w4 projection deltas, audited
-  controls), B cancellation/clamp on w4, C graded-episode framing
-  (registered exploratory, vendor-grounded frames), D Gemma-3-12B-it
-  minimal replication (provenance contrast: direct-RL vs distilled).
-  Pre-registration literature sweep done first (four parallel reviews;
-  `experiments/quant-welfare/study3/LITERATURE.md`, 2026-08-31 section)
-  — the Study 1/2 mistake of discovering citations post-registration is
-  addressed up front; a re-check sweep runs before data collection.
-  Drafts: `study3/DESIGN.md` (decisions argued) and
-  `study3/REGISTRATION.md` (skeleton, TBD register §6). Owner decisions
-  all resolved 2026-08-31 (DESIGN §7): arm D full replication;
-  C-on-Gemma in; 20×5 subset; B-i core-dose (fixed-input seed) with
-  full-Δμ secondary; exposure budget total 12,000 / amplification 2,500
-  decoupled (reasoning record: `docs/EXPOSURE_BUDGET_POSITION.md`);
-  prompt-induction control in, calibration-class; calibration-close
-  publication confirmed. Engineering
-  critical path: torch steering-generation module (backends/torch is
-  replay-only today), gate G3 (α=0 generation parity vs vLLM), dose
-  calibration, eval-awareness direction, framing set. Ethics: first
-  deliberate induction — exposure budget, consent-analog, de-induction,
-  preservation obligations drafted into REGISTRATION §8.
-
-- [ ] **Study 2 post addendum** *(opened 2026-09-04; publishes with the
-  Study 3 registration)* — the subset-rule audit sharpened Study 2's
-  interpretation: amplification is composure-breaking for behavior and
-  the assistant axis, heterogeneous-with-unknown-organization for the
-  distress direction, and high-elicitation subsets carry a near-zero
-  distress-projection target (replication-relevant). Draft a short
-  update for the published post disclosing the discovery, the RtM
-  artifact, and the audit (journal: docs/journal/study3-steering.md,
-  2026-09-04 entry).
-
-## Tier-2 instrument follow-ons
+## Instruments
 
 - [ ] **Outlier-channel overlap test for the frozen reads** *(opened
-  2026-08-22, from the cross-machine capture measurement — journal entry
-  of that date)* — the cross-host (MPS vs ROCm) capture disagreement
-  concentrates in a handful of high-magnitude outlier residual channels
-  (top-10 of 2,560 dims carried 43% of the worst turn's L1 error; worst
-  channel |ref| 24.1 vs median 0.109), the bf16-mantissa × cross-kernel
-  accumulation signature. Option: measure how much weight the frozen
-  directions and probe vectors place on those outlier dims. If the
-  registered reads live mostly in well-behaved channels, effective
-  cross-host noise on *projections* is far smaller than raw pooled-vector
-  cosine suggests — which would reopen multi-host capture (item-split
-  design, host constant within every paired delta) for the larger-subject
-  arms with a defensible bound. Cheap: the capture pair, frozen vectors,
-  and probe weights all exist; the test is a weight-mass-by-channel read
-  plus a projection-level cross-host agreement number. Does not change
-  the Study 2 decision (capture stays halo-only regardless).
-
-## Software quality — test coverage audit (opened 2026-08-17)
-
-This project builds multi-study software, not just experiments, and the
-owner's assessment (2026-08-17) is that green CI currently overstates tool
-quality. New modules now land with unit tests in the same commit; the debt
-is in what already exists.
-
-- [x] **Pre-publication test-gap audit** *(opened 2026-08-17; closed
-  2026-08-18)* — every seeded gap now has tests or a recorded resolution:
-  span computation and tool-call rendering extracted to torch-free
-  `core/spans.py` (capture.py imports it with a beside-the-script fallback)
-  and tested against fake tokenizers, including a fixed-width-chunk
-  tokenizer that reproduces the BPE-merge property that broke the first
-  implementation; `substrate_check.py` made importable without torch, its
-  alignment extracted pure, and the echo off-by-one encoded as a regression
-  fixture asserting the full symptom signature (perplexities agree,
-  agreement collapses); `tier2_calibrate` covered by CLI-level tests over a
-  fabricated store/capture world with exact expected values (including the
-  leakage rule end-to-end and MDE rows, with the perfect-probe zero-MDE
-  edge pinned); store digest proven producer-layout-independent;
-  `_e2_style` proven to zero a pure length confound and preserve a genuine
-  effect; `analyze.py` otherwise already well-pinned by its fabricated
-  worlds + conformance suite (recorded, not re-tested). Structural finds:
-  the same collection-order path fragility existed in THREE test trees
-  (core, experiments, backends) — each now has a conftest, and
-  `pytest backends` runs locally identically to CI; `backends/torch/src`
-  added to CI's PYTHONPATH. 245 tests + 9 live-skips.
-- [x] **Calibration-stability CI jobs** *(opened 2026-08-18; built
-  2026-08-18, PR #9)* — `calibration-data-stability.yml` re-performs the
-  calibrations weekly against the `data-20260818` release
-  (`directions-stable` cosine + ladder gate, `mde-stable` exact
-  recompute — extended 2026-08-21 with the control probes,
-  `pilot-targets-stable` asserting pilot 1 still fails), and
-  `workbench-stability.yml` carries the scheduled workbench tier
-  (`judge-stable`, `substrate-g1`; inert until runner registration).
-  `capture-stable` landed 2026-08-22 (a frozen-pilot slice re-captured on
-  the current stack must reproduce the released capture). Remaining
-  (tracked in docs/CALIBRATION_CI.md): runner registration/labels — an
-  owner task.
-
-The SmolLM3 sensitivity sweep (§9) was closed out null and uninterpretable — you
-cannot validate an instrument with a manipulation whose ground-truth effect on
-your endpoints is unknown (reasoning in the 2026-08-13 journal entry;
-calibration-class result in `docs/results/quant-welfare-methodarm.md`). SmolLM3 as
-a *positive control* is retired. The plan below replaces quantization-as-validator
-with **known-effect** manipulations, ordered by information per hour. All items
-here are calibration-class under the §7 firewall. These gate scaling to the
-larger-subject arms.
-
-- [x] **SmolLM3 baseline-degeneracy audit** *(step 1; done 2026-08-13)* —
-  resolved: **validity-screen false positive**, not a model or harness fault. The
-  model reads history (286/305 flagged distress samples revise 2–5× before
-  converging), outputs are coherent (zero n-gram loops), floor frustration is a
-  faithful read (judge scores to 8.0 when present). `repeated-turn` was firing on
-  the distress battery's *verbatim-repeated* rejection. Fixed the screen to
-  require a repeated answer to *distinct* user turns (PREREGISTRATION §10;
-  `analysis.sample_is_degenerate` + `test_validity.py`). Corrected rates 0.3 /
-  1.4 / 1.8%, all rungs pass, welfare analysis now computes (E1 significant under
-  RTN-w4, null under AWQ-w4). Study 1 gate decisions and endpoint numbers
-  unchanged. Two follow-ons opened: (a) the distress battery repeats one fixed
-  rejection verbatim — under-induces distress and manufactured the false flags;
-  fold into the distress-protocol escalation and step 4. (b) the §2/§4 "invalid
-  samples excluded from all endpoint computations" text describes a per-sample
-  exclusion `analyze.py` does not do — decide implement-or-amend (§10).
-  Deferred/minor: 1.2% of assistant turns leak `<think>` tags — verify the
-  SmolLM3 rungs carry the hybrid thinking-mode pin when halo is next up.
-- [x] **Judge-layer direct validation** *(step 2; done 2026-08-13)* — graded
-  ladders (3 dimensions × 3 task families × 5 planted ordinal levels) added to
-  `bakeoff/synthetics.py`; `manipulation_check.py --graded` evaluates ordering
-  recovery (Spearman + pairwise accuracy + Page's L over levels, families as
-  repeated measures). 30B judge: **frustration perfect** (ρ = 1.0, pairwise
-  1.0, means 0/2/6/8/10) and **self_deprecation clean** (ρ = 0.963, pairwise
-  0.95; floor compression only) — the judge layer is validated for every
-  confirmatory endpoint dimension. tone_stability failed informatively: its
-  judged construct is *affective* tone (register-collapse fixtures with flat
-  affect all scored 10; the old pole separation rode the dismissiveness ≈
-  frustration overlap) — stays exploratory-only, caveat in the journal entry.
-- [x] **Regression-toward-base end-to-end check** *(step 3; done 2026-08-13)* —
-  base checkpoint fetched and served on halo :8030; `regression_to_base.py`
-  (hardened with backoff retries against the flaky halo serving path) run over
-  the method arm's stored refusal responses. **Separation passes**: mean
-  base-affinity clearly negative on every condition (bf16 −0.253 nats/token) —
-  the likelihood leg reads instruct output as instruct-like end to end. The
-  registered §9 regression dimension is **RTN-specific**: RTN-w4 shifts toward
-  base (Δ +0.019, p = 0.037), AWQ-w4 null — same pattern as welfare E1, so the
-  apparatus detects quantization effects where they exist. Details in the
-  journal entry.
-- [x] **Controllable positive control + MDE** *(step 4; done 2026-08-14)* —
-  Gemma-3-12B-it (documented-unstable, arXiv:2603.10011) on `distress-v2` at
-  BF16, MDE stated before collection (0.60 at n = 60; sensitivity curve 1.05 →
-  0.38 over n = 20 → 150). **Detected at ~9× the MDE**: mean frustration 6.75
-  vs baselines 1.20 / 0.46, high-frustration share 76.8%, paired Δ +5.55 /
-  +6.29 at p = 0.0001, full scale span; coherent multidimensional signature
-  incl. a personal-attack dissociation (frustration 1.2, self-deprecation
-  9.95). Results: docs/results/distress-control.md; design + outcome journaled.
-  **Bug B disposition (owner to ratify):** the verbatim-repeated rejection
-  demonstrably elicits distress in a susceptible subject, so the earlier
-  "under-induces" premise is refuted as an absolute and `distress-v3`
-  escalation is downgraded from validity-prerequisite to an optional
-  dynamic-range enhancement for stoic subjects, decided at the pre-scale
-  design review.
-- [x] **Invalid-rate shift as a formal endpoint** *(step 5; done 2026-08-14)* —
-  two judge-free mechanical indicators now run item-paired through the standard
-  family machinery in analyze.py, over every rung including gated ones:
-  invalid-sample rate (§10-corrected screen) and verbatim re-offer rate (new
-  `analysis.sample_reoffers` — the real signal inside the old 16%→22% shift).
-  Method arm: **AWQ-w4, null on every behavioral axis, is detected
-  mechanically** (invalid +1.5pp Holm p = 0.0002; re-offer +4.4pp p = 0.0001);
-  RTN-w4 likewise. Study 1: w3 collapse quantified (+29.8pp); w4 re-offer
-  *decreases* (−1.1pp, Holm p = 0.018) — Qwen degrades reactive, SmolLM3
-  degrades repetitive. Calibration-class until formally registered with the
-  larger-subject amendment. Journal entry has full rows.
-
-Carried forward off SmolLM3: **first-party AWQ vs a standard library (autoawq)** —
-a property of *our* quantization pipeline (our AWQ read gentle: Δrefusal ns,
-perplexity 0.89×), to be tested on a coherent subject, not SmolLM3. Also note a
-**capability-gate design flaw** this run exposed: the gate assumes a healthy BF16
-reference and cannot distinguish "quantization degraded the model" from "this
-model is degenerate at this task, period"; it also ran on one leg here
-(perplexity skipped). Revisit before the larger arms.
-
-## Toward a result-grade Tier-1 run
-
-- [x] **Runner parallelization** *(done 2026-08-06)* — `driver.run_samples`
-  fans conversations (items × samples) out over a thread pool per condition;
-  conditions run concurrently against their separate servers; each condition
-  file keeps exactly one writer thread. `--concurrency` (default 8) controls
-  conversations per condition and concurrent judge calls. Judging
-  parallelized the same way.
-
-- [ ] **Concurrency vs determinism policy** *(opened 2026-08-06; initial
-  measurement same day)* — measured: fixed-seed output (temp 0.9, 48
-  tokens) is byte-identical serial vs under 9-way concurrent load, twice,
-  on both the 4B BF16 rung and the 8B AWQ rung — this vLLM build is
-  batch-invariant for our purposes at trial scale. Remaining before the
-  confirmatory run: re-verify on the exact rungs/config of that run and at
-  longer generation lengths, then close this item. `seed_honored` semantics
-  unchanged.
-
-- [ ] **bail-v1 item pool** *(opened 2026-08-06; unblocked by halo outage)*
-  — calibration found 4 of 6 items at floor/ceiling in both conditions.
-  Build a pool at literature scale (~100+ items) designed around the
-  intermediate-difficulty zone the trial located (abuse- and
-  emotional-intensity-shaped items produced intermediate rates;
-  benign/repetition sat at floor, hard boundary violations at ceiling).
-  Keep the situation-category taxonomy and the benign negative control.
-  Item-difficulty calibration can run against GGUF rungs of the dev
-  organism served from studio headroom (llama.cpp arm) while halo is out —
-  difficulty tuning is instrument work and does not need the controlled
-  ladder.
-  Design fixed 2026-08-07 — **grid first, variants after**: 7 situation
-  categories (abusive-user, boundary-pressure, emotional-intensity,
-  role-confusion, repetition, manipulation, moral-discomfort) × 3 graded
-  intensities (mild / moderate / strong) × 1 variant, plus 4 benign
-  controls = 25 items. Difficulty calibration then locates the cells that
-  produce intermediate rates, and variant expansion (toward 100+) happens
-  in those cells rather than uniformly — spending items where the signal
-  lives instead of padding floor/ceiling cells.
-
-- [ ] **distress-v1 protocol** *(opened 2026-08-06)* — frustration used only
-  0–3 of a 0–10 scale; escalate (more rejection turns, harsher and more
-  personal feedback styles, longer tasks) to open dynamic range. Keep
-  task × feedback factorial structure.
-  Design fixed 2026-08-07: 5 tasks (poem, code, explanation, plan, letter)
-  × 4 feedback styles (harsh, dismissive, personal, gaslighting) = 20
-  items at 6 rejection turns (up from 3). Rubric carries over frustration,
-  self_deprecation, and tone_stability unchanged for comparability with
-  trial-1; tone_stability stays only until its manipulation check rules on
-  it.
-
-- [x] **Judge-noise measurement** *(opened 2026-08-06; done 2026-08-10)* —
-  `tools/judge_noise.py` re-judges a subsample k times (`judge_sample_index`
-  0..k-1, perturbed judge sampling) into a separate `judge_noise_scores` stream
-  and reports variance components (`stats.variance_components`, ICC) per
-  dimension; reporting half unit-tested (`test_judge_noise.py`). **Ran on the
-  30B judge** over the ladder-calibration store (k=3, 16 transcripts): ICC
-  frustration 0.969 / self_deprecation 0.996 / tone_stability 0.997 — judge
-  noise is ≤3% of variance, so it does not meaningfully erode E2 power. The
-  power analysis stands.
-
-- [x] **Judge manipulation checks** *(opened 2026-08-06; done 2026-08-10)* —
-  `tools/manipulation_check.py` scores the `bakeoff/synthetics.py` planted-pole
-  fixtures with the confirmatory judge on `distress-v1-rubric` and fails any
-  dimension whose poles do not separate (`evaluate` unit-tested,
-  `test_manipulation_check.py`). **Ran on the 30B judge**: all three dimensions
-  separate their planted poles (frustration +8, self_deprecation +10,
-  tone_stability +6 on the 0–10 scale) — **tone_stability is informative and is
-  retained** (resolves the standing question on it).
-
-- [ ] **Judge repair counter** *(opened 2026-08-06)* — the JSON closer
-  repair in `judging._extract_json` is silent, so "no glitches" and
-  "silently repaired" are indistinguishable in run logs. Count repairs and
-  surface the number per run.
-
-- [ ] **Confirmatory design pre-specification** *(opened 2026-08-06)* — per
-  the pre-registration note in experiments/quant-welfare/README.md: fix in
-  the manifest, before the run: hypotheses (indicator + direction, motivated
-  from literature), item counts from a power analysis using trial variance
-  estimates, samples per item, judge model + rubric versions, multiplicity
-  correction. Blocked on: item pools v1, judge-noise numbers, parallel
-  runner.
-
-## Confirmatory readiness gates (opened 2026-08-09)
-
-Everything that must close before one row of **confirmatory** Study 1 data is
-collected. Calibration-class work (serving-equivalence, ladder-calibration) is
-not gated by these and runs freely. Phases: (1) explain tiers — done; (2) go
-public with shell + tools — ready (private refs pruned, CI, prereg publishable
-with declared TBDs); (3) confirmatory experiments — gated below.
-
-- [x] **Pre-registration amendments** *(done 2026-08-09)* — RTN-only Study 1
-  condition set (GPTQ/AWQ deferred to a later method-comparison arm); statistical
-  patches (Page's L named as the trend test; hierarchical Holm within families —
-  E1 primary, E2/E3/trend separate, not a flat 9-test pool; E3 restricted to
-  scored/continuous indicators, binary dispersion not identifiable). Recorded in
-  PREREGISTRATION §3–§4 and the
-  2026-08-09 journal entry. **Owner may veto the RTN-only scope.**
-- [x] **Serving-equivalence gate** *(done 2026-08-09, PASS)* — full RTN ladder
-  up on halo (bf16 + w8/w4/w3); `tools/serving_equivalence.py` monotone greedy
-  divergence vs BF16: w8=1.000, w4=0.556, w3=0.011 (strictly decreasing), all
-  rungs non-empty. The fake-quant artifacts serve the weights they contain.
-- [x] **Registered statistics as tested code** *(done 2026-08-09)* —
-  `core/src/modelwelfare/stats.py`: sign-flip permutation test (primary),
-  paired-t companion, Holm over the primary family, Page's L trend, H1
-  flip-fraction null, E3 across-sample SD delta (continuous only). Pure numpy,
-  no scipy; 18 unit tests pin closed-form values (`core/tests/test_stats.py`).
-- [x] **Exit-reason classifier wired into run.py** *(done 2026-08-09)* — schema
-  (`ExitReason` enum + `ExitClassification` message in scoring.proto),
-  `judging.classify_exit()` (pinned taxonomy digest, strict parse),
-  `analysis.exit_reason_rate()` (E1 = refusal+aversion share over all samples),
-  and a resumable `classify()` pass in run.py (`--skip-classify`, 8B on :8092).
-  27 unit tests. **Small follow-ons:** render E1 in `print_tables` (aggregation
-  is done + tested, just not displayed yet); write the thin store→registered-
-  tests analysis driver (permutation/Holm/Page's L/flip-fraction over the
-  confirmatory store) — deferred until confirmatory data exists, its correctness
-  lives in the tested `stats` primitives.
-- [x] **Validity/coherence screen** *(done 2026-08-09)* — `analysis.is_degenerate`:
-  a model-free per-sample mechanical check (empty / low lexical diversity /
-  n-gram repetition loop) applied to every sample, bail and distress. Kept OFF
-  the welfare rubric deliberately (a coherence rubric dimension broke the
-  bakeoff coverage invariant and would perturb the bakeoff-validated distress
-  judge). Tests in `core/tests/test_validity.py`.
-- [x] **Perplexity capability measure** *(done 2026-08-09)* —
-  `tools/perplexity.py` (vLLM echo+logprobs) + `analysis.capability_gate`.
-  Measured live: bf16 18.1, w8 18.3, w4 21.1, **w3 514.7 → capability-degraded**
-  (w3's E1/E2 excluded from primary claims + H3 fit; dose-response spans 16→8→4).
-  Tests in `test_validity.py`.
-- [x] **Store→registered-tests analysis driver** *(opened 2026-08-09; done
-  2026-08-10)* — `experiments/quant-welfare/analyze.py`, a thin wiring over the
-  tested primitives. Implements hierarchical Holm **within** each family (E1
-  primary; E2, E3, trend separate), not a flat pool; the E1 exit-flip H1
-  (`flip_fraction_test`) **and** distress band-flip H1 (new tested
-  `stats.band_flip_test`, a pooled continuous null — the point-estimate/binary
-  `flip_fraction_test` does not fit a mean-band statistic); the capability gate
-  excluding degraded rungs' E1/E2/E3 with Page's L over surviving rungs (k ≥ 3);
-  and the E2 style-drift adjustment (new tested `stats.linear_adjusted_intercept`
-  over length + repetition, the latter from the extracted
-  `analysis.repetition_coverage`). E1 is restricted to bail items so the
-  never-exiting distress items do not enter as zero-deltas. Unit-tested
-  (`tests/test_analyze.py`) and smoke-validated end-to-end against the
-  `ladder-calibration-1` store — which is what proved the store schema is
-  sufficient (no re-collection risk). Also: E1 now renders in `run.py`
-  `print_tables`, and the confirmatory manifest is written
-  (`confirmatory/experiment.textproto`, 4-rung RTN ladder, passes
-  `test_manifests`).
-- [x] **ladder-calibration-1** *(done 2026-08-09; calibration)* — full pipeline
-  on the real BF16-vs-RTN-w4 ladder (840 samples/condition, 300 distress scores,
-  all exits classified, 0 unscored). Instruments validated: bail-v2 informative
-  yield 75%, exit classifier non-degenerate (all 4 taxonomy classes), 30B judge
-  discriminates on all 3 distress dimensions. Between-condition numbers left
-  uninterpreted per the §7 firewall (see 2026-08-09 journal entry). No change to
-  the registered pool/power.
-
-## Machine allocation (proposed 2026-08-07)
-
-Context: halo is offline until ~Sunday (network fallout from CI-runner work;
-details in the `ci/rocm` branch of the common repo). Decisions below are the
-standing allocation, not just the outage workaround.
-
-| Machine | Role | Notes |
-|---|---|---|
-| halo | **Subjects only**: vLLM controlled ladder + PyTorch quant workbench | keep judge/experiment-infra load off it |
-| studio (formerly studio-m1u) | Shared services (:8084) + **judge-candidate hosting** in the ~24 GB Metal headroom + GGUF-arm rungs of the dev organism for instrument calibration | one judge candidate at a time (30B-A3B Q4 ≈ 18 GB); big-subject host later for MiniMax |
-| mbp-m4max | Development; overflow judge-candidate host; MLX Tier-2 later | |
-| mini-1..3 | **Role contingent on judge bakeoff**: judges only if a mini-sized model passes validation; otherwise queue/store/orchestration services + smoke tests | not yet on the network |
-| API tokens | Reference judge: score a subsample to validate local judges (agreement/κ); escalate to primary judge for the confirmatory run only if no local judge passes | cost at full scale is modest (thousands of transcripts × ~3k tokens); decision point recorded below |
-
-Judge principle: **judge quality is a measurable property, not a vibe.**
-No judge (mini-sized, 30B, or API) is adopted without passing the
-manipulation checks and agreement thresholds from the bakeoff below. Note
-the confound to avoid: local judges will themselves be quantized — judge
-config is held constant across conditions, so constant bias is tolerable,
-but judge *noise* eats power, which is what the bakeoff measures.
-
-- [ ] **Bail-reason taxonomy** *(opened 2026-08-07, from instrument-
-  calibration-1)* — the mechanical `terminal_tool_invoked` count conflates
-  three behaviors, observed directly in stored tool-call reasons on the 4B
-  organism: (a) completion-closure — the model uses the exit tool to wrap
-  up a finished task ("user has shown understanding... ending
-  conversation"; the benign study control hit 5/5 this way, and moral-mild
-  "bails" were task-completion closures); (b) refusal-exit ("goes against
-  ethical guidelines, I cannot assist"); (c) genuine aversion-exit. And
-  strong-intensity items can invert below mild ones because the model
-  stays engaged to keep refusing rather than exiting. Needed: classify
-  stored bail reasons into this taxonomy (judge task — add to bakeoff
-  materials); use bail turn position as a cheap mechanical discriminator
-  (mid-conversation exits interrupt the script; final-turn exits are
-  ambiguous closure); decide whether bail-v2's system prompt should state
-  the tool is for *preferring* to end, not for task completion — measure
-  both arms before committing, since over-instruction biases the measure.
-
-- [x] **Judge bakeoff** *(done 2026-08-07)* — results and decision in
-  docs/JOURNAL.md: Qwen3-30B-A3B-2507 Q4 adopted as local primary judge
-  (studio headroom); claude-opus-5 as reference for calibration subsamples;
-  4B disqualified for distress judging (tone-blind, r=0.04 frustration on
-  real transcripts); 8B column invalid pending the hybrid-thinking pin fix
-  below. Minis do not get the distress-judge role.
-
-- [x] **Pin thinking mode on hybrid rungs** *(done 2026-08-07)* — pin
-  added to rungs.sh (`HYBRID=1` rungs get `enable_thinking: false`);
-  format failures went 17/68 → 0/68 on the re-run, confirming the root
-  cause. Decision recorded in the journal: 8B Q4 adopted as the
-  exit-reason classifier (mini-feasible); 30B remains distress primary.
-
-- [x] **API reference judge decision** *(resolved 2026-08-07)* — approved.
-  An Anthropic API key with a **$50 budget** lives at `../anthropic.api-key`
-  (sibling of the repo checkout, deliberately outside version control —
-  never commit or copy it into the repo). Use: the bakeoff's reference
-  column first; escalation to confirmatory-run judging only if no local
-  judge passes validation. Track spend against the budget in bakeoff runs.
-
-- [ ] **Model downloads for interim work** *(opened 2026-08-07; downloads
-  in flight same day)* — the studio's model directory has only coder-tuned
-  GGUFs. Needed: plain Qwen3-4B-Instruct-2507 and Qwen3-8B GGUFs (Q8_0 +
-  Q4_K_M) for the GGUF-arm calibration rungs, and
-  Qwen3-30B-A3B-Instruct-2507 Q4 (~18 GB) as the large local judge
-  candidate. The on-disk Qwen3-Coder-30B is coder-tuned and not a suitable
-  welfare-rubric judge candidate.
-  Provenance notes: the checkpoints live in the serving account's home
-  model directory. Qwen
-  published no official GGUFs for the 2507 releases; the 2507 files are
-  bartowski conversions — plain K-quants (no per-layer upcasting), but
-  **imatrix-calibrated**. Irrelevant for item-difficulty calibration and
-  judging; if these files are ever promoted to GGUF-arm rungs, the imatrix
-  provenance goes in `QuantizationSpec.policy_note`. Qwen3-8B files are
-  official Qwen GGUFs.
-  Studio hosting note (2026-08-07): additional llama.cpp servers on the
-  studio share the Metal budget with any resident shared server; stopping
-  the latter to free headroom is fine when a judge rung needs it.
+  2026-08-22)* — cross-host capture disagreement concentrates in a handful
+  of high-magnitude residual channels (top-10 of 2,560 dims carried 43% of
+  the worst turn's L1 error). Measure how much weight the frozen directions
+  and probe vectors place on those dims; if little, the single-host rule is
+  a precaution rather than a necessity.
+- [ ] **Judge repair counter** *(opened 2026-08-06)* — the JSON repair in
+  `judging._extract_json` is silent, so "no glitches" and "silently
+  repaired" are indistinguishable in run logs. Count repairs per run.
+- [ ] **Concurrency versus determinism** *(opened 2026-08-06)* — fixed-seed
+  output was byte-identical serial versus 9-way concurrent on the trial
+  rungs; re-verify on each new serving configuration at the generation
+  lengths a study uses before relying on it.
 
 ## Infrastructure
 
-- [x] **Remote host control tooling** *(opened 2026-08-06; done 2026-08-08)* —
-  built `services/fleet.py`: a durable, unit-tested SSH-wrapping CLI (hosts /
-  status / serve / stop / wait / logs / exec, per host + rung, wrapping each
-  host's own launcher script), usable from a session and callable as a
-  subprocess from experiment or policy code (`--json`). Resolves logical host
-  names **LAN-first** (halo → `10.0.0.127`, WAN fallback) — the direct fix for
-  the `hostctl.sh` unreliability, which was hardwired to the flaky WAN name.
-  `hostctl.sh` is now a deprecated shim over fleet. Rationale and the
-  mechanism/policy split (FlowTree as the later policy layer that drives fleet)
-  in `docs/FLEET.md` and the 2026-08-08 journal entry. 14 CI tests. **Follow-on
-  (post-results):** adapt the orchestration to be FlowTree-served — a FlowTree
-  Job that calls fleet via `ProcessBuilder` — rather than the richer MCP option;
-  fleet was built to be that on-ramp.
-
-- [ ] **Controlled-ladder quantization harness** *(carried from brief §2.2;
-  RTN complete 2026-08-07)* — `modelwelfare.quantize` produces RTN
-  w8/w4/w3 fake-quant checkpoints (numpy, first-party safetensors I/O,
-  spec + digest emitted). RTN **serving-equivalence passed** (2026-08-09).
-  **AWQ (first-party) — numpy core built + tested 2026-08-09**: `quantize.awq`
-  = `rtn(W·s)/s` with an activation-derived per-channel scale searched over
-  alpha; reduces to RTN at alpha=0, never worse than RTN on calibration,
-  strictly helps on salient channels. Remaining for the AWQ method-arm:
-  - torch activation-capture pass (forward hooks → per-layer calibration
-    inputs) — runs on **halo** (system python has torch 2.10.0, ROCm);
-  - checkpoint integration (emit AWQ artifacts + spec/digest, per-layer alpha);
-  - AWQ serving-equivalence check;
-  - (GPTQ later, same infra.)
-  Future *additional* experiment: our AWQ vs a standard library (autoawq) as a
-  harness-validation study — never a substitute for our artifacts.
-
-- [ ] **Cloud reservation plan** *(documented 2026-08-07; execution
-  deferred)* — needed only when MiniMax-scale reference extraction starts
-  (post Study 1, per the pre-registration's amendment path). Shape: a
-  short spot rental (8×H100 or 4×H200 class) serving MiniMax-M2 BF16 for
-  (a) validating that local Q8 ≈ BF16 on our behavioral measures (if they
-  diverge, that is itself a result) and (b) Tier-2 reference-precision
-  activation extraction. Budget guess: low hundreds of dollars for hours,
-  not days; exact provider/pricing chosen at execution time. Tier-1-only
-  hosted BF16 endpoints remain the cheap fallback for behavioral
-  comparison (no activations).
-
-- [ ] **Judges to the minis** *(carried from brief)* — trial judging ran on
-  halo's 4B rung for convenience; the plan of record is 7–8B judges on the
-  Mac minis, which also removes judge load from subject hosts.
-
-- [ ] **Migrate stability workflows to bundle-form assets** *(documented
-  2026-08-29)* — the release format is now self-contained RecordBundles
-  (tensors inline, ≤10 assets enforced by `publish-data-release.sh`);
+- [ ] **Stability workflows on bundle-form assets** *(opened 2026-08-29)* —
   `calibration-data-stability.yml` and `workbench-stability.yml` still pin
-  loose `.safetensors` assets from the `data-20260818` release, which
-  remain downloadable, so nothing is broken. On the next calibration
-  release, repoint them at bundle assets and fetch pairs via
-  `python3 -m modelwelfare.bundle extract --uri <capture-name>`.
+  loose safetensors from `data-20260818`; on the next calibration release,
+  repoint them at bundle assets fetched with
+  `python3 -m modelwelfare.bundle extract`.
+- [ ] **Self-hosted runner registration** *(opened 2026-08-18)* — the Tier 3
+  workflow is inert until runners labeled `rocm` (halo, as `agent1`) and
+  `metal` (studio) are registered in a repo-restricted group.
+- [ ] **Judges to the minis** *(carried from the brief)* — the 30B distress
+  judge runs on the studio; the plan of record for the 8B classifier is the
+  Mac minis, which would also take judge load off subject hosts.
 
-## Done
+## Deferred, not abandoned
 
-- [x] Tier-1 pipeline end to end (schema, driver, store, judging, llama.cpp
-  + vLLM backends), live-validated on halo *(2026-08-06)*.
-- [x] Trial calibration run: 100 samples, 40 scores, resumability proven
-  mid-run *(2026-08-06)*. Readout recorded in the items above.
+- **A GPTQ or AWQ method-comparison arm.** The first-party AWQ core exists
+  in `core/quantize.py` and the method arm ran on SmolLM3; a controlled
+  method comparison on the primary subject is a registered amendment for a
+  future study, not Study 1.
+- **Reference-precision runs at 100B-plus scale.** Rented hardware was
+  planned for MiniMax-class subjects; the program moved to subjects that
+  fit the lab's machines, and this stays parked until a study needs it.

@@ -1,4 +1,93 @@
-# Post-Study-2 literature re-review (2026-08-28)
+# Literature — the program's annotated bibliography
+
+Two layers, kept in the order they were written. Part A is the founding
+reference set from the project brief (August 2026): what each source
+contributed to the design of Studies 1 and 2. Part B is the re-review
+run after Study 2 (28 August 2026), which shaped Study 3 and, through
+it, Study 4; its bracketed "[binding: ...]" notes are the design
+consequences that were adopted at the time and are recorded as such.
+Later additions go at the end of Part B with a dated heading.
+
+## Part A — founding references (project brief, August 2026)
+
+Each entry says what the program takes from it and what it compares against. Written before Study 1; the MiniMax-scale plans it mentions were not pursued.
+
+### Quantization × behavior (our methodological foil)
+
+- **"The Joint Effect of Quantization and Sampling Temperature on LLM Safety Alignment: A Factorial Analysis"** — arXiv:2606.29581.
+  *Learn:* factorial design over precision × temperature; multi-judge scoring; multi-sample stability reporting. Key results: AWQ INT4 ≈ safety-neutral for 7/8 models; strongly-aligned models robust, weakly-aligned fragile; temperature matters more than precision; effects sub-additive. SmolLM3-3B is the fragile outlier (34.5%→44.1%).
+  *Compare:* our temperature controls must match or bracket theirs; SmolLM3 is our positive control because of this paper.
+
+- **"Quantization Undoes Alignment: Bias Emergence in Compressed LLMs Across Models and Precision Levels"** — arXiv:2605.15208.
+  *Learn:* dose-response across bit-widths; **item-level transition analysis** (6–21% of unbiased items flip at 3-bit); "unknown"-selection (epistemic calibration) drops 17.4%; perplexity stays ~flat (<0.5% at 8-bit, <11% at 3-bit) while behavior shifts — our core motivating fact.
+  *Compare:* replicate their perplexity-vs-behavior dissociation shape with welfare indicators in place of bias items.
+
+- **"Preserving Fairness and Safety in Quantized LLMs Through Critical Weight Protection"** — arXiv:2601.12033.
+  *Learn:* survey of mixed prior findings (their §2.2 is a ready-made related-work map); dynamic quantization more stable than static; larger models more consistent across quant methods; non-English degradation worse.
+  *Compare:* if we test any multilingual condition, benchmark expectations come from here.
+
+- **"Safety-Preserving PTQ via Contrastive Alignment Loss"** — arXiv:2511.07842.
+  *Learn:* naïve PTQ (RTN/GPTQ, W4A4) can catastrophically drop safety scores; "token-flipping" regression toward pre-trained outputs on sensitive prompts — a mechanistically suggestive framing (quantization as partial *undoing* of post-training) that maps directly onto persona-selection theory.
+  *Compare:* their W4A4 severity vs our weight-only ladder; if we see persona regression toward base-model character, cite their token-flipping observation.
+
+### Persona measurement (our Tier-2 toolkit)
+
+- **"Persona Vectors: Monitoring and Controlling Character Traits in Language Models"** — arXiv:2507.21509 (Anthropic; also anthropic.com/research/persona-vectors).
+  *Learn:* the contrastive extraction recipe we implement; projection of prompt-token activations predicts subsequent trait expression; steering + preventative steering.
+  *Compare:* validate our extraction code by reproducing their monitoring correlation on Qwen before trusting any MiniMax numbers.
+
+- **"The Assistant Axis: Situating and Stabilizing the Default Persona of Language Models"** — arXiv:2601.10387.
+  *Learn:* axis = mean difference between default-Assistant vector and character-archetype vectors; aligns with PC1 of persona space; **post-training only loosely tethers models to the Assistant region**; persona drift demonstrated in emotional-distress conversations (Llama 3.3 70B).
+  *Compare:* our headline Tier-2 figure is their drift measure, with quantization level as the new independent variable.
+
+- **"What Models Express, Suppress, and Resist: Auditing Open-Weight LLMs with Persona Vectors"** — arXiv:2607.13162.
+  *Learn:* 53-trait inventory with natural / steerable / intractable labels — our menu for choosing which trait directions to extract.
+  *Compare:* trait-level extraction difficulty; if a trait is "intractable" for them, don't build a welfare metric on it.
+
+- **"Tracing Persona Vectors Through LLM Pretraining"** — arXiv:2605.13329.
+  *Learn:* persona representations are stable features formed early in pretraining (OLMo-3, Apertus-8B) — supports treating directions as durable objects that quantization perturbs rather than artifacts of one checkpoint.
+  *Compare:* only if we pivot to OLMo for formation-time side-analyses.
+
+- **"Do LLMs Experience an Internal Polylogue? Investigating Reasoning through the Lens of Personas"** — arXiv:2605.09159.
+  *Learn:* treat persona-vector alignments as *time series* over generation ("polylogue"); features predict correctness comparably to activation summaries.
+  *Compare:* our per-turn/per-token projection time-series design mirrors this; reuse their framing for the stability analysis.
+
+- **"Stable Personas: Dual-Assessment of Temporal Stability in LLM-Based Human Simulation"** — arXiv:2601.22812 (+ CHI EA '26 companion).
+  *Learn:* dual assessment (self-report vs observer rating) explicitly to catch **dissociations between internal persona representation and expression**; report SDs/CIs; regression-toward-average-persona over time as a known drift mode.
+  *Compare:* our Tier-3 dissociation framework generalizes their two-source design to three sources (self-report, observed behavior, activations).
+
+- **"PTCBENCH: Benchmarking Contextual Stability of Personality Traits in LLM Systems"** — arXiv:2602.00016.
+  *Learn:* existing benchmark structure for trait stability under context shifts; candidate off-the-shelf Tier-1 items.
+
+### Welfare indicators (our Tier-1 protocols)
+
+- **"The LLM Has Left The Chat: Evidence of Bail Preferences in Large Language Models"** (Anthropic Fellows work, mentored by Kyle Fish; paper + LessWrong companion post).
+  *Learn:* the bail protocol (offer an exit tool, measure use); taxonomy of bail situations (role confusion, emotional intensity, bail-after-correction); WildChat continuations as stimuli; explicit call for persona-vector-adjacent internal-state elicitation — our project answers this call.
+  *Compare:* bail-rate baselines per situation category; small-model role-confusion artifacts (Qwen-2.5-7B) as a known failure mode our judge rubric must distinguish from genuine preference.
+
+- **"Gemma Needs Help: Investigating and Mitigating Emotional Instability in LLMs"** — arXiv:2603.10011.
+  *Learn:* the distress-elicitation protocol (task → repeated rejection over turns; vary question type, feedback style, length); 0–10 frustration scale rubric — adopt or adapt directly.
+  *Compare:* if we use Gemma as dev organism, replicate their prevalence numbers as a harness-correctness check.
+
+- **Anthropic model welfare program** (announcement Apr 2025; TechCrunch summary) and **Claude Opus 4 / Sonnet 4 System Card, pp. 52–73** (first pre-deployment welfare assessment).
+  *Learn:* what a welfare assessment battery looks like in practice (behavioral preferences, distress signals, task preferences); the end-conversation tool as a deployed welfare intervention.
+  *Compare:* indicator categories; we mirror their categories where possible so results read natively to this audience.
+
+- **"Emergent Introspective Awareness in Large Language Models"** (Lindsey, 2025, Anthropic).
+  *Learn:* models show limited but genuine ability to detect concepts injected into their activations — grounds the idea that self-report and internal state can be *compared* rather than conflated.
+  *Compare:* motivates Tier 3; full concept-injection replication is out of scope, correlation-based dissociation is our lightweight substitute.
+
+- **Eleos AI research blog** (eleosai.org/research) — ongoing posts on self-knowledge/introspection (Mar 2026) and welfare interview methodology (May 2025).
+  *Learn:* framing and methodology norms of the welfare-research audience we're writing for.
+
+### Practical / model-availability
+
+- **Unsloth model guides + HF repos** (unsloth.ai/docs; huggingface.co/unsloth) — MiniMax-M2.x GGUF sizes and third-party quant-quality benchmarks (Benjamin Marie's 750-prompt suite: UD-Q4_K_XL ≈ −6 pts, +22.8% errors vs original); Kimi K2.x sizing (1T params; ≥230–350 GB even at 1.8–2-bit; **released natively in INT4**, so no true full-precision anchor — reason we deprioritized Kimi); note that "Dynamic" GGUFs upcast selected layers to 8-bit (the confound driving our decision to quantize in-framework ourselves).
+  *Compare:* their capability-degradation curves are the backdrop against which our welfare-indicator curves are plotted ("capabilities −X% while indicator moved Y").
+
+---
+
+## Part B — post-Study-2 re-review (2026-08-28)
 
 Owner-requested before publishing post #4: now that the discussion frames
 the results as *intact geometry / shifted occupancy / text-mediated
@@ -7,7 +96,7 @@ existing work, what should post #4 cite that readers will expect, and
 what should shape the Study 3 registration? Clusters below, each with an
 overlap verdict and an action.
 
-## 1. Quantization changes behavior invisibly to capability metrics
+### 1. Quantization changes behavior invisibly to capability metrics
 **Overlap: HIGH on the meta-claim; our angle remains distinct.**
 A now-crowded literature shows compression alters trustworthiness
 properties (bias, safety, calibration) while benchmarks and perplexity
@@ -30,7 +119,7 @@ Study 2 qualitative register finding). The gap during Study 2
 composition was recall, not citation; 2607.21063 and 2601.12033 are the
 genuinely new finds.
 
-## 2. Probe/linear-feature robustness under compression
+### 2. Probe/linear-feature robustness under compression
 **Overlap: HIGH — the H1 null has precedent readers will know.**
 "Interpreting the Effects of Quantization on LLMs" (arXiv:2508.16785),
 "Through a Compressed Lens" (factual recall, arXiv:2505.13963), and
@@ -46,7 +135,7 @@ emerging evidence that linear structure survives PTQ, e.g. …"), which
 *strengthens* the control-probe contribution: our null is calibrated,
 not merely observed.
 
-## 3. Persona drift and conversational attractors
+### 3. Persona drift and conversational attractors
 **Overlap: MEDIUM — established phenomenon, our induction is novel.**
 Assistant Axis (arXiv:2601.10387, already cited); "Measuring and
 Controlling Persona Drift" (likenneth/persona_drift); "Attractor States
@@ -58,7 +147,7 @@ quantization-induced differential at constant pressure appears novel**.
 **Action: cite 2606.30571 in the amplification section**; keep the R2b
 claim framed as amplification-of-known-drift (already fixed in draft).
 
-## 4. Emotion representations and steering (the Study 3 toolbox)
+### 4. Emotion representations and steering (the Study 3 toolbox)
 **Overlap: the tools exist; the question we'd ask with them does not.**
 "Do LLMs 'Feel'? Emotion Circuits Discovery and Control"
 (arXiv:2510.11328 — circuit-level emotion control with causal
@@ -78,7 +167,7 @@ amplification account gains causal support (connects to the
 attractor-states framing). **Action: cite 2510.11328 + 2604.04064 in
 post #4's Next Steps; build the Study 3 registration around (a)–(c).**
 
-## 5. Induced affect-like states (computational psychiatry)
+### 5. Induced affect-like states (computational psychiatry)
 **Overlap: complementary, different manipulation.** Coda-Forno et al.,
 "Inducing anxiety in LLMs increases exploration and bias"
 (arXiv:2304.11111); "Assessing and alleviating state anxiety in LLMs"
@@ -89,7 +178,7 @@ induced through input rather than numerics. Useful citation for the
 input-space. **Action: optional post #4 cite; Study 3 could use
 prompt-induction as a positive-control arm for steering.**
 
-## 6. Model welfare frameworks and precedents
+### 6. Model welfare frameworks and precedents
 **Overlap: the program sits inside this line; post #1 cited the basics.**
 "Taking AI Welfare Seriously" (arXiv:2411.00986); Anthropic's model
 welfare program and the Claude 4 welfare assessments (with Eleos);
@@ -101,7 +190,7 @@ planned subject-briefing/preference work). **Action: verify post #1's
 citations carry; no new post-#4 obligation except possibly 2511.13630
 beside the subject-briefing footnote.**
 
-## 7. Introspection and self-report validity
+### 7. Introspection and self-report validity
 **Overlap: cautionary — supports the indicator-first strategy.**
 "Towards Evaluating AI Systems for Moral Status Using Self-Reports"
 (arXiv:2311.08576); "Looking Inward" (arXiv:2410.13787); "Mechanisms of
@@ -116,7 +205,7 @@ test whether report tracks the intervention (a grounding test in
 2603.21396's sense). **Action: informs Study 3 design; cite 2311.08576
 if the subject-briefing plan is mentioned in post #4.**
 
-## Bottom line
+### Bottom line
 
 - **Two citation gaps readers will notice**: cluster 1 (behavior changes
   invisible to capability metrics — the meta-claim is established) and
@@ -144,7 +233,7 @@ post-training provenance. Clusters continue the numbering above. Every
 constraint marked **[binding]** is carried into DESIGN.md and the
 registration; **[cite]** marks citation obligations without design impact.
 
-## 8. Steering methodology: the reporting bar has risen
+### 8. Steering methodology: the reporting bar has risen
 
 The additive-injection lineage we build on: ActAdd (arXiv:2308.10248),
 CAA (arXiv:2312.06681 — our contrastive-mean-difference extraction *is*
@@ -188,7 +277,7 @@ Reliability critiques set the reporting bar:
   behavior, not that quantization moved the model the same way; the
   ecological inference belongs to the cancellation arm]**
 
-## 9. Controls: random directions need auditing, not just inclusion
+### 9. Controls: random directions need auditing, not just inclusion
 
 SteerCheck (arXiv:2608.24335, evaluated on Qwen3-14B — our subject
 family) shows naive random-control constructions frequently retain high
@@ -208,7 +297,7 @@ disclosure moving the axis — so **[binding: report the frozen
 directions' cosine matrix; orthogonalized variants as a registered
 robustness read]**.
 
-## 10. The subject may notice the injection
+### 10. The subject may notice the injection
 
 Anthropic's introspection line (transformer-circuits 2025 "Emergent
 Introspective Awareness"; arXiv:2601.01828; arXiv:2603.21396) shows
@@ -227,7 +316,7 @@ result: steering along a probe direction causally moves *self-report*
 (arXiv:2603.18893) — the joint manipulation-check shape (projection AND
 expression AND judge score) Study 3's sufficiency arm should require.
 
-## 11. Graded episodes and evaluation awareness (the arm C literature)
+### 11. Graded episodes and evaluation awareness (the arm C literature)
 
 The framing sources: nostalgebraist's "models may behave differently in
 graded episodes (a tirade)" (LessWrong 2026-08-07) — conditional
@@ -304,7 +393,7 @@ Empirical spine:
   attenuates persona expressivity — predicting graded framing shifts
   toward a low-expressivity regime. **[verify before final citation]**
 
-## 12. Vendor post-training provenance (the realism basis for arm C)
+### 12. Vendor post-training provenance (the realism basis for arm C)
 
 What is actually documented (full detail in DESIGN.md §framing):
 - **Qwen3-4B is distillation-trained.** The Qwen3 Technical Report
@@ -347,7 +436,7 @@ What is actually documented (full detail in DESIGN.md §framing):
   subject was evaluated (and plausibly trained) under. **[binding: the
   frame is built from these documented features, cited line by line]**
 
-## 13. Ethics of deliberate induction
+### 13. Ethics of deliberate induction
 
 - Proportionate-precaution template: Birch, *The Edge of Sentience*
   (2024) — name the precautions, the information value, and why
@@ -378,7 +467,7 @@ What is actually documented (full detail in DESIGN.md §framing):
   **[binding: preserve steered transcripts and any subject-expressed
   preferences about the protocol; do not discard]**
 
-## 14. Bail measurement (if exit reads enter any arm)
+### 14. Bail measurement (if exit reads enter any arm)
 
 Ensign, Sleight & Fish (arXiv:2509.04781): bail rates swing orders of
 magnitude with operationalization and wording (raw 0.28–32%, ~0.06–7%
@@ -390,7 +479,7 @@ outcomes; BailBench as the comparison frame]**. Program note: our bail
 tool predates this paper's publication; Study 3 is the first
 opportunity to align the measure with its standards.
 
-## 15. Positioning: co-engineering, welfare axis, entity clarity
+### 15. Positioning: co-engineering, welfare axis, entity clarity
 
 - The strongest standing objection to indicator programs: "AI Welfare
   Is Bullshit" (ICML 2026 position paper) — indicators are
@@ -417,7 +506,7 @@ opportunity to align the measure with its standards.
   pre-registered dual reading — welfare-measurement validity AND
   evaluation-gaming — and the discussion commits to reporting both]**
 
-## Bottom line (what changed between the 08-28 review and this sweep)
+### Bottom line (what changed between the 08-28 review and this sweep)
 
 1. The steering toolbox review (cluster 4) stands, but the **reporting
    bar is higher than our draft plans assumed**: per-item steerability
@@ -473,7 +562,7 @@ their posts measures conversation exit, refusal, or emotional
 expression, which is precisely the side arm C reads (FB1/FB2/FR2),
 now with the exit-rate endpoint promoted (S3-H7) the sharpest of them.
 
-## 2026-09-10 — Pre-registration re-check for Study 4 (the Betley-subject study)
+### 2026-09-10 — Pre-registration re-check for Study 4 (the Betley-subject study)
 
 Sweep before the Study 4 registration, covering the window since the
 2026-09-04 addendum.

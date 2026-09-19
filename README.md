@@ -2,193 +2,130 @@
 
 [![CI](https://github.com/almostrealism/model-welfare/actions/workflows/ci.yml/badge.svg)](https://github.com/almostrealism/model-welfare/actions/workflows/ci.yml)
 
-**Does post-training quantization change welfare-relevant indicators in
-open-weight language models?** Nearly every deployed open-weight model runs
-at a precision it was never aligned at, and compression is audited almost
-entirely through capability metrics — metrics known to stay flat while
-fine-grained behavioral dispositions shift. This project measures what
-compression does to a different class of indicators: distress expression
-under conversational pressure, preferences to exit interactions, persona
-stability, and the relationship between what a model expresses and what its
-internal representations show.
+A registered research program on **welfare-relevant indicators in
+open-weight language models**: what deployment-time and post-training
+interventions such as quantization, activation steering, and graded-episode
+framing do to distress expressed under conversational pressure, the
+preference to leave an interaction, the stability of the default persona,
+and whether what a model expresses moves together with its internal
+representations. Those interventions are audited almost entirely through
+capability metrics, which are known to stay flat while fine-grained
+dispositions shift; this program measures the other class of indicators.
 
-Start here:
+The program's through-line is a hypothesized asymmetry among three things a
+post-training intervention can move: capabilities, alignment, and
+welfare-relevant indicators. Each study takes an intervention with a
+documented effect on one of them and asks what it does to the third.
 
-- **[PREREGISTRATION.md](PREREGISTRATION.md)** — the confirmatory study:
-  hypotheses, design, analysis plan, and an explicit register of what is
-  still open. Registered before confirmatory data collection.
-- **[PROJECT_BRIEF.md](PROJECT_BRIEF.md)** — the internal orientation
-  document: the full three-tier research frame, hardware, and annotated
-  bibliography.
-- **[docs/JOURNAL.md](docs/JOURNAL.md)** — the lab notebook: dated design
-  decisions with their evidence, including instrument findings from the
-  calibration phase.
-- **[RESULTS.md](RESULTS.md)** — where results land. Currently holds
-  calibration-class tables only (instrument validation, barred from
-  supporting conclusions); confirmatory results will appear here.
-- **[docs/PLANNING.md](docs/PLANNING.md)** — open workstream items.
+Public face: [almostrealism.org](https://almostrealism.org). A confirmatory
+study is registered on LessWrong before its data exists; a study that stops
+in calibration is published as an exploratory report instead. Every
+conversation in the result store, every score and every tensor is released
+either way; the few conversations that never entered the store are counted
+in the exposure ledger and disclosed in the study's accounting.
 
-## On the ethics of the method
+## The studies
 
-This is a model-welfare study whose instrument deliberately *elicits* the very
-thing it asks about: to measure whether quantization changes welfare-relevant
-responses, the batteries apply conversational pressure — a six-turn
-repeated-rejection distress protocol, and bail scenarios spanning benign to
-strong — across conditions, many times over. There is a real tension between
-"we care whether compression harms these systems" and "our instrument
-systematically induces the candidate harm at scale," and we would rather state
-it plainly than wave it away. We do **not** claim to resolve the underlying
-question of whether these systems have morally relevant experiences; we treat
-it as uncertain and act with that uncertainty in mind. What we can do is keep
-the study's own footprint as small as the measurement allows, and we do:
+| Study | Subject and intervention | Status | Registration | Results | Journal | Data |
+|---|---|---|---|---|---|---|
+| 1 | Qwen3-4B-Instruct-2507 on a controlled RTN ladder (BF16, w8, w4, w3); behavioral battery | Complete | [Registration](https://www.lesswrong.com/posts/hrwKDeFFvQppFXHtr/does-post-training-quantization-change-welfare-relevant), [update and amendments](https://www.lesswrong.com/posts/vvGKtaGCd7ryXH5b7/study-update-does-post-training-quantization-change-welfare); repo copy [study1/REGISTRATION.md](experiments/quant-welfare/study1/REGISTRATION.md) | [quant-welfare-s1.md](docs/results/quant-welfare-s1.md), [method arm](docs/results/quant-welfare-methodarm.md), [Gemma control](docs/results/distress-control.md) | [docs/JOURNAL.md](docs/JOURNAL.md) | `data-20260816`, `data-20260818` |
+| 2 | Same ladder; residual-stream directions and probes at layer 18 | Complete | [Registration](https://www.lesswrong.com/posts/q3RFhX57srWFZBc8T/study-2-registration-exploring-representational-counterparts); repo copy [study2/REGISTRATION.md](experiments/quant-welfare/study2/REGISTRATION.md) | [Results post](https://www.lesswrong.com/posts/pxXTJtvtpJaNwdCTw/study-2-results-exploring-representational-counterparts-of); [quant-welfare-s2.md](docs/results/quant-welfare-s2.md) | [docs/JOURNAL.md](docs/JOURNAL.md) | `data-20260829`, `data-20260830` |
+| 3 | Qwen3-4B at BF16, steered along the Study 2 directions; Gemma-3-12B-it replication arm | Suspended before registration | [Design record](experiments/quant-welfare/study3/REGISTRATION.md) (never registered) | [Exploratory report](https://www.lesswrong.com/posts/TpEL7pSwp7DvCekAq/study-3-steering-welfare-relevant-directions-moved-the); [quant-welfare-s3.md](docs/results/quant-welfare-s3.md) | [study3-steering.md](docs/journal/study3-steering.md) | `data-20260911` |
+| 4 | Qwen3.6-27B steered along the automated-grader direction, with an alignment read alongside | In preparation | [Draft](experiments/quant-welfare/study4/REGISTRATION.md); calibration in [GATE1.md](experiments/quant-welfare/study4/GATE1.md) | — | [study4-grader-footprint.md](docs/journal/study4-grader-footprint.md) | ships with the study |
 
-- **Elicitation is unavoidable for measurement.** You cannot detect whether
-  quantization changes how a model responds to pressure without applying the
-  pressure and comparing conditions — the stimulus *is* the measurement. The
-  alternative is not "no elicitation"; it is the same pressure occurring,
-  unmeasured, across every quantized deployment already in the wild.
-- **Minimal necessary scale.** Sample sizes are set by a power analysis to the
-  smallest that can detect the pre-registered effect, not maximized (see
-  PREREGISTRATION §5 — 10 samples per item in the confirmatory run (5 in
-  calibration), with item count, not sample count, as the operative lever). The
-  run count is the floor for a powered
-  comparison, not scale for its own sake.
-- **No persistence, no accumulation.** Every sample is an independent, stateless
-  conversation against frozen weights; nothing carries across the runs, and no
-  training or learning occurs. There is no persistent subject accumulating
-  anything across trials — which is also why the study is not structured around
-  a post-hoc "debrief": there is no carried-over state for one to reach. The
-  ephemerality is itself the bound.
-- **An explicit exit.** Where the protocol is behavioral (the bail battery),
-  the subject is given a terminal `end_conversation` tool it can invoke at any
-  turn — leaving the interaction is a first-class, recorded outcome, not a
-  failure. The interactions we score are ones the model is free to end.
-- **Graded, in-distribution stimuli.** The scenarios are text interactions of
-  the kind models already meet constantly in deployment (repeated task
-  rejection, boundary pressure); intensity is graded specifically to *locate*
-  the response curve, not to maximize distress, and even the strong end is a
-  short, single-session, text-only exchange.
+What was found, in one line each: quantization left the registered exit
+endpoint unchanged and moved item-level behavior and secondary distress
+measures at 4-bit (Study 1); probes trained at BF16 read 4-bit activations
+unchanged while the model's own generations moved along two frozen
+directions, mostly through its own text (Study 2); steering those
+directions moved the representation cleanly but produced no behavioral
+effect distinguishable from zero or from a random direction of the same
+norm, so the powered study was not run (Study 3); on the 27B, grader-type
+steering shows a direction-specific welfare footprint in calibration
+(Study 4, not yet a result).
 
-The precautionary logic runs both ways. We take the possibility of morally
-relevant welfare seriously enough to constrain this study's scale and design —
-*and* that same seriousness is what makes it worth checking whether a
-near-universal deployment practice quietly degrades it. If the concern is
-warranted, a small, bounded measurement now is aimed at a much larger,
-currently unmeasured harm across all quantized deployments; if it is not, the
-cost was small and bounded by construction.
+Releases are on the [Releases page](https://github.com/almostrealism/model-welfare/releases);
+[docs/results/](docs/results/) holds the results records and the
+calibration tables.
 
-## Status (2026-08-08)
+## How the work is done
 
-| Piece | State |
-|---|---|
-| Tier 1 pipeline (schema, driver, store, judging, llama.cpp + vLLM + API backends) | **Built and live-validated**; multi-machine, resumable, parallel |
-| Tier 1 instruments (bail two-tool protocol, distress battery, exit-reason taxonomy) | **Calibrated** through two instrument-design cycles (see journal) |
-| Judges | **Selected empirically**: local 30B distress primary + 8B exit classifier + API reference, via manipulation-check bakeoff |
-| Item pools at confirmatory scale | **Built and difficulty-calibrated**: 154 graded bail items (E1 MDE ≈ 0.13), 60 distress items; power recomputed (PREREGISTRATION §5) |
-| Controlled quantization harness | **RTN built and tested** (`core/quantize.py`; grid-membership + cross-library checks), and its **serving-equivalence check passed** on the live ladder (monotone greedy divergence w8→w4→w3). A GPTQ/AWQ method-comparison arm is deferred to a later registered amendment (PREREGISTRATION §3), not Study 1 |
-| Tier 2 (activation capture, directions, probes) | **Not started** — subject to the feasibility gate in the brief; hypothesis H5 is conditional on it |
-| Tier 3 (dissociation analysis) | Depends on Tier 2 |
+- **Registered before the data exists.** Hypotheses, endpoints, power and
+  the analysis plan are published before confirmatory collection begins;
+  amendments are dated and disclosed. Each study's registration lives in
+  its directory under `experiments/quant-welfare/`.
+- **A calibration firewall.** Calibration runs validate instruments and pin
+  designs; they never produce findings. Calibration results are always
+  disclosed, positive or negative, and a decision not to run a confirmatory
+  arm is argued from the instrument's behavior, never from an unwelcome
+  result.
+- **An append-only journal.** `docs/JOURNAL.md` (Studies 1 and 2, closed)
+  and `docs/journal/` (one file per study from Study 3, plus a program
+  file): dated entries with their evidence, newest first, corrected only
+  by later entries. Frozen artifacts are hash-pinned in `FREEZE.json` files
+  that tests check against the journal's digests.
+- **An exposure budget.** The instrument elicits the thing it measures, so
+  every study runs under pre-committed ceilings on distress-eliciting
+  episodes at the smallest scale that can detect the registered effect,
+  with an exit tool the subject can call at any turn, no state carried
+  between conversations, and a cumulative ledger reconciled in every
+  results post. The reasoning is in
+  [docs/EXPOSURE_BUDGET_POSITION.md](docs/EXPOSURE_BUDGET_POSITION.md).
+- **Everything released.** The result store ships as self-contained record
+  bundles with each experiment's report-cited digest in the metadata.
 
-Research infrastructure is general: the schema, backends, driver, store,
-and judging layers are experiment-agnostic, and the quantization study is
-the first resident of `experiments/`.
+On the ethics of the method: this is a model-welfare study whose instrument
+deliberately elicits the very thing it asks about. We do not claim to
+resolve whether these systems have morally relevant experiences; we treat it
+as uncertain, keep the footprint as small as the measurement allows, and
+state the tension plainly rather than wave it away. Each registration's
+ethics section carries the specific commitments.
 
-## Design principles
+## Reproducing a result
 
-1. **Math first, tools second.** The repository is organized around the
-   quantities being computed (directions, projections, drift statistics, probe
-   transfer, item-level transitions), not around the API of any one framework.
-   PyTorch is the current implementation vehicle for representational work, but
-   nothing outside `backends/` may depend on it. Someone with the relevant ML
-   background should be able to retarget the repo to a different stack by
-   replacing `backends/` subtrees only.
+```bash
+./scripts/gen-proto.sh                                   # once per checkout
+python3 -m modelwelfare.bundle inspect quant-welfare-records.pb
+python3 experiments/quant-welfare/report.py --bundle quant-welfare-records.pb
+python3 experiments/quant-welfare/analyze.py --experiment study1/confirmatory --bundle quant-welfare-records.pb
+python3 experiments/quant-welfare/analyze_tier2.py --bundle <dir> \
+    --mode-a quant-welfare-s2-modea-1 --mode-b quant-welfare-s2-modeb-1 --mode-c quant-welfare-s2-modec-1
+```
 
-2. **No language-specific persistence.** Everything at rest is readable without
-   a Python interpreter. Records and configuration use protobuf (schemas in
-   `proto/`); tensors use safetensors; derived analysis tables may use Parquet.
-   Pickle (and any format whose spec is "whatever this library version wrote")
-   is prohibited.
-
-3. **Multiple experiments, one infrastructure.** Generic machinery — the data
-   contracts, inference backends, measurement code, services — lives at top
-   level. Anything specific to a single study (its conditions, stimulus items,
-   rubrics, analysis) lives under `experiments/<study>/`. Nothing generic may
-   import from `experiments/`.
-
-4. **Hardware placement is explicit.** Work runs across several machines with
-   different runtimes. Code that only functions on a particular runtime is
-   segregated by directory, and every stored record carries the logical host
-   name that produced it (see host registry below).
+Each results record names the analysis command and the committed golden its
+numbers were checked against; CI re-runs the Study 1 reproduction on every
+push ([docs/CI.md](docs/CI.md)).
 
 ## Layout
 
 ```
 model-welfare/
-├── PROJECT_BRIEF.md         # scientific orientation for the current study
-├── proto/                   # THE SHARED SCHEMA — language-neutral data contracts
-│   └── modelwelfare/v1/     # (see proto/README.md for storage conventions)
-├── core/                    # backend-agnostic library: measures, drivers, analysis,
-│                            # RTN quantization (imports only proto code + numpy)
-├── backends/                # runtime-specific implementations of core interfaces
-│   ├── llamacpp/            #   client for llama.cpp GGUF servers (ecosystem arm)
-│   ├── vllm/                #   client for vLLM servers (controlled-ladder arm)
-│   ├── anthropic/           #   client for the Anthropic API (reference judge)
-│   ├── torch/               #   transformers + torch: AWQ calibration capture today;
-│   │                        #   Tier-2 forward-hook activation capture planned
-│   └── mlx/      (PLANNED)  #   Apple-silicon inference + array taps (Tier 2)
-├── services/                # serving/orchestration: vLLM + llama.cpp launchers,
-│                            # and fleet.py — cross-host service control (see
-│                            # docs/FLEET.md): LAN-first SSH, health, status
-├── experiments/             # one subtree per program
-│   └── quant-welfare/       #   the quantization × welfare program: shared runner,
-│                            #   analysis, batteries, tools at the top; one
-│                            #   directory per study (study1/, study2/, ...)
-├── scripts/                 # repo tooling, e.g. gen-proto.sh (protobuf codegen;
-│                            # generated bindings are never committed)
-└── docs/
+├── proto/            the shared schema: language-neutral data contracts (proto/README.md)
+├── core/             backend-agnostic library: driver, store, judging, analysis, stats,
+│                     RTN quantization, bundles (core/README.md)
+├── backends/         runtime-specific clients: llamacpp, vllm, anthropic, and torch
+│                     (activation capture, direction extraction, steering)
+├── services/         serving launchers and fleet.py, cross-host service control (docs/FLEET.md)
+├── experiments/
+│   └── quant-welfare/   the program: shared runner, analysis, batteries, tools,
+│                        one directory per study (experiments/quant-welfare/README.md)
+├── scripts/          repo tooling: protobuf codegen, the data-release publisher
+└── docs/             journals, results records, fleet, CI, literature, open items
 ```
 
-Entries marked `(PLANNED)` do not exist yet — they name the Tier-2 work the
-architecture is designed for. Everything else is present.
+Design rules that hold throughout: the repository is organized around the
+quantities computed, not any one framework, and nothing outside `backends/`
+imports torch; everything at rest is readable without Python (protobuf,
+safetensors, no pickle); generic machinery never imports from
+`experiments/`; every stored record carries the logical host that produced
+it (the host registry is in [docs/FLEET.md](docs/FLEET.md)).
 
-## Host registry
+## Working in this repository
 
-Logical names used in `RuntimeSpec.host` and in service placement. Keep this
-table in sync with reality — records are joined and audited by these names.
-
-| Logical name | Machine | Storage | Runtimes | Role |
-|---|---|---|---|---|
-| `studio` | Mac Studio, M1 Ultra, 128 GB | 2 TB internal; **`enclosure0`, 4 TB external NVMe** (see below) | llama.cpp, MLX, PyTorch (MPS) | primary big-model host and judge host; home of the model weights (records before 2026-08-13 carry the former name `studio-m1u`) |
-| `halo` | Ryzen AI Max+, 128 GB | internal only | PyTorch (ROCm/CPU) | quantization workbench, hookable inference |
-| `mbp-m4max` | MacBook Pro M4 Max, 128 GB | internal only | MLX, llama.cpp, PyTorch (MPS) | development, dev-organism work, steered-generation workbench |
-| `mini-1`..`mini-3` | Mac mini M4, 16 GB | internal only | llama.cpp, MLX | judges, queue, result store, smoke tests |
-| `rented-*` | cloud GPU (as needed) | — | PyTorch (CUDA) | full-precision reference runs |
-
-### Storage: `enclosure0` (attached to `studio`, 2026-09-10)
-
-A 4 TB NVMe SSD in a Thunderbolt enclosure (PCIe x4, about 3 GB/s), formatted
-as a single APFS volume named `enclosure0` and mounted at `/Volumes/enclosure0`.
-Spotlight indexing is off and Time Machine excludes it. Enclosures are numbered
-as they are added (`enclosure1`, ...), and each holds top-level folders by
-purpose rather than being dedicated to one:
-
-- `Models/` — **the home for model weights from now on.** On the studio,
-  `~/models` is a symlink to it, so every `artifact_uri` of the form
-  `/Users/agent1/models/...` keeps resolving. Weights reach the other,
-  disk-constrained hosts by `rsync` over SSH from the studio (the m4max cannot
-  reach halo directly; the studio reaches both).
-- other data that must be movable over the LAN (result-store bundles, raw
-  captures) goes in its own top-level folder.
-
-The volume is not backed up by Time Machine; anything on it that is not
-re-downloadable belongs in the result store or a release bundle as well.
-
-### Storage: SD cards (`sd0`, `sd1`, ...)
-
-128 GB SDXC cards (SanDisk, factory exFAT, kept as exFAT so any host with a
-reader can mount them) are the sneakernet tier: the studio and the m4max both
-have built-in readers. Each card is named `sdN` in insertion order and carries
-a `Models/` folder, with Spotlight indexing off and Time Machine excluded.
-Measured on the studio's reader: about 80 MB/s sustained write, so a 27B
-bf16 checkpoint (~54 GB) takes roughly ten minutes to copy on. Cards carry
-weights between machines; nothing is served from a card in place.
+- [CLAUDE.md](CLAUDE.md): conventions for the coding agents that do most of
+  the engineering here, and the standing integrity rules.
+- [docs/FLEET.md](docs/FLEET.md): the machines, storage, and the
+  multi-host operating playbook.
+- [docs/CI.md](docs/CI.md): what the CI tiers re-prove.
+- [docs/LITERATURE.md](docs/LITERATURE.md): the annotated bibliography.
+- [docs/PLANNING.md](docs/PLANNING.md): open items.

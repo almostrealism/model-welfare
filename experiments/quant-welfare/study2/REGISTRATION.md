@@ -19,8 +19,8 @@
 > **Registration policy note.** Beginning with Study 2, each study's
 > registration lives in its study directory
 > (`experiments/quant-welfare/study2/` for this one). The Study 1 / program
-> registration remains at the repository root
-> ([PREREGISTRATION.md](../../../PREREGISTRATION.md)) exactly as published —
+> registration is [study1/REGISTRATION.md](../study1/REGISTRATION.md),
+> the published text exactly as published —
 > it carries program-level commitments (notably §7 deviation policy and the
 > §12 mechanical endpoint family, both of which bind this study) and is the
 > artifact the published posts link to, so it is not moved or edited.

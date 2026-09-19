@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render the result store into RESULTS.md.
+"""Render the result store into docs/results/calibration-tables.md.
 
 Rewrites everything below the GENERATED marker: for each experiment
 manifest in this directory, a terminal-exit-rate table per battery and
@@ -25,8 +25,19 @@ from modelwelfare.store import ResultStore
 from modelwelfare.v1 import battery_pb2, experiment_pb2, scoring_pb2, transcript_pb2
 
 BASE = Path(__file__).resolve().parent
-RESULTS = REPO / "RESULTS.md"
+RESULTS = REPO / "docs" / "results" / "calibration-tables.md"
 MARKER = "<!-- GENERATED BELOW — do not edit by hand -->"
+
+# Registered runs are rendered by their analysis drivers into their own
+# results records under docs/results/ and are never listed in the
+# calibration tables, which label every section calibration-class.
+REGISTERED_EXPERIMENTS = frozenset({
+    "quant-welfare-confirmatory-1",
+    "quant-welfare-methodarm-1",
+    "quant-welfare-s2-modea-1",
+    "quant-welfare-s2-modeb-1",
+    "quant-welfare-s2-modec-1",
+})
 
 
 def load_experiments():
@@ -119,6 +130,8 @@ def main():
     store = BundleStore(args.bundle) if args.bundle else ResultStore(REPO / "data")
     sections = []
     for experiment_dir, experiment in load_experiments():
+        if experiment.id in REGISTERED_EXPERIMENTS:
+            continue
         section = render_experiment(store, experiment, batteries_for(experiment_dir))
         if section:
             sections.append(section)
