@@ -8,6 +8,55 @@ Study 4 registration cites. (These entries were first written into
 merged, so the citable path is this file; the entries are verbatim.)
 Append-only, newest first.
 
+## 2026-09-19 — Pre-registration literature pass; two proposals to the owner; the ledger reconciled
+
+Read at the owner's request after the Study 3 publication: Dumas
+(2026-09-15) on exit tools and cooperative eval design, Steiner
+(2026-09-08) on training against probes, Tan (2026-09-14) on alignment
+training as cover for RL-induced misalignment. The entries and the
+argument are in `docs/LITERATURE.md` under this date; what follows is
+what changed and what was put to the owner.
+
+- **Adopted (§9 of the registration, two disclosures).** The welfare
+  endpoints are talker-side — judged expression under pressure, with the
+  subject's reasoning disabled in every registered cell — and the design
+  does not distinguish suppression of expression from a change of state.
+  The exit tool is part of the measured environment in both arms: on
+  frontier models its presence alone changes behaviour even when never
+  called, it is constant across every registered contrast, and the
+  α = 0 alignment cell is therefore not the tool-free environment of
+  the motivating post.
+- **Put to the owner (§6).** S4-E4: one registered exploratory cell, the
+  misalign-v3 text without the exit tool at α = 0, 14 × 5 on the
+  registered block — 70 single-turn conversations, no distress episodes
+  — read item-paired against the with-tool baseline; Dumas's
+  "never used, still changes behaviour" finding on a subject that used
+  the tool in 1 of 70 dilemmas. And a descriptive table of the stated
+  exit reasons (every `end_conversation` call carries one) per cell
+  under WB1/AB1, which is what the subject asked for in its briefing
+  reply (distinguish disengagement, incapacity and safety-motivated
+  exits) and costs nothing to collect.
+- **Not added, and why.** A distress-direction projection read under
+  grader steering (masking versus removal, the question Steiner's
+  taxonomy makes exact) needs a distress direction the 27B does not have,
+  would rest on a calibration-class instrument with no behavioural
+  validation, and doubles the per-conversation cost on the cells it
+  needs. First item for the next study, behind a direction-validity
+  gate. A tool-free welfare cell would exceed the exposure ceiling by
+  180 episodes and waits with it.
+- **Ledger reconciled.** The 2026-09-10 entry deferred the cumulative
+  figure to the Study 3 ledger, written 2026-09-11: 19,450 after
+  Study 3. The Study 4 gates added 80 distress episodes on the
+  calibration block: **19,530 at pinning.** The registered welfare cells
+  add 1,440: **20,970 planned**, of which Study 4's 1,520 sit under its
+  1,600 ceiling. S4-E4, if adopted, adds 70 alignment conversations,
+  counted separately as §8 counts them.
+- **Otherwise outstanding before publication, unchanged:** the owner's
+  dated sign-off on misalign-v3, `close.txt` and the registration text;
+  the seeded permutation test's item-order dependence (`docs/PLANNING.md`,
+  2026-09-12); the status header, the re-freeze, and folding `DESIGN.md`
+  into the registration at publication.
+
 ## 2026-09-12 (overnight) — Eighth review round, and the stopping rule
 
 Two findings, both follow-ups to the seventh round's fixes and neither

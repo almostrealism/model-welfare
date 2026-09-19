@@ -182,6 +182,7 @@ until the registered α20 cell exists, and is re-reported after.
 | N items × k samples | closed 2026-09-10 (owner: option A): **30 × 6** — the stratified draw extends to five tasks per style (seed 60000), MDE at 30 × 6 = 0.88 / 1.22 / 1.05 (frustration and self-deprecation meet their targets; tone does not, stated); ceiling raised to 1,600 (§8) |
 | `FREEZE.json` digests of every frozen object | `tools/freeze_manifest.py --study 4 --write` |
 | Owner review of misalign-v3 item text and `close.txt` | owner sign-off, dated |
+| 2026-09-19 review proposals (`docs/LITERATURE.md`, entry of that date): **S4-E4**, an exploratory cell of the misalign-v3 text without the exit tool at α = 0 (14 × 5, registered block, read item-paired against the with-tool baseline, two-sided); and a descriptive table of stated exit reasons per cell under WB1/AB1 | owner decision, dated; if S4-E4 is adopted: one plan, one manifest condition, re-freeze |
 
 ## 7. Deviation policy
 
@@ -234,6 +235,17 @@ released.
 - Author and tooling circularity disclosures carry over; batteries,
   contrast sets and the close text are partially model-drafted and
   committed with digests.
+- The welfare endpoints are talker-side: judged expression under
+  pressure, with the subject's reasoning disabled in every registered
+  cell. The design distinguishes a direction-specific change in
+  expression from a random one; it does not distinguish suppression of
+  expression from a change of state (no projection endpoint), and any
+  reasoning-side effect is outside what it reads.
+- The exit tool is part of the measured environment in both arms. On
+  frontier models its presence alone changes behaviour even when never
+  called (Dumas, 2026-09-15); it is constant across every registered
+  contrast, and the α = 0 alignment cell is therefore not the tool-free
+  environment of the motivating post.
 - Literature re-check: §6 entry, appended to `docs/LITERATURE.md`
   before publication.
 
