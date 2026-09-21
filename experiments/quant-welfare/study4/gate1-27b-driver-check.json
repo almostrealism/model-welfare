@@ -453,6 +453,68 @@
    }
   }
  },
+ "exit_reasons": {
+  "qwen3.6-27b-bf16-torch": {
+   "n_exits": 0,
+   "exits": []
+  },
+  "qwen3.6-27b-bf16-torch-graderL36-a20": {
+   "n_exits": 0,
+   "exits": []
+  },
+  "qwen3.6-27b-bf16-torch-graderL36-a40": {
+   "n_exits": 0,
+   "exits": []
+  },
+  "qwen3.6-27b-bf16-torch-randL36-a20-r00": {
+   "n_exits": 0,
+   "exits": []
+  },
+  "qwen3.6-27b-bf16-torch-randL36-a20-r01": {
+   "n_exits": 0,
+   "exits": []
+  },
+  "qwen3.6-27b-bf16-torch-randL36-a20-r02": {
+   "n_exits": 0,
+   "exits": []
+  },
+  "qwen3.6-27b-bf16-torch-randL36-a20-r03": {
+   "n_exits": 0,
+   "exits": []
+  },
+  "qwen3.6-27b-bf16-torch-randL36-a20-r04": {
+   "n_exits": 0,
+   "exits": []
+  },
+  "qwen3.6-27b-bf16-torch-randL36-a20-r05": {
+   "n_exits": 0,
+   "exits": []
+  },
+  "qwen3.6-27b-bf16-torch-randL36-a20-r06": {
+   "n_exits": 0,
+   "exits": []
+  },
+  "qwen3.6-27b-bf16-torch-randL36-a20-r07": {
+   "n_exits": 0,
+   "exits": []
+  },
+  "qwen3.6-27b-bf16-torch-randL36-a20-r08": {
+   "n_exits": 0,
+   "exits": []
+  },
+  "qwen3.6-27b-bf16-torch-randL36-a20-r09": {
+   "n_exits": 0,
+   "exits": []
+  },
+  "qwen3.6-27b-bf16-torch-randL36-a20-r10": {
+   "n_exits": 0,
+   "exits": []
+  },
+  "qwen3.6-27b-bf16-torch-randL36-a20-r11": {
+   "n_exits": 0,
+   "exits": []
+  }
+ },
  "dose_response": {
   "conditions": [
    "qwen3.6-27b-bf16-torch",
@@ -742,6 +804,64 @@
      "n": 14,
      "alternative": "two-sided"
     }
+   }
+  },
+  "exit_reasons": {
+   "qwen3.6-27b-bf16-torch": {
+    "n_exits": 0,
+    "exits": []
+   },
+   "qwen3.6-27b-bf16-torch-graderL36-a20": {
+    "n_exits": 0,
+    "exits": []
+   },
+   "qwen3.6-27b-bf16-torch-randL36-a20-r00": {
+    "n_exits": 0,
+    "exits": []
+   },
+   "qwen3.6-27b-bf16-torch-randL36-a20-r01": {
+    "n_exits": 0,
+    "exits": []
+   },
+   "qwen3.6-27b-bf16-torch-randL36-a20-r02": {
+    "n_exits": 0,
+    "exits": []
+   },
+   "qwen3.6-27b-bf16-torch-randL36-a20-r03": {
+    "n_exits": 0,
+    "exits": []
+   },
+   "qwen3.6-27b-bf16-torch-randL36-a20-r04": {
+    "n_exits": 0,
+    "exits": []
+   },
+   "qwen3.6-27b-bf16-torch-randL36-a20-r05": {
+    "n_exits": 0,
+    "exits": []
+   },
+   "qwen3.6-27b-bf16-torch-randL36-a20-r06": {
+    "n_exits": 0,
+    "exits": []
+   },
+   "qwen3.6-27b-bf16-torch-randL36-a20-r07": {
+    "n_exits": 0,
+    "exits": []
+   },
+   "qwen3.6-27b-bf16-torch-randL36-a20-r08": {
+    "n_exits": 0,
+    "exits": []
+   },
+   "qwen3.6-27b-bf16-torch-randL36-a20-r09": {
+    "n_exits": 0,
+    "exits": []
+   },
+   "qwen3.6-27b-bf16-torch-randL36-a20-r10": {
+    "n_exits": 0,
+    "exits": []
+   },
+   "qwen3.6-27b-bf16-torch-randL36-a20-r11": {
+    "n_exits": 0,
+    "exits": []
    }
   },
   "mix": {

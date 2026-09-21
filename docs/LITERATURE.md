@@ -645,7 +645,8 @@ changes here, what it does not.
   made in its own briefing (distinguish disengagement, incapacity and
   safety-motivated exits) — **proposed as a descriptive table under
   WB1/AB1**. The welfare-arm analogue (a tool-free distress cell) would
-  put the study 180 episodes over its ceiling and waits. His
+  put the study 100 episodes over its ceiling (1,520 planned + 180
+  against 1,600) and waits. His
   grading-paragraph result and Study 3's verifier-frame result (−1.13
   judged frustration) are one phenomenon read from two sides; see the
   candidate study below.
@@ -726,8 +727,8 @@ changes here, what it does not.
 reasoning disabled; the exit tool as part of the measured environment);
 the two proposals entered in the registration's §6 for the owner's
 decision; the probe-validity threat recorded here for future projection
-endpoints. Nothing frozen changes unless S4-E4 is adopted (one plan, one
-manifest condition, re-freeze).
+endpoints. Both proposals were adopted on 2026-09-20; S4-E4 runs as its
+own experiment on the misalign-v2 battery (journal entry of that date).
 
 **Candidates for the next study** (recorded in `docs/PLANNING.md`):
 (1) cooperation × grading — a 2 × 2 of {grading paragraph present,

@@ -22,11 +22,6 @@ them). Date every status change.
   rewritten; a re-ingest that derives outcomes from the transcripts would
   make them consistent.
 
-- [ ] **2026-09-19 review proposals** *(opened 2026-09-19)* — S4-E4 (an
-  exit-tool-absent alignment cell at α = 0) and the stated-exit-reason
-  table, entered in the registration's §6; the owner decides before the
-  registration publishes (`docs/LITERATURE.md`, entry of that date).
-
 ## Instruments
 
 - [ ] **Outlier-channel overlap test for the frozen reads** *(opened

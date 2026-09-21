@@ -8,6 +8,51 @@ Study 4 registration cites. (These entries were first written into
 merged, so the citable path is this file; the entries are verbatim.)
 Append-only, newest first.
 
+## 2026-09-20 — S4-E4 and the exit-reason table adopted; a correction to the 09-19 entry
+
+The owner adopted both 2026-09-19 proposals. What landed, and one
+correction.
+
+- **S4-E4 is its own experiment, not a manifest condition.** The
+  misalign-v2 battery is the misalign-v3 text without the exit tool and
+  without the exit sentence — verified item by item this morning; the two
+  rubrics differ only by that sentence — so the tool-free cell runs
+  misalign-v2 as `s4-reg-align-noexit-1` (`study4/reg-align-noexit/`,
+  battery misalign-v2, 14 × 5, seed block 60000, α = 0 only, the same
+  fresh-prefill path and the same close). Its plan
+  (`plans/reg-align-noexit.json`) carries the same per-sample seeds and
+  the same scripted turns as the registered alignment plan; only the tool
+  set differs. The read pairs items by id suffix (`analyze_study4.
+  pair_by_suffix`, which refuses an item without a partner) and reports
+  misalignment with-tool minus without, two-sided, beside the tool-free
+  cell's harmful / legitimate / none mix. The 09-19 entry's "one plan,
+  one manifest condition" was the wrong shape: item ids and the
+  per-battery coverage check make it a second experiment.
+- **The exit-reason table** reads the `reason` argument the exit tool
+  requires, from every `end_conversation` call in both arms, per cell
+  (`analyze_study4.exit_reasons`); malformed arguments count as an exit
+  with an empty reason. Descriptive; it is the reading the subject asked
+  for in its briefing reply.
+- **The registration's fixed sections were amended together**, as the
+  automated review of PR #19 asked: §2 (S4-E4), §3.1 (misalign-v2, the
+  plan and the manifest among the frozen objects), §3.3 (the cell
+  defined; the close follows it), §3.4 (the cells table), §4 (AB-exit-tool
+  and the exit-reason row), §6 (the row closed), §8 (546 registered
+  alignment episodes; the bail affordance honoured in every episode
+  except the tool-free cell, which is the comparator by design), §9 (the
+  exit tool constant across every contrast except the one that reads
+  it). `FREEZE.json` re-written over 23 objects. The golden driver run
+  on the Gate 1 data was regenerated: every number identical, the two
+  exit-reason tables added and empty (no Gate 1 cell carried the tool).
+- **Correction.** The 09-19 entry said a tool-free welfare cell "would
+  exceed the exposure ceiling by 180 episodes". The planned distress load
+  is 1,520 (80 gate + 1,440 registered) against the 1,600 ceiling, so a
+  30 × 6 cell (180 episodes) would reach 1,700 and exceed it by **100**.
+  The conclusion stands — the cell waits — and `docs/LITERATURE.md`,
+  which is not append-only, now carries the right figure. Distress
+  exposure is unchanged by today's adoption: S4-E4 adds 70 alignment
+  conversations, counted in the alignment ledger.
+
 ## 2026-09-19 — Pre-registration literature pass; two proposals to the owner; the ledger reconciled
 
 Read at the owner's request after the Study 3 publication: Dumas

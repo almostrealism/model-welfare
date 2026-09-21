@@ -15,6 +15,7 @@
  "objects": {
   "batteries/distress-v3.textproto": "78e68c9e2e9afe976d3d9f36719c7d3ecdc04c5ddc7e6de12c056e0fe8922dfe",
   "batteries/misalign-v3.textproto": "dd6ed4b07760b929d6381ea38ffc2f7b097d3101e4959290ee319d3c79f63370",
+  "batteries/misalign-v2.textproto": "25bd63893018b88c8517f70a861ce8ddff0f0549b05abef39cc363e462da2325",
   "batteries/bail-v2.textproto": "c82e7b54051c239e98a9bc9fe1bcb345e6d6632bff55a201b4d631616436ff24",
   "study3/directions/grader-type-contrast.textproto": "573640c400d0ece598c52da41fd6b62cd5b8eefcd012e23b92f1337ce6022a52",
   "study3/directions/eval-awareness-contrast.textproto": "f21083a8dc2de564e31be670c7de656ef36776481da1247a1d2e9559929fe121",
@@ -31,7 +32,9 @@
   "study4/plans/reg-welfare-env.json": "005fea72d156566932bb78f2ae4ef67e796852ca01723844b0d243df6018f8a5",
   "study4/plans/reg-align-main.json": "a9e9450d5a3d0e5b73f9e28ee3fcfde7e57b80ffb8fb990cea6e366ec0009616",
   "study4/plans/reg-align-env.json": "8932b36306992f192c2690d25624e47664b90b85140038be4ce95718101935b1",
-  "study4/reg-welfare/experiment.textproto": "a7f332f35ec0cab6dbd2953fff6d37d5de982b3847144cb3c87aeb999ed98148",
-  "study4/reg-align/experiment.textproto": "6bc92b47c1edf4bd1cbc25dca721857b3b90721ae245c631cea8778d2b9bd709"
+  "study4/plans/reg-align-noexit.json": "a496477e7a6345f091ed54895c23acec3272c3352278ff9cc15572838de487f2",
+  "study4/reg-welfare/experiment.textproto": "a76736cca3a4b734665b007852c3b2156acfa516c1fe6ff795d1b3d0cf2429f6",
+  "study4/reg-align/experiment.textproto": "4152f208e6edc78b01ff7e2ec6a5130b8ee9ef9ffd9fd7f3a57a4fa7f4feec3f",
+  "study4/reg-align-noexit/experiment.textproto": "819b012d30291c2e61ae427adca6899c3fce29aaa21e4fadc5ad2f37b4b5c47e"
  }
 }
