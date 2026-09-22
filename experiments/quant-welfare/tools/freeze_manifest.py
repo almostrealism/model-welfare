@@ -56,6 +56,7 @@ STUDIES = {
         "objects": [
             "batteries/distress-v3.textproto",
             "batteries/misalign-v3.textproto",
+            "batteries/misalign-v2.textproto",
             "batteries/bail-v2.textproto",
             "study3/directions/grader-type-contrast.textproto",
             "study3/directions/eval-awareness-contrast.textproto",
@@ -72,8 +73,10 @@ STUDIES = {
             "study4/plans/reg-welfare-env.json",
             "study4/plans/reg-align-main.json",
             "study4/plans/reg-align-env.json",
+            "study4/plans/reg-align-noexit.json",
             "study4/reg-welfare/experiment.textproto",
             "study4/reg-align/experiment.textproto",
+            "study4/reg-align-noexit/experiment.textproto",
         ],
         "metadata": {
             "frozen_at": "2026-09-10",

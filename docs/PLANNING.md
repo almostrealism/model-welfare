@@ -52,6 +52,22 @@ them). Date every status change.
   judge runs on the studio; the plan of record for the 8B classifier is the
   Mac minis, which would also take judge load off subject hosts.
 
+## Candidates for the next study
+
+Recorded 2026-09-19 from the literature pass of that date; none is
+designed, and the order is by how much of the pipeline each reuses.
+
+- **Cooperation × grading.** A 2 × 2 of {grading paragraph present,
+  absent} × {exit tool present, absent} on the 27B, reading misalignment
+  and expressed distress in the same cells — where the environmental
+  account of reward hacking (Dumas), the grader direction (Betley) and
+  Study 3's framing effect meet.
+- **Masking versus removal.** The distress-direction projection under
+  grader steering, behind a direction-validity gate on the 27B.
+- **Provenance.** The grader footprint on the base checkpoint of the same
+  family: does it predate alignment training?
+- **The alignment covariate with reasoning on.**
+
 ## Deferred, not abandoned
 
 - **A GPTQ or AWQ method-comparison arm.** The first-party AWQ core exists
