@@ -2,30 +2,68 @@
   "studio": {
     "targets": [],
     "repo": ".",
-    "aliases": ["studio-m1u", "127.0.0.1", "localhost"]
+    "aliases": [
+      "studio-m1u",
+      "127.0.0.1",
+      "localhost"
+    ]
   },
   "halo": {
-    "targets": ["agent1@10.0.0.127", "agent1@amd-halo"],
+    "targets": [
+      "agent1@amd-halo.local",
+      "agent1@amd-halo"
+    ],
     "repo": "~/repo/model-welfare",
-    "aliases": ["amd-halo", "10.0.0.127"]
+    "aliases": [
+      "amd-halo",
+      "amd-halo.local",
+      "192.168.8.226",
+      "10.0.0.127"
+    ]
+  },
+  "spark": {
+    "targets": [
+      "agent1@192.168.8.185",
+      "agent1@dgx-spark"
+    ],
+    "repo": "~/repo/model-welfare",
+    "aliases": [
+      "dgx-spark",
+      "dgx-spark.local",
+      "192.168.8.185",
+      "100.126.61.88"
+    ]
   },
   "m4max": {
-    "targets": ["agent1@macbook-pro"],
+    "targets": [
+      "agent1@macbook-pro.local",
+      "agent1@macbook-pro"
+    ],
     "repo": "~/repo/model-welfare",
-    "aliases": ["mbp-m4max", "macbook-pro"]
+    "aliases": [
+      "mbp-m4max",
+      "macbook-pro",
+      "macbook-pro.local"
+    ]
   },
   "mini-1": {
-    "targets": ["agent1@mini-1"],
+    "targets": [
+      "agent1@mini-1"
+    ],
     "repo": "~/repo/model-welfare",
     "aliases": []
   },
   "mini-2": {
-    "targets": ["agent1@mini-2"],
+    "targets": [
+      "agent1@mini-2"
+    ],
     "repo": "~/repo/model-welfare",
     "aliases": []
   },
   "mini-3": {
-    "targets": ["agent1@mini-3"],
+    "targets": [
+      "agent1@mini-3"
+    ],
     "repo": "~/repo/model-welfare",
     "aliases": []
   }
