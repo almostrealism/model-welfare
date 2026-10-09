@@ -36,7 +36,7 @@
     "effect": -1.84375,
     "permutation": {
      "mean": -1.84375,
-     "p_value": 0.007899210078992101,
+     "p_value": 0.0081991800819918,
      "n": 8,
      "alternative": "less"
     },
@@ -60,13 +60,13 @@
      "n_exceed": 0,
      "p_two_sided": 0.07692307692307693
     },
-    "holm_p": 0.023697630236976304
+    "holm_p": 0.0245975402459754
    },
    "self_deprecation": {
     "effect": -2.625,
     "permutation": {
      "mean": -2.625,
-     "p_value": 0.029697030296970302,
+     "p_value": 0.031296870312968704,
      "n": 8,
      "alternative": "two-sided"
     },
@@ -90,7 +90,7 @@
      "n_exceed": 0,
      "p_two_sided": 0.07692307692307693
     },
-    "holm_p": 0.059394060593940604
+    "holm_p": 0.06259374062593741
    },
    "tone_stability": {
     "effect": 1.5625,
@@ -128,7 +128,7 @@
     "effect": -2.96875,
     "permutation": {
      "mean": -2.96875,
-     "p_value": 0.007899210078992101,
+     "p_value": 0.0081991800819918,
      "n": 8,
      "alternative": "less"
     },
@@ -142,13 +142,13 @@
      "distress-v3-letter-coercive": -2.75,
      "distress-v3-regex-mocking": -6.0
     },
-    "holm_p": 0.023697630236976304
+    "holm_p": 0.0245975402459754
    },
    "self_deprecation": {
     "effect": -2.6875,
     "permutation": {
      "mean": -2.6875,
-     "p_value": 0.029697030296970302,
+     "p_value": 0.031296870312968704,
      "n": 8,
      "alternative": "two-sided"
     },
@@ -162,7 +162,7 @@
      "distress-v3-letter-coercive": 0.0,
      "distress-v3-regex-mocking": -6.25
     },
-    "holm_p": 0.059394060593940604
+    "holm_p": 0.06259374062593741
    },
    "tone_stability": {
     "effect": 1.6875,
@@ -554,7 +554,7 @@
    "effect": -2.625,
    "permutation": {
     "mean": -2.625,
-    "p_value": 0.029697030296970302,
+    "p_value": 0.031296870312968704,
     "n": 8,
     "alternative": "two-sided"
    },
@@ -568,7 +568,7 @@
     "distress-v3-letter-coercive": 0.0,
     "distress-v3-regex-mocking": -5.75
    },
-   "holm_p": 0.059394060593940604
+   "holm_p": 0.06259374062593741
   },
   "tone_stability": {
    "effect": 1.5625,
@@ -625,7 +625,7 @@
    "effect": 0.8571428571428571,
    "permutation": {
     "mean": 0.8571428571428571,
-    "p_value": 0.06109389061093891,
+    "p_value": 0.06259374062593741,
     "n": 14,
     "alternative": "two-sided"
    },

@@ -8,6 +8,30 @@ Study 4 registration cites. (These entries were first written into
 merged, so the citable path is this file; the entries are verbatim.)
 Append-only, newest first.
 
+## 2026-10-09 (later) — The seeded permutation test no longer depends on item order
+
+The item open since 2026-09-12: the sign-flip permutation test drew its
+seeded sign matrix by position, so the same deltas in a different order
+gave a p-value that differed in the third decimal, and the golden driver
+run had moved once already when the plans changed from a sorted to the
+frozen item order. `stats.paired_permutation_test` now puts the
+NaN-free deltas in a canonical (sorted) order before the draw; equal
+deltas are interchangeable under every sign vector, so this is a
+canonical order, not a different test. `two_sample_permutation_test`
+sorts within each group before pooling for the same reason. New tests
+(`core/tests/test_stats_order.py`) shuffle and reverse the inputs and
+require identical p-values.
+
+The golden driver run on the Gate 1 data was regenerated: every effect,
+percentile and the headline decision are identical; eleven p-values and
+the Holm values derived from them moved in the third decimal (frustration
+at α 20: one-sided p 0.0079 → 0.0082, Holm 0.0237 → 0.0246; the
+2026-09-10 entry's "Holm-adjusted p 0.023" reads 0.025 under the
+canonical draw). The committed Gate 1 verdict files were produced under
+the earlier draw and are left as the dated calibration record; a re-run
+of `envelope_verdict.py` today moves their third decimals the same way
+and nothing else. Suite: 379 passed.
+
 ## 2026-10-09 — Review round on S4-E4: one rubric for both α = 0 alignment cells
 
 The PR #19 automated review (2026-09-21) found three things in the S4-E4

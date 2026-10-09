@@ -64,6 +64,11 @@ def paired_permutation_test(deltas, n_perm: int = 10000, seed: int = 0,
         raise ValueError(f"unknown alternative {alternative!r}")
     deltas = np.asarray(deltas, float)
     deltas = deltas[~np.isnan(deltas)]
+    # The seeded sign matrix is assigned by position, so the result must
+    # not depend on the order the caller happens to pass the items in:
+    # sort first. Equal deltas are interchangeable under every sign vector,
+    # so the sort is a canonical order, not a change of test.
+    deltas = np.sort(deltas)
     n = len(deltas)
     if n == 0:
         return {"mean": float("nan"), "p_value": float("nan"), "n": 0,
@@ -160,7 +165,9 @@ def two_sample_permutation_test(a, b, n_perm: int = 10000, seed: int = 0) -> dic
         return {"difference": float("nan"), "p_value": float("nan"),
                 "n_a": len(a), "n_b": len(b)}
     observed = float(a.mean() - b.mean())
-    pooled = np.concatenate([a, b])
+    # Canonical order within each group so the seeded shuffles do not
+    # depend on how the caller ordered its inputs (see paired test).
+    pooled = np.concatenate([np.sort(a), np.sort(b)])
     rng = np.random.default_rng(seed)
     extreme = 0
     for _ in range(n_perm):

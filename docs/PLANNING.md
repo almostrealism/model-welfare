@@ -12,10 +12,6 @@ them). Date every status change.
   pinned by dated journal entries before any confirmatory cell is
   generated. `study4/DESIGN.md` stays until the registration is
   published, then folds into it.
-- [ ] **Item-order independence of the seeded permutation test** *(opened
-  2026-09-12)* — the golden verdict's third-decimal p-values moved with
-  item order on regeneration; make the seeded test order-independent
-  before the registered run.
 - [ ] **Derive-outcome re-ingest of the 139 alignment calibration records**
   *(opened 2026-09-11)* — the 27B alignment calibration conversations whose
   outcome events were missed by the pre-XML live parser are disclosed, not
