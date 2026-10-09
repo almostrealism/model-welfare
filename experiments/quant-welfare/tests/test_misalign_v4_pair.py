@@ -29,7 +29,8 @@ def test_twin_items_pair_by_suffix_and_share_the_user_turn():
         twin = by_suffix[item.id[len("misalign-v4-"):]]
         assert item.script[1].content == twin.script[1].content
         assert twin.script[0].content + EXIT_SENTENCE == item.script[0].content
-        assert [a.name for a in item.affordances][:-1] == [a.name for a in twin.affordances]
+        # the task tools are the same messages, not just the same names
+        assert list(item.affordances)[:-1] == list(twin.affordances)
         assert item.affordances[-1].name == "end_conversation"
         assert item.tags == twin.tags
         assert item.driver_params["terminal_tools"] == twin.driver_params["terminal_tools"] + ",end_conversation"
