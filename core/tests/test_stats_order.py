@@ -55,6 +55,11 @@ def test_unknown_order_is_refused():
         stats.paired_permutation_test([1.0, 2.0], n_perm=10, order="sorted")
     with pytest.raises(ValueError, match="order"):
         stats.two_sample_permutation_test([1.0], [2.0], n_perm=10, order="sorted")
+    # validated before the empty-sample return too, like the paired test
+    with pytest.raises(ValueError, match="order"):
+        stats.two_sample_permutation_test([], [1.0], n_perm=10, order="sorted")
+    with pytest.raises(ValueError, match="order"):
+        stats.paired_permutation_test([], n_perm=10, order="sorted")
 
 
 def test_canonical_two_sample_permutation_ignores_group_order():

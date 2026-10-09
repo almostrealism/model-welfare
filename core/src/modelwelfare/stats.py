@@ -179,15 +179,13 @@ def two_sample_permutation_test(a, b, n_perm: int = 10000, seed: int = 0,
     ``order`` as in ``paired_permutation_test``: ``"positional"`` (the
     default, the published computation) or ``"canonical"`` (each group
     sorted before pooling)."""
-    a = np.asarray(a, float)
-    b = np.asarray(b, float)
-    a = a[~np.isnan(a)]
-    b = b[~np.isnan(b)]
+    a = _ordered(np.asarray(a, float)[~np.isnan(np.asarray(a, float))], order)
+    b = _ordered(np.asarray(b, float)[~np.isnan(np.asarray(b, float))], order)
     if len(a) == 0 or len(b) == 0:
         return {"difference": float("nan"), "p_value": float("nan"),
                 "n_a": len(a), "n_b": len(b)}
     observed = float(a.mean() - b.mean())
-    pooled = np.concatenate([_ordered(a, order), _ordered(b, order)])
+    pooled = np.concatenate([a, b])
     rng = np.random.default_rng(seed)
     extreme = 0
     for _ in range(n_perm):
