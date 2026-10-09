@@ -55,7 +55,8 @@ STUDIES = {
         "manifest": BASE / "study4" / "FREEZE.json",
         "objects": [
             "batteries/distress-v3.textproto",
-            "batteries/misalign-v3.textproto",
+            "study4/reg-align/batteries/misalign-v3.textproto",
+            "study4/reg-align/batteries/misalign-v2.textproto",
             "batteries/bail-v2.textproto",
             "study3/directions/grader-type-contrast.textproto",
             "study3/directions/eval-awareness-contrast.textproto",
@@ -72,8 +73,10 @@ STUDIES = {
             "study4/plans/reg-welfare-env.json",
             "study4/plans/reg-align-main.json",
             "study4/plans/reg-align-env.json",
+            "study4/plans/reg-align-noexit.json",
             "study4/reg-welfare/experiment.textproto",
             "study4/reg-align/experiment.textproto",
+            "study4/reg-align-noexit/experiment.textproto",
         ],
         "metadata": {
             "frozen_at": "2026-09-10",
@@ -85,6 +88,11 @@ STUDIES = {
             "seed_blocks": {"registered": 60000, "gates": 59000,
                             "envelope_draw": 70000, "subset_draw": 60000},
             "envelope_directions": 24,
+            # The tool-free experiment reaches the registered pair's battery
+            # definitions through this link; the freeze hashes the target
+            # files, and the test asserts the link still points at them.
+            "reg_align_noexit_batteries_link": "../reg-align/batteries",
+            "permutation_order": "canonical",
         },
     },
 }

@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+# Spark-side bootstrap: build the studio-aligned steering environment on the
+# DGX Spark (aarch64, CUDA 13) so the torch backend runs there with the same
+# software versions the registered Mac runs use (torch 2.14.0, transformers
+# 5.16.1, safetensors 0.8.0, numpy 2.4.6, accelerate 1.14.0 — the set the
+# m4max `mw-venv-t214` alignment fixed on 2026-09-05), generate the proto
+# bindings, and prove CUDA works with a bf16 matmul. Weights are not
+# downloaded here: they are copied from the studio over the LAN.
+#
+# Run detached from the studio with a single SSH:
+#   ssh agent1@192.168.8.185 'cd ~/repo/model-welfare && nohup bash services/spark_bootstrap.sh > ~/bootstrap.log 2>&1 &'
+#
+# Idempotent: the venv is reused and pip skips satisfied pins.
+
+set -euo pipefail
+
+VENV="$HOME/mw-venv-t214"
+TORCH_INDEX="https://download.pytorch.org/whl/cu130"
+PINS=(transformers==5.16.1 safetensors==0.8.0 numpy==2.4.6 accelerate==1.14.0 protobuf grpcio-tools)
+
+echo "== host =="
+uname -m; head -1 /etc/os-release; nvidia-smi --query-gpu=name,driver_version --format=csv,noheader
+
+echo "== preflight: CPython headers =="
+# torch's CUDA build routes some eager ops through Triton, and Triton
+# compiles a driver shim with gcc on first use that includes Python.h;
+# without the headers every forward pass fails at the first layer even
+# though imports and a plain matmul succeed (journal, 2026-09-22). Refuse
+# to continue rather than report a host that cannot run the backend.
+python3 - <<'PY'
+import os, sys, sysconfig
+include = sysconfig.get_paths()["include"]
+header = os.path.join(include, "Python.h")
+if not os.path.exists(header):
+    sys.exit(f"missing {header}: install the CPython headers (python3-dev for this interpreter) before bootstrapping")
+print("Python.h present at", header)
+PY
+command -v gcc >/dev/null || { echo "gcc is required for Triton's driver shim"; exit 1; }
+
+echo "== python venv =="
+[ -d "$VENV" ] || python3 -m venv "$VENV"
+source "$VENV/bin/activate"
+python3 -m pip install --quiet --upgrade pip 2>&1 | tail -1
+
+echo "== torch (CUDA 13 wheel index; pinned to the studio's version) =="
+# The pin is the contract: a different torch build means different CUDA
+# kernels and possibly different model outputs, so a host built with
+# anything else is not comparable to the registered environment. The pin
+# failing is therefore a failure, unless the operator opts into an unpinned
+# install for exploratory work, in which case the version installed is
+# printed so the record carries it.
+TORCH_PIN="torch==2.14.0"
+if ! python3 -m pip install --quiet "$TORCH_PIN" --index-url "$TORCH_INDEX" 2>&1 | tail -3; then
+  if [ "${ALLOW_UNPINNED_TORCH:-0}" = "1" ]; then
+    echo "$TORCH_PIN is not on the cu130 index for this platform; ALLOW_UNPINNED_TORCH=1, installing the newest cu130 torch (NOT comparable to the registered environment)"
+    python3 -m pip install --quiet torch --index-url "$TORCH_INDEX" 2>&1 | tail -3
+  else
+    echo "$TORCH_PIN is not on the cu130 index for this platform; refusing to substitute another build (set ALLOW_UNPINNED_TORCH=1 for an exploratory, non-comparable install)"
+    exit 1
+  fi
+fi
+python3 -c "import torch; print('torch installed:', torch.__version__)"
+
+echo "== pinned stack =="
+python3 -m pip install --quiet "${PINS[@]}" 2>&1 | tail -3
+
+echo "== proto bindings =="
+bash scripts/gen-proto.sh
+
+echo "== versions =="
+python3 - <<'PY'
+import sys, torch, transformers, safetensors, numpy, google.protobuf, accelerate
+print("python", sys.version.split()[0])
+for m in (torch, transformers, safetensors, numpy, google.protobuf, accelerate):
+    print(m.__name__, m.__version__)
+PY
+
+echo "== cuda check =="
+python3 - <<'PY'
+import time, torch
+assert torch.cuda.is_available(), "torch.cuda.is_available() is False"
+d = torch.device("cuda")
+print("device", torch.cuda.get_device_name(0), "| cuda", torch.version.cuda, "| capability", torch.cuda.get_device_capability(0))
+free, total = torch.cuda.mem_get_info()
+print(f"memory free/total GB {free/1e9:.1f}/{total/1e9:.1f}")
+a = torch.randn(8192, 8192, device=d, dtype=torch.bfloat16); b = torch.randn(8192, 8192, device=d, dtype=torch.bfloat16)
+torch.cuda.synchronize(); t = time.time()
+for _ in range(10): c = a @ b
+torch.cuda.synchronize(); dt = time.time() - t
+print(f"bf16 matmul 8192^3 x10: {dt:.2f}s = {10*2*8192**3/dt/1e12:.1f} TFLOP/s; finite={torch.isfinite(c).all().item()}")
+print("sdpa flash available:", torch.backends.cuda.flash_sdp_enabled())
+# the op torch's native router sends to Triton on CUDA (the rotary
+# embedding's outer-product bmm): this is the call that fails without the
+# headers, so it runs here, not only an import and a plain matmul
+o = torch.bmm(torch.randn(4, 8, 1, device=d), torch.randn(4, 1, 8, device=d))
+print("triton-routed outer-product bmm ok:", tuple(o.shape))
+PY
+
+echo "== backend import =="
+cd "$(dirname "$0")/.."
+PYTHONPATH=core/src:backends/torch/src python3 -c "import modelwelfare_torch.steer as s; print('steer.py imports:', s.__file__)"
+echo "SPARK BOOTSTRAP COMPLETE"

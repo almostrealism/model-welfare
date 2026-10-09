@@ -170,16 +170,64 @@ a reusable ar-manager capability, so each item is a rule, not prose.
 Logical names used in `RuntimeSpec.host`, in `fleet.hosts.json` and in
 service placement. Keep this table in sync with reality: records are joined
 and audited by these names. Memory bandwidth bounds decode speed on every
-host: studio about 800 GB/s, mbp-m4max about 546, halo about 256, the
-minis about 120.
+host: studio about 800 GB/s, mbp-m4max about 546, spark about 273, halo
+about 256, the minis about 120. The lab LAN is one 192.168.8.0/24 segment
+on a 10 GbE switch; every host also carries a tailnet address, which
+`fleet.hosts.json` lists second so the wide-area path is only a fallback.
+
+**Bare hostnames go through the Tailscale tunnel, even on the switch.**
+On the Macs the bare names (`amd-halo`, `dgx-spark`, `macbook-pro`)
+resolve through Tailscale's DNS to tailnet addresses. Tailscale does find
+the direct LAN path (its status shows `direct 192.168.8.x:41641` for
+both Linux hosts), so the packets cross the switch — but inside the
+WireGuard tunnel, encrypted and decrypted in the Tailscale process, and
+that is what bounds a stream far below the link. The `.local` names
+(mDNS) and the LAN addresses resolve onto the 10 GbE segment with no
+tunnel. Measured from the studio on 2026-09-21, 1 GB
+over ssh: 22 s by `amd-halo` (about 47 MB/s) against 4 s by
+`amd-halo.local` (about 270 MB/s, a single ssh stream on a 10 GbE link
+at both ends). Bulk transfers — weights, capture bundles, store volumes
+— therefore use the `.local` name or the LAN address, which is why the
+registry lists those first; the bare name is the fallback for when mDNS
+is silent. The exfiltration guard's allowlist must carry the LAN form
+too, or the LAN target is refused and the resolver falls through to the
+tunnel without saying so.
 
 | Logical name | Machine | Storage | Runtimes | Role |
 |---|---|---|---|---|
 | `studio` | Mac Studio, M1 Ultra, 128 GB | 2 TB internal; **`enclosure0`, 4 TB external NVMe** (see below) | llama.cpp, MLX, PyTorch (MPS) | primary big-model host and judge host; home of the model weights (records before 2026-08-13 carry the former name `studio-m1u`) |
 | `halo` | Ryzen AI Max+, 128 GB | internal only | PyTorch (ROCm/CPU) | quantization workbench, hookable inference |
+| `spark` | NVIDIA DGX Spark (GB10 Grace Blackwell: 20-core Cortex-X925, 128 GB unified, 121 GB visible), Ubuntu 24.04, CUDA 13.0, driver 580 | 4 TB internal NVMe (3.5 TB free at onboarding) | PyTorch (CUDA), fast Gated-DeltaNet kernels | CUDA workbench, added 2026-09-21. Single-stream decode of the dense 27B is bandwidth-bound at about 4 tokens/s (journal, 2026-09-22), so its value is batched throughput and CUDA-only tooling, not latency; 10 GbE on the switch at 192.168.8.185 (its `.local` name does not answer mDNS); needs `python3-dev` for Triton |
 | `mbp-m4max` | MacBook Pro M4 Max, 128 GB | internal only | MLX, llama.cpp, PyTorch (MPS) | development, dev-organism work, steered-generation workbench |
 | `mini-1`..`mini-3` | Mac mini M4, 16 GB | internal only | llama.cpp, MLX | judges, queue, result store, smoke tests |
 | `rented-*` | cloud GPU (as needed) | — | PyTorch (CUDA) | full-precision reference runs |
+
+### Onboarding a host: the `agent1` account
+
+Every lab host carries the same unprivileged account, provisioned the
+way `halo` is (uid-agnostic; no sudo; groups for the GPU devices; one
+authorized key, the studio agent's; the repository under `~/repo`, the
+weights under `~/models`). On a Debian-family host, as an admin user:
+
+```bash
+sudo adduser --disabled-password --gecos "model-welfare agent" agent1
+sudo usermod -aG video,render agent1          # GPU device nodes; add docker only if containers are used
+sudo install -d -m 700 -o agent1 -g agent1 /home/agent1/.ssh
+sudo install -m 600 -o agent1 -g agent1 /dev/stdin /home/agent1/.ssh/authorized_keys <<'KEY'
+<the studio agent's public key: ~agent1/.ssh/id_ed25519.pub on studio>
+KEY
+sudo loginctl enable-linger agent1            # detached tmux / nohup jobs survive logout
+sudo -u agent1 -H git clone https://github.com/almostrealism/model-welfare /home/agent1/repo/model-welfare
+sudo -u agent1 -H mkdir -p /home/agent1/models
+```
+
+Then, on the studio side: add the host's bare name, its `.local` name
+and its LAN address to the exfiltration guard's allowlist in the `common` repository
+(`.claude/hooks/exfil-allowlist.txt`, `[lab-hosts]`; it is read from
+`HEAD`, so it takes effect at the commit), add the host to
+`services/fleet.hosts.json` (LAN target first, tailnet second), and
+verify from the agent (`ssh agent1@<host> 'id; nvidia-smi || rocminfo; df -h ~'`)
+before the row above is trusted.
 
 ### Storage: `enclosure0` (attached to `studio`, 2026-09-10)
 

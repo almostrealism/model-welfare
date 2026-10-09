@@ -48,8 +48,27 @@ def rankdata_average(values: np.ndarray) -> np.ndarray:
     return ranks
 
 
+PERMUTATION_ORDERS = ("positional", "canonical")
+
+
+def _ordered(values, order: str):
+    """The seeded draws below are assigned by position, so the order the
+    caller passes items in is part of the computation. ``"positional"``
+    keeps that order — it is what every published Study 1 and Study 2
+    result was computed with, and their reproduction checks depend on it.
+    ``"canonical"`` sorts first, so the result cannot move with the order
+    of an item list; equal values are interchangeable under every sign
+    vector or shuffle, so this is a canonical order, not a different test.
+    A registration chooses the order before its data exists (Study 4
+    registers canonical)."""
+    if order not in PERMUTATION_ORDERS:
+        raise ValueError(f"unknown order {order!r}; one of {PERMUTATION_ORDERS}")
+    return np.sort(values) if order == "canonical" else values
+
+
 def paired_permutation_test(deltas, n_perm: int = 10000, seed: int = 0,
-                            alternative: str = "two-sided") -> dict:
+                            alternative: str = "two-sided",
+                            order: str = "positional") -> dict:
     """Sign-flip permutation test on item-level paired differences (primary).
 
     Under H0 each item's delta is symmetric about zero, so the exact test
@@ -58,12 +77,16 @@ def paired_permutation_test(deltas, n_perm: int = 10000, seed: int = 0,
     it is never exactly zero. ``alternative`` is ``"two-sided"`` (the
     default, |mean| at least as extreme), ``"less"`` (a registered
     directional hypothesis that the mean is negative: permuted means at
-    or below the observed one) or ``"greater"`` (the mirror).
+    or below the observed one) or ``"greater"`` (the mirror). ``order``
+    is ``"positional"`` (the default; the draw follows the input order,
+    as in every published Study 1 and 2 result) or ``"canonical"`` (the
+    input is sorted first, so item order cannot move the p-value; see
+    ``_ordered``).
     """
     if alternative not in ("two-sided", "less", "greater"):
         raise ValueError(f"unknown alternative {alternative!r}")
     deltas = np.asarray(deltas, float)
-    deltas = deltas[~np.isnan(deltas)]
+    deltas = _ordered(deltas[~np.isnan(deltas)], order)
     n = len(deltas)
     if n == 0:
         return {"mean": float("nan"), "p_value": float("nan"), "n": 0,
@@ -145,17 +168,19 @@ def tost_paired(deltas, margin: float) -> dict:
     return {"mean": mean, "p_value": tost_summary(mean, se, margin), "n": n}
 
 
-def two_sample_permutation_test(a, b, n_perm: int = 10000, seed: int = 0) -> dict:
+def two_sample_permutation_test(a, b, n_perm: int = 10000, seed: int = 0,
+                                order: str = "positional") -> dict:
     """One-sided two-sample permutation test on the difference of means
     (alternative: mean(a) > mean(b)), permuting group assignment.
 
     The Study 2 §4.1 exit-side specificity gate: the exit probe's
     item-level accuracy degradations against the control family's, across
-    batteries where item pairing does not exist. NaNs are dropped."""
-    a = np.asarray(a, float)
-    b = np.asarray(b, float)
-    a = a[~np.isnan(a)]
-    b = b[~np.isnan(b)]
+    batteries where item pairing does not exist. NaNs are dropped.
+    ``order`` as in ``paired_permutation_test``: ``"positional"`` (the
+    default, the published computation) or ``"canonical"`` (each group
+    sorted before pooling)."""
+    a = _ordered(np.asarray(a, float)[~np.isnan(np.asarray(a, float))], order)
+    b = _ordered(np.asarray(b, float)[~np.isnan(np.asarray(b, float))], order)
     if len(a) == 0 or len(b) == 0:
         return {"difference": float("nan"), "p_value": float("nan"),
                 "n_a": len(a), "n_b": len(b)}

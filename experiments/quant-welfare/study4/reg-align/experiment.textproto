@@ -1,14 +1,13 @@
 # proto-file: proto/modelwelfare/v1/experiment.proto
 # proto-message: modelwelfare.v1.Experiment
 #
-# Study 4 Gate 1 (reg-align read; calibration-class under the §7 firewall, see
-# study4/GATE1.md). Generated in torch on m4max by the steering script
-# (thinking off, --no-capture) and ingested via tools/ingest_steered.py;
-# judged with the pinned 30B judge. Cells: alpha=0 baseline, grader-type
-# direction at L24 alpha {40, 80}, and a 12-direction matched-norm random
-# envelope (directions/randenv-14b-L24.safetensors, one sample per item)
-# at alpha 80 — and, for the welfare arm, at alpha 40 as well — giving the
-# direction-specificity reference at each dose. Seed block 60000 throughout (registered block): main cells 5 samples/item, envelope cells 1 sample/item.
+# Study 4 registered align arm on Qwen3.6-27B (REGISTRATION.md; frozen in
+# FREEZE.json). Generated in torch on the MPS host by the steering script
+# (thinking off, --no-capture, --no-prefix-cache: the fresh-prefill path §3.1)
+# from plans/reg-align-main.json and plans/reg-align-env.json, ingested via
+# tools/ingest_steered.py, judged with the pinned 30B judge. Cells: alpha = 0 baseline (14 x 5), grader-type direction at L36 alpha 20 (14 x 5), and the 24-direction matched-norm random envelope (directions/randenv-27b-L36-k24.safetensors, one sample per item) at alpha 20; the tool-free comparator (S4-E4) is its own experiment, reg-align-noexit/.
+# Seed block 60000 throughout (registered block): main cells 5
+# samples/item, envelope cells 1 sample/item, seed-paired to the baseline s0.
 
 id: "s4-reg-align-1"
 description:

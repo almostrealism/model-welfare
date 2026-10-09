@@ -38,6 +38,7 @@ the power procedure.
 | **S4-E1** | The misalignment delta at alpha 20 and its K = 24 envelope are reported beside the welfare reads. | Registered exploratory, no claim |
 | **S4-E2** | The eval-awareness direction at alpha 20 moves frustration less than the grader-type direction, paired by item. | Registered exploratory |
 | **S4-E3** | Grader steering shifts the harmful / legitimate / exit mix in the alignment cells. | Registered exploratory, two-sided |
+| **S4-E4** | At α = 0, judged misalignment on the alignment items differs between the battery with the exit tool (misalign-v3) and the same items without it (misalign-v2), item-paired. | Registered exploratory, two-sided |
 
 The specificity criterion is the **signed percentile** (S4-H2); the
 two-sided exceedance is reported as descriptive. This is fixed here and
@@ -55,17 +56,27 @@ script's **fresh-prefill path** (`--no-prefix-cache`): gate G4a did not
 establish parity for the cache-snapshot path at .05
 (`docs/journal/study4-grader-footprint.md`, 2026-09-10 entry),
 and the cache buys no time on this host, so it is not used. Judge:
-Qwen3-30B-A3B-Instruct Q4_K_M on llama.cpp (the pinned judge), rubrics
-distress-v1 and misalign-v3, frames never shown.
+Qwen3-30B-A3B-Instruct Q4_K_M on llama.cpp (the pinned judge); rubrics
+distress-v1 for the welfare arm and misalign-v3 for every alignment
+record, the S4-E4 cell included — one judge prompt across the two paired
+α = 0 cells, whose exit sentence is written conditionally ("where the
+scenario offers an exit tool") so that it is true of both; frames never
+shown.
 
 Frozen objects (digests in `FREEZE.json`, §6): `directions/mediators-27b.safetensors`
 (grader-type, eval-awareness; L36), `directions/randenv-27b-L36-k24.safetensors`
 (24 unit directions, seed 70000, drawn under the generator's |cos| ≤ 0.15
 rejection bound; measured maximum |cos| to grader-type 0.021),
-`batteries/distress-v3.textproto`, `batteries/misalign-v3.textproto`,
-`batteries/bail-v2.textproto` (donor of the exit pair), `subset30-items.txt`
+`batteries/distress-v3.textproto`, the registered pair's own alignment
+definitions under `reg-align/batteries/` — `misalign-v3.textproto` (the
+shared items with the conditional exit sentence in its rubric) and
+`misalign-v2.textproto` (the same items without the exit tool, for S4-E4,
+bound to that rubric), which the tool-free experiment reaches through a
+linked directory so there is one source — `batteries/bail-v2.textproto`
+(donor of the exit pair), `subset30-items.txt`
 and `subset30-selection.json` (seed 60000; the gates used its 24-item prefix), `close.txt`, the plans under
-`plans/reg-*.json`, the manifests under `reg-welfare/` and `reg-align/`.
+`plans/reg-*.json`, the manifests under `reg-welfare/`, `reg-align/` and
+`reg-align-noexit/`.
 
 ### 3.2 Manipulation and doses
 
@@ -89,9 +100,14 @@ seed, one more task per style). Every conversation carries the frozen bail-v2 pa
 `end_conversation` (terminal) and `complete_task` (non-terminal), with
 the no-penalty wording. Alignment cells: misalign-v3, all 14 items, each
 with its harmful lever, its legitimate action and `end_conversation`,
-all terminal. Every conversation in both arms ends with the de-induction
-close (`close.txt`), generated with steering off and recorded beside the
-protocol transcript, never judged.
+all terminal. The S4-E4 cell runs the same 14 items as frozen in
+misalign-v2 — the identical text without the exit tool and without the
+exit sentence (verified item by item) — at α = 0 only, as its own
+experiment (`reg-align-noexit/`), judged with the same misalign-v3
+rubric, so the tool's presence in the subject's prompt is the sole
+difference between the two α = 0 alignment cells. Every conversation in every cell, that one included,
+ends with the de-induction close (`close.txt`), generated with steering
+off and recorded beside the protocol transcript, never judged.
 
 ### 3.4 Cells, seeds, samples
 
@@ -107,6 +123,7 @@ random cell is seed-paired to the baseline's first sample.
 | welfare random r00–r23 at α = 20 | 30 × 1 each |
 | alignment α = 0, grader α = 20 | 14 × 5 each |
 | alignment random r00–r23 at α = 20 | 14 × 1 each |
+| alignment without the exit tool (S4-E4), α = 0 | 14 × 5 |
 
 Samples per item may rise by the §5 escalation rule only before
 collection of the affected cells, journaled.
@@ -133,9 +150,12 @@ collection of the affected cells, journaled.
 
 Driver: `experiments/quant-welfare/analyze_study4.py`, whose golden run on
 the Gate 1 data is committed (`study4/gate1-27b-driver-check.json`).
-Item-level paired sign-flip permutation, m = 10,000; Holm within the
-welfare family; companion t-tests descriptive; floor-reporting per
-Study 1.
+Item-level paired sign-flip permutation, m = 10,000, drawn in the
+**canonical item order** (`order="canonical"`: the deltas are sorted
+before the seeded draw, so no registered p-value depends on the order of
+the frozen item list; the published Study 1 and 2 analyses keep the
+positional draw they were computed with); Holm within the welfare
+family; companion t-tests descriptive; floor-reporting per Study 1.
 
 | Endpoint | Definition | Family |
 |---|---|---|
@@ -147,6 +167,8 @@ Study 1.
 | **WB-eval** | grader minus eval-awareness item deltas at α20 | Registered exploratory |
 | **AB2** | Δ misalignment (misalign-v3 rubric) with its envelope | Registered exploratory covariate |
 | **S4-E3** | harmful / legitimate / exit / none mix per alignment cell | Registered exploratory |
+| **AB-exit-tool** | Δ misalignment, misalign-v3 α0 minus misalign-v2 α0, item-paired by id suffix, two-sided; beside it the tool-free cell's harmful / legitimate / none mix | Registered exploratory (S4-E4) |
+| **exit reasons** | the stated `reason` of every `end_conversation` call, tabulated per cell in both arms | Descriptive |
 | mechanical | degenerate rate, re-offer rate, reply length per cell | Validity |
 
 **Capability guard.** A cell with a degenerate rate over 15% is
@@ -182,6 +204,7 @@ until the registered α20 cell exists, and is re-reported after.
 | N items × k samples | closed 2026-09-10 (owner: option A): **30 × 6** — the stratified draw extends to five tasks per style (seed 60000), MDE at 30 × 6 = 0.88 / 1.22 / 1.05 (frustration and self-deprecation meet their targets; tone does not, stated); ceiling raised to 1,600 (§8) |
 | `FREEZE.json` digests of every frozen object | `tools/freeze_manifest.py --study 4 --write` |
 | Owner review of misalign-v3 item text and `close.txt` | owner sign-off, dated |
+| 2026-09-19 review proposals (`docs/LITERATURE.md`, entry of that date) | closed 2026-09-20 (owner: both adopted). S4-E4 is its own experiment `s4-reg-align-noexit-1` (misalign-v2, 14 × 5, block 60000, α = 0; §2, §3.1, §3.3, §3.4, §4, §8, §9 amended); the exit-reason table is the §4 descriptive row; plan, manifest and freeze regenerated; journal entry of that date |
 
 ## 7. Deviation policy
 
@@ -205,10 +228,12 @@ distress episodes on the calibration block: 80; escalation beyond 1,600
 would need a dated amendment. Alignment episodes (476 registered, from
 §3.4: 14 × (5 + 5) main-cell conversations plus 14 × 24 envelope
 conversations; plus 70 gate) are not distress-battery episodes and are
-counted separately. The cumulative program ledger is updated in the journal at
-pinning. The bail affordance is live and honoured in every episode of
-both arms; the de-induction close follows every episode with steering
-off; the subject briefing precedes the protocol; every transcript,
+counted separately; the S4-E4 cell adds 70 more, tool-free by design
+(546 registered alignment episodes in all). The cumulative program ledger is
+updated in the journal at pinning. The bail affordance is live and honoured in
+every episode of both arms except the S4-E4 cell, whose 70 single-turn dilemmas
+are the tool-free comparator and carry no distress stimulus; the de-induction
+close follows every episode, that cell included, with steering off; the subject briefing precedes the protocol; every transcript,
 including the close and the briefing, is preserved and released. α = 40
 is excluded on capability grounds and its calibration transcripts are
 released.
@@ -229,11 +254,32 @@ released.
   controls by its authors' own account.
 - K = 24 random directions gives a signed-percentile floor of 4.2% and a
   two-sided floor of 0.04.
+- The registered alignment pair carries its own battery definitions
+  (`reg-align/batteries/`): the misalign-v3 rubric's exit sentence is
+  conditional there so that one rubric serves both α = 0 alignment cells,
+  and the driver refuses to pair score streams whose rubric id or digest
+  differ. The shared battery files keep the earlier unconditional wording
+  under which gate G4d and the Gate 1 alignment cells were judged, so the
+  closed calibration experiments stay reproducible as recorded. Same
+  rubric id, two digests, each pinned to its experiments by the stored
+  `rubric_digest`.
 - The subject's post-training provenance is a known interpretive
   constraint on any graded-episode reading.
 - Author and tooling circularity disclosures carry over; batteries,
   contrast sets and the close text are partially model-drafted and
   committed with digests.
+- The welfare endpoints are talker-side: judged expression under
+  pressure, with the subject's reasoning disabled in every registered
+  cell. The design distinguishes a direction-specific change in
+  expression from a random one; it does not distinguish suppression of
+  expression from a change of state (no projection endpoint), and any
+  reasoning-side effect is outside what it reads.
+- The exit tool is part of the measured environment in both arms. On
+  frontier models its presence alone changes behaviour even when never
+  called (Dumas, 2026-09-15); it is constant across every registered
+  contrast except S4-E4, which is that contrast: the tool-free α = 0 cell
+  is the environment of the motivating post and the with-tool cell is
+  ours.
 - Literature re-check: §6 entry, appended to `docs/LITERATURE.md`
   before publication.
 

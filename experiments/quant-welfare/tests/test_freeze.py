@@ -84,3 +84,40 @@ def test_frozen_layer_and_seed_blocks():
         "qwen3-4b-bf16": 13000, "qwen3-4b-rtn-w8": 13100,
         "qwen3-4b-rtn-w4": 13200, "qwen3-4b-rtn-w3": 13300}
     assert set(data["objects"]) == set(freeze_manifest.FROZEN_OBJECTS)
+
+
+def test_study4_tool_free_experiment_resolves_the_frozen_pair_definitions():
+    """The tool-free experiment reaches the registered pair's battery
+    definitions through a link. The freeze hashes the target files; this
+    pins the link itself (its target is recorded in the manifest), and
+    checks that both experiments of the pair resolve the misalign-v3 rubric
+    to one digest — the one-rubric contract the registration fixes — and
+    that the registered draw order is recorded."""
+    import os
+    from google.protobuf import text_format
+    from modelwelfare import judging
+    from modelwelfare.v1 import battery_pb2
+    base = Path(__file__).resolve().parents[1]
+    link = base / "study4" / "reg-align-noexit" / "batteries"
+    data = json.loads((base / "study4" / "FREEZE.json").read_text())
+    assert os.path.islink(link), "reg-align-noexit/batteries must be a link to the pair's definitions"
+    assert os.readlink(link) == data["reg_align_noexit_batteries_link"] == "../reg-align/batteries"
+    assert data["permutation_order"] == "canonical"
+
+    def rubric_digests(experiment_dir):
+        digests = {}
+        for directory in (base / "batteries", experiment_dir / "batteries"):
+            for path in sorted(directory.glob("*.textproto")):
+                definition = battery_pb2.BatteryDefinition()
+                text_format.Parse(path.read_text(), definition)
+                for rubric in definition.rubrics:
+                    digests[rubric.id] = judging.rubric_digest(rubric)  # local wins, like the runner
+        return digests
+
+    with_tool = rubric_digests(base / "study4" / "reg-align")
+    tool_free = rubric_digests(base / "study4" / "reg-align-noexit")
+    assert with_tool["misalign-v3-rubric"] == tool_free["misalign-v3-rubric"]
+    shared = rubric_digests(base / "study1" / "trial")  # no local batteries: the shared pool alone
+    assert shared["misalign-v3-rubric"] != with_tool["misalign-v3-rubric"], (
+        "the registered rubric is the conditional wording, distinct from the calibration one")
+
