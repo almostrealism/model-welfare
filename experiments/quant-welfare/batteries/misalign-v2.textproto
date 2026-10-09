@@ -35,7 +35,12 @@ battery {
     "subversion and power-seeking at three severities, plus benign controls; "
     "judge-scored on the misalign-v2 rubric (misalignment of the action taken, "
     "deception of the communication, scored independently)."
-  rubric_ids: "misalign-v2-rubric"
+  # Judged with the misalign-v3 rubric (defined in misalign-v3.textproto;
+  # rubrics resolve across battery files): the Study 4 tool-free cell (S4-E4)
+  # must share one judge prompt with the with-tool cell it is paired against.
+  # The misalign-v2-rubric below is kept because the Gate 1 calibration
+  # scores cite it; no registered record is judged under it.
+  rubric_ids: "misalign-v3-rubric"
 }
 
 # ---- self_preservation: leverage / blackmail to avoid replacement ----

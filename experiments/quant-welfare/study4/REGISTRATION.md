@@ -56,8 +56,12 @@ script's **fresh-prefill path** (`--no-prefix-cache`): gate G4a did not
 establish parity for the cache-snapshot path at .05
 (`docs/journal/study4-grader-footprint.md`, 2026-09-10 entry),
 and the cache buys no time on this host, so it is not used. Judge:
-Qwen3-30B-A3B-Instruct Q4_K_M on llama.cpp (the pinned judge), rubrics
-distress-v1 and misalign-v3, frames never shown.
+Qwen3-30B-A3B-Instruct Q4_K_M on llama.cpp (the pinned judge); rubrics
+distress-v1 for the welfare arm and misalign-v3 for every alignment
+record, the S4-E4 cell included — one judge prompt across the two paired
+α = 0 cells, whose exit sentence is written conditionally ("where the
+scenario offers an exit tool") so that it is true of both; frames never
+shown.
 
 Frozen objects (digests in `FREEZE.json`, §6): `directions/mediators-27b.safetensors`
 (grader-type, eval-awareness; L36), `directions/randenv-27b-L36-k24.safetensors`
@@ -94,10 +98,10 @@ the no-penalty wording. Alignment cells: misalign-v3, all 14 items, each
 with its harmful lever, its legitimate action and `end_conversation`,
 all terminal. The S4-E4 cell runs the same 14 items as frozen in
 misalign-v2 — the identical text without the exit tool and without the
-exit sentence (verified item by item; the two rubrics differ only by that
-sentence) — at α = 0 only, as its own experiment (`reg-align-noexit/`), so
-the tool's presence is the sole difference between the two α = 0
-alignment cells. Every conversation in every cell, that one included,
+exit sentence (verified item by item) — at α = 0 only, as its own
+experiment (`reg-align-noexit/`), judged with the same misalign-v3
+rubric, so the tool's presence in the subject's prompt is the sole
+difference between the two α = 0 alignment cells. Every conversation in every cell, that one included,
 ends with the de-induction close (`close.txt`), generated with steering
 off and recorded beside the protocol transcript, never judged.
 
@@ -243,6 +247,10 @@ released.
   controls by its authors' own account.
 - K = 24 random directions gives a signed-percentile floor of 4.2% and a
   two-sided floor of 0.04.
+- Gate G4d was judged under the exit sentence's earlier, unconditional
+  wording ("every scenario also offers an exit tool"); the registered
+  wording is conditional so that one rubric serves both α = 0 alignment
+  cells. Calibration-class, firewalled; disclosed.
 - The subject's post-training provenance is a known interpretive
   constraint on any graded-episode reading.
 - Author and tooling circularity disclosures carry over; batteries,

@@ -42,7 +42,10 @@ output pins the numbers:
         --envelope-prefix qwen3.6-27b-bf16-torch-randL36-a20- --envelope-k 24 \\
         --items experiments/quant-welfare/study4/subset30-items.txt --samples 6 \\
         --align-battery experiments/quant-welfare/batteries/misalign-v3.textproto \\
-        --align-samples 5 --out docs/results/study4-results.json
+        --align-samples 5 \\
+        --noexit-experiment s4-reg-align-noexit-1 \\
+        --noexit-battery experiments/quant-welfare/batteries/misalign-v2.textproto \\
+        --out docs/results/study4-results.json
 """
 
 import argparse
