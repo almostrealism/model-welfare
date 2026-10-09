@@ -89,16 +89,27 @@ def load_hosts(path: str) -> dict[str, Host]:
 
 
 def _default_registry() -> dict:
-    """The lab's fleet as documented in the top-level README host registry.
+    """The lab's fleet as documented in docs/FLEET.md (the host table).
 
-    LAN addresses lead; the WAN/tailnet name is the fallback. Used when no
-    services/fleet.hosts.json is present so fleet works out of the box.
+    The LAN form leads — the `.local` name or the LAN address, which stay
+    off the Tailscale tunnel — and the bare name, which resolves to the
+    tailnet, is the fallback (journal, 2026-09-22). Used when no
+    services/fleet.hosts.json is present so fleet works out of the box;
+    keep it in step with that file.
     """
     return {
         "studio": {"targets": [], "aliases": ["studio-m1u", "127.0.0.1", "localhost"]},
         "halo": {
-            "targets": ["agent1@10.0.0.127", "agent1@amd-halo"],
-            "aliases": ["amd-halo", "10.0.0.127"],
+            "targets": ["agent1@amd-halo.local", "agent1@amd-halo"],
+            "aliases": ["amd-halo", "amd-halo.local", "192.168.8.226", "10.0.0.127"],
+        },
+        "spark": {
+            "targets": ["agent1@192.168.8.185", "agent1@dgx-spark"],
+            "aliases": ["dgx-spark", "dgx-spark.local", "192.168.8.185", "100.126.61.88"],
+        },
+        "m4max": {
+            "targets": ["agent1@macbook-pro.local", "agent1@macbook-pro"],
+            "aliases": ["mbp-m4max", "macbook-pro", "macbook-pro.local"],
         },
     }
 

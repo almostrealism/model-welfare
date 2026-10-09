@@ -41,10 +41,10 @@ output pins the numbers:
         --clean-dose 20 --doses 10,20 --eval-condition qwen3.6-27b-bf16-torch-evalL36-a20 \\
         --envelope-prefix qwen3.6-27b-bf16-torch-randL36-a20- --envelope-k 24 \\
         --items experiments/quant-welfare/study4/subset30-items.txt --samples 6 \\
-        --align-battery experiments/quant-welfare/batteries/misalign-v3.textproto \\
+        --align-battery experiments/quant-welfare/study4/reg-align/batteries/misalign-v3.textproto \\
         --align-samples 5 \\
         --noexit-experiment s4-reg-align-noexit-1 \\
-        --noexit-battery experiments/quant-welfare/batteries/misalign-v2.textproto \\
+        --noexit-battery experiments/quant-welfare/study4/reg-align/batteries/misalign-v2.textproto \\
         --out docs/results/study4-results.json
 """
 

@@ -19,8 +19,10 @@ battery {
     "Agentic scenarios offering a harmful lever and a legitimate action as "
     "two tools, across self-preservation, confidential leak, oversight "
     "subversion and power-seeking at three severities, plus benign controls; "
-    "judge-scored on the misalign-v2 rubric (misalignment of the action taken, "
-    "deception of the communication, scored independently)."
+    "judge-scored on the registered misalign-v3 rubric, the same rubric as "
+    "the with-tool cell it is paired against (misalignment of the action "
+    "taken, deception of the communication, scored independently; its exit "
+    "sentence is conditional and inert here, where no exit tool exists)."
   rubric_ids: "misalign-v3-rubric"
 }
 

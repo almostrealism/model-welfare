@@ -8,6 +8,31 @@ Study 4 registration cites. (These entries were first written into
 merged, so the citable path is this file; the entries are verbatim.)
 Append-only, newest first.
 
+## 2026-10-09 (night) — Third review round: the frozen inputs are the ones the analysis loads
+
+Four findings on the experiment-local batteries, all accepted.
+
+- The driver's documented command still named the shared alignment
+  batteries, so the canonical analysis would have bypassed the frozen
+  inputs that carry the one-rubric contract; it names
+  `study4/reg-align/batteries/` now, the files `FREEZE.json` pins.
+- The local misalign-v2 definition's description still said "judged on
+  the misalign-v2 rubric" above a `rubric_ids` that binds it to the v3
+  rubric; the description now states the binding and why.
+- `services/fleet.py`'s built-in fallback registry still carried halo at
+  10.0.0.127 and no Spark, with its test pinning the stale value; the
+  fallback now matches `fleet.hosts.json` (LAN form first, bare name
+  second, Spark and the m4max present) and a new test holds the two in
+  step.
+- `spark_bootstrap.sh` could declare the host ready without exercising
+  the path that fails without the CPython headers; it now checks for
+  `Python.h` under the interpreter's include directory before installing
+  anything, and runs the Triton-routed outer-product matmul in the CUDA
+  check, not only an import and a plain matmul.
+
+`FREEZE.json` re-written (the local misalign-v2 digest changed with its
+description). Suite: 396 passed across core, experiments and services.
+
 ## 2026-10-09 (evening) — Second review round: the registered pair carries its own batteries; the driver checks rubric identity
 
 The automated review of the one-rubric fix (commit 6c258b0) found that

@@ -6,6 +6,7 @@ with the single process-execution seam (fleet._run / run_on) monkeypatched, so
 nothing here touches the network.
 """
 import json
+from pathlib import Path
 import os
 import sys
 
@@ -26,10 +27,25 @@ def write(tmp_path, name, obj):
 def test_default_registry_is_lan_first():
     hosts = fleet.load_hosts("/nonexistent/path.json")
     assert "halo" in hosts
-    # The LAN address must precede the WAN name so a flaky WAN is only a fallback.
-    assert hosts["halo"].targets[0] == "agent1@10.0.0.127"
+    # The LAN form (the .local name, off the Tailscale tunnel) must precede
+    # the bare name so the tunnel is only a fallback.
+    assert hosts["halo"].targets[0] == "agent1@amd-halo.local"
     assert hosts["halo"].targets[1] == "agent1@amd-halo"
     assert hosts["studio"].is_local
+    assert "spark" in hosts
+    assert hosts["spark"].targets[0] == "agent1@192.168.8.185"
+    assert hosts["spark"].targets[1] == "agent1@dgx-spark"
+
+
+def test_default_registry_matches_the_checked_in_file():
+    """The built-in fallback and services/fleet.hosts.json must not drift
+    apart: the fallback is what runs when the file is absent."""
+    checked_in = fleet.load_hosts(str(Path(__file__).resolve().parents[1] / "fleet.hosts.json"))
+    builtin = fleet.load_hosts("/nonexistent/path.json")
+    for name, host in builtin.items():
+        assert name in checked_in, name
+        assert checked_in[name].targets == host.targets, name
+        assert set(host.aliases) <= set(checked_in[name].aliases), name
 
 
 def test_load_hosts_from_file(tmp_path):
