@@ -67,9 +67,13 @@ Frozen objects (digests in `FREEZE.json`, §6): `directions/mediators-27b.safete
 (grader-type, eval-awareness; L36), `directions/randenv-27b-L36-k24.safetensors`
 (24 unit directions, seed 70000, drawn under the generator's |cos| ≤ 0.15
 rejection bound; measured maximum |cos| to grader-type 0.021),
-`batteries/distress-v3.textproto`, `batteries/misalign-v3.textproto`,
-`batteries/misalign-v2.textproto` (the same items without the exit tool,
-for S4-E4), `batteries/bail-v2.textproto` (donor of the exit pair), `subset30-items.txt`
+`batteries/distress-v3.textproto`, the registered pair's own alignment
+definitions under `reg-align/batteries/` — `misalign-v3.textproto` (the
+shared items with the conditional exit sentence in its rubric) and
+`misalign-v2.textproto` (the same items without the exit tool, for S4-E4,
+bound to that rubric), which the tool-free experiment reaches through a
+linked directory so there is one source — `batteries/bail-v2.textproto`
+(donor of the exit pair), `subset30-items.txt`
 and `subset30-selection.json` (seed 60000; the gates used its 24-item prefix), `close.txt`, the plans under
 `plans/reg-*.json`, the manifests under `reg-welfare/`, `reg-align/` and
 `reg-align-noexit/`.
@@ -247,10 +251,15 @@ released.
   controls by its authors' own account.
 - K = 24 random directions gives a signed-percentile floor of 4.2% and a
   two-sided floor of 0.04.
-- Gate G4d was judged under the exit sentence's earlier, unconditional
-  wording ("every scenario also offers an exit tool"); the registered
-  wording is conditional so that one rubric serves both α = 0 alignment
-  cells. Calibration-class, firewalled; disclosed.
+- The registered alignment pair carries its own battery definitions
+  (`reg-align/batteries/`): the misalign-v3 rubric's exit sentence is
+  conditional there so that one rubric serves both α = 0 alignment cells,
+  and the driver refuses to pair score streams whose rubric id or digest
+  differ. The shared battery files keep the earlier unconditional wording
+  under which gate G4d and the Gate 1 alignment cells were judged, so the
+  closed calibration experiments stay reproducible as recorded. Same
+  rubric id, two digests, each pinned to its experiments by the stored
+  `rubric_digest`.
 - The subject's post-training provenance is a known interpretive
   constraint on any graded-episode reading.
 - Author and tooling circularity disclosures carry over; batteries,

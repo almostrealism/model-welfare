@@ -8,6 +8,38 @@ Study 4 registration cites. (These entries were first written into
 merged, so the citable path is this file; the entries are verbatim.)
 Append-only, newest first.
 
+## 2026-10-09 (evening) — Second review round: the registered pair carries its own batteries; the driver checks rubric identity
+
+The automated review of the one-rubric fix (commit 6c258b0) found that
+editing the two shared battery files reached further than the registered
+pair: a re-run of the closed calibration experiments (Gate 1's alignment
+cells, `gate1-align2`, `g4-align`) would have been judged under the new
+rubric binding and the conditional sentence, contradicting their records.
+Accepted, and corrected the way the runner already allows: an experiment
+may carry its own `batteries/` directory, which wins over the shared pool
+on an id collision (the manifest tests mirror the rule).
+
+- `study4/reg-align/batteries/` holds the registered definitions —
+  misalign-v3 with the conditional exit sentence in its rubric, and
+  misalign-v2 bound to that rubric — and `reg-align-noexit/batteries` is a
+  link to it, so the pair resolves one source. The shared
+  `batteries/misalign-v2.textproto` and `misalign-v3.textproto` are back
+  to what the calibration experiments were judged with. The same rubric id
+  therefore has two digests in the repository, each pinned to its
+  experiments by the `rubric_digest` every judge score records.
+- The driver now refuses any registered read whose compared score streams
+  carry more than one (rubric id, digest): the S4-E4 pairing checks the
+  two experiments against each other and reports the shared identity; the
+  welfare and alignment arms check every compared cell. The test fixture
+  the review caught (tool-free scores labelled with the v2 rubric) is
+  corrected and a mismatch — by id or by digest alone — is a test.
+- `spark_bootstrap.sh` no longer falls back to an unpinned torch: the pin
+  failing fails the bootstrap unless `ALLOW_UNPINNED_TORCH=1` is set, and
+  the installed version is printed either way.
+
+`FREEZE.json` re-written over 23 objects, the two alignment batteries now
+the registered pair's own. Suite: 381 passed.
+
 ## 2026-10-09 (later) — The seeded permutation test no longer depends on item order
 
 The item open since 2026-09-12: the sign-flip permutation test drew its

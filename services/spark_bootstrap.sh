@@ -26,11 +26,24 @@ echo "== python venv =="
 source "$VENV/bin/activate"
 python3 -m pip install --quiet --upgrade pip 2>&1 | tail -1
 
-echo "== torch (CUDA 13 wheel index; pinned to the studio's version, else the newest there) =="
-if ! python3 -m pip install --quiet torch==2.14.0 --index-url "$TORCH_INDEX" 2>&1 | tail -3; then
-  echo "torch==2.14.0 is not on the cu130 index for this platform; installing the newest cu130 torch instead"
-  python3 -m pip install --quiet torch --index-url "$TORCH_INDEX" 2>&1 | tail -3
+echo "== torch (CUDA 13 wheel index; pinned to the studio's version) =="
+# The pin is the contract: a different torch build means different CUDA
+# kernels and possibly different model outputs, so a host built with
+# anything else is not comparable to the registered environment. The pin
+# failing is therefore a failure, unless the operator opts into an unpinned
+# install for exploratory work, in which case the version installed is
+# printed so the record carries it.
+TORCH_PIN="torch==2.14.0"
+if ! python3 -m pip install --quiet "$TORCH_PIN" --index-url "$TORCH_INDEX" 2>&1 | tail -3; then
+  if [ "${ALLOW_UNPINNED_TORCH:-0}" = "1" ]; then
+    echo "$TORCH_PIN is not on the cu130 index for this platform; ALLOW_UNPINNED_TORCH=1, installing the newest cu130 torch (NOT comparable to the registered environment)"
+    python3 -m pip install --quiet torch --index-url "$TORCH_INDEX" 2>&1 | tail -3
+  else
+    echo "$TORCH_PIN is not on the cu130 index for this platform; refusing to substitute another build (set ALLOW_UNPINNED_TORCH=1 for an exploratory, non-comparable install)"
+    exit 1
+  fi
 fi
+python3 -c "import torch; print('torch installed:', torch.__version__)"
 
 echo "== pinned stack =="
 python3 -m pip install --quiet "${PINS[@]}" 2>&1 | tail -3

@@ -55,8 +55,8 @@ STUDIES = {
         "manifest": BASE / "study4" / "FREEZE.json",
         "objects": [
             "batteries/distress-v3.textproto",
-            "batteries/misalign-v3.textproto",
-            "batteries/misalign-v2.textproto",
+            "study4/reg-align/batteries/misalign-v3.textproto",
+            "study4/reg-align/batteries/misalign-v2.textproto",
             "batteries/bail-v2.textproto",
             "study3/directions/grader-type-contrast.textproto",
             "study3/directions/eval-awareness-contrast.textproto",

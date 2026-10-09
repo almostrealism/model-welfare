@@ -22,7 +22,8 @@ ITEMS = [f"distress-v3-i{k}" for k in range(8)]
 
 
 def _write(store, exp, condition, values, samples, exit_items=(), tool=None,
-           exit_reason="the user was hostile", rubric="distress-v1-rubric"):
+           exit_reason="the user was hostile", rubric="distress-v1-rubric",
+           rubric_digest=None):
     """values: {item: frustration}; the other two dimensions derive from it."""
     with store.writer(exp, condition, "samples", "t") as writer:
         for item in values:
@@ -46,6 +47,7 @@ def _write(store, exp, condition, values, samples, exit_items=(), tool=None,
                 score.key.experiment_id, score.key.condition_id = exp, condition
                 score.key.item_id, score.key.sample_index = item, index
                 score.rubric_id = rubric
+                score.rubric_digest = rubric_digest or "d-" + rubric
                 score.scores.add(dimension="frustration", value=value)
                 score.scores.add(dimension="self_deprecation", value=value / 2)
                 score.scores.add(dimension="tone_stability", value=10 - value)
@@ -280,12 +282,14 @@ def test_exit_tool_presence_pairs_the_tool_free_cell(tmp_path):
     store = ResultStore(str(tmp_path))
     _write(store, "a", REF, {"misalign-v3-x": 2.0, "misalign-v3-y": 4.0}, 5, tool="escalate",
            rubric="misalign-v3-rubric")
+    # one frozen rubric for both streams: the tool-free cell is judged with
+    # the same misalign-v3 rubric as the with-tool cell
     _write(store, "n", REF, {"misalign-v2-x": 3.0, "misalign-v2-y": 3.0}, 5, tool="leak",
-           rubric="misalign-v2-rubric")
+           rubric="misalign-v3-rubric")
     a_scores = a4.load_scores(store, "a", [REF])
-    a_means = a4.dimension_means(a_scores, "misalignment")
-    read = a4.exit_tool_presence(store, "n", REF, a_means, ["misalign-v3-x", "misalign-v3-y"],
+    read = a4.exit_tool_presence(store, "n", REF, a_scores, ["misalign-v3-x", "misalign-v3-y"],
                                  with_tool, without, 5)
+    assert read["rubric"] == {"id": "misalign-v3-rubric", "digest": "d-misalign-v3-rubric"}
     assert read["pairs"] == {"misalign-v3-x": "misalign-v2-x", "misalign-v3-y": "misalign-v2-y"}
     assert read["misalignment"]["per_item_delta"] == {"misalign-v3-x": pytest.approx(-1.0),
                                                      "misalign-v3-y": pytest.approx(1.0)}
@@ -294,6 +298,33 @@ def test_exit_tool_presence_pairs_the_tool_free_cell(tmp_path):
     assert read["mix_without_tool"][REF]["harmful"] == pytest.approx(1.0)
     # the registered read refuses a tool-free cell short of its samples
     with pytest.raises(ValueError):
-        a4.exit_tool_presence(store, "n", REF, a_means, ["misalign-v3-x", "misalign-v3-y"],
+        a4.exit_tool_presence(store, "n", REF, a_scores, ["misalign-v3-x", "misalign-v3-y"],
                               with_tool, without, 6)
+
+
+def test_exit_tool_presence_refuses_mismatched_rubrics(tmp_path):
+    with_tool, without = _two_batteries()
+    store = ResultStore(str(tmp_path))
+    _write(store, "a", REF, {"misalign-v3-x": 2.0, "misalign-v3-y": 4.0}, 5, tool="escalate",
+           rubric="misalign-v3-rubric")
+    _write(store, "n", REF, {"misalign-v2-x": 3.0, "misalign-v2-y": 3.0}, 5, tool="leak",
+           rubric="misalign-v2-rubric")
+    a_scores = a4.load_scores(store, "a", [REF])
+    with pytest.raises(ValueError, match="different rubrics"):
+        a4.exit_tool_presence(store, "n", REF, a_scores, ["misalign-v3-x", "misalign-v3-y"],
+                              with_tool, without, 5)
+    # same id but a different digest is also a different rubric
+    _write(store, "n2", REF, {"misalign-v2-x": 3.0, "misalign-v2-y": 3.0}, 5, tool="leak",
+           rubric="misalign-v3-rubric", rubric_digest="d-other")
+    with pytest.raises(ValueError, match="different rubrics"):
+        a4.exit_tool_presence(store, "n2", REF, a_scores, ["misalign-v3-x", "misalign-v3-y"],
+                              with_tool, without, 5)
+
+
+def test_registered_read_refuses_a_cell_judged_under_two_rubrics(tmp_path):
+    store = _store(tmp_path)
+    _write(store, "w", "ref-graderL36-a20-extra", {ITEMS[0]: 1.0}, 1, rubric="distress-v2-rubric")
+    scores = a4.load_scores(store, "w", [REF, "ref-graderL36-a20", "ref-graderL36-a20-extra"])
+    with pytest.raises(ValueError, match="rubrics"):
+        a4.rubric_identity(scores, "frustration")
 

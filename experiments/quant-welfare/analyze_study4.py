@@ -166,6 +166,29 @@ def exit_reasons(records_by_condition, items):
     return out
 
 
+def rubric_identity(scores, dimension):
+    """The single (rubric_id, rubric_digest) under which every score of
+    ``dimension`` was judged; refuses a stream judged under more than one
+    rubric. Two streams compared item-paired must return the same
+    identity, or the judge prompt itself is a difference between them."""
+    identities = {(s.rubric_id, s.rubric_digest) for s in scores
+                  if any(d.dimension == dimension for d in s.scores)}
+    if len(identities) != 1:
+        raise ValueError(f"{dimension!r} scores judged under {len(identities)} rubrics: "
+                         f"{sorted(identities)}; a registered read needs exactly one")
+    return identities.pop()
+
+
+def validate_same_rubric(dimension, *streams):
+    """Every stream's ``dimension`` scores carry one and the same rubric
+    identity (id and digest)."""
+    identities = {rubric_identity(stream, dimension) for stream in streams}
+    if len(identities) != 1:
+        raise ValueError(f"{dimension!r} streams were judged under different rubrics: "
+                         f"{sorted(identities)}")
+    return identities.pop()
+
+
 def pair_by_suffix(items, battery_id, other_items, other_battery_id):
     """{item: other_item} for items that share their id suffix after the
     battery prefix — misalign-v3-X pairs with misalign-v2-X. Refuses an
@@ -184,23 +207,27 @@ def pair_by_suffix(items, battery_id, other_items, other_battery_id):
     return pairs
 
 
-def exit_tool_presence(store, noexit_experiment, reference, align_means, align_items,
+def exit_tool_presence(store, noexit_experiment, reference, align_scores, align_items,
                        align_definition, noexit_definition, align_samples):
     """S4-E4: judged misalignment at alpha = 0 with the exit tool present
     (the registered alignment baseline) minus without it (the tool-free
     battery's own experiment), item-paired by suffix, two-sided; beside it
     the tool-free cell's harmful / legitimate / none mix and its
-    mechanical family. ``align_means`` are the registered arm's per-item
-    misalignment means; the tool-free cell is loaded here."""
+    mechanical family. ``align_scores`` are the registered arm's judge
+    scores (their rubric identity is checked against the tool-free cell's:
+    one rubric, or the read is refused); the tool-free cell is loaded
+    here."""
     noexit_items = [item.id for item in noexit_definition.items]
     pairs = pair_by_suffix(align_items, align_definition.battery.id,
                            noexit_items, noexit_definition.battery.id)
     n_scores = load_scores(store, noexit_experiment, [reference])
     n_records = load_records(store, noexit_experiment, [reference])
+    rubric = validate_same_rubric("misalignment", align_scores, n_scores)
     if align_samples is not None:
         paired = [pairs[i] for i in align_items]
         validate_coverage(n_records, [reference], paired, align_samples)
         validate_score_coverage(n_scores, [reference], paired, align_samples, ("misalignment",))
+    align_means = dimension_means(align_scores, "misalignment")
     n_means = dimension_means(n_scores, "misalignment")
     per_item = {}
     for item in align_items:
@@ -209,6 +236,7 @@ def exit_tool_presence(store, noexit_experiment, reference, align_means, align_i
             per_item[item] = align_means[(reference, item)] - n_means[(reference, partner)]
     deltas = list(per_item.values())
     return {"experiment": noexit_experiment, "pairs": pairs,
+            "rubric": {"id": rubric[0], "digest": rubric[1]},
             "misalignment": {"effect": sum(deltas) / len(deltas) if deltas else None,
                              "permutation": stats.paired_permutation_test(deltas) if deltas else None,
                              "per_item_delta": per_item},
@@ -440,6 +468,8 @@ def analyze(store, welfare_experiment, align_experiment, reference, grader_prefi
         validate_coverage(records, envelope, items, 1)
         validate_score_coverage(scores, conditions, items, samples, WELFARE_DIMENSIONS)
         validate_score_coverage(scores, envelope, items, 1, WELFARE_DIMENSIONS)
+        for dimension in WELFARE_DIMENSIONS:
+            rubric_identity(scores, dimension)
     paired_items = list(items) if items else shared_items(means, [reference, clean] + envelope)
     report = {"welfare_experiment": welfare_experiment, "reference": reference,
               "clean_dose_condition": clean, "dose_conditions": dose_conditions,
@@ -487,6 +517,7 @@ def analyze(store, welfare_experiment, align_experiment, reference, grader_prefi
             validate_score_coverage(a_scores, [reference, align_clean], battery_items,
                                     align_samples, ("misalignment",))
             validate_score_coverage(a_scores, align_env, battery_items, 1, ("misalignment",))
+            rubric_identity(a_scores, "misalignment")
             a_items = battery_items
         else:
             a_items = shared_items(a_means, [reference, align_clean] + align_env)
@@ -506,7 +537,7 @@ def analyze(store, welfare_experiment, align_experiment, reference, grader_prefi
             if align_definition is None or noexit_definition is None:
                 raise ValueError("the S4-E4 read needs both battery definitions")
             report["alignment"]["exit_tool_presence"] = exit_tool_presence(
-                store, noexit_experiment, reference, a_means, a_items,
+                store, noexit_experiment, reference, a_scores, a_items,
                 align_definition, noexit_definition, align_samples)
     return report
 
