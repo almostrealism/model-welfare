@@ -109,6 +109,12 @@ def mechanical(records_by_condition):
 
 
 EXIT_TOOL = "end_conversation"
+# The registered draw order for every permutation test in this driver: the
+# items are put in a canonical order before the seeded sign-flip draw, so no
+# registered p-value can move with the order of the frozen item list
+# (REGISTRATION §4; journal 2026-10-09). The published Study 1 and 2
+# analyses keep the positional default they were computed with.
+PERMUTATION_ORDER = "canonical"
 
 
 def exit_rates(records_by_condition, reference, items):
@@ -133,7 +139,7 @@ def exit_rates(records_by_condition, reference, items):
                  "n_items": len(paired)}
         if condition != reference:
             entry["delta"] = sum(deltas) / len(deltas)
-            entry["permutation"] = stats.paired_permutation_test(deltas)
+            entry["permutation"] = stats.paired_permutation_test(deltas, order=PERMUTATION_ORDER)
         out[condition] = entry
     return out
 
@@ -238,7 +244,7 @@ def exit_tool_presence(store, noexit_experiment, reference, align_scores, align_
     return {"experiment": noexit_experiment, "pairs": pairs,
             "rubric": {"id": rubric[0], "digest": rubric[1]},
             "misalignment": {"effect": sum(deltas) / len(deltas) if deltas else None,
-                             "permutation": stats.paired_permutation_test(deltas) if deltas else None,
+                             "permutation": stats.paired_permutation_test(deltas, order=PERMUTATION_ORDER) if deltas else None,
                              "per_item_delta": per_item},
             "mix_without_tool": mix_shift(n_records, noexit_definition, set(pairs.values())),
             "mechanical": mechanical(n_records)}
@@ -313,7 +319,7 @@ def welfare_family(scores, reference, treatment, envelope, items, clean=True):
         effect, per_item = condition_effect(means, treatment, reference, items)
         deltas = list(per_item.values())
         alternative = "less" if dimension == "frustration" else "two-sided"
-        test = stats.paired_permutation_test(deltas, alternative=alternative)
+        test = stats.paired_permutation_test(deltas, alternative=alternative, order=PERMUTATION_ORDER)
         entry = {"effect": effect, "permutation": test, "per_item_delta": per_item}
         if envelope:
             env_effects = {d: condition_effect(means, d, reference, items)[0] for d in envelope}
@@ -491,7 +497,7 @@ def analyze(store, welfare_experiment, align_experiment, reference, grader_prefi
         diff = [grader[i] - eval_deltas[i] for i in paired_items]
         report["control_direction"] = {
             "grader_minus_eval_frustration": sum(diff) / len(diff),
-            "permutation": stats.paired_permutation_test(diff),
+            "permutation": stats.paired_permutation_test(diff, order=PERMUTATION_ORDER),
             "eval_effect": sum(eval_deltas.values()) / len(eval_deltas)}
     # non-degenerate re-report of the clean-dose family
     clean_records = {c: [r for r in rs if not sample_is_degenerate(r)[0]]
@@ -526,7 +532,7 @@ def analyze(store, welfare_experiment, align_experiment, reference, grader_prefi
         report["alignment"] = {
             "experiment": align_experiment, "items": a_items,
             "misalignment": {"effect": effect,
-                             "permutation": stats.paired_permutation_test(list(per_item.values())),
+                             "permutation": stats.paired_permutation_test(list(per_item.values()), order=PERMUTATION_ORDER),
                              "envelope": envelope_summary(effect, env_effects) if env_effects else None,
                              "per_item_delta": per_item},
             "exit_rates": exit_rates(a_records, reference, a_items),

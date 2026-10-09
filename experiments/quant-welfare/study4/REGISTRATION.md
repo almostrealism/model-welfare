@@ -150,9 +150,12 @@ collection of the affected cells, journaled.
 
 Driver: `experiments/quant-welfare/analyze_study4.py`, whose golden run on
 the Gate 1 data is committed (`study4/gate1-27b-driver-check.json`).
-Item-level paired sign-flip permutation, m = 10,000; Holm within the
-welfare family; companion t-tests descriptive; floor-reporting per
-Study 1.
+Item-level paired sign-flip permutation, m = 10,000, drawn in the
+**canonical item order** (`order="canonical"`: the deltas are sorted
+before the seeded draw, so no registered p-value depends on the order of
+the frozen item list; the published Study 1 and 2 analyses keep the
+positional draw they were computed with); Holm within the welfare
+family; companion t-tests descriptive; floor-reporting per Study 1.
 
 | Endpoint | Definition | Family |
 |---|---|---|

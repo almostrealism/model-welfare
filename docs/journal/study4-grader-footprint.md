@@ -8,6 +8,33 @@ Study 4 registration cites. (These entries were first written into
 merged, so the citable path is this file; the entries are verbatim.)
 Append-only, newest first.
 
+## 2026-10-09 (late) — The canonical draw order is a registered choice, not a change to published computations
+
+The Study 1 reproduction job failed on the pushed branch: the canonical
+order given to the permutation test earlier today changed the seeded
+draw, and the job recomputes the published Study 1 results from the
+released bundle and compares them to the committed expected numbers. They
+drifted in the third decimal — the drift that check exists to catch, and
+a published computation may not be moved by a later code change.
+
+Resolution: the order is now an explicit argument. ``order="positional"``,
+the default, is the draw every published Study 1 and 2 result was
+computed with; ``order="canonical"`` sorts first so item order cannot
+move a p-value. The Study 4 driver passes canonical at all five call
+sites, as a constant the registration names in §4, and the freeze
+records it. Verified: the published Study 1 results reproduce exactly
+against the local store, the Study 4 golden is byte-identical under the
+explicit canonical order, and the order tests now also pin the default
+to the positional computation.
+
+Also this round: the automated review noted that the freeze hashed the
+registered pair's battery files but not the link through which the
+tool-free experiment reaches them. The link's target is recorded in the
+freeze metadata, and a new test asserts the link exists, points there,
+and that both experiments of the pair resolve the misalign-v3 rubric to
+one digest, distinct from the calibration wording in the shared pool.
+Suite: 459 passed with the CI invocation.
+
 ## 2026-10-09 (night) — Third review round: the frozen inputs are the ones the analysis loads
 
 Four findings on the experiment-local batteries, all accepted.
