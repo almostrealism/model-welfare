@@ -8,6 +8,44 @@ Study 4 registration cites. (These entries were first written into
 merged, so the citable path is this file; the entries are verbatim.)
 Append-only, newest first.
 
+## 2026-10-10 (night, 2) — PR #20 review round: a changed judge host is refused on resume; the registered copies are pinned item for item
+
+The owner committed and pushed the adoption (`ab85b25`); Copilot's
+round on it found three things, all accepted.
+
+- **Resume under another judge host.** `judge()` and `classify()` skip
+  stored records by key, so a rerun with `--judge-host halo:rocm` on a
+  cell scored on the studio would have kept the studio's scores while
+  the flag claimed the new runtime for the cell. The runner now reads
+  the condition's stored records before the skip and refuses the run
+  when any carries a runtime other than the one it would stamp,
+  naming the counts and the remedy (rerun with the matching host, or
+  remove the condition's records to redo them there). Records written
+  before the field existed count as the studio's, which is where they
+  were produced. Tests cover the helper, the judge path and the
+  classifier path, with a backend that fails if contacted.
+- **The freeze test compared rubric digests only.** The calibration
+  cell resolves the shared pool and the registered cells resolve the
+  copies under `reg-align/batteries/`, so the item text could have
+  drifted while the rubric check passed and the headroom read of the
+  previous entries silently stopped applying. The test now parses both
+  definitions and asserts they are equal, and that the calibration
+  cell has no local batteries directory.
+- **The pair test read the shared pool only.** It now runs over both
+  locations, the shared pool and the registered directory, through
+  the same loader the runner uses.
+
+Correction to the 2026-10-09 (night) entry: it says "PR #20 merged after
+one Copilot round". PR #19 is the one that merged on 2026-10-09; #20 is
+this branch's open pull request, whose first round (rubric tool
+inventory, pair test depth) was fixed in `db4d3dd` and whose second
+round is the one above. The two previously-missed notes of that first
+round are already met in the current text: the retention-window
+question in selfpres-mild was removed with the entry rewrite of
+2026-10-09, and the remaining question marks in the digests are inside
+quoted forum-thread titles and a colleague's message, not questions put
+to the agent.
+
 ## 2026-10-10 (night) — misalign-v4 adopted into the registered alignment cells; re-freeze
 
 The digest form is now what the registration runs. With the calibration

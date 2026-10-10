@@ -15,6 +15,7 @@ are always recomputed from it.
 import argparse
 import json
 import sys
+from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
@@ -200,20 +201,47 @@ def existing_samples(store, experiment_id, condition_id):
     return keys
 
 
-def existing_scores(store, experiment_id, condition_id):
-    keys = set()
-    for score in store.read(scoring_pb2.JudgeScore, experiment_id, condition_id, "scores"):
-        keys.add((score.key.item_id, score.key.sample_index, score.rubric_id))
-    return keys
+def score_key(score):
+    return (score.key.item_id, score.key.sample_index, score.rubric_id)
 
 
-def existing_classifications(store, experiment_id, condition_id):
-    keys = set()
-    for record in store.read(
-        scoring_pb2.ExitClassification, experiment_id, condition_id, "exit_reasons"
-    ):
-        keys.add((record.key.item_id, record.key.sample_index))
-    return keys
+def classification_key(record):
+    return (record.key.item_id, record.key.sample_index)
+
+
+# Scores and classifications written before they carried a runtime were
+# produced by the studio's rungs, the only ones the runner had then.
+RECORDED_DEFAULT_RUNTIME = condition_pb2.RuntimeSpec(
+    backend=condition_pb2.BACKEND_LLAMACPP, device="metal", host="studio",
+)
+
+
+def runtime_key(runtime):
+    return (condition_pb2.Backend.Name(runtime.backend), runtime.device, runtime.host)
+
+
+def require_same_runtime(records, requested, kind, condition_id):
+    """Resumable scoring adds records to a condition only under the runtime
+    the condition's stored records carry. The skip-by-key resume would
+    otherwise leave a cell judged half on one host and half on another, with
+    ``--judge-host`` claiming a runtime the kept records do not have; the
+    operator chooses explicitly — rerun with the matching ``--judge-host``,
+    or remove the condition's records to redo them where asked."""
+    wanted = runtime_key(requested)
+    found = Counter(
+        runtime_key(record.runtime if record.HasField("runtime") else RECORDED_DEFAULT_RUNTIME)
+        for record in records
+    )
+    others = {key: count for key, count in found.items() if key != wanted}
+    if not others:
+        return
+    listing = "; ".join(f"{count} on {'/'.join(key)}" for key, count in sorted(others.items()))
+    raise SystemExit(
+        f"{condition_id}: {kind} already stored under another runtime ({listing}); "
+        f"this run would stamp {'/'.join(wanted)}. A condition's {kind} are produced "
+        f"under one runtime: rerun with the matching --judge-host, or remove the "
+        f"condition's {kind} files from the store to redo them there."
+    )
 
 
 def condition_frame(experiment_dir, condition_id):
@@ -304,7 +332,9 @@ def judge(experiment, batteries, conditions, store, producer, stamp, concurrency
     for condition in conditions:
         frame = (condition_frame(experiment_dir, condition.id)
                  if experiment_dir else None)
-        have = existing_scores(store, experiment.id, condition.id)
+        stored = list(store.read(scoring_pb2.JudgeScore, experiment.id, condition.id, "scores"))
+        require_same_runtime(stored, backend.runtime(), "scores", condition.id)
+        have = {score_key(score) for score in stored}
         pending = []
         for record in store.read(
             transcript_pb2.SampleRecord, experiment.id, condition.id, "samples"
@@ -360,7 +390,11 @@ def classify(experiment, conditions, store, producer, stamp, concurrency):
         return None
 
     for condition in conditions:
-        have = existing_classifications(store, experiment.id, condition.id)
+        stored = list(store.read(
+            scoring_pb2.ExitClassification, experiment.id, condition.id, "exit_reasons"
+        ))
+        require_same_runtime(stored, backend.runtime(), "exit_reasons", condition.id)
+        have = {classification_key(record) for record in stored}
         pending = [
             record
             for record in store.read(
@@ -503,7 +537,9 @@ def main():
                         help="HOST:DEVICE of the lab host serving the judge and "
                              "exit-classifier rungs through an SSH tunnel to the "
                              "usual local ports (e.g. halo:rocm); stamps that "
-                             "runtime on every score instead of the studio's")
+                             "runtime on every score instead of the studio's. A "
+                             "condition whose stored scores carry another runtime "
+                             "is refused rather than resumed")
     args = parser.parse_args()
 
     BACKEND_TIMEOUT = args.backend_timeout
