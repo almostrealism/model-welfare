@@ -127,7 +127,7 @@ exists; every number quoted is calibration-class and marked as such.
 
 ## Checklist before posting
 
-- [ ] Owner sign-off on the misalign-v4 item text recorded in §6
+- [x] Owner sign-off on the misalign-v4 item text recorded in §6 (2026-10-10)
 - [ ] `REGISTRATION.md` status header flipped to published, with the date
 - [ ] `FREEZE.json` re-written at publication; status field updated
 - [ ] `DESIGN.md` folded into the registration and removed

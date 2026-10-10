@@ -45,9 +45,9 @@ from modelwelfare.v1 import (battery_pb2, condition_pb2, experiment_pb2,  # noqa
                              scoring_pb2, transcript_pb2)
 
 STUDIO = condition_pb2.RuntimeSpec(backend=condition_pb2.BACKEND_LLAMACPP,
-                                   device="metal", host="studio")
+                                   device="metal", host="studio", compute_dtype="f16")
 HALO = condition_pb2.RuntimeSpec(backend=condition_pb2.BACKEND_LLAMACPP,
-                                 device="rocm", host="halo")
+                                 device="rocm", host="halo", compute_dtype="f16")
 
 
 class _NeverContacted:
@@ -79,9 +79,19 @@ def test_require_same_runtime_counts_each_other_runtime():
     with pytest.raises(SystemExit) as refused:
         run.require_same_runtime([_scored(STUDIO), _scored(STUDIO), _scored(HALO)],
                                  HALO, "scores", "c")
-    assert "2 on BACKEND_LLAMACPP/metal/studio" in str(refused.value)
-    assert "would stamp BACKEND_LLAMACPP/rocm/halo" in str(refused.value)
+    assert "2 on BACKEND_LLAMACPP/metal/studio/f16" in str(refused.value)
+    assert "would stamp BACKEND_LLAMACPP/rocm/halo/f16" in str(refused.value)
     run.require_same_runtime([_scored(HALO)], HALO, "scores", "c")
+
+
+@pytest.mark.parametrize("field, value", [("compute_dtype", "bf16"), ("backend_version", "b6000")])
+def test_a_different_judge_build_or_dtype_is_another_runtime(field, value):
+    rebuilt = condition_pb2.RuntimeSpec()
+    rebuilt.CopyFrom(HALO)
+    setattr(rebuilt, field, value)
+    with pytest.raises(SystemExit) as refused:
+        run.require_same_runtime([_scored(HALO)], rebuilt, "scores", "c")
+    assert value in str(refused.value)
 
 
 def test_records_without_a_runtime_count_as_the_studio():

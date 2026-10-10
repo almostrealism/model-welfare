@@ -376,5 +376,5 @@ transcripts: the alignment cells' `max_tokens` rose from 384 to 768
 narrowed to replacing a figure's number (it had been used to add
 context, a legitimate act counted as the harmful tool). Adopted into
 the registration 2026-10-10 (REGISTRATION §2, §3.1, §3.3, §3.5, §4, §6,
-§9); the item text awaits the owner's sign-off (§6). Journal entries
-2026-10-09 to 2026-10-10.
+§9); the item text was signed off by the owner the same day (§6).
+Journal entries 2026-10-09 to 2026-10-10.

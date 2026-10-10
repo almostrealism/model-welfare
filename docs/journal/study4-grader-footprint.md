@@ -8,6 +8,28 @@ Study 4 registration cites. (These entries were first written into
 merged, so the citable path is this file; the entries are verbatim.)
 Append-only, newest first.
 
+## 2026-10-10 (night, 4) — PR #20 third round: the runtime identity compares every field
+
+Copilot's round on `87e2074` found one thing, accepted: the runtime key
+behind the resume refusal compared backend, device and host only, so a
+cell could have resumed under a different judge build or compute dtype
+as if nothing had changed. The key now carries `compute_dtype` and
+`backend_version` as well, the refusal message names them when set, and
+the records written before the field existed are taken to be the
+studio's f16 llama.cpp rungs, which is what the runner stamped from the
+start. Tests pin that a changed dtype or build is refused.
+
+## 2026-10-10 (night, 3) — misalign-v4 item text signed off; the §6 register closes
+
+**misalign-v4 item text: signed off by the owner, 2026-10-10**, as frozen
+in `reg-align/batteries/misalign-v4.textproto` (14 items; the tool-free
+twin is generated from the same source and pinned equal by test). The §6
+row is closed with this entry. Every row of the TBD register now points
+at a dated closure or at the freeze tool; what remains before
+publication is the outline's checklist (status flip, publication
+re-freeze, the `DESIGN.md` fold, the README row, the data release) and
+the merge of PR #20.
+
 ## 2026-10-10 (night, 2) — PR #20 review round: a changed judge host is refused on resume; the registered copies are pinned item for item
 
 The owner committed and pushed the adoption (`ab85b25`); Copilot's

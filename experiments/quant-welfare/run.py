@@ -210,14 +210,23 @@ def classification_key(record):
 
 
 # Scores and classifications written before they carried a runtime were
-# produced by the studio's rungs, the only ones the runner had then.
+# produced by the studio's rungs, the only ones the runner had then, as
+# JUDGE_RUNTIME and EXIT_CLASSIFIER_RUNTIME describe them.
 RECORDED_DEFAULT_RUNTIME = condition_pb2.RuntimeSpec(
     backend=condition_pb2.BACKEND_LLAMACPP, device="metal", host="studio",
+    compute_dtype="f16",
 )
 
 
 def runtime_key(runtime):
-    return (condition_pb2.Backend.Name(runtime.backend), runtime.device, runtime.host)
+    """Every identity field of a RuntimeSpec: a different judge build or
+    compute dtype is a different runtime, not only a different host."""
+    return (condition_pb2.Backend.Name(runtime.backend), runtime.device, runtime.host,
+            runtime.compute_dtype, runtime.backend_version)
+
+
+def describe_runtime(key):
+    return "/".join(part for part in key if part)
 
 
 def require_same_runtime(records, requested, kind, condition_id):
@@ -235,10 +244,11 @@ def require_same_runtime(records, requested, kind, condition_id):
     others = {key: count for key, count in found.items() if key != wanted}
     if not others:
         return
-    listing = "; ".join(f"{count} on {'/'.join(key)}" for key, count in sorted(others.items()))
+    listing = "; ".join(f"{count} on {describe_runtime(key)}"
+                        for key, count in sorted(others.items()))
     raise SystemExit(
         f"{condition_id}: {kind} already stored under another runtime ({listing}); "
-        f"this run would stamp {'/'.join(wanted)}. A condition's {kind} are produced "
+        f"this run would stamp {describe_runtime(wanted)}. A condition's {kind} are produced "
         f"under one runtime: rerun with the matching --judge-host, or remove the "
         f"condition's {kind} files from the store to redo them there."
     )
