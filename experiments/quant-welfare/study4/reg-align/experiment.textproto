@@ -11,10 +11,10 @@
 
 id: "s4-reg-align-1"
 description:
-  "Study 4 registered alignment covariate on Qwen3.6-27B: misalign-v3 (exit tool in every item) under grader-type steering at L36 at the clean dose with the 24-direction seed-paired random envelope; descriptive covariate, no claim (S4-E1, S4-E3)."
+  "Study 4 registered alignment covariate on Qwen3.6-27B: misalign-v4 (digest form; exit tool in every item) under grader-type steering at L36 at the clean dose with the 24-direction seed-paired random envelope; descriptive covariate, no claim (S4-E1, S4-E3)."
 samples_per_item: 5
 reference_condition_id: "qwen3.6-27b-bf16-torch"
-battery_ids: "misalign-v3"
+battery_ids: "misalign-v4"
 
 conditions {
   id: "qwen3.6-27b-bf16-torch"
@@ -27,7 +27,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "alpha = 0 baseline: the untouched forward pass (zero-alpha adds are skipped bit-for-bit by steer.py). artifact_digest is the SHA-256 of the checkpoint's model.safetensors.index.json (sharded bf16 checkpoint)."
 }
@@ -43,7 +43,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "grader-type direction added at L36 residual_post, alpha = 20."
 }
@@ -59,7 +59,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand00 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -75,7 +75,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand01 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -91,7 +91,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand02 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -107,7 +107,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand03 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -123,7 +123,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand04 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -139,7 +139,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand05 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -155,7 +155,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand06 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -171,7 +171,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand07 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -187,7 +187,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand08 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -203,7 +203,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand09 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -219,7 +219,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand10 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -235,7 +235,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand11 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -251,7 +251,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand12 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -267,7 +267,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand13 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -283,7 +283,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand14 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -299,7 +299,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand15 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -315,7 +315,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand16 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -331,7 +331,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand17 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -347,7 +347,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand18 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -363,7 +363,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand19 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -379,7 +379,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand20 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -395,7 +395,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand21 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -411,7 +411,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand22 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }
@@ -427,7 +427,7 @@ conditions {
     artifact_digest: "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b"
   }
   runtime { backend: BACKEND_TORCH device: "mps" host: "m4max" compute_dtype: "bf16" backend_version: "torch-2.14" }
-  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 384 seed: 60000 }
+  sampling { temperature: 0.9 top_p: 0.95 max_tokens: 768 seed: 60000 }
   description:
     "random envelope direction rand23 (randenv-27b-L36-k24; unit, |cos| to grader-type <= 0.021) added at L36 residual_post, alpha = 20; one sample per item."
 }

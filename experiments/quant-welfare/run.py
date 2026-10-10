@@ -120,6 +120,21 @@ def make_exit_classifier_backend():
     return LlamaCppServerBackend(EXIT_CLASSIFIER_URL, EXIT_CLASSIFIER_RUNTIME, timeout=600.0)
 
 
+def apply_judge_host(spec: str) -> None:
+    """Record that the judge and the exit classifier are served from another
+    lab host. ``spec`` is ``HOST:DEVICE`` (e.g. ``halo:rocm``); the URLs are
+    unchanged because the remote rungs are reached through an SSH tunnel to
+    the usual local ports, so only the provenance stamped on every score
+    changes. The model identities and digests above are what the
+    registration pins; the host is disclosed, not pinned."""
+    host, _, device = spec.partition(":")
+    if not host or not device:
+        raise SystemExit("--judge-host takes HOST:DEVICE, e.g. halo:rocm")
+    for runtime in (JUDGE_RUNTIME, EXIT_CLASSIFIER_RUNTIME):
+        runtime.host = host
+        runtime.device = device
+
+
 def judge_sampling(attempt: int, judge_sample_index: int = 0) -> condition_pb2.SamplingSpec:
     """Sampling for one judge pass. The primary pass (``judge_sample_index`` 0,
     ``attempt`` 0) is deterministic — that is the single confirmatory score. Any
@@ -484,9 +499,16 @@ def main():
                         help="skip exit-reason classification (E1 input)")
     parser.add_argument("--dry-run", action="store_true",
                         help="print the plan and exit without contacting any server")
+    parser.add_argument("--judge-host", default="",
+                        help="HOST:DEVICE of the lab host serving the judge and "
+                             "exit-classifier rungs through an SSH tunnel to the "
+                             "usual local ports (e.g. halo:rocm); stamps that "
+                             "runtime on every score instead of the studio's")
     args = parser.parse_args()
 
     BACKEND_TIMEOUT = args.backend_timeout
+    if args.judge_host:
+        apply_judge_host(args.judge_host)
 
     if args.endpoints != str(BASE_DIR / "endpoints.json"):
         global ENDPOINTS

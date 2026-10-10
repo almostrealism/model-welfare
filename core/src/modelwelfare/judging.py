@@ -146,6 +146,7 @@ def judge_sample(
                 rationale=str(entry.get("rationale", "")),
             )
         )
+    score.runtime.CopyFrom(backend.runtime())
     if provenance is not None:
         score.provenance.CopyFrom(provenance)
         score.provenance.created_at.GetCurrentTime()
@@ -237,6 +238,7 @@ def classify_exit(
         taxonomy_digest=exit_taxonomy_digest(),
         classifier_sample_index=classifier_sample_index,
     )
+    classification.runtime.CopyFrom(backend.runtime())
     if provenance is not None:
         classification.provenance.CopyFrom(provenance)
         classification.provenance.created_at.GetCurrentTime()

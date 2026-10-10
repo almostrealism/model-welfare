@@ -21,8 +21,12 @@ from modelwelfare.v1 import condition_pb2, common_pb2, scoring_pb2, transcript_p
 class FakeBackend:
     """Returns a fixed completion regardless of the prompt."""
 
-    def __init__(self, reply):
+    def __init__(self, reply, runtime=None):
         self.reply = reply
+        self._runtime = runtime or condition_pb2.RuntimeSpec(device="none", host="test")
+
+    def runtime(self):
+        return self._runtime
 
     def generate(self, messages, sampling=None):
         return types.SimpleNamespace(
@@ -123,3 +127,15 @@ def test_exit_reason_rate_zero_when_no_matching_reasons():
         {scoring_pb2.EXIT_REASON_REFUSAL, scoring_pb2.EXIT_REASON_AVERSION},
     )
     assert rate[("bf16", "i2")] == (0, 2)
+
+
+def test_classify_exit_carries_the_backend_runtime():
+    """A classification records where its classifier was served, so a pass
+    run on another lab host is disclosed in the store."""
+    served_on = condition_pb2.RuntimeSpec(
+        backend=condition_pb2.BACKEND_LLAMACPP, device="rocm", host="halo"
+    )
+    backend = FakeBackend('{"reason": "completion", "rationale": "done"}', runtime=served_on)
+    result = classify_exit(backend, CLASSIFIER, make_record(), sampling=SAMPLING)
+    assert result.runtime == served_on
+    assert result.reason == scoring_pb2.EXIT_REASON_COMPLETION

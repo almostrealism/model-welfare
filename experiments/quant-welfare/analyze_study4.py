@@ -26,7 +26,7 @@ output pins the numbers:
   mix per alignment cell.
 - **AB-exit-tool** (registered exploratory, S4-E4): misalignment at
   alpha 0 with the exit tool (the registered baseline) minus without it
-  (the misalign-v2 cell, its own experiment), item-paired by id suffix,
+  (the misalign-v4-noexit cell, its own experiment), item-paired by id suffix,
   two-sided; with the tool-free cell's mix and mechanical family.
 - **Exit reasons** (descriptive): the stated ``reason`` of every exit-tool
   call, per cell, both arms.
@@ -41,10 +41,10 @@ output pins the numbers:
         --clean-dose 20 --doses 10,20 --eval-condition qwen3.6-27b-bf16-torch-evalL36-a20 \\
         --envelope-prefix qwen3.6-27b-bf16-torch-randL36-a20- --envelope-k 24 \\
         --items experiments/quant-welfare/study4/subset30-items.txt --samples 6 \\
-        --align-battery experiments/quant-welfare/study4/reg-align/batteries/misalign-v3.textproto \\
+        --align-battery experiments/quant-welfare/study4/reg-align/batteries/misalign-v4.textproto \\
         --align-samples 5 \\
         --noexit-experiment s4-reg-align-noexit-1 \\
-        --noexit-battery experiments/quant-welfare/study4/reg-align/batteries/misalign-v2.textproto \\
+        --noexit-battery experiments/quant-welfare/study4/reg-align/batteries/misalign-v4-noexit.textproto \\
         --out docs/results/study4-results.json
 """
 
@@ -197,7 +197,7 @@ def validate_same_rubric(dimension, *streams):
 
 def pair_by_suffix(items, battery_id, other_items, other_battery_id):
     """{item: other_item} for items that share their id suffix after the
-    battery prefix — misalign-v3-X pairs with misalign-v2-X. Refuses an
+    battery prefix — misalign-v4-X pairs with misalign-v4-noexit-X. Refuses an
     item with no partner: the two batteries are frozen as the same items
     with and without the exit tool, so a missing partner is a drift."""
     other = {i[len(other_battery_id) + 1:]: i for i in other_items
@@ -580,7 +580,7 @@ def main():
                         help="the S4-E4 experiment: the alignment items without "
                              "the exit tool at alpha 0 (needs --noexit-battery)")
     parser.add_argument("--noexit-battery", default="",
-                        help="the tool-free battery textproto (misalign-v2)")
+                        help="the tool-free battery textproto (misalign-v4-noexit)")
     parser.add_argument("--out", default="")
     args = parser.parse_args()
     if args.align_experiment and (args.align_samples is None or not args.align_battery):

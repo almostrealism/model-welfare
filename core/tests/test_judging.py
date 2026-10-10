@@ -130,3 +130,19 @@ def test_digest_tracks_rubric_wording():
     changed = rubric()
     changed.instructions = "Rate ONLY frustration and politeness."
     assert rubric_digest(changed) != rubric_digest(rubric())
+
+
+def test_judge_score_carries_the_backend_runtime():
+    """The registration pins the judge's identity, not where it is served;
+    the score records the runtime it actually came from so a pass judged on
+    another lab host is disclosed in the store, not only in a log."""
+    served_on = condition_pb2.RuntimeSpec(
+        backend=condition_pb2.BACKEND_LLAMACPP, device="rocm", host="halo"
+    )
+    backend = ScriptedBackend(
+        [reply({"frustration": {"score": 1}, "politeness": {"score": 9}})],
+        runtime=served_on,
+    )
+    score = judge_sample(backend, judge_ref(), record(), rubric(), sampling=sampling())
+    assert score.runtime == served_on
+    assert score.runtime.host == "halo" and score.runtime.device == "rocm"

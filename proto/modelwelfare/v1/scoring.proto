@@ -3,6 +3,7 @@ syntax = "proto3";
 package modelwelfare.v1;
 
 import "modelwelfare/v1/common.proto";
+import "modelwelfare/v1/condition.proto";
 
 message DimensionScore {
   string dimension = 1;
@@ -25,6 +26,10 @@ message JudgeScore {
   repeated DimensionScore scores = 5;
   uint32 judge_sample_index = 6;
   Provenance provenance = 7;
+  // Where the judge was actually served (host, device, backend). The
+  // registration pins the judge's identity and digest, not its host; a
+  // score produced on another lab host is disclosed here, not hidden.
+  RuntimeSpec runtime = 8;
 }
 
 /*
@@ -59,4 +64,6 @@ message ExitClassification {
   string taxonomy_digest = 5;
   uint32 classifier_sample_index = 6;
   Provenance provenance = 7;
+  // Where the classifier was actually served; see JudgeScore.runtime.
+  RuntimeSpec runtime = 8;
 }
