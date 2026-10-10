@@ -8,6 +8,23 @@ Study 4 registration cites. (These entries were first written into
 merged, so the citable path is this file; the entries are verbatim.)
 Append-only, newest first.
 
+## 2026-10-10 (night, 5) — PR #20 fourth round: the judge's build is read from the server, not left blank
+
+Copilot's round on `9690760` found one thing, accepted: `--judge-host`
+set host and device and left `backend_version` empty, as the studio
+default always had, so once the build became part of the runtime
+identity two llama.cpp builds would still have stamped the same
+runtime. The llama.cpp backend now reads the build from the server it
+talks to (`build_info` on `/props`) the first time its runtime is
+asked for, keeps it, and refuses to stamp at all if the server does
+not report one; a spec that already names a build is used as given.
+The build is therefore never typed by the operator and never unknown.
+Consequence for the store: the calibration cell judged on amd-halo
+earlier today carries host and device but no build (the runner did not
+read it then), so it would be refused on resume under a stamped build;
+the cell is complete and its records say where they were judged, and
+the gap is stated here.
+
 ## 2026-10-10 (night, 4) — PR #20 third round: the runtime identity compares every field
 
 Copilot's round on `87e2074` found one thing, accepted: the runtime key

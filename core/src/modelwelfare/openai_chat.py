@@ -38,6 +38,17 @@ def _urllib_transport(timeout: float):
     return post
 
 
+def _urllib_get(timeout: float):
+    """A GET counterpart to the POST transport, for a server's self-description
+    endpoints (llama.cpp's ``/props``); injectable for tests the same way."""
+    def get(url: str) -> dict:
+        request = urllib.request.Request(url, method="GET")
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            return json.loads(response.read().decode("utf-8"))
+
+    return get
+
+
 def _to_chat_messages(messages: Sequence[transcript_pb2.Message]) -> list:
     chat = []
     for message in messages:

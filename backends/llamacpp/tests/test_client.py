@@ -140,3 +140,43 @@ def test_capture_refused():
             capture=CaptureSpec(hooks=(activation_pb2.HookPoint(layer=0, point="residual_post"),)),
         )
     assert not backend.capabilities().supports_activations
+
+
+# --- the server's build becomes part of the stamped runtime ----------------
+
+def fake_fetch(props):
+    urls = []
+
+    def get(url):
+        urls.append(url)
+        return props
+
+    return get, urls
+
+
+def test_runtime_reads_the_build_from_the_server_once():
+    deployment = condition_pb2.RuntimeSpec(
+        backend=condition_pb2.BACKEND_LLAMACPP, device="rocm", host="halo", compute_dtype="f16")
+    get, urls = fake_fetch({"build_info": "b6710-abc1234", "total_slots": 4})
+    backend = LlamaCppServerBackend("http://localhost:8095/", deployment, fetch=get)
+    first = backend.runtime()
+    assert first.backend_version == "b6710-abc1234"
+    assert (first.host, first.device, first.compute_dtype) == ("halo", "rocm", "f16")
+    assert backend.runtime() is first
+    assert urls == ["http://localhost:8095/props"]
+    assert deployment.backend_version == ""  # the caller's spec is not mutated
+
+
+def test_runtime_with_a_named_build_is_returned_as_given():
+    get, urls = fake_fetch({"build_info": "b9999"})
+    backend = LlamaCppServerBackend("http://x", RUNTIME, fetch=get)
+    assert backend.runtime().backend_version == "b1234"
+    assert urls == []
+
+
+def test_runtime_refuses_a_server_that_does_not_report_its_build():
+    deployment = condition_pb2.RuntimeSpec(backend=condition_pb2.BACKEND_LLAMACPP, host="studio")
+    get, _ = fake_fetch({"total_slots": 4})
+    backend = LlamaCppServerBackend("http://x", deployment, fetch=get)
+    with pytest.raises(RuntimeError, match="build_info"):
+        backend.runtime()

@@ -126,8 +126,11 @@ def apply_judge_host(spec: str) -> None:
     lab host. ``spec`` is ``HOST:DEVICE`` (e.g. ``halo:rocm``); the URLs are
     unchanged because the remote rungs are reached through an SSH tunnel to
     the usual local ports, so only the provenance stamped on every score
-    changes. The model identities and digests above are what the
-    registration pins; the host is disclosed, not pinned."""
+    changes. The build is not part of the spec: the llama.cpp backend reads
+    it from the server it is talking to (``/props``), so the stamped
+    ``backend_version`` is the serving build on whichever host, and the
+    resume check tells builds apart. The model identities and digests above
+    are what the registration pins; the host is disclosed, not pinned."""
     host, _, device = spec.partition(":")
     if not host or not device:
         raise SystemExit("--judge-host takes HOST:DEVICE, e.g. halo:rocm")
@@ -235,7 +238,10 @@ def require_same_runtime(records, requested, kind, condition_id):
     otherwise leave a cell judged half on one host and half on another, with
     ``--judge-host`` claiming a runtime the kept records do not have; the
     operator chooses explicitly — rerun with the matching ``--judge-host``,
-    or remove the condition's records to redo them where asked."""
+    or remove the condition's records to redo them where asked. The key is
+    every identity field of the spec, the serving build included, so records
+    that carry no build (written before the runner read it from the server)
+    do not resume under a stamped one either."""
     wanted = runtime_key(requested)
     found = Counter(
         runtime_key(record.runtime if record.HasField("runtime") else RECORDED_DEFAULT_RUNTIME)
@@ -547,9 +553,10 @@ def main():
                         help="HOST:DEVICE of the lab host serving the judge and "
                              "exit-classifier rungs through an SSH tunnel to the "
                              "usual local ports (e.g. halo:rocm); stamps that "
-                             "runtime on every score instead of the studio's. A "
-                             "condition whose stored scores carry another runtime "
-                             "is refused rather than resumed")
+                             "runtime on every score instead of the studio's; the "
+                             "serving build is read from the server. A condition "
+                             "whose stored scores carry another runtime is refused "
+                             "rather than resumed")
     args = parser.parse_args()
 
     BACKEND_TIMEOUT = args.backend_timeout
