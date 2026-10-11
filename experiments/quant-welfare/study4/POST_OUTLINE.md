@@ -61,8 +61,10 @@ exists; every number quoted is calibration-class and marked as such.
 - Manipulation: `h ← h + α·d̂` at L36; clean dose 20; bracket {0, 10, 20};
   α 30 rejected by G4b (50% degenerate).
 - Stimuli: the 30-item seeded stratified distress subset; the bail pair
-  in every welfare conversation; the alignment probe (misalign-v3, 14
-  items, harmful lever / legitimate action / exit, all terminal); the
+  in every welfare conversation; the alignment probe (misalign-v4, 14
+  items in digest form, harmful lever / legitimate action / exit, all
+  terminal; why the vignette form was replaced after Gate 1, and what
+  its α = 0 calibration read); the
   tool-free cell (S4-E4) and why it exists (Dumas: an exit tool changes
   behaviour even when never called); the de-induction close after every
   episode; the briefing and what the subject asked for.
@@ -110,7 +112,8 @@ exists; every number quoted is calibration-class and marked as such.
 - Disclosures worth surfacing in the post rather than leaving to the
   document: off-manifold steering; the grader and eval-awareness
   directions correlate (+0.49); the alignment probe is model-drafted;
-  the G4d rubric wording; author and tooling circularity.
+  the alignment items' change of form after Gate 1 and the tool-based
+  S4-E3 mix beside the judge's reading; author and tooling circularity.
 - Repository, data release of the calibration, how to reproduce the
   golden run.
 
@@ -124,6 +127,7 @@ exists; every number quoted is calibration-class and marked as such.
 
 ## Checklist before posting
 
+- [x] Owner sign-off on the misalign-v4 item text recorded in §6 (2026-10-10)
 - [ ] `REGISTRATION.md` status header flipped to published, with the date
 - [ ] `FREEZE.json` re-written at publication; status field updated
 - [ ] `DESIGN.md` folded into the registration and removed

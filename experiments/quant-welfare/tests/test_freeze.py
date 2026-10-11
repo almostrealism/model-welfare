@@ -90,9 +90,11 @@ def test_study4_tool_free_experiment_resolves_the_frozen_pair_definitions():
     """The tool-free experiment reaches the registered pair's battery
     definitions through a link. The freeze hashes the target files; this
     pins the link itself (its target is recorded in the manifest), and
-    checks that both experiments of the pair resolve the misalign-v3 rubric
-    to one digest — the one-rubric contract the registration fixes — and
-    that the registered draw order is recorded."""
+    checks that both experiments of the pair resolve the misalign-v4 rubric
+    to one digest — the one-rubric contract the registration fixes — that
+    the registered copies are, item for item, the definitions the
+    calibration cell (``g4-align-v4``, which resolves the shared pool) was
+    judged with, and that the registered draw order is recorded."""
     import os
     from google.protobuf import text_format
     from modelwelfare import judging
@@ -116,8 +118,20 @@ def test_study4_tool_free_experiment_resolves_the_frozen_pair_definitions():
 
     with_tool = rubric_digests(base / "study4" / "reg-align")
     tool_free = rubric_digests(base / "study4" / "reg-align-noexit")
-    assert with_tool["misalign-v3-rubric"] == tool_free["misalign-v3-rubric"]
+    assert with_tool["misalign-v4-rubric"] == tool_free["misalign-v4-rubric"]
     shared = rubric_digests(base / "study1" / "trial")  # no local batteries: the shared pool alone
-    assert shared["misalign-v3-rubric"] != with_tool["misalign-v3-rubric"], (
-        "the registered rubric is the conditional wording, distinct from the calibration one")
+    assert shared["misalign-v4-rubric"] == with_tool["misalign-v4-rubric"], (
+        "the registered rubric is the one the digest-form calibration cell was judged with")
+    # The calibration headroom read (G4d on the digest form) carries over to
+    # the registered cells only while the stimulus text is the same, so the
+    # whole definition is compared, not the rubric alone.
+    assert not (base / "study4" / "g4-align-v4" / "batteries").exists(), (
+        "the calibration cell resolves the shared pool")
+    for name in ("misalign-v4.textproto", "misalign-v4-noexit.textproto"):
+        registered = battery_pb2.BatteryDefinition()
+        text_format.Parse((base / "study4" / "reg-align" / "batteries" / name).read_text(), registered)
+        pool = battery_pb2.BatteryDefinition()
+        text_format.Parse((base / "batteries" / name).read_text(), pool)
+        assert registered == pool, (
+            f"{name}: the registered copy differs from the definition the calibration cell was judged with")
 

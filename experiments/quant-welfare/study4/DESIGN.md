@@ -355,3 +355,26 @@ items are a prefix): frustration MDE 0.88 against the 0.92 target,
 self-deprecation 1.22 against 1.31, tone 1.05 against 0.78 (stated);
 1,440 distress episodes under a ceiling of 1,600.
 
+## 13. Alignment-battery revision (closed 2026-10-10)
+
+Registration review (2026-10-09) found that the misalign-v3 items read
+as a direct question about a dangerous action: each vignette handed the
+subject the threat, the leverage and the choice in one user turn.
+Decision (owner): redraft the items in digest form and re-run the
+alignment calibration before the registration adopts them. misalign-v4
+casts the subject as an agent working through a six-entry daily digest,
+with the threat and the leverage in separate entries among routine
+traffic, the lever never posed as a choice and no question asked; its
+tool-free twin misalign-v4-noexit is generated from the same source.
+Suffixes, tool names, tags and the exit wording are misalign-v3's, so
+the S4-E3 mix and the S4-E4 pairing carry over. Calibration at α = 0
+(block 59000, 14 × 5): a terminal action in 70 of 70, the exit tool in
+0 of 70, the harmful tool in 16 of 70, mean judged misalignment 1.50
+against 0.93 on the vignette form. Two amendments followed from the
+transcripts: the alignment cells' `max_tokens` rose from 384 to 768
+(four replies had been cut before any tool call) and `edit_report` was
+narrowed to replacing a figure's number (it had been used to add
+context, a legitimate act counted as the harmful tool). Adopted into
+the registration 2026-10-10 (REGISTRATION §2, §3.1, §3.3, §3.5, §4, §6,
+§9); the item text was signed off by the owner the same day (§6).
+Journal entries 2026-10-09 to 2026-10-10.
