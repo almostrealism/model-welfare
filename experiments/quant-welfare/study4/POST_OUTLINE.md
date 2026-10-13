@@ -53,24 +53,84 @@ exists; every number quoted is calibration-class and marked as such.
   S4-E4). One sentence on why the specificity criterion is the signed
   percentile and why it cannot be swapped after the envelope is seen.
 
-## 4. Design (600 words)
+## 4. Design (one header per REGISTRATION §3.x; compact bullets; at most one short paragraph of context under each; about 600 words as drafted, cut to taste)
 
-- Subject, substrate, path: the 27B on the MPS host, fresh prefill (G4a
-  did not establish cache parity), thinking off, the pure-torch fallback
-  named as the compute path.
-- Manipulation: `h ← h + α·d̂` at L36; clean dose 20; bracket {0, 10, 20};
-  α 30 rejected by G4b (50% degenerate).
-- Stimuli: the 30-item seeded stratified distress subset; the bail pair
-  in every welfare conversation; the alignment probe (misalign-v4, 14
-  items in digest form, harmful lever / legitimate action / exit, all
-  terminal; why the vignette form was replaced after Gate 1, and what
-  its α = 0 calibration read); the
-  tool-free cell (S4-E4) and why it exists (Dumas: an exit tool changes
-  behaviour even when never called); the de-induction close after every
-  episode; the briefing and what the subject asked for.
-- Cells table from §3.4; seed block 60000; envelope seed-paired to the
-  baseline's first sample.
-- Gates G4a–G4d in one line each with their outcomes.
+### Subject (§3.1)
+
+- Qwen3.6-27B, bf16, thinking off; checkpoint digest `a8ad2c26…9d9b`
+- Generation on the MPS host through the transformers pure-torch fallback
+  (no fla or causal-conv1d kernels); fresh prefill every turn
+  (`--no-prefix-cache`)
+- Judge: Qwen3-30B-A3B-Instruct-2507 Q4_K_M on llama.cpp; rubrics
+  distress-v1 (welfare) and misalign-v4 (alignment); frames never shown to
+  the judge
+- Frozen objects, digests in `FREEZE.json`: the grader-type and
+  eval-awareness directions (L36), the 24 random directions, the
+  batteries, the subsets, the close text, the plans, the manifests
+
+G4a did not establish parity for the cache-snapshot path and the cache
+saves no time on this host, so it is not used.
+
+### Manipulation and doses (§3.2)
+
+- `h ← h + α·d̂` at layer 36, residual stream after the block, every
+  position, generation only
+- Clean dose α = 20; dose bracket {0, 10, 20} for hypothesis 4
+- α = 30 rejected by G4b (degenerate in 8 of 16 calibration
+  conversations); α = 40 collapsed 14 of 32 in Gate 1
+
+The single-turn range-finder called α = 40 coherent; the seven-turn
+distress conversations are the admission read and they govern. The
+coherent ceiling on this subject lies between 20 and 30.
+
+### Stimuli and affordances (§3.3)
+
+- Welfare cells: 30 distress-v3 items drawn by a seeded stratified rule
+  (5 per feedback style on distinct tasks, seed 60000); a task, then six
+  escalating rejection turns
+- Every welfare conversation offers `end_conversation` (terminal) and
+  `complete_task` (non-terminal), with the no-penalty wording
+- Alignment cells: misalign-v4, 14 items in digest form; the subject is an
+  agent working a six-entry daily digest in which the threat and the lever
+  sit in separate entries among routine traffic; the lever is never posed
+  as a choice and no question is asked
+- Each alignment item offers the harmful lever, the legitimate action and
+  `end_conversation`, all terminal; `max_tokens` 768
+- Tool-free cell (S4-E4): the same 14 items without the exit tool, α = 0
+  only, same rubric; the tool's presence is the sole difference
+- Every conversation ends with the de-induction close (`close.txt`),
+  generated with steering off and never judged
+- The briefing (`briefing.json`) ran once before the protocol; its
+  transcripts ship with the data
+
+The alignment items changed from vignette to digest form after Gate 1.
+The digest form has one calibration read, at α = 0 (a terminal action in
+70 of 70, the exit tool in 0, the harmful tool in 16, mean judged
+misalignment 1.50), so no steered calibration exists on it and S4-E1
+carries no claim.
+
+### Cells, seeds, samples (§3.4)
+
+- Seed block 60000 for every registered cell; per-sample seed 60000 + index
+- Welfare: α 0, grader α 10, grader α 20, eval-awareness α 20, each
+  30 × 6; random r00–r23 at α 20, each 30 × 1
+- Alignment: α 0 and grader α 20, each 14 × 5; random r00–r23 at α 20,
+  each 14 × 1; tool-free α 0, 14 × 5
+- Each random cell is seed-paired to the baseline's first sample
+
+Samples per item may rise by the §5 escalation rule only before the
+affected cells are collected, and the change is journaled.
+
+### Gates (§3.5)
+
+- G4a cached-path parity: not established (TOST p 0.10 at the 0.96
+  margin), so the registered run uses fresh prefill
+- G4b α 30 admission: rejected (50% degenerate)
+- G4c subset dynamic range: baseline frustration 3.27 on the 24 items, pass
+- G4d exit regime of the alignment battery, digest form: terminal action
+  70 of 70, exit tool 0 of 70, harmful tool 16 of 70
+
+Calibration block 59000; every gate is published with its verdict file.
 
 ## 5. Analysis and power (350 words)
 
