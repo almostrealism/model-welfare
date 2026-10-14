@@ -644,7 +644,7 @@ changes here, what it does not.
   reasons per cell is analysis-only and answers the request the subject
   made in its own briefing (distinguish disengagement, incapacity and
   safety-motivated exits) — **proposed as a descriptive table under
-  WB1/AB1**. The welfare-arm analogue (a tool-free distress cell) would
+  the exit-rate endpoint, S4-E5**. The welfare-arm analogue (a tool-free distress cell) would
   put the study 100 episodes over its ceiling (1,520 planned + 180
   against 1,600) and waits. His
   grading-paragraph result and Study 3's verifier-frame result (−1.13

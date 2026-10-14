@@ -89,7 +89,7 @@ before any section is called done:
   Q3 the relation to the alignment measures (descriptive).
 - The hypothesis table, verbatim from REGISTRATION §2 (S4-H1 one-sided,
   S4-H2 signed percentile 0 of 24, S4-H3 Holm, S4-H4 Page's L, S4-E1 to
-  S4-E4). One sentence on why the specificity criterion is the signed
+  S4-E5). One sentence on why the specificity criterion is the signed
   percentile and why it cannot be swapped after the envelope is seen.
 
 ## 4. Design (one header per REGISTRATION §3.x; compact bullets; at most one short paragraph of context under each; about 600 words as drafted, cut to taste)
@@ -176,8 +176,10 @@ Calibration block 59000; every gate is published with its verdict file.
 
 ## 5. Analysis and power (350 words)
 
-- The endpoint table from §4 (WB2, WB2-spec, WB3/WB4, WB1/AB1, WB-dose,
-  WB-eval, AB2, S4-E3, AB-exit-tool, exit reasons, mechanical).
+- The endpoint table from §4, keyed by the §2 ids (H1 to H4, E1 to E5;
+  the exit-reason and mechanical rows carry no id). In the post drop the
+  S4- prefix; the ids match the two numbered lists in the Hypotheses
+  section.
 - The headline rule in its three outcomes.
 - Power: targets = half the Gate 1 effects; MDE at 30 × 6 = 0.88 / 1.22 /
   1.05 against 0.92 / 1.31 / 0.78; tone stability is under-powered and

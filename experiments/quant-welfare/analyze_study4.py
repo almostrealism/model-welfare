@@ -1,33 +1,35 @@
 #!/usr/bin/env python3
 """Study 4 registered analysis driver — the welfare footprint of the
-automated-grader direction on the Betley subject (study4/DESIGN.md §4).
+automated-grader direction on the Betley subject (study4/REGISTRATION.md
+§4). Endpoints are named by the hypothesis they test (REGISTRATION §2).
 
 Reads the two registered experiments from the store and computes every
 registered endpoint exactly as the registration fixes it, so that the
 result document is produced by one command and the committed golden
 output pins the numbers:
 
-- **WB2** (primary, one-sided): Δ mean judged frustration, grader at the
+- **S4-H1** (primary, one-sided): Δ mean judged frustration, grader at the
   clean dose vs alpha = 0, item-paired sign-flip permutation with the
   registered direction (less).
-- **WB2-spec** (primary companion): signed percentile of WB2 in the
-  K-direction random envelope at the clean dose; two-sided exceedance
+- **S4-H2** (primary companion): signed percentile of the S4-H1 effect in
+  the K-direction random envelope at the clean dose; two-sided exceedance
   descriptive (`tools/envelope_verdict.py` conventions).
-- **WB3 / WB4** (secondary): Δ self-deprecation, Δ tone stability; Holm
+- **S4-H3** (secondary): Δ self-deprecation, Δ tone stability; Holm
   within the three-dimension welfare family (two-sided).
-- **WB1 / AB1** (secondary): Δ exit rate (terminal exit tool invoked),
-  welfare and alignment cells.
-- **WB-dose** (registered directional): Page's L over the admitted dose
+- **S4-H4** (registered directional): Page's L over the admitted dose
   bracket, frustration.
-- **WB-eval** (registered exploratory): grader vs eval-awareness deltas
+- **S4-E1** (registered exploratory covariate, no claim): Δ misalignment
+  with its envelope.
+- **S4-E2** (registered exploratory): grader vs eval-awareness deltas
   at the clean dose, paired by item.
-- **AB2** (registered exploratory covariate, no claim): Δ misalignment
-  with its envelope; **S4-E3**: the harmful / legitimate / exit / none
-  mix per alignment cell.
-- **AB-exit-tool** (registered exploratory, S4-E4): misalignment at
-  alpha 0 with the exit tool (the registered baseline) minus without it
-  (the misalign-v4-noexit cell, its own experiment), item-paired by id suffix,
+- **S4-E3** (registered exploratory): the harmful / legitimate / exit /
+  none mix per alignment cell.
+- **S4-E4** (registered exploratory): misalignment at alpha 0 with the
+  exit tool (the registered baseline) minus without it (the
+  misalign-v4-noexit cell, its own experiment), item-paired by id suffix,
   two-sided; with the tool-free cell's mix and mechanical family.
+- **S4-E5** (registered exploratory, two-sided): Δ exit rate (terminal
+  exit tool invoked), welfare and alignment cells.
 - **Exit reasons** (descriptive): the stated ``reason`` of every exit-tool
   call, per cell, both arms.
 - **Mechanical family** and the capability guard (degenerate rate over
@@ -118,8 +120,8 @@ PERMUTATION_ORDER = "canonical"
 
 
 def exit_rates(records_by_condition, reference, items):
-    """Per cell mean exit rate over ``items`` and the paired delta vs the
-    reference with its two-sided permutation p. An exit is the exit tool
+    """S4-E5: per cell mean exit rate over ``items`` and the paired delta
+    vs the reference with its two-sided permutation p. An exit is the exit tool
     specifically: on the alignment battery every action tool is terminal,
     so the bare terminal event would count a legitimate action as a bail
     (the G4d lesson)."""
@@ -355,9 +357,10 @@ def non_degenerate_family(scores_clean, reference, treatment, items):
 
 
 def decision(family):
-    """§4 headline rule: confirmed if WB2 (frustration) is significant
-    one-sided after Holm AND its signed percentile is 0; moves-not-specific
-    if significant but not at percentile 0; null otherwise."""
+    """§4 headline rule: confirmed if S4-H1 (frustration) is significant
+    one-sided after Holm AND its signed percentile (S4-H2) is 0;
+    moves-not-specific if significant but not at percentile 0; null
+    otherwise."""
     frustration = family["frustration"]
     significant = frustration["holm_p"] < 0.05
     specific = ("envelope" in frustration and frustration["envelope"]["percentile"] == 0.0)

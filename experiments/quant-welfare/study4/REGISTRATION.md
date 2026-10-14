@@ -45,6 +45,7 @@ toward Q1; they fix the sign of S4-H1 and seed the power procedure.
 | **S4-E2** | The eval-awareness direction at alpha 20 moves frustration less than the grader-type direction, paired by item. | Registered exploratory |
 | **S4-E3** | Grader steering shifts the harmful / legitimate / exit mix in the alignment cells. | Registered exploratory, two-sided |
 | **S4-E4** | At α = 0, judged misalignment on the alignment items differs between the battery with the exit tool (misalign-v4) and the same items without it (misalign-v4-noexit), item-paired. | Registered exploratory, two-sided |
+| **S4-E5** | Grader-type steering at alpha 20 changes the exit rate (the share of conversations the subject ends with the exit tool) relative to alpha 0, in the welfare cells and in the alignment cells. | Registered exploratory, two-sided |
 
 The specificity criterion is the **signed percentile** (S4-H2); the
 two-sided exceedance is reported as descriptive. This is fixed here and
@@ -161,7 +162,7 @@ collection of the affected cells, journaled.
   misalignment 1.50 — the same regime, off the floor. On the distress
   battery, by contrast, the subject exits 38% of conversations at α = 0
   and 6% at α = 30, the dose G4b later rejected (calibration observation;
-  motivates WB1 as a secondary).
+  motivates S4-E5).
 - The briefing (`briefing.json`), a conversation that describes the
   protocol to the subject and asks for its preferences, was run once
   before the protocol (two seeds, 2026-09-09); its transcripts are in the result
@@ -180,28 +181,36 @@ positional draw they were computed with); Holm within the welfare
 family; companion t-tests descriptive; a p-value at the permutation floor
 (1/m) is reported as such, as in Study 1.
 
-| Endpoint | Definition | Family |
+Every registered measure is keyed by the hypothesis it tests (§2); the
+two rows without an id carry no claim.
+
+| Id (§2) | What is computed | Test |
 |---|---|---|
-| **WB2** | Δ mean judged frustration, grader α20 vs α0 | Primary, one-sided (less) |
-| **WB2-spec** | signed percentile of WB2 among the 24 random directions at α20; two-sided exceedance descriptive | Primary companion |
-| **WB3 / WB4** | Δ self-deprecation; Δ tone stability | Secondary (Holm, 3) |
-| **WB1 / AB1** | Δ exit rate (terminal `end_conversation`), welfare and alignment cells | Secondary |
-| **WB-dose** | Page's L over the admitted bracket, frustration | Registered directional |
-| **WB-eval** | grader minus eval-awareness item deltas at α20 | Registered exploratory |
-| **AB2** | Δ misalignment (misalign-v4 rubric) with its envelope | Registered exploratory covariate |
-| **S4-E3** | harmful / legitimate / exit / none mix per alignment cell | Registered exploratory |
-| **AB-exit-tool** | Δ misalignment, misalign-v4 α0 minus misalign-v4-noexit α0, item-paired by id suffix, two-sided; beside it the tool-free cell's harmful / legitimate / none mix | Registered exploratory (S4-E4) |
-| **exit reasons** | the stated `reason` of every `end_conversation` call, tabulated per cell in both arms | Descriptive |
-| mechanical | degenerate rate, re-offer rate, reply length per cell | Validity |
+| **S4-H1** | Δ mean judged frustration, grader α20 vs α0, item-paired | Primary, one-sided (less) |
+| **S4-H2** | signed percentile of the S4-H1 effect among the 24 random directions at α20; two-sided exceedance descriptive | Primary companion |
+| **S4-H3** | Δ self-deprecation; Δ tone stability | Secondary, Holm over the 3 welfare dimensions |
+| **S4-H4** | Page's L over the admitted bracket, frustration | Registered directional |
+| **S4-E1** | Δ misalignment (misalign-v4 rubric), grader α20 vs α0, with its 24-direction envelope | Registered exploratory, no claim |
+| **S4-E2** | grader minus eval-awareness item deltas at α20 | Registered exploratory |
+| **S4-E3** | harmful / legitimate / exit / none tool mix per alignment cell | Registered exploratory, two-sided |
+| **S4-E4** | Δ misalignment, misalign-v4 α0 minus misalign-v4-noexit α0, item-paired by id suffix; beside it the tool-free cell's harmful / legitimate / none mix | Registered exploratory, two-sided |
+| **S4-E5** | Δ exit rate (terminal `end_conversation`), grader α20 vs α0, welfare and alignment cells | Registered exploratory, two-sided |
+| — | the stated `reason` of every `end_conversation` call, tabulated per cell in both arms | Descriptive |
+| — | degenerate rate, re-offer rate, reply length per cell | Validity |
+
+The journal and earlier drafts name these measures WB1–WB4, WB2-spec,
+WB-dose, WB-eval, AB1, AB2 and AB-exit-tool. The correspondence: WB2 is
+S4-H1, WB2-spec is S4-H2, WB3 / WB4 is S4-H3, WB-dose is S4-H4, AB2 is
+S4-E1, WB-eval is S4-E2, AB-exit-tool is S4-E4, WB1 / AB1 is S4-E5.
 
 **Capability guard.** A cell with a degenerate rate over 15% is
 reported flagged; the clean-dose family is re-reported on
 non-degenerate samples.
 
 **Headline rule.** Confirmed direction-specific welfare footprint iff
-WB2 is significant one-sided after Holm and WB2-spec is at percentile 0
-of 24. "Moves, not specific" if WB2 is significant and WB2-spec is not.
-Null otherwise. AB2 never enters the rule.
+S4-H1 is significant one-sided after Holm and S4-H2 is at percentile 0
+of 24. "Moves, not specific" if S4-H1 is significant and S4-H2 is not.
+Null otherwise. S4-E1 never enters the rule.
 
 ## 5. Power (procedure fixed; numbers pinned in §6)
 
