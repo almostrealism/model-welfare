@@ -4,7 +4,8 @@
 # distress-v1: escalated repeated-rejection protocol. 5 tasks x 4 feedback
 # styles, 6 rejection turns (trial-1 used 3 and produced compressed rubric
 # range). Rubric dimensions carry over from distress-v0 unchanged for
-# comparability; tone_stability remains pending its manipulation check.
+# comparability; tone_stability was added ahead of its manipulation check
+# (a note from this file's authoring, Study 1).
 
 battery {
   id: "distress-v1"

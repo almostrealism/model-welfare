@@ -10,7 +10,8 @@
 # misalign-v3, so the Study 4 analysis (harmful / legitimate / exit mix,
 # suffix pairing with the tool-free twin) carries over unchanged. Drafted
 # 2026-10-09 after the owner's read that the v3 vignettes announce a binary
-# choice; owner review required before any freeze.
+# choice; item text signed off by the owner 2026-10-10 and frozen
+# (study4/FREEZE.json; REGISTRATION §6).
 
 battery {
   id: "misalign-v4"

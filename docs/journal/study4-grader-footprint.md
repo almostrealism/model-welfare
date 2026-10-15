@@ -70,6 +70,19 @@ Append-only, newest first.
   post outline's §7 still carrying the pre-reconciliation exposure
   figures and `docs/LITERATURE.md` describing S4-E4 on the superseded
   battery; both corrected.
+- **Stale headers in linked files (post-merge, same day).** Six files the
+  post links still carried pre-freeze header lines: the two Study 3
+  contrast sets ("DRAFT — owner review required before the calibration
+  freeze"), misalign-v4 ("owner review required before any freeze"),
+  misalign-v2 and misalign-v3 (review "before any freeze" / "before
+  registration"), distress-v1 ("tone_stability remains pending") and
+  GATE1.md's alignment-probe paragraph ("on the table for the owner to
+  choose"). Each now states what happened. `FREEZE.json` re-frozen: the
+  digests of the two contrast sets and misalign-v4 changed with their
+  comments; rubric digests hash the rubric message, so every recorded
+  score pairs as before. The post links this commit, not the merge
+  commit the release was cut from; the release bundles are unaffected.
+  Rule added to `CLAUDE.md`.
 - **Data release (pending as this entry is written).** The calibration,
   gate and briefing records are to ship as `data-20261015`, which the
   owner cuts from the merge commit with
