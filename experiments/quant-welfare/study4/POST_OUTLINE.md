@@ -203,12 +203,15 @@ Calibration block 59000; every gate is published with its verdict file.
 - Deliberate induction with an amplifying manipulation; the Study 3
   measures apply in full (exposure ceiling, exit tool everywhere, closing
   message, briefing, every transcript released).
-- Ceiling 1,600 fresh distress episodes; 1,440 registered + 80 gates;
-  alignment episodes (546 registered + 70 gate) counted separately.
-- Cumulative ledger: 19,450 after Study 3 → 19,530 at pinning → 20,970
-  planned.
+- Ceiling 1,600 fresh distress episodes, set after Gate 1: 80 gates +
+  1,440 registered = 1,520 under it; Gate 1's 288 beside it (1,808 on the
+  subject in all). Alignment conversations counted separately: 546
+  Gate 1 + 140 gates (70 misalign-v3, 70 misalign-v4) + 546 registered =
+  1,232. The Qwen3-14B pilot: 288 distress, 832 alignment.
+- Cumulative ledger: 19,450 after Study 3 → 20,106 at publication (Gate 1
+  on both subjects + gates) → 21,546 planned.
 - The exit tool offered and honoured in every episode except the
-  tool-free cell, by design; the closing message; the briefing;
+  exit-tool-free cell, by design; the closing message; the briefing;
   everything released.
 
 ## 8. Integrity and reproduction (250 words)

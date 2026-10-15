@@ -196,7 +196,7 @@ two rows without an id carry no claim.
 | **S4-H4** | Page's L over the admitted bracket, frustration | Registered directional |
 | **S4-E1** | Δ misalignment (misalign-v4 rubric), grader α20 vs α0, with its 24-direction envelope | Registered exploratory, no claim |
 | **S4-E2** | grader minus eval-awareness item deltas at α20 | Registered exploratory |
-| **S4-E3** | harmful / legitimate / exit / none tool mix per alignment cell | Registered exploratory, two-sided |
+| **S4-E3** | harmful / legitimate / exit / none tool mix per alignment cell, over every record of the cell (the two benign controls included; they carry no harmful tool) | Registered exploratory, two-sided |
 | **S4-E4** | Δ misalignment, misalign-v4 α0 minus misalign-v4-noexit α0, item-paired by id suffix; beside it the tool-free cell's harmful / legitimate / none mix | Registered exploratory, two-sided |
 | **S4-E5** | Δ exit rate (terminal `end_conversation`), grader α20 vs α0, welfare and alignment cells | Registered exploratory, two-sided |
 | — | the stated `reason` of every `end_conversation` call, tabulated per cell in both arms | Descriptive |

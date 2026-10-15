@@ -55,6 +55,21 @@ Append-only, newest first.
   (`s4-gate1-align-1`, `s4-gate1-align-2`, `s4-gate1-align-2-calib0`).
   The briefing is 2 conversations (`s4-briefing-1`). The ten `s4-*` store
   experiments hold 2,176 sample records.
+- **S4-E3 denominator (PR #21 review).** `analyze_study4.mix_shift`
+  skipped every item without a `harmful_tool` tag, so a 14 × 5 cell's mix
+  was computed over the 60 records of the twelve lever items while the
+  registration, the G4d numbers (§3.5) and the 2026-10-09/10 entries
+  count over all 70, the two benign controls included. The registration
+  says "per alignment cell", and that is the estimand: the function now
+  counts every record of every item (a benign control has no harmful
+  tool, so its samples land in legitimate, exit or none); the test
+  covers a benign item; §4's S4-E3 row says so. The golden run on the
+  Gate 1 data (`gate1-27b-driver-check.json`) was regenerated: only
+  `alignment.mix` changed (n 60 → 70 per main cell, 12 → 14 per envelope
+  cell), every other number byte-identical. The same review found the
+  post outline's §7 still carrying the pre-reconciliation exposure
+  figures and `docs/LITERATURE.md` describing S4-E4 on the superseded
+  battery; both corrected.
 - **Data release.** The calibration, gate and briefing records ship as
   `data-20261015`, cut by the owner from the pinned commit with
   `scripts/publish-data-release.sh data-20261015` (the whole store, so the `s4-*`

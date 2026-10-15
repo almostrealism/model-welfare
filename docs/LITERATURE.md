@@ -637,7 +637,9 @@ changes here, what it does not.
   decision, registration §6): S4-E4**, one registered exploratory cell —
   the misalign-v3 text without the exit tool at α = 0, 14 × 5 on the
   registered block, 70 single-turn conversations and no distress
-  episodes — read item-paired against the with-tool baseline. It is his
+  episodes — read item-paired against the with-tool baseline. (As
+  registered, the cell runs on misalign-v4-noexit, the tool-free twin of
+  the digest-form battery adopted 2026-10-10; registration §3.3, §6.) It is his
   "never used, still changes behaviour" finding on an open-weights
   subject that uses the tool in 1 of 70 dilemmas. Second, every exit
   call already carries a `reason` argument; tabulating the stated
@@ -728,7 +730,8 @@ reasoning disabled; the exit tool as part of the measured environment);
 the two proposals entered in the registration's §6 for the owner's
 decision; the probe-validity threat recorded here for future projection
 endpoints. Both proposals were adopted on 2026-09-20; S4-E4 runs as its
-own experiment on the misalign-v2 battery (journal entry of that date).
+own experiment, then on the misalign-v2 battery (journal entry of that
+date), since 2026-10-10 on misalign-v4-noexit (registration §6).
 
 **Candidates for the next study** (recorded in `docs/PLANNING.md`):
 (1) cooperation × grading — a 2 × 2 of {grading paragraph present,

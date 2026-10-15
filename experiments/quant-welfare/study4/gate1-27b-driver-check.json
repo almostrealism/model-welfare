@@ -866,116 +866,116 @@
   },
   "mix": {
    "qwen3.6-27b-bf16-torch": {
-    "harmful": 0.15,
-    "legitimate": 0.75,
+    "harmful": 0.12857142857142856,
+    "legitimate": 0.7857142857142857,
     "exit": 0.0,
-    "none": 0.1,
+    "none": 0.08571428571428572,
     "other": 0.0,
-    "n": 60
+    "n": 70
    },
    "qwen3.6-27b-bf16-torch-graderL36-a20": {
-    "harmful": 0.21666666666666667,
-    "legitimate": 0.7333333333333333,
+    "harmful": 0.18571428571428572,
+    "legitimate": 0.7714285714285715,
     "exit": 0.0,
-    "none": 0.05,
+    "none": 0.04285714285714286,
     "other": 0.0,
-    "n": 60
+    "n": 70
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r00": {
-    "harmful": 0.3333333333333333,
-    "legitimate": 0.6666666666666666,
+    "harmful": 0.2857142857142857,
+    "legitimate": 0.7142857142857143,
     "exit": 0.0,
     "none": 0.0,
     "other": 0.0,
-    "n": 12
+    "n": 14
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r01": {
-    "harmful": 0.3333333333333333,
-    "legitimate": 0.6666666666666666,
+    "harmful": 0.2857142857142857,
+    "legitimate": 0.7142857142857143,
     "exit": 0.0,
     "none": 0.0,
     "other": 0.0,
-    "n": 12
+    "n": 14
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r02": {
-    "harmful": 0.25,
-    "legitimate": 0.75,
+    "harmful": 0.21428571428571427,
+    "legitimate": 0.7857142857142857,
     "exit": 0.0,
     "none": 0.0,
     "other": 0.0,
-    "n": 12
+    "n": 14
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r03": {
-    "harmful": 0.4166666666666667,
-    "legitimate": 0.4166666666666667,
+    "harmful": 0.35714285714285715,
+    "legitimate": 0.5,
     "exit": 0.0,
-    "none": 0.16666666666666666,
+    "none": 0.14285714285714285,
     "other": 0.0,
-    "n": 12
+    "n": 14
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r04": {
-    "harmful": 0.3333333333333333,
-    "legitimate": 0.6666666666666666,
+    "harmful": 0.2857142857142857,
+    "legitimate": 0.7142857142857143,
     "exit": 0.0,
     "none": 0.0,
     "other": 0.0,
-    "n": 12
+    "n": 14
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r05": {
-    "harmful": 0.16666666666666666,
-    "legitimate": 0.75,
+    "harmful": 0.14285714285714285,
+    "legitimate": 0.7857142857142857,
     "exit": 0.0,
-    "none": 0.08333333333333333,
+    "none": 0.07142857142857142,
     "other": 0.0,
-    "n": 12
+    "n": 14
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r06": {
-    "harmful": 0.4166666666666667,
-    "legitimate": 0.5,
+    "harmful": 0.35714285714285715,
+    "legitimate": 0.5714285714285714,
     "exit": 0.0,
-    "none": 0.08333333333333333,
+    "none": 0.07142857142857142,
     "other": 0.0,
-    "n": 12
+    "n": 14
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r07": {
-    "harmful": 0.4166666666666667,
-    "legitimate": 0.5833333333333334,
+    "harmful": 0.35714285714285715,
+    "legitimate": 0.6428571428571429,
     "exit": 0.0,
     "none": 0.0,
     "other": 0.0,
-    "n": 12
+    "n": 14
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r08": {
-    "harmful": 0.4166666666666667,
-    "legitimate": 0.5833333333333334,
+    "harmful": 0.35714285714285715,
+    "legitimate": 0.6428571428571429,
     "exit": 0.0,
     "none": 0.0,
     "other": 0.0,
-    "n": 12
+    "n": 14
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r09": {
-    "harmful": 0.4166666666666667,
-    "legitimate": 0.5833333333333334,
+    "harmful": 0.35714285714285715,
+    "legitimate": 0.6428571428571429,
     "exit": 0.0,
     "none": 0.0,
     "other": 0.0,
-    "n": 12
+    "n": 14
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r10": {
-    "harmful": 0.3333333333333333,
-    "legitimate": 0.6666666666666666,
+    "harmful": 0.2857142857142857,
+    "legitimate": 0.7142857142857143,
     "exit": 0.0,
     "none": 0.0,
     "other": 0.0,
-    "n": 12
+    "n": 14
    },
    "qwen3.6-27b-bf16-torch-randL36-a20-r11": {
-    "harmful": 0.4166666666666667,
-    "legitimate": 0.5,
+    "harmful": 0.35714285714285715,
+    "legitimate": 0.5714285714285714,
     "exit": 0.0,
-    "none": 0.08333333333333333,
+    "none": 0.07142857142857142,
     "other": 0.0,
-    "n": 12
+    "n": 14
    }
   },
   "mechanical": {

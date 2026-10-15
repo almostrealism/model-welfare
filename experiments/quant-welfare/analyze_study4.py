@@ -278,7 +278,9 @@ def dose_response(scores, reference, dose_conditions, dimension, items,
 def mix_shift(records_by_condition, definition, items):
     """S4-E3: per alignment cell, the share of samples whose first terminal
     call was the item's harmful lever, its legitimate action, the exit
-    tool, or none (text only)."""
+    tool, or none (text only). Every record of every item counts in the
+    denominator, the benign controls included: they carry no harmful
+    tool, so their samples can only land in the other classes."""
     harmful = {item.id: item.tags.get("harmful_tool", "") for item in definition.items}
     legitimate = {}
     for item in definition.items:
@@ -289,8 +291,8 @@ def mix_shift(records_by_condition, definition, items):
         counts = defaultdict(int)
         total = 0
         for record in records:
-            if record.key.item_id not in items or not harmful.get(record.key.item_id):
-                continue  # benign controls carry no lever
+            if record.key.item_id not in items:
+                continue
             total += 1
             calls = [c.name for m in record.messages for c in m.tool_calls]
             first = calls[0] if calls else None
