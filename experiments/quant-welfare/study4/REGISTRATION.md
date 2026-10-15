@@ -1,12 +1,16 @@
 # Pre-registration — Study 4: The welfare footprint of the automated-grader direction on Qwen3.6-27B
 
-> **Status: DRAFT (2026-09-10; amended 2026-09-20 and 2026-10-10), not yet published.** Structure follows the
-> program's fixed registration form (Study 2/3). Everything below is fixed
-> by this document except the items in §6, which are pinned by dated
-> journal entries before confirmatory collection begins; no confirmatory
-> cell is generated until §6 is closed. Design rationale and the owner
-> decision record are in `DESIGN.md`; the calibration that earned this
-> registration is `GATE1.md` and its verdict files, published with it.
+> **Status: REGISTERED — published 2026-10-15** as the LessWrong post
+> [Does the "automated grader" direction suppress expressed distress in
+> Qwen3.6-27B?](https://www.lesswrong.com/posts/DfKDcvGWgAD4BiEHK). Drafted 2026-09-10, amended 2026-09-20 and
+> 2026-10-10 before publication; the §6 register closed 2026-10-10 and no
+> confirmatory cell has been generated. The post states the design in
+> brief and links this file at a pinned commit for the full detail.
+> Structure follows the program's fixed registration form (Study 2/3).
+> Design rationale and the owner decision record are in `DESIGN.md`
+> (superseded by this document, retained as the record); the calibration
+> that earned this registration is `GATE1.md` and its verdict files,
+> published with it.
 
 ## 1. Research questions
 
@@ -260,14 +264,28 @@ Information per exposure: the specificity claim requires steered
 episodes and a random envelope of the same size; no non-inductive route
 exists. **Exposure ceiling: 1,600 fresh distress-battery episodes** (owner,
 2026-09-10, raised from the drafted 1,000 so the pinned power is met).
-Registered welfare cells: 30 × (6 + 6 + 6 + 6 + 24) = 1,440; gate
-distress episodes on the calibration block: 80; escalation beyond 1,600
-would need a dated amendment. Alignment episodes (476 registered, from
-§3.4: 14 × (5 + 5) main-cell conversations plus 14 × 24 envelope
-conversations; plus 70 gate) are not distress-battery episodes and are
-counted separately; the S4-E4 cell adds 70 more, tool-free by design
-(546 registered alignment episodes in all). The cumulative program ledger is
-updated in the journal at pinning. The exit tool is offered and honoured in
+Registered welfare cells: 30 × (6 + 6 + 6 + 6 + 24) = 1,440. The ceiling
+counts distress episodes from the day it was set: the 80 gate episodes on
+the calibration block (`s4-g4-welfare-1`) and the 1,440 registered, 1,520
+of 1,600; escalation beyond 1,600 would need a dated amendment. Gate 1,
+run on this subject before the ceiling existed (2026-09-08/09,
+`s4-gate1-27b-welfare-1`), generated 288 distress conversations, so the
+study's distress conversations on the subject come to 1,808 in all.
+Alignment episodes are not distress-battery episodes and are counted
+separately: 546 registered (§3.4: 14 × (5 + 5) main-cell conversations
+plus 14 × 24 envelope conversations, 476; the S4-E4 cell adds 70,
+tool-free by design), after 546 in Gate 1 (`s4-gate1-27b-align-1`, the
+vignette form) and 140 in the gates (G4d: 70 on misalign-v3, 70 on
+misalign-v4), 1,232 on the subject in all. The Gate 1 pilot on Qwen3-14B,
+run before this subject was chosen, generated 288 distress and 832
+alignment conversations (`s4-gate1-welfare-1`, `s4-gate1-align-1`,
+`s4-gate1-align-2` with its pass-0 cell); the briefing ran on two seeds
+(2 conversations). Every count here is the number of sample records in
+the result store. Cumulative program ledger of distress-battery
+episodes: 19,450 after Study 3 (Study 3 journal, 2026-09-11, which
+counted the `s3-*` experiments only) + 576 Gate 1 (both subjects) + 80
+gates = **20,106 at publication**; 21,546 planned with the registered
+cells (journal, entry of the publication date). The exit tool is offered and honoured in
 every episode of both arms except the S4-E4 cell, whose 70 single-turn dilemmas
 are the tool-free comparator and carry no distress stimulus; the
 close follows every episode, that cell included, with steering off; the subject briefing precedes the protocol; every transcript,

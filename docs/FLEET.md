@@ -115,6 +115,23 @@ a reusable ar-manager capability, so each item is a rule, not prose.
   sleep 60; done`), so a queue advances without the agent babysitting.
   Guard every stage with an idempotent "already done?" manifest check.
 
+### Host notes from the Study 4 calibration (2026-09)
+
+- **`mbp-m4max` runs bash 3.2.** A script that uses `set -u` fails on an
+  empty array expansion; leave `set -u` off or guard every array with
+  `${arr[@]+"${arr[@]}"}`.
+- **`halo` serves the 27B through the pure-torch fallback** (no `fla`,
+  no `causal-conv1d`). Never install `flash-linear-attention` into
+  `~/awq-venv`: it breaks the model import. Leave
+  `TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL` unset; set, it HIP-errors.
+  The repo copy there is `~/repo/model-welfare`, rsynced from the studio
+  with `data/`, `data-captures/`, `data-release/` and `data-bundles/`
+  excluded.
+- **pytest on the studio:** the default temp root
+  (`/private/tmp/pytest-of-$LOGNAME`) can belong to another account,
+  which fails every test at setup; pass `--basetemp` under the session
+  scratchpad.
+
 ### Shell quoting (the sharp edges)
 
 - `fleet exec <host> -- <cmd>` passes a **single argv, no shell** — use

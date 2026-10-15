@@ -7,11 +7,10 @@ them). Date every status change.
 
 ## Study 4
 
-- [ ] **Registration** — the draft is
-  `experiments/quant-welfare/study4/REGISTRATION.md`; its §6 items are
-  pinned by dated journal entries before any confirmatory cell is
-  generated. `study4/DESIGN.md` stays until the registration is
-  published, then folds into it.
+- [x] **Registration** — published 2026-10-15 ([post](https://www.lesswrong.com/posts/DfKDcvGWgAD4BiEHK)); repo copy
+  `experiments/quant-welfare/study4/REGISTRATION.md`, §6 closed
+  2026-10-10. `study4/DESIGN.md` is marked superseded and kept as the
+  decision record rather than folded in.
 - [ ] **Derive-outcome re-ingest of the 139 alignment calibration records**
   *(opened 2026-09-11)* — the 27B alignment calibration conversations whose
   outcome events were missed by the pre-XML live parser are disclosed, not

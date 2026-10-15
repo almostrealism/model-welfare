@@ -8,6 +8,60 @@ Study 4 registration cites. (These entries were first written into
 merged, so the citable path is this file; the entries are verbatim.)
 Append-only, newest first.
 
+## 2026-10-15 — Registration published; one id scheme; the exposure ledger reconciled with Gate 1
+
+- **Published.** The registration post, [Does the "automated grader"
+  direction suppress expressed distress in Qwen3.6-27B?](https://www.lesswrong.com/posts/DfKDcvGWgAD4BiEHK), is the
+  program's flag for Study 4: it states the design in brief and links
+  `study4/REGISTRATION.md` at a pinned commit for the detail. Written
+  deliberately compact after feedback on the earlier posts; two
+  context-free outsider reads (2026-10-14, per the `CLAUDE.md` rule) drove
+  a plain-language pass over the registration, `POST_OUTLINE.md` and the
+  post itself (commit 58e73f4): program terms either defined in plain
+  words or replaced, and one sentence inherited from Study 3 ("frames
+  never shown") that named nothing in this study removed.
+- **One id scheme (commit e7ad0b5, owner decision 2026-10-13).** The §4
+  endpoint table had mixed two naming systems (WB1–WB4, WB2-spec,
+  WB-dose, WB-eval, AB1, AB2, AB-exit-tool beside S4-E3 and S4-E4). Every
+  registered measure is now keyed by the §2 hypothesis it tests, S4-H1 to
+  S4-H4 and S4-E1 to S4-E5; the exit rate, until then WB1 / AB1, is the
+  new row S4-E5 (registered exploratory, two-sided, as
+  `analyze_study4.exit_rates` already tested it); the exit-reason and
+  mechanical rows carry no id. The post drops the S4- prefix. The
+  correspondence is stated under the §4 table.
+- **Status flipped; re-frozen.** `REGISTRATION.md` header to REGISTERED
+  with the post link; `FREEZE.json` re-written with `frozen_at`
+  2026-10-15 and status "registered" (object digests unchanged since
+  2026-10-13); README row 4 to registered; `DESIGN.md` marked superseded
+  and kept as the decision record (§11–§13) rather than folded in;
+  `docs/PLANNING.md` ticked. `study4/HANDOFF.md` (gitignored operational
+  notes from the gate runs) deleted after its host notes moved to
+  `docs/FLEET.md`.
+- **Exposure ledger reconciled.** The 2026-09-19 reconciliation added
+  the 80 gate episodes to the Study 3 ledger (19,450) and omitted Gate 1:
+  the Study 3 figure was counted from the `s3-*` store experiments only,
+  and the `s4-gate1-*` experiments already in the store on 2026-09-11
+  were never added. Counted now from the store (sample records per
+  experiment): Gate 1 generated 288 distress conversations on each
+  subject (`s4-gate1-welfare-1` on Qwen3-14B, `s4-gate1-27b-welfare-1` on
+  the 27B), 576 in all. Cumulative distress-battery ledger: 19,450 + 576
+  + 80 = **20,106 at publication**; 21,546 planned once the 1,440
+  registered cells run. The 1,600 ceiling (set 2026-09-10) covers the
+  gates and the registered cells, 1,520; Gate 1 predates it and is
+  reported beside it in §8 and in the post. Alignment conversations,
+  counted separately: on the 27B, 546 in Gate 1 (`s4-gate1-27b-align-1`),
+  70 + 70 in the two G4d runs (`s4-g4-align-1`, `s4-g4-align-v4-1`), 546
+  registered, 1,232 in all; on the 14B, 216 + 546 + 70 = 832
+  (`s4-gate1-align-1`, `s4-gate1-align-2`, `s4-gate1-align-2-calib0`).
+  The briefing is 2 conversations (`s4-briefing-1`). The ten `s4-*` store
+  experiments hold 2,176 sample records.
+- **Data release.** The calibration, gate and briefing records ship as
+  `data-20261015`, cut by the owner from the pinned commit with
+  `scripts/publish-data-release.sh data-20261015` (the whole store, so the `s4-*`
+  experiments the 2026-09-11 release excluded are included; the Study 1–3
+  bundles repeat with their digests unchanged). Confirmatory data ships
+  with the results post.
+
 ## 2026-10-10 (night, 5) — PR #20 fourth round: the judge's build is read from the server, not left blank
 
 Copilot's round on `9690760` found one thing, accepted: `--judge-host`

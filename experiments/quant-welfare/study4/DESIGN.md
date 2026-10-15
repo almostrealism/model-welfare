@@ -1,10 +1,14 @@
 # Study 4 design — The welfare footprint of the automated-grader direction on the Betley subject
 
-**Status:** DRAFT, owner-reviewed 2026-09-09 (all recommendations accepted;
-the bail affordance extended to every cell — §3.3). Not a registration. This
-document proposes the registered study that Gate 1 (`GATE1.md`) was built
-to earn; the registration itself (`REGISTRATION.md`) follows owner review,
-in the program's fixed form. Every number here that came from calibration
+**Status:** SUPERSEDED by `REGISTRATION.md` (published 2026-10-15); retained
+as the design rationale and the owner decision record (§11–§13). Not a
+registration: where this document and the registration differ, the
+registration governs. Owner-reviewed 2026-09-09 (all recommendations
+accepted; the bail affordance extended to every cell — §3.3). Battery
+names in §1–§10 are as they stood on 2026-09-10 (misalign-v2,
+misalign-v3); the registered alignment battery is misalign-v4 (§13). This
+document proposed the registered study that Gate 1 (`GATE1.md`) was built
+to earn. Every number here that came from calibration
 is labelled as such and is published with the gate, whatever the owner
 decides. The owner decision register is §11.
 

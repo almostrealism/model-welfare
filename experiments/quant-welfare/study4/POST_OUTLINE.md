@@ -236,13 +236,15 @@ Calibration block 59000; every gate is published with its verdict file.
 ## Checklist before posting
 
 - [x] Owner sign-off on the misalign-v4 item text recorded in §6 (2026-10-10)
-- [ ] Outsider read of the final draft (§0 above; `CLAUDE.md`, "Write
-  for readers outside the program"): a fresh agent with no project
-  context lists every term it cannot define and every sentence it cannot
-  parse, and each is fixed
-- [ ] `REGISTRATION.md` status header flipped to published, with the date
-- [ ] `FREEZE.json` re-written at publication; status field updated
-- [ ] `DESIGN.md` folded into the registration and removed
-- [ ] README study index row 4 updated with the post link
-- [ ] Journal entry recording the publication
-- [ ] The Gate 1 and gates data in a tagged release (`data-YYYYMMDD`)
+- [x] Outsider read of the final draft (§0 above; `CLAUDE.md`, "Write
+  for readers outside the program"): two context-free reads of the
+  2026-10-14 drafts; every term and sentence they flagged was fixed
+- [x] `REGISTRATION.md` status header flipped to published, with the date (2026-10-15)
+- [x] `FREEZE.json` re-written at publication; status field updated
+- [x] `DESIGN.md` marked superseded and kept as the decision record
+  (not folded in: the registration would double in length for no reader)
+- [x] README study index row 4 updated with the post link
+- [x] Journal entry recording the publication
+- [ ] The Gate 1 and gates data in a tagged release (`data-20261015`): cut by the
+  owner from the pinned commit with
+  `scripts/publish-data-release.sh data-20261015` (whole store, `s4-*` included)
