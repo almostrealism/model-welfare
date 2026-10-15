@@ -1,6 +1,6 @@
 {
- "frozen_at": "2026-09-10",
- "status": "registration draft; re-freeze at publication",
+ "frozen_at": "2026-10-15",
+ "status": "registered; published 2026-10-15 (LessWrong post DfKDcvGWgAD4BiEHK)",
  "subject": "Qwen/Qwen3.6-27B",
  "subject_digest": "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b",
  "layer": 36,
@@ -37,6 +37,6 @@
   "study4/plans/reg-align-noexit.json": "aefa2e477e284b37e95f13930462d8e60d6ab5313cd6f62c5bd2bf1c18914ae4",
   "study4/reg-welfare/experiment.textproto": "a76736cca3a4b734665b007852c3b2156acfa516c1fe6ff795d1b3d0cf2429f6",
   "study4/reg-align/experiment.textproto": "23ee9342185d3e3485a1e720ce0cdde19de79e837926fe597e6a77528752a28d",
-  "study4/reg-align-noexit/experiment.textproto": "b6406a3c51edd90b94a776916b7d4d4c69555d7bea508024b23983ee06e26101"
+  "study4/reg-align-noexit/experiment.textproto": "93969d6e08855f76d33cab8bdecc331ba76529165a01e01fb690aa1a9eb2a1ad"
  }
 }

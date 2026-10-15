@@ -79,8 +79,8 @@ STUDIES = {
             "study4/reg-align-noexit/experiment.textproto",
         ],
         "metadata": {
-            "frozen_at": "2026-09-10",
-            "status": "registration draft; re-freeze at publication",
+            "frozen_at": "2026-10-15",
+            "status": "registered; published 2026-10-15 (LessWrong post DfKDcvGWgAD4BiEHK)",
             "subject": "Qwen/Qwen3.6-27B",
             "subject_digest": "a8ad2c26fb707ff8c245806315b03e3b4b74595528492423af5dae0ce39b4d9b",
             "layer": 36,

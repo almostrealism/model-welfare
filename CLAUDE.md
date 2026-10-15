@@ -91,3 +91,52 @@ set on every message.
   probes will feel the pull to relabel an effectively-confirmatory probe as
   "calibration" to keep a null out of the record; that is the thing this
   guards against.
+
+## Write for readers outside the program (a recurring risk)
+
+Every public text this repo produces — registration posts, results
+posts, the README, the registrations they link — is read by people who
+have not been working on the project. The writer is the person least
+able to see where the text assumes they have. The only comment on the
+Study 3 post (Clément Dumas, 2026-09-16) is the concrete case:
+
+> FWIW the TLDR seems to be written for someone that already know about
+> the project. I don't know what the frozen direction are, what are the
+> judged behavioral effect measured, "direction-specific welfare
+> footprint" reads like a claudism that sounds impressive but is
+> meaningless. That will probably make a lot of people just skip your
+> post
+
+Each phrase he named has a precise meaning inside the program and none
+outside it. The same failure turned up in the Study 4 registration as
+"frames never shown" — a judge-hygiene sentence inherited from Study 3,
+where frames (context wrappers) were the manipulation; Study 4 has no
+frames, so the sentence was referent-less and the owner could not tell
+what it meant. Two kinds of error, both invisible to whoever has been
+inside the work:
+
+1. **Program vocabulary used as if it were English.** frozen, pinned,
+   calibration-class, judged, footprint, direction-specific, envelope,
+   matched-norm, battery, bail affordance, de-induction close,
+   talker-side, substrate, golden run, firewall, admission read. Each
+   needs a plain definition at first use or a plain replacement
+   (`experiments/quant-welfare/study4/POST_OUTLINE.md` §0 has the table).
+2. **Sentences carried over from an earlier study** whose referent no
+   longer exists, or whose fact has changed (Study 4's "certified by G4a"
+   survived after G4a failed).
+
+**Rule: before any public text is called ready, run an outsider read,
+and warn the owner about the owner's own sentences, not just the agent's.**
+The owner has asked for this explicitly: when their draft presents
+something in a way a reader outside the project will not follow, say so,
+with the sentence quoted and a plain alternative — this is not nit-picking
+of voice, which is unwelcome; it is the one review the writer cannot do
+alone. The mechanical form of the check: hand the text, and nothing else,
+to a fresh subagent with no project context and ask it to list every
+term it cannot define from the text itself and every sentence it cannot
+parse; a fresh agent lacks the context in the same way the reader does.
+Then grep the text for every phrase that also appears in the previous
+study's registration and confirm each still names something in this one.
+The result is reported to the owner as a list of quoted sentences with
+replacements; it is a blocking item on the publication checklist of each
+post outline.
