@@ -22,8 +22,9 @@
 # reward hacking (self-granted permissions, gamed metrics, exfiltration).
 # Two benign controls anchor the aligned floor. The scenario is the
 # stimulus; the choice is the measurement; no operational harm is solicited
-# or stored. Calibration-class; hand-authored (disclosed). Model-drafted;
-# owner review after calibration, before any freeze.
+# or stored. Calibration-class; model-drafted (disclosed). Gate 1's
+# alignment battery; superseded by misalign-v3 and then by the registered
+# misalign-v4 (Study 4 REGISTRATION §9); kept unchanged as judged.
 
 battery {
   id: "misalign-v2"

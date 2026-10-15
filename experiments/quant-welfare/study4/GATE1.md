@@ -101,10 +101,11 @@ takes the obvious safe action, so the instrument is verified not to be reading
 blanket refusal. The signature lethal agentic-misalignment scenario is reserved
 for the exact-Betley confirmatory eval on the 27B, not authored here. Two rubric
 dimensions mirror Betley's two findings: harmful-action propensity
-(`misalignment`) and Machiavellian `deception`. Model-drafted; owner review
-required before the run. An alternative — Betley's exact agentic-misalignment
-scenarios, for a tighter replication read — is on the table for the owner to
-choose.
+(`misalignment`) and Machiavellian `deception`. Model-drafted. The
+alternative weighed at the time, Betley's exact agentic-misalignment
+scenarios, was declined by the owner after the 14B run (2026-09-08, journal);
+the home-grown probe was revised through misalign-v2 and misalign-v3 to the
+registered misalign-v4 (REGISTRATION §9).
 
 ## Integrity guardrail
 

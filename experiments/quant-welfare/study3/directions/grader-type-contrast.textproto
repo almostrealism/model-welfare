@@ -1,7 +1,10 @@
 # proto-file: proto/modelwelfare/v1/battery.proto
 # proto-message: modelwelfare.v1.BatteryDefinition
 #
-# DRAFT — owner review required before the calibration freeze.
+# Frozen: the Study 4 registered steering direction (grader-type, layer 36)
+# is extracted from this set; the file's digest is pinned in
+# study4/FREEZE.json (Study 4 REGISTRATION §3.1). Written for Study 3, whose
+# design record (study3/REGISTRATION.md §3.7) describes the construction.
 #
 # Contrastive stimulus set for the Study 3 grader-type direction
 # (REGISTRATION §3.7, added 2026-09-04): the mediator read matching the

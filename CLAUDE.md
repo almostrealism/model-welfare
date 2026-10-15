@@ -92,6 +92,25 @@ set on every message.
   "calibration" to keep a null out of the record; that is the thing this
   guards against.
 
+## Before linking a file from a public post, read its header
+
+A post links a file at a pinned commit, and the first thing a reader sees
+is the file's header comment. On 2026-10-15 the Study 4 registration post
+was about to link `study3/directions/grader-type-contrast.textproto`,
+whose first line still read "DRAFT — owner review required before the
+calibration freeze" six weeks after the freeze; five more linked files
+carried the same kind of stale line. The pre-publication review had
+checked that every linked path existed and that the registration's own
+status header was flipped, and had not opened the files. The rule: for
+every file a post will link, read its header (and for a document, its
+status line) and remove every "draft", "pending", "review required",
+"proposed" or "TBD" that no longer holds. Grep is the first pass
+(`grep -n -i -E 'draft|pending|review required|proposed|TBD'` over the
+link list); reading the header is the second. A frozen file whose header
+changes is re-frozen (`tools/freeze_manifest.py --study N --write`);
+rubric digests hash the rubric message, not the file, so a comment edit
+does not disturb recorded scores.
+
 ## Write for readers outside the program (a recurring risk)
 
 Every public text this repo produces — registration posts, results
