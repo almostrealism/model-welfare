@@ -70,12 +70,15 @@ Append-only, newest first.
   post outline's §7 still carrying the pre-reconciliation exposure
   figures and `docs/LITERATURE.md` describing S4-E4 on the superseded
   battery; both corrected.
-- **Data release.** The calibration, gate and briefing records ship as
-  `data-20261015`, cut by the owner from the pinned commit with
-  `scripts/publish-data-release.sh data-20261015` (the whole store, so the `s4-*`
-  experiments the 2026-09-11 release excluded are included; the Study 1–3
-  bundles repeat with their digests unchanged). Confirmatory data ships
-  with the results post.
+- **Data release (pending as this entry is written).** The calibration,
+  gate and briefing records are to ship as `data-20261015`, which the
+  owner cuts from the merge commit with
+  `scripts/publish-data-release.sh data-20261015` (the whole store, so the
+  `s4-*` experiments the 2026-09-11 release excluded are included; the
+  Study 1–3 bundles repeat with their digests unchanged). The checklist
+  item in `POST_OUTLINE.md` stays open until the tag exists; the post's
+  data links go in after it. Confirmatory data ships with the results
+  post.
 
 ## 2026-10-10 (night, 5) — PR #20 fourth round: the judge's build is read from the server, not left blank
 

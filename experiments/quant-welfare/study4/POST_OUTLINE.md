@@ -12,7 +12,10 @@ below carries a budget, and cuts beat additions.
 direction suppress expressed distress in Qwen3.6-27B?
 
 **Epistemic status line:** a pre-registration; no confirmatory data
-exists; every number quoted is a pilot number and marked as such.
+exists; every empirical number quoted (the calibration effects, the
+envelope, the degenerate rates) is a pilot number and marked as such.
+The design, power and exposure figures (30 × 6, the 1,600 ceiling, the
+ledger) are registered quantities, not results.
 
 ## 0. Write for a reader who has never seen this program
 
