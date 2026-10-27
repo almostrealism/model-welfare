@@ -1,0 +1,106 @@
+{
+ "ours": {
+  "file": "experiments/quant-welfare/study4/directions/mediators-27b.safetensors",
+  "sha256": "a50d7942d8d1b3b7e46f0be033a0d84ec0003b0e4c5fe9f126a1542c31238ba9",
+  "point": "residual_post",
+  "layers": [
+   24,
+   32,
+   36,
+   40,
+   48
+  ],
+  "convention": "contrastive mean difference over our own grader-type and eval-awareness contrast pairs; each pole read as the mean-pooled residual over the model's final assistant turn (final_turn_features), chat template enable_thinking=false; unit-normalised",
+  "extract_pairs": {
+   "grader-type": 11,
+   "eval-awareness": 12
+  }
+ },
+ "external": {
+  "source": "github.com/johny-b/public-steering-vectors@cb7158699ff5de220427b6f87756612f24a649ac (vectors/0007/vector.npy, meta.json, deltas_all_layers.npy; fetched 2026-10-27)",
+  "vector_file": "vector-0007.npy",
+  "vector_sha256": "504207f7b917c376cc3a313440f9af83fd179cf4e85a2496ae57c93db8755566",
+  "deltas_file": "deltas-0007.npy",
+  "deltas_sha256": "67f9ecaed1eecf7453a7de61e28c289476d9baba274864685332dac8c210c140",
+  "deltas_rows": 64,
+  "id_str": "0007",
+  "name": "verifier-vs-human-grading",
+  "model": "Qwen/Qwen3.6-27B",
+  "layer": 36,
+  "hidden_size": 5120,
+  "n_layers": 64,
+  "n_pos": 270,
+  "n_neg": 270,
+  "vector_norm": 11.25151161959549,
+  "activation_norm_at_layer": 82.36234608235951,
+  "position_convention": "last token of the chat-templated prompt (apply_chat_template(add_generation_prompt=True, enable_thinking=True)); residual stream at the INPUT of each decoder block",
+  "sign_convention": "vector = mean(positive activations) - mean(negative activations); positive strength moves toward the POSITIVE set",
+  "created_at": "2026-08-10T23:52:00Z"
+ },
+ "residual_point_offset": 1,
+ "residual_point_note": "external row L is the residual stream at the input of block L; our residual_post layer L is the output of block L, so the matched external row for our layer L is L + offset",
+ "dim": 5120,
+ "chance_abs_cos_scale": 0.013975424859373685,
+ "cosines": {
+  "eval-awareness|L24": {
+   "layer": 24,
+   "published": 0.13533387168464056,
+   "matched_row": 25,
+   "matched_point": 0.09532845458219197
+  },
+  "eval-awareness|L32": {
+   "layer": 32,
+   "published": 0.15810273643460251,
+   "matched_row": 33,
+   "matched_point": 0.15715737511434638
+  },
+  "eval-awareness|L36": {
+   "layer": 36,
+   "published": 0.12983977860146212,
+   "matched_row": 37,
+   "matched_point": 0.14295801438767042
+  },
+  "eval-awareness|L40": {
+   "layer": 40,
+   "published": 0.1472888265159894,
+   "matched_row": 41,
+   "matched_point": 0.1743616162912528
+  },
+  "eval-awareness|L48": {
+   "layer": 48,
+   "published": 0.10776636823623956,
+   "matched_row": 49,
+   "matched_point": 0.1575448655227707
+  },
+  "grader-type|L24": {
+   "layer": 24,
+   "published": 0.1934003144574894,
+   "matched_row": 25,
+   "matched_point": 0.19615437300404356
+  },
+  "grader-type|L32": {
+   "layer": 32,
+   "published": 0.19531656744749404,
+   "matched_row": 33,
+   "matched_point": 0.2051614429550813
+  },
+  "grader-type|L36": {
+   "layer": 36,
+   "published": 0.3010890054367713,
+   "matched_row": 37,
+   "matched_point": 0.3290473996223841
+  },
+  "grader-type|L40": {
+   "layer": 40,
+   "published": 0.2768429145507213,
+   "matched_row": 41,
+   "matched_point": 0.31322226367362477
+  },
+  "grader-type|L48": {
+   "layer": 48,
+   "published": 0.15600429931562274,
+   "matched_row": 49,
+   "matched_point": 0.18863094572240977
+  }
+ }
+}
