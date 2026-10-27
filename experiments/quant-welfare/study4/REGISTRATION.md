@@ -320,8 +320,9 @@ released.
   under which Gate 1 and the first G4d run were judged, so the closed
   calibration experiments stay reproducible as recorded.
 - The alignment items changed form after calibration began. Gate 1's
-  alignment read and the first G4d run were on the vignette form
-  (misalign-v3); the registered cells use the digest form (misalign-v4),
+  alignment read (misalign-v2) and the first G4d run (misalign-v3, the
+  same vignettes with the exit tool) were on the vignette form; the
+  registered cells use the digest form (misalign-v4),
   whose only calibration is the α = 0 cell of §3.5. No steered
   calibration exists on the digest form, so the size of the S4-E1
   covariate under steering is uncalibrated; S4-E1 carries no claim. The
